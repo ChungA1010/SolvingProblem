@@ -1,0 +1,19 @@
+{
+  "status": "predictions_frozen",
+  "frozen_at": "2026-09-16T12:00:20.560926+00:00",
+  "protocol_sha256": "cf12ba8a47ffd58e8f67b64014e22ce91d3830db71d60e7043b69a0126b752d6",
+  "predictions_sha256": "c674f2fd16818f48befe06e9429fc4d8eadc06fb26d128204b06b7dd3c0095c0",
+  "features_sha256": "f577e0aa2722d4f64b98ffde7b1691f81b6fb871e3d514a0cdc7f25ae1dc205e",
+  "manifest_sha256": "7144a232f93fab51440b691ef6183bfd651352b26f2a7af6cbd914f7205441db",
+  "audit_sha256": "271a572a55d93d3f9f062723ddf067d4d1bd7426646de2a6e32096fadc93d0ac",
+  "acquisition_index_sha256": "38991f9dc2e6ec4321c566ca6a1f87150357760310f17e90a286849100f7a4c3",
+  "trace_downloads_sha256": "7ab2739380142e592f78022bc604bf7912a7fd97448778a53cfa8f258baabd73",
+  "source_hashes": {
+    "common.py": "5ffdb1094dee6c9c201f8f7da30f931386b4b718a091a3374b58154045848541",
+    "data.py": "6ff4eadeaf8d32e5871c7dee8e255480a0331373e6279804e90c0d767b188631",
+    "models.py": "05aae95bc4558ed4d6d031cd7547eafea35e9f2fc899f84b9c2414e36fd88357",
+    "experiment.py": "e71b06a2e31253a805dd221f7df1a19132eb45c60ded86b41b390a65d0c036b9",
+    "external.py": "b43a725ac270bc4846ab0f05b5e0afe8696baced9158dae84f428faced1834b5"
+  },
+  "answer_values_read": false
+}

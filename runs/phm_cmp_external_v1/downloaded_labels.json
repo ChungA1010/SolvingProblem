@@ -1,0 +1,24 @@
+{
+  "completed_at": "2026-09-16T12:01:33.745597+00:00",
+  "commit": "00d443e3f57379e3ad3d12c15a0738282b8210e5",
+  "files": [
+    {
+      "source_path": "data/2016 PHM Data Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-test-removalrate.csv",
+      "local_path": "labels/CMP-test-removalrate.csv",
+      "git_blob_sha1": "98ee87f5fe2790932ff5020f5de7f60bdaef287a",
+      "bytes": 9215,
+      "kind": "labels",
+      "url": "https://raw.githubusercontent.com/akangel0307/PHM-Data-Challenge/00d443e3f57379e3ad3d12c15a0738282b8210e5/data/2016%20PHM%20Data%20Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-test-removalrate.csv",
+      "sha256": "eea3c5e051f438b22c7da7a29b2076a5a35b7c8dfb26cd494a94c09fb4c7bc8c"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-validation-removalrate.csv",
+      "local_path": "labels/CMP-validation-removalrate.csv",
+      "git_blob_sha1": "e356ac46271833456eb43374b5c04ed817e21740",
+      "bytes": 9227,
+      "kind": "labels",
+      "url": "https://raw.githubusercontent.com/akangel0307/PHM-Data-Challenge/00d443e3f57379e3ad3d12c15a0738282b8210e5/data/2016%20PHM%20Data%20Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-validation-removalrate.csv",
+      "sha256": "2d292d6227d6fe822bc58374ea127b3f7e4a7b16b3509899a86808dfef439d08"
+    }
+  ]
+}

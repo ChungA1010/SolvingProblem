@@ -1,0 +1,3919 @@
+{
+  "recorded_at": "2026-09-16T11:54:51.186841+00:00",
+  "repository": "akangel0307/PHM-Data-Challenge",
+  "commit": "00d443e3f57379e3ad3d12c15a0738282b8210e5",
+  "mirror_url": "https://github.com/akangel0307/PHM-Data-Challenge/tree/00d443e3f57379e3ad3d12c15a0738282b8210e5",
+  "official_url": "https://phmsociety.org/conference/annual-conference-of-the-phm-society/annual-conference-of-the-prognostics-and-health-management-society-2016/phm-data-challenge-4/",
+  "provenance_limit": "Community mirror of official partitions. No independently available official answer checksum.",
+  "files": [
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-000.csv",
+      "local_path": "test/CMP-test-000.csv",
+      "git_blob_sha1": "590c587045ad09985d2231db2ec9940c830dc4cb",
+      "bytes": 267322,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-001.csv",
+      "local_path": "test/CMP-test-001.csv",
+      "git_blob_sha1": "60576f23a0ac8072755087a8d4fca6a74e736f1b",
+      "bytes": 215329,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-002.csv",
+      "local_path": "test/CMP-test-002.csv",
+      "git_blob_sha1": "4c02eac6ab61b66bc3306f22bd172fb262989324",
+      "bytes": 435710,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-003.csv",
+      "local_path": "test/CMP-test-003.csv",
+      "git_blob_sha1": "8ef4e360be022e0edce86c529b960fa7184b9a71",
+      "bytes": 128474,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-004.csv",
+      "local_path": "test/CMP-test-004.csv",
+      "git_blob_sha1": "81efeb4e125ef35ab2baa9cd8916bcff612f1f55",
+      "bytes": 224797,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-005.csv",
+      "local_path": "test/CMP-test-005.csv",
+      "git_blob_sha1": "b9b45f926076d0cf7e09d3ef5b9d39a1e2f38d3d",
+      "bytes": 75667,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-006.csv",
+      "local_path": "test/CMP-test-006.csv",
+      "git_blob_sha1": "3bb5f1b568b27d853e31060248903a302c288ab1",
+      "bytes": 64715,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-007.csv",
+      "local_path": "test/CMP-test-007.csv",
+      "git_blob_sha1": "da959b9026b6c5ade00df560feeb7f3df61fa3e2",
+      "bytes": 143769,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-008.csv",
+      "local_path": "test/CMP-test-008.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-009.csv",
+      "local_path": "test/CMP-test-009.csv",
+      "git_blob_sha1": "4520af48523e065885d4baaf91e621ade9060ba5",
+      "bytes": 570680,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-010.csv",
+      "local_path": "test/CMP-test-010.csv",
+      "git_blob_sha1": "8f2e7f065a527cdba01453803752aa47826b5748",
+      "bytes": 228165,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-011.csv",
+      "local_path": "test/CMP-test-011.csv",
+      "git_blob_sha1": "514c2fe06cd7eb18ea02e7b9527e99ad69c73f30",
+      "bytes": 149752,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-012.csv",
+      "local_path": "test/CMP-test-012.csv",
+      "git_blob_sha1": "2e4add6ab53eb7724d10dd46143883e65886dd60",
+      "bytes": 223419,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-013.csv",
+      "local_path": "test/CMP-test-013.csv",
+      "git_blob_sha1": "9e4d6457482595836ca79d36a4367c1314a28573",
+      "bytes": 45515,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-014.csv",
+      "local_path": "test/CMP-test-014.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-015.csv",
+      "local_path": "test/CMP-test-015.csv",
+      "git_blob_sha1": "d1498013ec791f0defc60da5d6504e306768a804",
+      "bytes": 177378,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-016.csv",
+      "local_path": "test/CMP-test-016.csv",
+      "git_blob_sha1": "11c01a11a994fbb10cd3cdf887ad59ba457242e1",
+      "bytes": 310467,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-017.csv",
+      "local_path": "test/CMP-test-017.csv",
+      "git_blob_sha1": "1efe9b8be40a8433af01dc4991e79f5f557c9ed3",
+      "bytes": 200526,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-018.csv",
+      "local_path": "test/CMP-test-018.csv",
+      "git_blob_sha1": "348ccd411099b491aff883b475fc357d519cc360",
+      "bytes": 44408,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-019.csv",
+      "local_path": "test/CMP-test-019.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-020.csv",
+      "local_path": "test/CMP-test-020.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-021.csv",
+      "local_path": "test/CMP-test-021.csv",
+      "git_blob_sha1": "62abad15602241f512ac5a3559916009d80eacd2",
+      "bytes": 126827,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-022.csv",
+      "local_path": "test/CMP-test-022.csv",
+      "git_blob_sha1": "5a25219dceb8dd2aae980b8e7894711991182ad7",
+      "bytes": 358613,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-023.csv",
+      "local_path": "test/CMP-test-023.csv",
+      "git_blob_sha1": "e739189c1690ad75304fcb6ee0dd9e8b18d4c7a3",
+      "bytes": 448440,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-024.csv",
+      "local_path": "test/CMP-test-024.csv",
+      "git_blob_sha1": "bb5af80b1069811c2f7f32271a425ad9934c8318",
+      "bytes": 295335,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-025.csv",
+      "local_path": "test/CMP-test-025.csv",
+      "git_blob_sha1": "9f9c504a4e5f6a9d25dfe7b3a91c19d92d9c0b13",
+      "bytes": 222301,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-026.csv",
+      "local_path": "test/CMP-test-026.csv",
+      "git_blob_sha1": "4cfaf7ca813fc6978c02405d8b0df251af05d19a",
+      "bytes": 291169,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-027.csv",
+      "local_path": "test/CMP-test-027.csv",
+      "git_blob_sha1": "106d072bcc2d69b78d8235a0e81652f8e2becc74",
+      "bytes": 214317,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-028.csv",
+      "local_path": "test/CMP-test-028.csv",
+      "git_blob_sha1": "ed254fc545ff8f5a5dc1d7892cf33d1fa29f0566",
+      "bytes": 366609,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-029.csv",
+      "local_path": "test/CMP-test-029.csv",
+      "git_blob_sha1": "48f5af738516ffec1f4f56f77d6da2c3ef5ec6d1",
+      "bytes": 201747,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-030.csv",
+      "local_path": "test/CMP-test-030.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-031.csv",
+      "local_path": "test/CMP-test-031.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-032.csv",
+      "local_path": "test/CMP-test-032.csv",
+      "git_blob_sha1": "dd3a8f0b29f759636cb472f3df2f4a56b9313603",
+      "bytes": 214214,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-033.csv",
+      "local_path": "test/CMP-test-033.csv",
+      "git_blob_sha1": "e43005d8dc9eb0c8b254c9da9cf1895190e7c25f",
+      "bytes": 432624,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-034.csv",
+      "local_path": "test/CMP-test-034.csv",
+      "git_blob_sha1": "4896d89336ffab6cfcb5b71b0018efbd7f3f1fb0",
+      "bytes": 142053,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-035.csv",
+      "local_path": "test/CMP-test-035.csv",
+      "git_blob_sha1": "2bf3270f7d9ce7ac98c335a6f0ee536e1518afec",
+      "bytes": 72513,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-036.csv",
+      "local_path": "test/CMP-test-036.csv",
+      "git_blob_sha1": "10bc0d6cb3aa7bd3db70235e0598b0def9f5717a",
+      "bytes": 225597,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-037.csv",
+      "local_path": "test/CMP-test-037.csv",
+      "git_blob_sha1": "e20a36934f151777fac50a04297ff79b43f61d2d",
+      "bytes": 73161,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-038.csv",
+      "local_path": "test/CMP-test-038.csv",
+      "git_blob_sha1": "f910c2050f80818648a88b31adee3efc4f96efa2",
+      "bytes": 68572,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-039.csv",
+      "local_path": "test/CMP-test-039.csv",
+      "git_blob_sha1": "f6c68b89e7efa4a1eb4dcc2fc3aa52827c452fe6",
+      "bytes": 78270,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-040.csv",
+      "local_path": "test/CMP-test-040.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-041.csv",
+      "local_path": "test/CMP-test-041.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-042.csv",
+      "local_path": "test/CMP-test-042.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-043.csv",
+      "local_path": "test/CMP-test-043.csv",
+      "git_blob_sha1": "25f1dc5e4e7f51a4233e7c7ef9ed1e3677dea66d",
+      "bytes": 197669,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-044.csv",
+      "local_path": "test/CMP-test-044.csv",
+      "git_blob_sha1": "f67643df3e11319a40b9eba59a0ac4b05098e1f4",
+      "bytes": 63012,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-045.csv",
+      "local_path": "test/CMP-test-045.csv",
+      "git_blob_sha1": "adef9a4f3c7567904e674a44d4100aabbb62eb00",
+      "bytes": 70774,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-046.csv",
+      "local_path": "test/CMP-test-046.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-047.csv",
+      "local_path": "test/CMP-test-047.csv",
+      "git_blob_sha1": "caaa0e7a89a90524b8336df8c3bfa738aefa5223",
+      "bytes": 65607,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-048.csv",
+      "local_path": "test/CMP-test-048.csv",
+      "git_blob_sha1": "581445c1935bbb6e10c459aacb2017fb26ffb6bd",
+      "bytes": 132766,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-049.csv",
+      "local_path": "test/CMP-test-049.csv",
+      "git_blob_sha1": "3bd6d0a05b86769f717681802a08c7c623983119",
+      "bytes": 78256,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-050.csv",
+      "local_path": "test/CMP-test-050.csv",
+      "git_blob_sha1": "21de6b1325c5e6ae0315a7acf0e0292001732282",
+      "bytes": 59723,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-051.csv",
+      "local_path": "test/CMP-test-051.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-052.csv",
+      "local_path": "test/CMP-test-052.csv",
+      "git_blob_sha1": "53c0c1b1ff672ec4080146d52dc675a744e47e59",
+      "bytes": 71355,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-053.csv",
+      "local_path": "test/CMP-test-053.csv",
+      "git_blob_sha1": "27021cc41243b12e66e5d91359ee19ce8dae9a71",
+      "bytes": 65470,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-054.csv",
+      "local_path": "test/CMP-test-054.csv",
+      "git_blob_sha1": "13b45a309b5b441bdc47c37be2d53756db288771",
+      "bytes": 220530,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-055.csv",
+      "local_path": "test/CMP-test-055.csv",
+      "git_blob_sha1": "e953b9cdf0b6e53a0f1b318e7aaeaf1aa206f5df",
+      "bytes": 138126,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-056.csv",
+      "local_path": "test/CMP-test-056.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-057.csv",
+      "local_path": "test/CMP-test-057.csv",
+      "git_blob_sha1": "dfedde708e4dfedf0de782db589cecb88dc0aa4c",
+      "bytes": 107163,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-058.csv",
+      "local_path": "test/CMP-test-058.csv",
+      "git_blob_sha1": "a23ff14d1e610cecc93b34143f855b93f201827c",
+      "bytes": 65304,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-059.csv",
+      "local_path": "test/CMP-test-059.csv",
+      "git_blob_sha1": "a29672404c249405535442d63548d33e285033cb",
+      "bytes": 74520,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-060.csv",
+      "local_path": "test/CMP-test-060.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-061.csv",
+      "local_path": "test/CMP-test-061.csv",
+      "git_blob_sha1": "c8d7ba577d5bd4501dcfca3f31813597f458addf",
+      "bytes": 54135,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-062.csv",
+      "local_path": "test/CMP-test-062.csv",
+      "git_blob_sha1": "b2d741c091b899439a5b83de2a1614c33bab545e",
+      "bytes": 74961,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-063.csv",
+      "local_path": "test/CMP-test-063.csv",
+      "git_blob_sha1": "59be00f0ab96a10e8996655d5c3fb89d30c6e75d",
+      "bytes": 55464,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-064.csv",
+      "local_path": "test/CMP-test-064.csv",
+      "git_blob_sha1": "c01cccbd6a7120051b61e99df750468d530a94c8",
+      "bytes": 386676,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-065.csv",
+      "local_path": "test/CMP-test-065.csv",
+      "git_blob_sha1": "5a87d6acee43740e449f9299af2da0a166fcee15",
+      "bytes": 153553,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-066.csv",
+      "local_path": "test/CMP-test-066.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-067.csv",
+      "local_path": "test/CMP-test-067.csv",
+      "git_blob_sha1": "9ae729402ffce3188ed62121915d53267589a4dd",
+      "bytes": 140802,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-068.csv",
+      "local_path": "test/CMP-test-068.csv",
+      "git_blob_sha1": "a52a2342b981d0bd15c36965994cfe0d88237475",
+      "bytes": 102888,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-069.csv",
+      "local_path": "test/CMP-test-069.csv",
+      "git_blob_sha1": "5dc024debe9dd6061107bfc4dbbdf6167a8cf153",
+      "bytes": 147463,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-070.csv",
+      "local_path": "test/CMP-test-070.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-071.csv",
+      "local_path": "test/CMP-test-071.csv",
+      "git_blob_sha1": "299f4aa031f85f970ca5335668761abf7772f3a5",
+      "bytes": 69184,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-072.csv",
+      "local_path": "test/CMP-test-072.csv",
+      "git_blob_sha1": "455b32578636d954617afeb3a54205c7d42a0f58",
+      "bytes": 208358,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-073.csv",
+      "local_path": "test/CMP-test-073.csv",
+      "git_blob_sha1": "72570bedf29328271553208fe4e474e1b7c6393d",
+      "bytes": 659306,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-074.csv",
+      "local_path": "test/CMP-test-074.csv",
+      "git_blob_sha1": "46f1c1163f5395a3c1c41776410bf9ae9a1b2d7b",
+      "bytes": 517687,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-075.csv",
+      "local_path": "test/CMP-test-075.csv",
+      "git_blob_sha1": "5af80923bd3e636f986314756c709c54aa57f5d4",
+      "bytes": 291949,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-076.csv",
+      "local_path": "test/CMP-test-076.csv",
+      "git_blob_sha1": "82291a12ad6ac3d79826cc23d4848483abd01553",
+      "bytes": 140177,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-077.csv",
+      "local_path": "test/CMP-test-077.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-078.csv",
+      "local_path": "test/CMP-test-078.csv",
+      "git_blob_sha1": "455dafbfb5d5e8f87166c09ad56c75d0cfc19d23",
+      "bytes": 169781,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-079.csv",
+      "local_path": "test/CMP-test-079.csv",
+      "git_blob_sha1": "e961953c648d6d1a683ca35175ac5bbee0dd2c19",
+      "bytes": 499724,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-080.csv",
+      "local_path": "test/CMP-test-080.csv",
+      "git_blob_sha1": "eda3d5d64043320df7b7c2b1a092a29ad3a2bd90",
+      "bytes": 227870,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-081.csv",
+      "local_path": "test/CMP-test-081.csv",
+      "git_blob_sha1": "11dce4b5e9ee89647576f616f516b61eaa241b97",
+      "bytes": 128369,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-082.csv",
+      "local_path": "test/CMP-test-082.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-083.csv",
+      "local_path": "test/CMP-test-083.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-084.csv",
+      "local_path": "test/CMP-test-084.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-085.csv",
+      "local_path": "test/CMP-test-085.csv",
+      "git_blob_sha1": "3d24ba249e7abf27fb324ac0906ee3ccb529553f",
+      "bytes": 239310,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-086.csv",
+      "local_path": "test/CMP-test-086.csv",
+      "git_blob_sha1": "5aced44d185a5cedbdbce6fec30394581d02620e",
+      "bytes": 194789,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-087.csv",
+      "local_path": "test/CMP-test-087.csv",
+      "git_blob_sha1": "16bbcb420bac1d89d8bcb49290acacb19ea1311c",
+      "bytes": 984535,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-088.csv",
+      "local_path": "test/CMP-test-088.csv",
+      "git_blob_sha1": "494ca208de1b5859edd44d29796e2e5c76f9e621",
+      "bytes": 1306985,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-089.csv",
+      "local_path": "test/CMP-test-089.csv",
+      "git_blob_sha1": "559c0a41e45e9f04f19f96fe8f4326b69b1e1a07",
+      "bytes": 136391,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-090.csv",
+      "local_path": "test/CMP-test-090.csv",
+      "git_blob_sha1": "60e64eb6226ce8312c65810436bcce005e17729d",
+      "bytes": 74136,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-091.csv",
+      "local_path": "test/CMP-test-091.csv",
+      "git_blob_sha1": "a66c2f3574726e74f87c8e1bc92a16aad8ee8609",
+      "bytes": 210608,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-092.csv",
+      "local_path": "test/CMP-test-092.csv",
+      "git_blob_sha1": "426a584d0bd071ca406a672dad5ab82303c1587a",
+      "bytes": 240565,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-093.csv",
+      "local_path": "test/CMP-test-093.csv",
+      "git_blob_sha1": "c0cfb2f93bfb716d7afcd26891917f77cd2bbcc0",
+      "bytes": 34255,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-094.csv",
+      "local_path": "test/CMP-test-094.csv",
+      "git_blob_sha1": "b1c249bdd082e6d7a8ec3d071ab8ac001d13e359",
+      "bytes": 371970,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-095.csv",
+      "local_path": "test/CMP-test-095.csv",
+      "git_blob_sha1": "1c7bda50a600c8a6fe7e04ef6ee28fd56ba9c413",
+      "bytes": 214010,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-096.csv",
+      "local_path": "test/CMP-test-096.csv",
+      "git_blob_sha1": "785678c781916ae5a3c4031835db1f34dd071a3d",
+      "bytes": 75031,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-097.csv",
+      "local_path": "test/CMP-test-097.csv",
+      "git_blob_sha1": "c371be3ab928b7ee381bea308ee62ed8ac055a80",
+      "bytes": 65169,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-098.csv",
+      "local_path": "test/CMP-test-098.csv",
+      "git_blob_sha1": "8b038242024cf674d6e234b05086b5855ca490e0",
+      "bytes": 298405,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-099.csv",
+      "local_path": "test/CMP-test-099.csv",
+      "git_blob_sha1": "cf045be1ea9aaa41e866a031af1cb49e1e29866d",
+      "bytes": 144347,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-100.csv",
+      "local_path": "test/CMP-test-100.csv",
+      "git_blob_sha1": "5c09b06f55914d354586e27039d0a204c9662e6b",
+      "bytes": 144552,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-101.csv",
+      "local_path": "test/CMP-test-101.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-102.csv",
+      "local_path": "test/CMP-test-102.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-103.csv",
+      "local_path": "test/CMP-test-103.csv",
+      "git_blob_sha1": "20a7027746d524a28d6106478c46a68560be145c",
+      "bytes": 71835,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-104.csv",
+      "local_path": "test/CMP-test-104.csv",
+      "git_blob_sha1": "4e1321bf563aed8cd9ac18c9a193d3b68d309100",
+      "bytes": 490561,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-105.csv",
+      "local_path": "test/CMP-test-105.csv",
+      "git_blob_sha1": "43d729e69050f8d867bb1e9f489c947f8b24c3ff",
+      "bytes": 219551,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-106.csv",
+      "local_path": "test/CMP-test-106.csv",
+      "git_blob_sha1": "52beca694bf6ea6c67ee99e993d9287a8b4b6ea2",
+      "bytes": 194996,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-107.csv",
+      "local_path": "test/CMP-test-107.csv",
+      "git_blob_sha1": "148f91f9f817066b465c6f8f86c9ad452fec2386",
+      "bytes": 290152,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-108.csv",
+      "local_path": "test/CMP-test-108.csv",
+      "git_blob_sha1": "bfdf3e7c42fc2a626e265b2bb4b0bcebdf16221e",
+      "bytes": 152903,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-109.csv",
+      "local_path": "test/CMP-test-109.csv",
+      "git_blob_sha1": "4f78f86ce83f12f5479fb81d7b69839c7d3fb84b",
+      "bytes": 158193,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-110.csv",
+      "local_path": "test/CMP-test-110.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-111.csv",
+      "local_path": "test/CMP-test-111.csv",
+      "git_blob_sha1": "9ab8e17a76a22179cf5c69998bf5c57fdb1f5404",
+      "bytes": 200495,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-112.csv",
+      "local_path": "test/CMP-test-112.csv",
+      "git_blob_sha1": "3985ab347981afd6eaebd5527dfa076d457c60cd",
+      "bytes": 111469,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-113.csv",
+      "local_path": "test/CMP-test-113.csv",
+      "git_blob_sha1": "25310033c90a45ffbe600c83996b4516570df28b",
+      "bytes": 67748,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-114.csv",
+      "local_path": "test/CMP-test-114.csv",
+      "git_blob_sha1": "b01816bb186a477986952e0bd9a7b929854de318",
+      "bytes": 526857,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-115.csv",
+      "local_path": "test/CMP-test-115.csv",
+      "git_blob_sha1": "615e1b3a6aa41d6b7c4bb0a48c1cb6c1396b74c6",
+      "bytes": 288273,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-116.csv",
+      "local_path": "test/CMP-test-116.csv",
+      "git_blob_sha1": "197109bd44febf818788538f68ab5ac4f4383f4a",
+      "bytes": 45276,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-117.csv",
+      "local_path": "test/CMP-test-117.csv",
+      "git_blob_sha1": "1ef51b0df899377f618ae8cfdb42fc41cce3b857",
+      "bytes": 112007,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-118.csv",
+      "local_path": "test/CMP-test-118.csv",
+      "git_blob_sha1": "cd47a03df0d383a8ed9363b605d4b9d244e13423",
+      "bytes": 145197,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-119.csv",
+      "local_path": "test/CMP-test-119.csv",
+      "git_blob_sha1": "2e0e6b85ae6a4f676e8fc95fff91c740b6d8e3ff",
+      "bytes": 73164,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-120.csv",
+      "local_path": "test/CMP-test-120.csv",
+      "git_blob_sha1": "1cfe3295f63c52fb1d15804045b4b5794396b85f",
+      "bytes": 465221,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-121.csv",
+      "local_path": "test/CMP-test-121.csv",
+      "git_blob_sha1": "c1f1f242ce1c8eaf7c5feb1b1de7714f370ac135",
+      "bytes": 328226,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-122.csv",
+      "local_path": "test/CMP-test-122.csv",
+      "git_blob_sha1": "363ced5d427b287df60e95dd5f1c3d3116aa46e6",
+      "bytes": 146478,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-123.csv",
+      "local_path": "test/CMP-test-123.csv",
+      "git_blob_sha1": "684c8dcd6d67dd58b085ab05125806adaaeb275b",
+      "bytes": 627998,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-124.csv",
+      "local_path": "test/CMP-test-124.csv",
+      "git_blob_sha1": "903a5d194702daa210e10558085b011cb83ca2d6",
+      "bytes": 145237,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-125.csv",
+      "local_path": "test/CMP-test-125.csv",
+      "git_blob_sha1": "ac0e710c82e4fe0a1c1abd57532ad471caf9566c",
+      "bytes": 75762,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-126.csv",
+      "local_path": "test/CMP-test-126.csv",
+      "git_blob_sha1": "2661239b1f5f842d671e3d0447efd88fc629e408",
+      "bytes": 43436,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-127.csv",
+      "local_path": "test/CMP-test-127.csv",
+      "git_blob_sha1": "a8019873bd4a3570b01985239d8ada306a064e47",
+      "bytes": 347941,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-128.csv",
+      "local_path": "test/CMP-test-128.csv",
+      "git_blob_sha1": "eaa987cf96cb21e48e414d62ba26a992080e57c1",
+      "bytes": 219509,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-129.csv",
+      "local_path": "test/CMP-test-129.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-130.csv",
+      "local_path": "test/CMP-test-130.csv",
+      "git_blob_sha1": "54eb2f17ef182fe98d7adf0cb9f53b5f03aafe6f",
+      "bytes": 64866,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-131.csv",
+      "local_path": "test/CMP-test-131.csv",
+      "git_blob_sha1": "371255c627e21c8f25c86bf28c508f2602da52b2",
+      "bytes": 211010,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-132.csv",
+      "local_path": "test/CMP-test-132.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-133.csv",
+      "local_path": "test/CMP-test-133.csv",
+      "git_blob_sha1": "cf277e744f77c6e7a5e26330740e442e1cd0bca2",
+      "bytes": 62766,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-134.csv",
+      "local_path": "test/CMP-test-134.csv",
+      "git_blob_sha1": "6b32961dd5dcad4737f50e94f0b555d860a3b30d",
+      "bytes": 206495,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-135.csv",
+      "local_path": "test/CMP-test-135.csv",
+      "git_blob_sha1": "93e31e42d57d95bd46c66d5e269f7c11615b686d",
+      "bytes": 219947,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-136.csv",
+      "local_path": "test/CMP-test-136.csv",
+      "git_blob_sha1": "2f7942eee479411054a8d9e6ba3393c92d1bd508",
+      "bytes": 57218,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-137.csv",
+      "local_path": "test/CMP-test-137.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-138.csv",
+      "local_path": "test/CMP-test-138.csv",
+      "git_blob_sha1": "e078846b0d04e4f4a6ae1cb9acca3ec52bcdb62f",
+      "bytes": 350479,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-139.csv",
+      "local_path": "test/CMP-test-139.csv",
+      "git_blob_sha1": "e226b41476a074d8f742f53601471091c47a3bab",
+      "bytes": 363670,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-140.csv",
+      "local_path": "test/CMP-test-140.csv",
+      "git_blob_sha1": "9e387b6c182ab19242ac0a91beee6d7dfc92d110",
+      "bytes": 214108,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-141.csv",
+      "local_path": "test/CMP-test-141.csv",
+      "git_blob_sha1": "b700b052008d5d9ce729e0d4373c9a551729a53c",
+      "bytes": 73750,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-142.csv",
+      "local_path": "test/CMP-test-142.csv",
+      "git_blob_sha1": "2ef0bc3ae0795b4a97088fc722ad80a5a29fee0a",
+      "bytes": 70213,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-143.csv",
+      "local_path": "test/CMP-test-143.csv",
+      "git_blob_sha1": "afc656a6c076ded96d46c671c41fcf13a73b6a26",
+      "bytes": 206773,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-144.csv",
+      "local_path": "test/CMP-test-144.csv",
+      "git_blob_sha1": "217a821e4e756932178ca0fdea188179f92c9223",
+      "bytes": 73400,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-145.csv",
+      "local_path": "test/CMP-test-145.csv",
+      "git_blob_sha1": "b76e97d96cbdb7e13ffd27dc7cda5a38892ab2b5",
+      "bytes": 136012,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-146.csv",
+      "local_path": "test/CMP-test-146.csv",
+      "git_blob_sha1": "0ddcf415b6b841667fd59b861867a76fed540c48",
+      "bytes": 257861,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-147.csv",
+      "local_path": "test/CMP-test-147.csv",
+      "git_blob_sha1": "68b11a413b779a87332c0a5a7e516adb295a3460",
+      "bytes": 73871,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-148.csv",
+      "local_path": "test/CMP-test-148.csv",
+      "git_blob_sha1": "a653f8cf846172b89b85f32561afd62f66395142",
+      "bytes": 64743,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-149.csv",
+      "local_path": "test/CMP-test-149.csv",
+      "git_blob_sha1": "3f8204e92c25909e8308b9ecef27bc184dfda143",
+      "bytes": 268106,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-150.csv",
+      "local_path": "test/CMP-test-150.csv",
+      "git_blob_sha1": "62a5e8e8feceadec9b3ef066f78a329a3c55c54e",
+      "bytes": 137075,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-151.csv",
+      "local_path": "test/CMP-test-151.csv",
+      "git_blob_sha1": "b166e2c9dd33bb1c702b8225f00004a646f76819",
+      "bytes": 288311,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-152.csv",
+      "local_path": "test/CMP-test-152.csv",
+      "git_blob_sha1": "302dc48d87d643706dad094faa15d0b50025463c",
+      "bytes": 360139,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-153.csv",
+      "local_path": "test/CMP-test-153.csv",
+      "git_blob_sha1": "749843f07fe8510d710a9da7d3e8e49cd75656ff",
+      "bytes": 143605,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-154.csv",
+      "local_path": "test/CMP-test-154.csv",
+      "git_blob_sha1": "5bec1b40daccaaeeec7541f3f80418b3151a30b0",
+      "bytes": 40660,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-155.csv",
+      "local_path": "test/CMP-test-155.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-156.csv",
+      "local_path": "test/CMP-test-156.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-157.csv",
+      "local_path": "test/CMP-test-157.csv",
+      "git_blob_sha1": "3813e71d08d314995db889cf869855b69cc94390",
+      "bytes": 109819,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-158.csv",
+      "local_path": "test/CMP-test-158.csv",
+      "git_blob_sha1": "43f080d6f3cfb9653389ec042e64102ea47c27a0",
+      "bytes": 138827,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-159.csv",
+      "local_path": "test/CMP-test-159.csv",
+      "git_blob_sha1": "3740d9b789fa717a31693b39cbcd5100f09e85fc",
+      "bytes": 70502,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-160.csv",
+      "local_path": "test/CMP-test-160.csv",
+      "git_blob_sha1": "3ecc68aa0dae718da99348facf4b541c3cb214c6",
+      "bytes": 169421,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-161.csv",
+      "local_path": "test/CMP-test-161.csv",
+      "git_blob_sha1": "2c07264c233fe78c835c0a6c2784d73c42e28b6f",
+      "bytes": 333825,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-162.csv",
+      "local_path": "test/CMP-test-162.csv",
+      "git_blob_sha1": "7f5db3dbd700db013ebf2b83dbd9c67b98e29081",
+      "bytes": 284329,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-163.csv",
+      "local_path": "test/CMP-test-163.csv",
+      "git_blob_sha1": "bccbd112cee1fb6c4b9308590fdcfe92f9d0ffc2",
+      "bytes": 150220,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-164.csv",
+      "local_path": "test/CMP-test-164.csv",
+      "git_blob_sha1": "434e29439a6c43ee9afb93bbff62c756511529aa",
+      "bytes": 45316,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-165.csv",
+      "local_path": "test/CMP-test-165.csv",
+      "git_blob_sha1": "433aa3f952dae57d9d127b387a5bc364d180c0a2",
+      "bytes": 47711,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-166.csv",
+      "local_path": "test/CMP-test-166.csv",
+      "git_blob_sha1": "2f7142ba10dca0fb324fe8eaa138507dc452e33d",
+      "bytes": 115467,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-167.csv",
+      "local_path": "test/CMP-test-167.csv",
+      "git_blob_sha1": "8488bd0c502f96cb4ddceac422209b24183996d2",
+      "bytes": 94680,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-168.csv",
+      "local_path": "test/CMP-test-168.csv",
+      "git_blob_sha1": "2ebbe10c74c00700148b06ed97a756528625576a",
+      "bytes": 146083,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-169.csv",
+      "local_path": "test/CMP-test-169.csv",
+      "git_blob_sha1": "b09921b734a0a4da6e2f839308b9c3f953d93df9",
+      "bytes": 110973,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-170.csv",
+      "local_path": "test/CMP-test-170.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-171.csv",
+      "local_path": "test/CMP-test-171.csv",
+      "git_blob_sha1": "573f4e605806a384e9e22e83be8fa7b116494cf3",
+      "bytes": 70282,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-172.csv",
+      "local_path": "test/CMP-test-172.csv",
+      "git_blob_sha1": "cc65b06a7cd5da6652afac504b9dbdb4db320c1a",
+      "bytes": 203381,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-173.csv",
+      "local_path": "test/CMP-test-173.csv",
+      "git_blob_sha1": "b6b1e8a8f56d0b2d77d50613de3b2ea1174530a6",
+      "bytes": 199191,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-174.csv",
+      "local_path": "test/CMP-test-174.csv",
+      "git_blob_sha1": "9bda23cbe82e75470c3afdeb7d2a442593924feb",
+      "bytes": 39337,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-175.csv",
+      "local_path": "test/CMP-test-175.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-176.csv",
+      "local_path": "test/CMP-test-176.csv",
+      "git_blob_sha1": "5c9f332a5f326f3acf36cbc53ab4150d5320ed8f",
+      "bytes": 73064,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-177.csv",
+      "local_path": "test/CMP-test-177.csv",
+      "git_blob_sha1": "ca467ba1250a0c7e9961cac42483f5958217f687",
+      "bytes": 293756,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-178.csv",
+      "local_path": "test/CMP-test-178.csv",
+      "git_blob_sha1": "9fc9edddb7ba9b9e7375bc94f448e9e6923082bc",
+      "bytes": 136950,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-179.csv",
+      "local_path": "test/CMP-test-179.csv",
+      "git_blob_sha1": "4f88f3d68a2d9f35e0f8ad167b5c6dbdcd44810f",
+      "bytes": 284374,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-180.csv",
+      "local_path": "test/CMP-test-180.csv",
+      "git_blob_sha1": "843f760178095da773b0bb00fc0209de5a40f560",
+      "bytes": 340998,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-181.csv",
+      "local_path": "test/CMP-test-181.csv",
+      "git_blob_sha1": "f9de7488ff2931673d6f281a59aeab58fe0d6b6e",
+      "bytes": 338925,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-182.csv",
+      "local_path": "test/CMP-test-182.csv",
+      "git_blob_sha1": "84a8962b6049e729591d4ce1e18dc1ce2f6b5830",
+      "bytes": 71517,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-183.csv",
+      "local_path": "test/CMP-test-183.csv",
+      "git_blob_sha1": "2e60b3826fef9b0a4796cc6930118c69bf4f245b",
+      "bytes": 143642,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP DATA SET/CMP-data/test/CMP-test-184.csv",
+      "local_path": "test/CMP-test-184.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "test"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-000.csv",
+      "local_path": "validation/CMP-validation-000.csv",
+      "git_blob_sha1": "4d2c813e6a8a3ddc3f58f52de10552a927af3712",
+      "bytes": 388155,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-001.csv",
+      "local_path": "validation/CMP-validation-001.csv",
+      "git_blob_sha1": "8958fdb077f9b7de1fbe4c0301bc4d75c2ace409",
+      "bytes": 219661,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-002.csv",
+      "local_path": "validation/CMP-validation-002.csv",
+      "git_blob_sha1": "efe9dafe611e01ea9be9dc06185b37aaa19424df",
+      "bytes": 362264,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-003.csv",
+      "local_path": "validation/CMP-validation-003.csv",
+      "git_blob_sha1": "faabd0edcb9a718a8b732db82f33e0f353b3c611",
+      "bytes": 361894,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-004.csv",
+      "local_path": "validation/CMP-validation-004.csv",
+      "git_blob_sha1": "406670bf5826b8e3ca98e551beb811f424b53483",
+      "bytes": 284441,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-005.csv",
+      "local_path": "validation/CMP-validation-005.csv",
+      "git_blob_sha1": "0105963ab3366782c3a1e45424bfadd71e9ec0fa",
+      "bytes": 145007,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-006.csv",
+      "local_path": "validation/CMP-validation-006.csv",
+      "git_blob_sha1": "29281af42611406c650a067be8a78dde28006bf6",
+      "bytes": 205992,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-007.csv",
+      "local_path": "validation/CMP-validation-007.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-008.csv",
+      "local_path": "validation/CMP-validation-008.csv",
+      "git_blob_sha1": "f29898c1d0c51edc76f6d558c2dea06f28e50969",
+      "bytes": 77803,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-009.csv",
+      "local_path": "validation/CMP-validation-009.csv",
+      "git_blob_sha1": "90ce4bd6f73177c8d5509964a073a88b5f0557de",
+      "bytes": 562992,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-010.csv",
+      "local_path": "validation/CMP-validation-010.csv",
+      "git_blob_sha1": "675417aece2c40057a93f00431c36577c02922aa",
+      "bytes": 279464,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-011.csv",
+      "local_path": "validation/CMP-validation-011.csv",
+      "git_blob_sha1": "4874a0233932b8eb371504a3b2ed9704dd948589",
+      "bytes": 551885,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-012.csv",
+      "local_path": "validation/CMP-validation-012.csv",
+      "git_blob_sha1": "6140d9d19776c37a09ea170eab3bbd5bcdc5cfe6",
+      "bytes": 145543,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-013.csv",
+      "local_path": "validation/CMP-validation-013.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-014.csv",
+      "local_path": "validation/CMP-validation-014.csv",
+      "git_blob_sha1": "8e49b2de47c40097609724b4589bf81680bf0a82",
+      "bytes": 42249,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-015.csv",
+      "local_path": "validation/CMP-validation-015.csv",
+      "git_blob_sha1": "2980cf8e2fe6f77850afb4a753fcc7d30f61e3e2",
+      "bytes": 425539,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-016.csv",
+      "local_path": "validation/CMP-validation-016.csv",
+      "git_blob_sha1": "2c291675de0bf233272c91b10960042094c21ae9",
+      "bytes": 76859,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-017.csv",
+      "local_path": "validation/CMP-validation-017.csv",
+      "git_blob_sha1": "d7852a24fb6fc58f2885574935be5aecab276b47",
+      "bytes": 75195,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-018.csv",
+      "local_path": "validation/CMP-validation-018.csv",
+      "git_blob_sha1": "66b04ce03e69ae02cc0a27dc20b80bada528423c",
+      "bytes": 45578,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-019.csv",
+      "local_path": "validation/CMP-validation-019.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-020.csv",
+      "local_path": "validation/CMP-validation-020.csv",
+      "git_blob_sha1": "23bc516511bad1e22508ec3aaaa933972d43154f",
+      "bytes": 130024,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-021.csv",
+      "local_path": "validation/CMP-validation-021.csv",
+      "git_blob_sha1": "6b8a4c684c2264ab37daa0e3b1dfa8ba8e7b3fac",
+      "bytes": 176602,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-022.csv",
+      "local_path": "validation/CMP-validation-022.csv",
+      "git_blob_sha1": "0f312930f479a6a0e7f182c751428c39689ef7a8",
+      "bytes": 289123,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-023.csv",
+      "local_path": "validation/CMP-validation-023.csv",
+      "git_blob_sha1": "490203ac7bfe3316da193202af6951b30f4891df",
+      "bytes": 611407,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-024.csv",
+      "local_path": "validation/CMP-validation-024.csv",
+      "git_blob_sha1": "3d955be43649e7bb8044222be53db113b006f405",
+      "bytes": 73628,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-025.csv",
+      "local_path": "validation/CMP-validation-025.csv",
+      "git_blob_sha1": "dde0dd1a5d2aac9edd156684daab8949a93cc405",
+      "bytes": 280755,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-026.csv",
+      "local_path": "validation/CMP-validation-026.csv",
+      "git_blob_sha1": "34a15c9360ffa94f312b99eb2d2df1ee8f98f8bd",
+      "bytes": 573548,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-027.csv",
+      "local_path": "validation/CMP-validation-027.csv",
+      "git_blob_sha1": "0ed3f329c5efa7cf6039984603f9793bf00f1c47",
+      "bytes": 211917,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-028.csv",
+      "local_path": "validation/CMP-validation-028.csv",
+      "git_blob_sha1": "cf0477833097e980b3ef07b46ee87a7e6cc1f3f7",
+      "bytes": 283534,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-029.csv",
+      "local_path": "validation/CMP-validation-029.csv",
+      "git_blob_sha1": "12bd82de690cf7232a62b04fd3dd31840b0963df",
+      "bytes": 330969,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-030.csv",
+      "local_path": "validation/CMP-validation-030.csv",
+      "git_blob_sha1": "2cbfe8c162894d787297d8af2dcd51ae36ee44da",
+      "bytes": 143288,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-031.csv",
+      "local_path": "validation/CMP-validation-031.csv",
+      "git_blob_sha1": "aea26cfaa68e7a91fcab987ad8338758d52a35c0",
+      "bytes": 67159,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-032.csv",
+      "local_path": "validation/CMP-validation-032.csv",
+      "git_blob_sha1": "292304d879d8639267cd77f9b9f8107e56aa4610",
+      "bytes": 287107,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-033.csv",
+      "local_path": "validation/CMP-validation-033.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-034.csv",
+      "local_path": "validation/CMP-validation-034.csv",
+      "git_blob_sha1": "5b15e037335e611320e869571ebd0348b0dbde72",
+      "bytes": 74593,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-035.csv",
+      "local_path": "validation/CMP-validation-035.csv",
+      "git_blob_sha1": "f058d03959c50c0b39738f0700acf661e66792f3",
+      "bytes": 133016,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-036.csv",
+      "local_path": "validation/CMP-validation-036.csv",
+      "git_blob_sha1": "08ec3afd7d6fa843609bbe9b0de11125fc2a579f",
+      "bytes": 139575,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-037.csv",
+      "local_path": "validation/CMP-validation-037.csv",
+      "git_blob_sha1": "3f740d7310ec1c1d9b0d6b64f278603704342580",
+      "bytes": 64639,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-038.csv",
+      "local_path": "validation/CMP-validation-038.csv",
+      "git_blob_sha1": "81310d4042876d9325e1f4f871416f97460b2c23",
+      "bytes": 221963,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-039.csv",
+      "local_path": "validation/CMP-validation-039.csv",
+      "git_blob_sha1": "711f2039b7ca52d1eb46ac7e0dabe18fa7d8e39a",
+      "bytes": 78763,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-040.csv",
+      "local_path": "validation/CMP-validation-040.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-041.csv",
+      "local_path": "validation/CMP-validation-041.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-042.csv",
+      "local_path": "validation/CMP-validation-042.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-043.csv",
+      "local_path": "validation/CMP-validation-043.csv",
+      "git_blob_sha1": "79171152482c189898a56de7126fbf7a0dbdf233",
+      "bytes": 70228,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-044.csv",
+      "local_path": "validation/CMP-validation-044.csv",
+      "git_blob_sha1": "94ec51c67ac84fb7e18260aa30f8999d6bcb5750",
+      "bytes": 237029,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-045.csv",
+      "local_path": "validation/CMP-validation-045.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-046.csv",
+      "local_path": "validation/CMP-validation-046.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-047.csv",
+      "local_path": "validation/CMP-validation-047.csv",
+      "git_blob_sha1": "012fc6ec6928814a0deebe738a4913ed9792c90a",
+      "bytes": 152975,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-048.csv",
+      "local_path": "validation/CMP-validation-048.csv",
+      "git_blob_sha1": "bcfcfcaa67a19e34cf3c7ba61727fedcdc6fa04a",
+      "bytes": 298762,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-049.csv",
+      "local_path": "validation/CMP-validation-049.csv",
+      "git_blob_sha1": "8629c2ddfdc835a307bb25bb121a79bf7e671c35",
+      "bytes": 79434,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-050.csv",
+      "local_path": "validation/CMP-validation-050.csv",
+      "git_blob_sha1": "b61f506ffc65a291bdb525a3b9b5598e04df693e",
+      "bytes": 66818,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-051.csv",
+      "local_path": "validation/CMP-validation-051.csv",
+      "git_blob_sha1": "666452f9f8b7bda345d8e0bc18963bc418f7293d",
+      "bytes": 215299,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-052.csv",
+      "local_path": "validation/CMP-validation-052.csv",
+      "git_blob_sha1": "8ed380523cb889ff178e87667e27fd003c84a0e0",
+      "bytes": 290171,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-053.csv",
+      "local_path": "validation/CMP-validation-053.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-054.csv",
+      "local_path": "validation/CMP-validation-054.csv",
+      "git_blob_sha1": "d0a9da9e89536900fc0508d875fb6dacd274aa88",
+      "bytes": 71626,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-055.csv",
+      "local_path": "validation/CMP-validation-055.csv",
+      "git_blob_sha1": "192252cc91e9c076e54bbff1b5caf5409e0aecc6",
+      "bytes": 70641,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-056.csv",
+      "local_path": "validation/CMP-validation-056.csv",
+      "git_blob_sha1": "23d9ec5b6dc023a129a6e93a8d85c047e29c423e",
+      "bytes": 98864,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-057.csv",
+      "local_path": "validation/CMP-validation-057.csv",
+      "git_blob_sha1": "3e4a77228b35dcc43afffc4e0527a0f72eb96014",
+      "bytes": 44800,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-058.csv",
+      "local_path": "validation/CMP-validation-058.csv",
+      "git_blob_sha1": "19b8ef3fb1bfd5729d6b9004b5b201bbb3fcfb16",
+      "bytes": 74343,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-059.csv",
+      "local_path": "validation/CMP-validation-059.csv",
+      "git_blob_sha1": "317da05c867a95bcc872d59b1d4eae55e6a7a0c2",
+      "bytes": 68044,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-060.csv",
+      "local_path": "validation/CMP-validation-060.csv",
+      "git_blob_sha1": "68f47b1dd625ad0b34b9536f056c09b169f57695",
+      "bytes": 76421,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-061.csv",
+      "local_path": "validation/CMP-validation-061.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-062.csv",
+      "local_path": "validation/CMP-validation-062.csv",
+      "git_blob_sha1": "d6c58d00c4d8ca72093ac569a6da7c2192aa93d8",
+      "bytes": 153417,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-063.csv",
+      "local_path": "validation/CMP-validation-063.csv",
+      "git_blob_sha1": "588bb31ca4de72bec7fc45b07e10bda3d479877d",
+      "bytes": 52718,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-064.csv",
+      "local_path": "validation/CMP-validation-064.csv",
+      "git_blob_sha1": "22ef46af3759d0d8af78bc3f8168e22b991363d3",
+      "bytes": 366786,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-065.csv",
+      "local_path": "validation/CMP-validation-065.csv",
+      "git_blob_sha1": "8c921ef9703c932120aea847c0c1c395828e59dc",
+      "bytes": 77582,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-066.csv",
+      "local_path": "validation/CMP-validation-066.csv",
+      "git_blob_sha1": "3c61175bda008183d2529eeea40ad42032a65ae5",
+      "bytes": 76405,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-067.csv",
+      "local_path": "validation/CMP-validation-067.csv",
+      "git_blob_sha1": "e48f502d68889ff3fd5373e1fc236a51853388e8",
+      "bytes": 76716,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-068.csv",
+      "local_path": "validation/CMP-validation-068.csv",
+      "git_blob_sha1": "06139eaac237f3ae046951f2a6a1f8f176f5b30b",
+      "bytes": 176770,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-069.csv",
+      "local_path": "validation/CMP-validation-069.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-070.csv",
+      "local_path": "validation/CMP-validation-070.csv",
+      "git_blob_sha1": "ea5db5d40d4aed7eaf93529a01d2da78540b665f",
+      "bytes": 228173,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-071.csv",
+      "local_path": "validation/CMP-validation-071.csv",
+      "git_blob_sha1": "238b611aa72fd48046aaef8f6eb9633110bd9e45",
+      "bytes": 63186,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-072.csv",
+      "local_path": "validation/CMP-validation-072.csv",
+      "git_blob_sha1": "219d0e91ba5e2f071a1b277dd6d5124932cc9640",
+      "bytes": 497753,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-073.csv",
+      "local_path": "validation/CMP-validation-073.csv",
+      "git_blob_sha1": "00ccbcdfa0c5aa55a4b83f077be09c75045211c8",
+      "bytes": 209253,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-074.csv",
+      "local_path": "validation/CMP-validation-074.csv",
+      "git_blob_sha1": "1778174f1bd6aa0e668ca44255991478a14b2fa1",
+      "bytes": 141644,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-075.csv",
+      "local_path": "validation/CMP-validation-075.csv",
+      "git_blob_sha1": "ae92ce663966ace5302c77ee28dc30772c5650dd",
+      "bytes": 141437,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-076.csv",
+      "local_path": "validation/CMP-validation-076.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-077.csv",
+      "local_path": "validation/CMP-validation-077.csv",
+      "git_blob_sha1": "f513cc7acce83074561eed6ab358f1e749b85bb1",
+      "bytes": 452065,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-078.csv",
+      "local_path": "validation/CMP-validation-078.csv",
+      "git_blob_sha1": "05e50d0c15f5db0a0346e4af2e80a928e25d8e6a",
+      "bytes": 248955,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-079.csv",
+      "local_path": "validation/CMP-validation-079.csv",
+      "git_blob_sha1": "65f02a627b0dfe8b1aa50ca1471c16b6f60b3c6b",
+      "bytes": 432869,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-080.csv",
+      "local_path": "validation/CMP-validation-080.csv",
+      "git_blob_sha1": "0c85034a2477c03ca55bd76b876ecdbe4f337336",
+      "bytes": 131611,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-081.csv",
+      "local_path": "validation/CMP-validation-081.csv",
+      "git_blob_sha1": "dbf75240b45a860771e74e8c743c769fba85a1b1",
+      "bytes": 59505,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-082.csv",
+      "local_path": "validation/CMP-validation-082.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-083.csv",
+      "local_path": "validation/CMP-validation-083.csv",
+      "git_blob_sha1": "bedd18d0597069dd3d65664c7a7bb20a786e6fff",
+      "bytes": 119192,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-084.csv",
+      "local_path": "validation/CMP-validation-084.csv",
+      "git_blob_sha1": "0a092a04a5b64ec835f1ae3068cf67981d39c5f0",
+      "bytes": 90269,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-085.csv",
+      "local_path": "validation/CMP-validation-085.csv",
+      "git_blob_sha1": "7d470d496c8ed14d7b735cbb776694c41e7cfe53",
+      "bytes": 74096,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-086.csv",
+      "local_path": "validation/CMP-validation-086.csv",
+      "git_blob_sha1": "2929a539dd44e6b0dd4d962b01c21c3b8842d8d6",
+      "bytes": 151239,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-087.csv",
+      "local_path": "validation/CMP-validation-087.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-088.csv",
+      "local_path": "validation/CMP-validation-088.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-089.csv",
+      "local_path": "validation/CMP-validation-089.csv",
+      "git_blob_sha1": "47716cdb079caf6bcbe772d3748ebf64503dfe9e",
+      "bytes": 248655,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-090.csv",
+      "local_path": "validation/CMP-validation-090.csv",
+      "git_blob_sha1": "db57299b993deafc98d9850e872edaa400c14639",
+      "bytes": 234690,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-091.csv",
+      "local_path": "validation/CMP-validation-091.csv",
+      "git_blob_sha1": "0ade9ea34efc3f05f9e386227aa5179b067ffe3f",
+      "bytes": 373042,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-092.csv",
+      "local_path": "validation/CMP-validation-092.csv",
+      "git_blob_sha1": "18987d992967b22863b70d86a11bf7a2f41f4084",
+      "bytes": 71424,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-093.csv",
+      "local_path": "validation/CMP-validation-093.csv",
+      "git_blob_sha1": "037365852f780a74c99d9c903aa70292c93f7637",
+      "bytes": 75470,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-094.csv",
+      "local_path": "validation/CMP-validation-094.csv",
+      "git_blob_sha1": "b029dd4a4d80fe4078bac04efaa5a7ed47f90f30",
+      "bytes": 368578,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-095.csv",
+      "local_path": "validation/CMP-validation-095.csv",
+      "git_blob_sha1": "8df1467f5cb383cded02bcad1d0160ba958c9b0b",
+      "bytes": 146947,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-096.csv",
+      "local_path": "validation/CMP-validation-096.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-097.csv",
+      "local_path": "validation/CMP-validation-097.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-098.csv",
+      "local_path": "validation/CMP-validation-098.csv",
+      "git_blob_sha1": "10f7e301bc232ba2b8336ec8fc859e41a29e7405",
+      "bytes": 207808,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-099.csv",
+      "local_path": "validation/CMP-validation-099.csv",
+      "git_blob_sha1": "b679b1f641b7963c617e535d6583de0e4c331d4b",
+      "bytes": 137624,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-100.csv",
+      "local_path": "validation/CMP-validation-100.csv",
+      "git_blob_sha1": "fac1901318d5831e2d1479417c675c0d831eef9f",
+      "bytes": 74263,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-101.csv",
+      "local_path": "validation/CMP-validation-101.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-102.csv",
+      "local_path": "validation/CMP-validation-102.csv",
+      "git_blob_sha1": "dadc353d936a3a3babb1de101ec5cb5daa3e5706",
+      "bytes": 288542,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-103.csv",
+      "local_path": "validation/CMP-validation-103.csv",
+      "git_blob_sha1": "b8db79307e3ea7bdb3e12562b008ea5f79e01774",
+      "bytes": 213272,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-104.csv",
+      "local_path": "validation/CMP-validation-104.csv",
+      "git_blob_sha1": "3ca690b8e1afff57bc2d4e3810ca8be9db138989",
+      "bytes": 495320,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-105.csv",
+      "local_path": "validation/CMP-validation-105.csv",
+      "git_blob_sha1": "de39e213d167747ffc4242ca0545dd0db25c5148",
+      "bytes": 273733,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-106.csv",
+      "local_path": "validation/CMP-validation-106.csv",
+      "git_blob_sha1": "0046435a2516073630d5d286d1df7ab044f1ffbe",
+      "bytes": 697560,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-107.csv",
+      "local_path": "validation/CMP-validation-107.csv",
+      "git_blob_sha1": "5aa9c90c6842f50e64701817f3a7c486465f043f",
+      "bytes": 117184,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-108.csv",
+      "local_path": "validation/CMP-validation-108.csv",
+      "git_blob_sha1": "4ef6b639a2e03f88b64c6c2eefcb088acf6bb7dc",
+      "bytes": 129077,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-109.csv",
+      "local_path": "validation/CMP-validation-109.csv",
+      "git_blob_sha1": "a0e0868f84bda22b92f14e685d9c1014e9a6f8a5",
+      "bytes": 43782,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-110.csv",
+      "local_path": "validation/CMP-validation-110.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-111.csv",
+      "local_path": "validation/CMP-validation-111.csv",
+      "git_blob_sha1": "38f49aafd07aa593162185705f366d7de741c3c0",
+      "bytes": 65804,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-112.csv",
+      "local_path": "validation/CMP-validation-112.csv",
+      "git_blob_sha1": "fc880e339197c76ffc85c6d99ca40bd8dafc5253",
+      "bytes": 62836,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-113.csv",
+      "local_path": "validation/CMP-validation-113.csv",
+      "git_blob_sha1": "77b774fc130b254062db0d4c3cef127830b6bb07",
+      "bytes": 184762,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-114.csv",
+      "local_path": "validation/CMP-validation-114.csv",
+      "git_blob_sha1": "b8780bd5b763760cdacf723f1983ab84ba3b6f1e",
+      "bytes": 74637,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-115.csv",
+      "local_path": "validation/CMP-validation-115.csv",
+      "git_blob_sha1": "140e41981c72e4c5a1657025b1b5df5f13e8efb9",
+      "bytes": 72261,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-116.csv",
+      "local_path": "validation/CMP-validation-116.csv",
+      "git_blob_sha1": "d352b7111df76e61f2405b8d6ab24bb16d8b8bc3",
+      "bytes": 141647,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-117.csv",
+      "local_path": "validation/CMP-validation-117.csv",
+      "git_blob_sha1": "cdc1c992b1fc07e7e0b204890cb8026a7dc88b77",
+      "bytes": 132570,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-118.csv",
+      "local_path": "validation/CMP-validation-118.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-119.csv",
+      "local_path": "validation/CMP-validation-119.csv",
+      "git_blob_sha1": "4eaff606c3b7a23e05d300442ee0ac842207dde8",
+      "bytes": 143368,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-120.csv",
+      "local_path": "validation/CMP-validation-120.csv",
+      "git_blob_sha1": "813f1a56b865e96f917366fc886816e5ff88d7e5",
+      "bytes": 242209,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-121.csv",
+      "local_path": "validation/CMP-validation-121.csv",
+      "git_blob_sha1": "dfb12ed3433173b4badcbe4794922e656f742d2f",
+      "bytes": 142141,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-122.csv",
+      "local_path": "validation/CMP-validation-122.csv",
+      "git_blob_sha1": "1e163506a25e1a6e8951d4607e247cb9af498fb0",
+      "bytes": 140682,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-123.csv",
+      "local_path": "validation/CMP-validation-123.csv",
+      "git_blob_sha1": "04a3e0fd8853cf2a6c10d930fb24af070c59c6fa",
+      "bytes": 349784,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-124.csv",
+      "local_path": "validation/CMP-validation-124.csv",
+      "git_blob_sha1": "0a83223837ed404d92d21cb5defe2e1378cabd28",
+      "bytes": 221845,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-125.csv",
+      "local_path": "validation/CMP-validation-125.csv",
+      "git_blob_sha1": "971e89f326cb3eb7acdca4f774075dda9236885e",
+      "bytes": 139557,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-126.csv",
+      "local_path": "validation/CMP-validation-126.csv",
+      "git_blob_sha1": "4ef92d703047b7930d47518234b2c02c1b34fef5",
+      "bytes": 184928,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-127.csv",
+      "local_path": "validation/CMP-validation-127.csv",
+      "git_blob_sha1": "67898669f916a1d3bfc957149d32a6af779601dc",
+      "bytes": 59899,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-128.csv",
+      "local_path": "validation/CMP-validation-128.csv",
+      "git_blob_sha1": "860726477a87100b508bd57926d58bac0e05131e",
+      "bytes": 138337,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-129.csv",
+      "local_path": "validation/CMP-validation-129.csv",
+      "git_blob_sha1": "16b7a2f7089d564cb4b9a75214e8557917e09f4b",
+      "bytes": 73850,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-130.csv",
+      "local_path": "validation/CMP-validation-130.csv",
+      "git_blob_sha1": "cd9cd1385a2be61703255b35855f45077471c366",
+      "bytes": 116116,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-131.csv",
+      "local_path": "validation/CMP-validation-131.csv",
+      "git_blob_sha1": "06f293d75586dc09db16899320b620d36c2ce7a5",
+      "bytes": 214826,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-132.csv",
+      "local_path": "validation/CMP-validation-132.csv",
+      "git_blob_sha1": "4e7659ad9d59f7d42d521898e200f5ca1f1db1e3",
+      "bytes": 65682,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-133.csv",
+      "local_path": "validation/CMP-validation-133.csv",
+      "git_blob_sha1": "a96d283565c88db44a183aa58f0bac0b16dbdd00",
+      "bytes": 57253,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-134.csv",
+      "local_path": "validation/CMP-validation-134.csv",
+      "git_blob_sha1": "57b638357768a50de556c0cd7c5263c41873a261",
+      "bytes": 56450,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-135.csv",
+      "local_path": "validation/CMP-validation-135.csv",
+      "git_blob_sha1": "6f49fc1fae1643698427aa1a978ab6f84425472f",
+      "bytes": 40732,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-136.csv",
+      "local_path": "validation/CMP-validation-136.csv",
+      "git_blob_sha1": "8e56ce075d71dcb77eb6838432e851dff58ca6b0",
+      "bytes": 59692,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-137.csv",
+      "local_path": "validation/CMP-validation-137.csv",
+      "git_blob_sha1": "1fcd38ff2871023beed7cc43504ccf51e005d0d3",
+      "bytes": 207118,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-138.csv",
+      "local_path": "validation/CMP-validation-138.csv",
+      "git_blob_sha1": "1d7591fb11d7000461c824f74ab343c92778c2a4",
+      "bytes": 204814,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-139.csv",
+      "local_path": "validation/CMP-validation-139.csv",
+      "git_blob_sha1": "1e578c0fe756d6a700804d9d9ca03417999db4c0",
+      "bytes": 207024,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-140.csv",
+      "local_path": "validation/CMP-validation-140.csv",
+      "git_blob_sha1": "356816d6986c2a7df23bfdc13b82e1ba11d981fe",
+      "bytes": 71144,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-141.csv",
+      "local_path": "validation/CMP-validation-141.csv",
+      "git_blob_sha1": "c88a8a6bb0724c33b57f215c48d440d69e4716a2",
+      "bytes": 71858,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-142.csv",
+      "local_path": "validation/CMP-validation-142.csv",
+      "git_blob_sha1": "3aef91b8f61aa621cde68860efb320e091bfb4fa",
+      "bytes": 146031,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-143.csv",
+      "local_path": "validation/CMP-validation-143.csv",
+      "git_blob_sha1": "aa65aad948ac1e1264fcd54499ac3a6c0a1949ee",
+      "bytes": 443753,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-144.csv",
+      "local_path": "validation/CMP-validation-144.csv",
+      "git_blob_sha1": "4892a9bcf80a75e5da020e4ee6543cf3e14246f2",
+      "bytes": 63468,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-145.csv",
+      "local_path": "validation/CMP-validation-145.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-146.csv",
+      "local_path": "validation/CMP-validation-146.csv",
+      "git_blob_sha1": "76172ef18443314f28f06e54dcf2b0aa6ce31513",
+      "bytes": 183149,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-147.csv",
+      "local_path": "validation/CMP-validation-147.csv",
+      "git_blob_sha1": "e07ec840e78fa19b14c3f71f3a97c6a26946d768",
+      "bytes": 201182,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-148.csv",
+      "local_path": "validation/CMP-validation-148.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-149.csv",
+      "local_path": "validation/CMP-validation-149.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-150.csv",
+      "local_path": "validation/CMP-validation-150.csv",
+      "git_blob_sha1": "ab485303f308697140dad758b58e79200d11916c",
+      "bytes": 73612,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-151.csv",
+      "local_path": "validation/CMP-validation-151.csv",
+      "git_blob_sha1": "a1d03f84de7c85818c966141f301a0544eef0532",
+      "bytes": 357220,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-152.csv",
+      "local_path": "validation/CMP-validation-152.csv",
+      "git_blob_sha1": "9c4622304431532eb75df1f01210a9826553e677",
+      "bytes": 328797,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-153.csv",
+      "local_path": "validation/CMP-validation-153.csv",
+      "git_blob_sha1": "1ef10f69e78cb0039cf41de3c4ea22abea42430f",
+      "bytes": 279706,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-154.csv",
+      "local_path": "validation/CMP-validation-154.csv",
+      "git_blob_sha1": "c0a2ac81e186eb1d046f1191c424cae487eb967f",
+      "bytes": 110111,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-155.csv",
+      "local_path": "validation/CMP-validation-155.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-156.csv",
+      "local_path": "validation/CMP-validation-156.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-157.csv",
+      "local_path": "validation/CMP-validation-157.csv",
+      "git_blob_sha1": "5158eb728406eefee817de58448ea29ae19db18d",
+      "bytes": 314829,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-158.csv",
+      "local_path": "validation/CMP-validation-158.csv",
+      "git_blob_sha1": "6d6011b54413d13411e0968181cf082a564785b2",
+      "bytes": 333904,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-159.csv",
+      "local_path": "validation/CMP-validation-159.csv",
+      "git_blob_sha1": "708914723ca2a7ca34133bb1b6ad266c8894944d",
+      "bytes": 114220,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-160.csv",
+      "local_path": "validation/CMP-validation-160.csv",
+      "git_blob_sha1": "edec07caabadbe3d88a65337859e3e2b43d5cb91",
+      "bytes": 246002,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-161.csv",
+      "local_path": "validation/CMP-validation-161.csv",
+      "git_blob_sha1": "db538f1cdce964683518cff445207d9d98e8027e",
+      "bytes": 141804,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-162.csv",
+      "local_path": "validation/CMP-validation-162.csv",
+      "git_blob_sha1": "2e4b2ca9437a657ba8e6069761040050696e8414",
+      "bytes": 146412,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-163.csv",
+      "local_path": "validation/CMP-validation-163.csv",
+      "git_blob_sha1": "1a75d0664015016f7737b11bc4c93860d2d3de90",
+      "bytes": 138697,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-164.csv",
+      "local_path": "validation/CMP-validation-164.csv",
+      "git_blob_sha1": "0703fdd5eb72e510a565f8c311a8bd6a41447937",
+      "bytes": 206903,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-165.csv",
+      "local_path": "validation/CMP-validation-165.csv",
+      "git_blob_sha1": "27238d6987cc55493a7993bebdf57e2d19be15c8",
+      "bytes": 58889,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-166.csv",
+      "local_path": "validation/CMP-validation-166.csv",
+      "git_blob_sha1": "40b027843bea8220ac47058e64836e30bdca1c2d",
+      "bytes": 180942,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-167.csv",
+      "local_path": "validation/CMP-validation-167.csv",
+      "git_blob_sha1": "1d5e735e9e3311ee91e3e103fe1771ede41f8d37",
+      "bytes": 200751,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-168.csv",
+      "local_path": "validation/CMP-validation-168.csv",
+      "git_blob_sha1": "99aedcb778bf11455a8e41e9b59666da69fcd46e",
+      "bytes": 176328,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-169.csv",
+      "local_path": "validation/CMP-validation-169.csv",
+      "git_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "bytes": 462,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-170.csv",
+      "local_path": "validation/CMP-validation-170.csv",
+      "git_blob_sha1": "f3dbf8e051221a580b96e13ef2b91d550221d262",
+      "bytes": 87642,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-171.csv",
+      "local_path": "validation/CMP-validation-171.csv",
+      "git_blob_sha1": "602183b20c488e30ccbc2e66ecc1e68f1dfa59b3",
+      "bytes": 126820,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-172.csv",
+      "local_path": "validation/CMP-validation-172.csv",
+      "git_blob_sha1": "aea0265625755e44602e2ca2e0529062720612e2",
+      "bytes": 175263,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-173.csv",
+      "local_path": "validation/CMP-validation-173.csv",
+      "git_blob_sha1": "2590854015da4c83379644b6a95f5bb84aec39e5",
+      "bytes": 138984,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-174.csv",
+      "local_path": "validation/CMP-validation-174.csv",
+      "git_blob_sha1": "0eebf6df356dffc825c65912b1d235e5d839ff4b",
+      "bytes": 112420,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-175.csv",
+      "local_path": "validation/CMP-validation-175.csv",
+      "git_blob_sha1": "8cd5f622659185fcdefca6519c6e934b35504581",
+      "bytes": 111918,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-176.csv",
+      "local_path": "validation/CMP-validation-176.csv",
+      "git_blob_sha1": "ebdadf24effe94b6014c27c2402a703712263939",
+      "bytes": 144342,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-177.csv",
+      "local_path": "validation/CMP-validation-177.csv",
+      "git_blob_sha1": "ee1bae45c0cb52098570e25070f205c15db18699",
+      "bytes": 138001,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-178.csv",
+      "local_path": "validation/CMP-validation-178.csv",
+      "git_blob_sha1": "21c9c8173e387671ab89e8dc01e6f684a43dd9c6",
+      "bytes": 267956,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-179.csv",
+      "local_path": "validation/CMP-validation-179.csv",
+      "git_blob_sha1": "ce1d803d8c2ea01541f5fa9f04f8685d34d59c4e",
+      "bytes": 272301,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-180.csv",
+      "local_path": "validation/CMP-validation-180.csv",
+      "git_blob_sha1": "162efa6d2b5d3408a1bd3337caeb88a86df9dd86",
+      "bytes": 138643,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-181.csv",
+      "local_path": "validation/CMP-validation-181.csv",
+      "git_blob_sha1": "a6fa09ffd25be280b0ea7d56bd2a0a6b8657d1db",
+      "bytes": 209243,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-182.csv",
+      "local_path": "validation/CMP-validation-182.csv",
+      "git_blob_sha1": "7dca629d37b5a2e9143a9c7aa113b9067e00c82c",
+      "bytes": 125761,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-183.csv",
+      "local_path": "validation/CMP-validation-183.csv",
+      "git_blob_sha1": "306129d5d151446a4b0990281738f4f6285a8c27",
+      "bytes": 72950,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/2016 PHM DATA CHALLENGE CMP VALIDATION DATA SET/validation/CMP-validation-184.csv",
+      "local_path": "validation/CMP-validation-184.csv",
+      "git_blob_sha1": "78ccb6cd6b310022612eb1a3c899fd595c1c7139",
+      "bytes": 71860,
+      "kind": "validation"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-test-removalrate.csv",
+      "local_path": "labels/CMP-test-removalrate.csv",
+      "git_blob_sha1": "98ee87f5fe2790932ff5020f5de7f60bdaef287a",
+      "bytes": 9215,
+      "kind": "labels"
+    },
+    {
+      "source_path": "data/2016 PHM Data Challenge/PHM16TestValidationAnswers/PHM16TestValidationAnswers/orig_CMP-validation-removalrate.csv",
+      "local_path": "labels/CMP-validation-removalrate.csv",
+      "git_blob_sha1": "e356ac46271833456eb43374b5c04ed817e21740",
+      "bytes": 9227,
+      "kind": "labels"
+    }
+  ],
+  "training_identity_checks": [
+    {
+      "file": "CMP-training-000.csv",
+      "local_sha256": "230c447e1d5c25ab5063c97aea34059179f09084300f3d7a8c17e3d1e3e35bfb",
+      "mirror_blob_sha1": "618b3c628adc464d38080f6c742d4c46ac4e8c93",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-001.csv",
+      "local_sha256": "7bf394b12b232f467e39fabaff6a755c0bbdda247c56576d48be9b9f84459ffc",
+      "mirror_blob_sha1": "16c32b29866ef5ce76a1a2ef3c7491d1eac29e1a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-002.csv",
+      "local_sha256": "e05f85cbfa319ac1f023f5215173f1efffb4f81065153a11879eb8c62997e652",
+      "mirror_blob_sha1": "5ba550b74ed7048785e0fc662794d9940e9667a1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-003.csv",
+      "local_sha256": "73414a86af94487133d9d46ee11fb724dc1da8bccc1e48d319b694b00342dcc2",
+      "mirror_blob_sha1": "9ce865dece779b99428040253986b18ac325d5fc",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-004.csv",
+      "local_sha256": "a8fdd7c6238fd345b6f39bccefda7ec165ba469bf3c73176a0a2facbeaba9944",
+      "mirror_blob_sha1": "116e266cb4a7c9c1085ad211792072de487e33ef",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-005.csv",
+      "local_sha256": "3517644e416b32a6423bda339afd4beb7cc62bdb96b2ba4afc4f5786fc1a0882",
+      "mirror_blob_sha1": "df001caed9851ca29498fb376c398078b572da1e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-006.csv",
+      "local_sha256": "db05895fd905edc9bb6aa70bb6996f6bac12bfce5081af9bb63763c8912a56ba",
+      "mirror_blob_sha1": "5f01b66afb5342aa730e6749e2f4f6b046f5da86",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-007.csv",
+      "local_sha256": "599624454ac0d6a7209e30e19e5d82c6f5bccde2ae965738bd1874218657e9db",
+      "mirror_blob_sha1": "e96ed45182b0df95818cd2f74c926ffc91ee77e8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-008.csv",
+      "local_sha256": "50106d8c82d109c3fb1818c1121a41994d1fa3119e679b4eea12938aec614f80",
+      "mirror_blob_sha1": "24b90c767cf0b3728134c1bd34ffa52e3b66c1da",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-009.csv",
+      "local_sha256": "ef6fcf2b4aae38f95205a3251302dc00bd6a890c90059a3d7ffc175806c37019",
+      "mirror_blob_sha1": "05ccda2f7c32b0f818ec3b5d0df2cbb679132b20",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-010.csv",
+      "local_sha256": "b7c60011ff00f6e2446ff1313c99149cb357572fbd8396f0eb3770348077a302",
+      "mirror_blob_sha1": "db8d572ab7a90e5aafd2230ad582bc6268048e8f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-011.csv",
+      "local_sha256": "1d7b48f683f7356c1074f61deb5cee22c4e79a6fe062ea2a39206b1acfaafdac",
+      "mirror_blob_sha1": "eeb6b51fa0835e2fa50cd583e2b1f38eaa530112",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-012.csv",
+      "local_sha256": "f2b2eb3ff9f76142ce69ae1676f9c00a84f73764222c2b51a511f0f3b6112aa3",
+      "mirror_blob_sha1": "c071ba75085770cc3c343e874cb62898ac3c5e62",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-013.csv",
+      "local_sha256": "f16797b06bcc3138a7d6e4d1a554fa89fbbef451299fbf154b185becc47b8843",
+      "mirror_blob_sha1": "78285a2e52b6034f4c7927398ef402e83587e1d6",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-014.csv",
+      "local_sha256": "00c27f408fb87b8a193913bdfdd7e65fca34723e3b47809238b5a7e45ed62268",
+      "mirror_blob_sha1": "31f1b230685c058e39d31ecef64e713fedf34166",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-015.csv",
+      "local_sha256": "2b26d5c2d99a3eb62a16bd62a010ab8ee85d7bc9dceb83fca08f8315a5c852d0",
+      "mirror_blob_sha1": "da54dd601d6c7d0b1ddf60adbd6300658beefb58",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-016.csv",
+      "local_sha256": "87dc3f371b428efeaa7a052c7caf3180865cf3cfe9aad3eb7fbcb96ee7d68f56",
+      "mirror_blob_sha1": "33f09e41f3b7b5541d28ff850c971ed31c3802db",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-017.csv",
+      "local_sha256": "805951409463fdae485521334db0175bf1bfc76307809f23284f67f9d51ca96d",
+      "mirror_blob_sha1": "90d1c42159c2e4328ea3c35f270d955b22b1ad1f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-018.csv",
+      "local_sha256": "d20debe0f705f7d3f134c3daad118be1394cc9af390b3fbbd5929582e23973d4",
+      "mirror_blob_sha1": "0518f0c67ca5d89d99452e5abc778b86ec6c1a26",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-019.csv",
+      "local_sha256": "5b9429f821d4361e08366211266bc054d70510fd589d49b3c1da895fc47e0b0b",
+      "mirror_blob_sha1": "8be3ffede3f879faaf8187e00253d902cf80f235",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-020.csv",
+      "local_sha256": "6294c9e09b4ff1a25cb08c1d4a94b100272995845fc3bc6641b5ad3dedf50ad5",
+      "mirror_blob_sha1": "69a3153bc55a1d7ccd215cb6de60e677e06a3c00",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-021.csv",
+      "local_sha256": "819926d916378ea12a8d8436f5ccf1ac3da004031c816d72cd882c7bd23bc396",
+      "mirror_blob_sha1": "c8f763adf0942a5b9aefb31291539c2a06eaffa3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-022.csv",
+      "local_sha256": "0050ace3626aaf805c2c49b93a2f5445d0c69036af1240420c49adfc40ad3f2a",
+      "mirror_blob_sha1": "85202616b2c3c9f9146056f7fd13d0f3f55a26c9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-023.csv",
+      "local_sha256": "6d86fffe2a884fa679b29437b8ece1f4a59fc3277c4fd95573b6ad89cae1fd46",
+      "mirror_blob_sha1": "401321710415dbbbcd0ce0be3f066d2210e70b36",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-024.csv",
+      "local_sha256": "8e37861ff20310c088d14d58ebf741d0192725a0056485a8ff7798e3b9b04fc5",
+      "mirror_blob_sha1": "8bf7241df13ff9a18213d83510f9de46c099a544",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-025.csv",
+      "local_sha256": "a9c0de2149afa05759dee5d1256f01b77ff1effc39729750481b262c2cc85798",
+      "mirror_blob_sha1": "6a2814a1dc5bc5abfa8e5c58193154f73f3fc6c9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-026.csv",
+      "local_sha256": "6fc46e66ad25aeb8f9406cbfd852c98c94cf5a3f23dade1a444060c6dfca997a",
+      "mirror_blob_sha1": "62d7a81a12903643d3d998ebcd727db9d21ffa62",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-027.csv",
+      "local_sha256": "182bc98482670f73dedec8f84ad318393ddace600d24b72487a02d54f1bb0aae",
+      "mirror_blob_sha1": "1eb768b1460eb384382ce8216e3bf14b89909437",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-028.csv",
+      "local_sha256": "14aa22d80013b1752626b9467b85cc1c297e83d8bb051173913c644ab2e6ffee",
+      "mirror_blob_sha1": "f92d202f4d206e3b893729882c5a64d5a496b716",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-029.csv",
+      "local_sha256": "8f5e4ad267a015a602c0ff253daa2b0502fada456da6012f05745df2f507955f",
+      "mirror_blob_sha1": "7d653faffeabe6c897c2a8713b838f57c8fd4119",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-030.csv",
+      "local_sha256": "0584e62c0a5b628a648c089776eefded1a75d1a335ef44e4127647c136b5e6d6",
+      "mirror_blob_sha1": "bc7426b6631837b105263a55eb3b4c8ab0d09138",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-031.csv",
+      "local_sha256": "5b0c22b11215247028fcd2f1929d672d472c7764019e90096b522b82eed43ef7",
+      "mirror_blob_sha1": "636a388b2c89ba51269b8e6f0d9d65d1cecfb82e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-032.csv",
+      "local_sha256": "27430a4bf83860f11620b9ea9a6ccb8e97fee2f827d2efabaa656d9646ea804e",
+      "mirror_blob_sha1": "4f95d4ee880906058c6dad3abdf8552b9b51407b",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-033.csv",
+      "local_sha256": "b1f3d791183adb813f8347e99685e28140c239e756f72e9330539e5a806cc418",
+      "mirror_blob_sha1": "5f99f2adf688a3d28761458bf356d8a17761adcf",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-034.csv",
+      "local_sha256": "f5bb542c97cffdc475402f90fb3740544140efee5c77b922052157a5b33ffa9e",
+      "mirror_blob_sha1": "98dd99fba7eaff1cab7427a4d3e76bfa6d04fb3f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-035.csv",
+      "local_sha256": "6df0fc29bbe26369df55a8a48602fa34d5ed4572b52fcf7d5e88b1a2c1c4e44b",
+      "mirror_blob_sha1": "275796f82a4ba2a9c7930111db4fe09e70246f6b",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-036.csv",
+      "local_sha256": "b49f1207e17925e7a77fab5aba1b4e4486897ab026f010eb592a6b8b03cae282",
+      "mirror_blob_sha1": "e906ba121a356068fd4b1585eb797de8746ce493",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-037.csv",
+      "local_sha256": "435a78d0e5050ea96a31dbbc639500b1839324e34f2b78aeb5a0d115f2a94030",
+      "mirror_blob_sha1": "72318c31492dcb4e65e83f981429178ffda94bb4",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-038.csv",
+      "local_sha256": "6db06a842757243bd5a73395ce36f86b59a17ab6980e0ae2ca00a07dc66fe2f9",
+      "mirror_blob_sha1": "35b157dd9073d54a05b5697444439fcb8480ae33",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-039.csv",
+      "local_sha256": "36e23d275b4799eb12508c86a78265cc315f2763f8e6f40e361a64eccef8fa2b",
+      "mirror_blob_sha1": "f98b13d3899bef14292ed26b40e62f60c8f7090d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-040.csv",
+      "local_sha256": "c3836289416931dd5a29efe7dbef7eda1d70c426f03e8c0946641f0164993049",
+      "mirror_blob_sha1": "5d39773623892ad4e43ba3f17e039e6f0535fc48",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-041.csv",
+      "local_sha256": "f863f031acb05b2e8d14a5b142e7c4a76e1721d2afafbfea3d4c6b136588bcc7",
+      "mirror_blob_sha1": "b838c1e8d521d715799bfd1f6fdf5596ad8bc060",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-042.csv",
+      "local_sha256": "ebef414d55c951af21445d6ec90596869d0e1a7c5a0d84bebb9e909f95116ea2",
+      "mirror_blob_sha1": "a432a1eea8366b3cfc78768373c378c11edac2a8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-043.csv",
+      "local_sha256": "1ca79d711f0ffd9015bed963c1de81fb366a8a8964bb830a7f923ac6ea7244db",
+      "mirror_blob_sha1": "bba769d662aadbf2edc596dc5e21794c507eb66e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-044.csv",
+      "local_sha256": "a07572ff361c10958ded0c99cb7c29ab69a2888a52eca2fcac321a5d5ede45f5",
+      "mirror_blob_sha1": "8a546a01907b46cbb1ac408fbc9d3db814e6b2a3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-045.csv",
+      "local_sha256": "7a2b48f4992f061497ce44445f75a55cd0dbff7c5976cab3eba09c2e72843df1",
+      "mirror_blob_sha1": "7a8014c30a8db9f1a9c71fda42f86106be104321",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-046.csv",
+      "local_sha256": "ef6dab0312c9dd3f4430876e4815a0d076f499c0974014dbec8168edc6622539",
+      "mirror_blob_sha1": "0059e9a9806693fcc8cb51b47dc5fae066f7b82d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-047.csv",
+      "local_sha256": "c06352c3a65283c9b144016df1b61052ab3851bf654013712c01a9bda0298e6f",
+      "mirror_blob_sha1": "cb3f26245032eaa94f1a2764d84ba6d62c5aabd0",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-048.csv",
+      "local_sha256": "1b3bdedb69833c7a56bccc3adc2b64277433115299bca46427dcd296d0a77cbf",
+      "mirror_blob_sha1": "a009b81a6469a25c7faed1f15d6a3906126186c2",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-049.csv",
+      "local_sha256": "31580db5f5b363c8e55de7aab61ebf811f21c8ef2c179bdcf1cfb6c7a32ed7fa",
+      "mirror_blob_sha1": "149ccd588e75067f377230198b6deaa64e655870",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-050.csv",
+      "local_sha256": "544ca41e780fec184183977226a701b9f59f597047fff96a7603b7aa6fee195f",
+      "mirror_blob_sha1": "838bc61a473d6044808b27ab93afe037d1c2a84f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-051.csv",
+      "local_sha256": "febaed6502c7350a30688e19ee40da96699a9f5ef0ef3755d6d97a9c3afb85a4",
+      "mirror_blob_sha1": "cc72a2fa81de6a3fd8ad2fc45778f6559a718801",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-052.csv",
+      "local_sha256": "f58c6df6deba310cfb234170ddd74d9acf98bc01367ae4f1b6852af84bbb630a",
+      "mirror_blob_sha1": "8aed88f1bb65c3a0f2d24b2ccea83ac3b12b99f8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-053.csv",
+      "local_sha256": "f69d44a164bd59d00b5ff6f2e77434d46524bdf26457f19f4a798dbd258bdf7c",
+      "mirror_blob_sha1": "55d85f7b98bde349625b565506fe172134dbfd79",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-054.csv",
+      "local_sha256": "9d411448409230cc1829d4cd43c34e0f8579e24b426b2f2153b367708274b838",
+      "mirror_blob_sha1": "7114a4e03ac860f5524dbe636a5d11a68ffef20e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-055.csv",
+      "local_sha256": "5c5ae7a4cb810377e1a5bfd65098f674389414a00e77212822975f93f6c8dcec",
+      "mirror_blob_sha1": "13637c2ed7b6245f0db619e9039ef9cb7f74f3eb",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-056.csv",
+      "local_sha256": "2c45d51c593669efb8b625354bd1b7b9a6990cc481b95b332aecf0e108b63e70",
+      "mirror_blob_sha1": "cd08eb7e570f64711d5b9f04d2652c7d0046fe4f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-057.csv",
+      "local_sha256": "f268447270e74f0eed4db185adad8fbe85482fda0aff173d133e5480f8344ff1",
+      "mirror_blob_sha1": "df2e18eb24e296e1ebb011e5781deceefbd193e2",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-058.csv",
+      "local_sha256": "a5718e9cee69ec09003ca4fe2edc82d673de61fc08f409f35fa8182e453aa1d0",
+      "mirror_blob_sha1": "acfb57bd826df5cc17309725fb59f1a49c9b4a38",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-059.csv",
+      "local_sha256": "249fb9031ff03fb7aa37448c4c0cacefef48837c25d5a6603a7b9e4e50cfa7a3",
+      "mirror_blob_sha1": "b9a6ac899a3e81717a023423bdee686dc9dcec52",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-060.csv",
+      "local_sha256": "54a9a7ecbfeb772da713205e8317d6f51f3a14b7a45c42604a5c49aa322be5fc",
+      "mirror_blob_sha1": "9796df02f9f1319e660eaa44734613c660c4638a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-061.csv",
+      "local_sha256": "ded142201d2acf4c137b317306f9d587d61a7e3aa747e71c6ea5e08ffc12cab5",
+      "mirror_blob_sha1": "8f38dd7c460428461f464b526481f0af40af2271",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-062.csv",
+      "local_sha256": "c82d21f95a9190330072d4064351fcfc4468464ab158bd28160c791fc67d0119",
+      "mirror_blob_sha1": "668885ffa5d1cedbe36b15f83269f08658d8ba67",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-063.csv",
+      "local_sha256": "5d2556da06daa905173fa20f2ec486ca9d2484627bebac7183e07bf4647a0b51",
+      "mirror_blob_sha1": "cb4eb60339f5a6e4e8ffd9ecc0cadeffa564032f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-064.csv",
+      "local_sha256": "e16e806db697b0a40f6f10ec56408408191925115caad97f9d66d82ccc2b9d0f",
+      "mirror_blob_sha1": "962d632fb6f8a3c270150ac243216c163a2b1854",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-065.csv",
+      "local_sha256": "cbfd1332f257647451b43ec84d29595253847f8d551bbee126554e734c5f9001",
+      "mirror_blob_sha1": "e618b19130c4189016952ff6a3d516c7787e02d8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-066.csv",
+      "local_sha256": "0a23520779b7f811e9f899b9a080b8c03345fb5083b02998c030b436563e81f0",
+      "mirror_blob_sha1": "9e0193cc918e81028e0e6ed3c5209a0af781cfd9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-067.csv",
+      "local_sha256": "216873fb0b8dd82f1fb5a7c1ee14654a9ca90dafbdac58b5a4ea9f216fd7198d",
+      "mirror_blob_sha1": "acc954e2f1d15fd9cde316103b7ada9de2daa741",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-068.csv",
+      "local_sha256": "7b3253d4bf2a7d5b4165a186beeb8f4dde03361757960772c7a9b2c75572353d",
+      "mirror_blob_sha1": "2adb74ed15c238d684958bfb46441467c5d3619d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-069.csv",
+      "local_sha256": "d6f2ec648a0bbf60d2969ef1baf50dcbf3234d84cdccb9ec4e3ec0859b499e0a",
+      "mirror_blob_sha1": "5b0c1b1bf84504a1d66089f6d71268cc448690b0",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-070.csv",
+      "local_sha256": "d225171828b699ad16ce36e60f241d8d137319fb4bc8bab1a6f8c8e2250cb5f3",
+      "mirror_blob_sha1": "094c438c1d237440965dcd986b2b18357575b887",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-071.csv",
+      "local_sha256": "b01c8e229ebcaedcaa61e68025a016df24affd6a0c8903147b57f7261803440b",
+      "mirror_blob_sha1": "366aac5b0b8c1bc604c458dfe2dcb8638a2282a1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-072.csv",
+      "local_sha256": "58789e0731d768982964e81649be019d9f9bf0fd29271156587ab5ca42679adb",
+      "mirror_blob_sha1": "08810cec2ef33cd865da6c47756b95a851832c7f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-073.csv",
+      "local_sha256": "7211ae952b8b86bdbaf5d4a21a95f02e8c54adb196d403f2ea2ad772dc3d5809",
+      "mirror_blob_sha1": "3912f8af9936d642c49ec995dcc376f09d9a3730",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-074.csv",
+      "local_sha256": "f27f10b4f7ce963bd9b6408162bd0b4bb57bb585474eb54eb7774950f7170721",
+      "mirror_blob_sha1": "c3005f8d57e23963a4c9a9930d0a9e70a2426d81",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-075.csv",
+      "local_sha256": "bacb6f64a5cbf310ece6d9401cd3d61e622e406439bf9be18bf12c12b9b554a6",
+      "mirror_blob_sha1": "686e9fcbe3846ed3eb71ebe98c3a27222b7513a9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-076.csv",
+      "local_sha256": "b77bdadf747ef2437fa48ef4e39ac63fe5ec1be9c0a6e383afd837777545ac46",
+      "mirror_blob_sha1": "e1408a8ec98bfa419175c625fc800d3a58bac081",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-077.csv",
+      "local_sha256": "307e9cda98ce2d4fe6e5d0b71127bb0d2c04a6f2cae3f99b88ce17407df6e398",
+      "mirror_blob_sha1": "27f6acc48216aa2c84e291d33021e6f36e6c746a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-078.csv",
+      "local_sha256": "d8695d39dfabcce14e07c61562f638552ff3784d2cc44f79a8b2a1a69f0fc2d1",
+      "mirror_blob_sha1": "1ea7e3982e5afbc2c375f95b73897c77114b4266",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-079.csv",
+      "local_sha256": "f0772b30d53d4a30b0516973df5dcbe8284ad272d9c5226fd27345c08309cdb3",
+      "mirror_blob_sha1": "93a6bfc9f1218fdfcb74126e6e97a9fdf068329e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-080.csv",
+      "local_sha256": "097cf34f856da086c870343c6e5f4ada3beec6cf27183defd636a1baa619693f",
+      "mirror_blob_sha1": "7c76600290ce1743a9a340c67ef8e727aab2262a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-081.csv",
+      "local_sha256": "c491fa65f8650c1339dfa2fa40a14335489cfc342339301eb93a4b8a69c31cd8",
+      "mirror_blob_sha1": "699a89f859e4d6f9d0fc6d7991f8d05439ce0615",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-082.csv",
+      "local_sha256": "9b56947d9dd0702beb074c0a4813b656a06720d003bc33207e7cb88c98b95445",
+      "mirror_blob_sha1": "f61a8ca8d0ba10cd3f858a8c06696d397a6e7c89",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-083.csv",
+      "local_sha256": "a633794c795188934d74a4f779b250c4a2106dff45651a675ff3668a92d55325",
+      "mirror_blob_sha1": "a37f0ae269e814f0fdc8eddc00cef66ee2a11b86",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-084.csv",
+      "local_sha256": "e72f6c3c212df53b4192fecc18bd95813bffba493af9fb90f797cda64ab956b3",
+      "mirror_blob_sha1": "b82da1bf8ed825ebea3822dfaa29b32ebf38130d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-085.csv",
+      "local_sha256": "e69a9328dcfe620f44437048989e02adb10312ac9bbd77fedd02572a2d6d794a",
+      "mirror_blob_sha1": "ad3b409ba43563540cbb148f59de33612aec6f5f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-086.csv",
+      "local_sha256": "e9dba097a270b76b1bc07facfab8f3bccb9eaf58f4cee12788c44bd3ad2b2fc4",
+      "mirror_blob_sha1": "df3a0d135cc3cc7a8f9a9c10410876424312a503",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-087.csv",
+      "local_sha256": "f96503e2fea09c45fdb23b4ca167835a3f82bec48895eb820d0e9289e1fdd19d",
+      "mirror_blob_sha1": "7b2bd9270c70149e42ddc65e20718f3e48763ce6",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-088.csv",
+      "local_sha256": "71fb25dd48132d3d4b9a78dff204527db9799e4cd0bcc979281a653416f8ea8a",
+      "mirror_blob_sha1": "8a2d617d1aa5999c0fe62f60acb5bc4023f93099",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-089.csv",
+      "local_sha256": "6b05d2c00102e5e8d908856e0a8aa3ea245c424ec6b27937569038b1a42a851d",
+      "mirror_blob_sha1": "e79b5a0bf7a68d07231bbe319ea43bd6582df984",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-090.csv",
+      "local_sha256": "efe3e6b2776fff49e77463f92081ad1505336acc81a599a242e2b5e2ee11bca9",
+      "mirror_blob_sha1": "6832420a35a62aac3b807c7b7faf01048a699f28",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-091.csv",
+      "local_sha256": "49704e2cdc7364c75909c5c2372166cc3c84dd47c07fb7d1483494f75c132f59",
+      "mirror_blob_sha1": "e8fb0c716bdf9a2f03e8386b8ee6ecd454ba461f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-092.csv",
+      "local_sha256": "13e818ccbbb52b0ce26198a05c7be9c75d63b40325a22c555ef98b2a891448d0",
+      "mirror_blob_sha1": "80ab9dcfa425eaf8a0c9009832984f8b9a5a43ce",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-093.csv",
+      "local_sha256": "0db817e6971cadef0101b355985532b0bf27bf9899e63939a879ce0d2d64c585",
+      "mirror_blob_sha1": "11f172ac5cb961cc99952a6e3b949923325449c9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-094.csv",
+      "local_sha256": "bb22764ca6086284dc95bdb0839b84369e3136c6d0657247d36e26bab462f8ea",
+      "mirror_blob_sha1": "4c21e5990689ceebc703b11168d39d5f4f66eeca",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-095.csv",
+      "local_sha256": "b101347001a06ed37f3918962baa2829f2c5141cc206266d224eeaf835f965a0",
+      "mirror_blob_sha1": "b805a92353ef3f9c845019ff2df621f3d1efc407",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-096.csv",
+      "local_sha256": "3f93370d21c4e3c8b9cf53510489ac45945f9e837ea34ef2c2c0fcec0fa440ca",
+      "mirror_blob_sha1": "e2641c47e5a3586f42b6a7a8488e53829c6abc83",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-097.csv",
+      "local_sha256": "8c77a017362d84cfb74497a010b81560242a9fc4a38fc229e84b1882d612c8e7",
+      "mirror_blob_sha1": "5cff0b19aa7af5db26c01f0973cbc6fb9a2092a8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-098.csv",
+      "local_sha256": "be9d1984fe5cd32df974325f5d0d5ee5f7f5a558406066b1356e9ef31abab439",
+      "mirror_blob_sha1": "17cbb65515f8ef44beb853acb1c60c81766bfe15",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-099.csv",
+      "local_sha256": "dd08f86c3c54d4df12bb93b879c39caa547d491e6cb48129d834b2078d8a8c33",
+      "mirror_blob_sha1": "14d607a276dda93a2155f9a0c7e707bda78e8a4b",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-100.csv",
+      "local_sha256": "cedf1a0c085d392c1e6f0be79748d6480006e1a1ff43a89ac0f29a9499974bd2",
+      "mirror_blob_sha1": "5822a2dd453718e4114c09ca7626a3b7e7a21ace",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-101.csv",
+      "local_sha256": "8f15f568a5292b73d857e148b8498ed9f25d7c8ed73c7c761419edee2307534b",
+      "mirror_blob_sha1": "f2933b06711bdc61e016473c8ae2ffac936c00de",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-102.csv",
+      "local_sha256": "d8ec4cd2c80dd41771b6a90c98eb4bbb860f182d790660902ba15ee513c57980",
+      "mirror_blob_sha1": "374a499c6e874b83795141b0f76997751c15605e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-103.csv",
+      "local_sha256": "926f8f958a0d6f2901381a5637d0280423b8d05cf90b4081bfaf0383cfe85293",
+      "mirror_blob_sha1": "6333104b4bde9a2b8aae5427a02cef6ef7dc4a5e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-104.csv",
+      "local_sha256": "05b33cea78b40dfe91cdcc1a4f1b9f41599f0e7761961beadaf8178ee91e74c6",
+      "mirror_blob_sha1": "70cbf949ef943b0e23ad1a6c50fb12f57323c3db",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-105.csv",
+      "local_sha256": "b5bb50fa435d069bab9fe9df3ea5b46ad2f1ae3d4b8b346131b4ac4781752abe",
+      "mirror_blob_sha1": "72edc65b0a18fcaf5ce4c98610a93d35846b8e7a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-106.csv",
+      "local_sha256": "20e584d83ed29c3620877de6c5a6a7a38d9eef2c5235cb27f6e858e9066b1727",
+      "mirror_blob_sha1": "3b6997d4b2d8bce8b43376eec4f29ab2668cafff",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-107.csv",
+      "local_sha256": "e323cb3b03b534889128adcd1b84c52239278e66d43732d1ae08dee7451eeceb",
+      "mirror_blob_sha1": "e26c5097c3b2d6bd1d12dfb4a91a5ec018f246e9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-108.csv",
+      "local_sha256": "3eddaf16da717db935a5fa5187dc0c9fbe0725ca0e66fe88c5b687f51453d49e",
+      "mirror_blob_sha1": "c71c302645aa6ece4a2085b571af3f9caeb1810d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-109.csv",
+      "local_sha256": "1f735a5dc9708af172e8341a35ec23f88edb464ff73b19893f270ce319e3c95e",
+      "mirror_blob_sha1": "60c68dc582794b388fc63e4fec84875ce62e0eb1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-110.csv",
+      "local_sha256": "4c022b3a4dcc74f813f308f1bff6634cce5e9b730b24b55731c07ea28ce703e2",
+      "mirror_blob_sha1": "005b9c844024155b9bea60eea34bd5829a0050ba",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-111.csv",
+      "local_sha256": "0014291330390afa317ea9f772fdce112cc203192b194bad85ee4d0aeb0c4bba",
+      "mirror_blob_sha1": "46883242546a84aeca6473a4840fcfec733e9ba7",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-112.csv",
+      "local_sha256": "b7a666fa6de6a5174361da368d6a80a88dab2ddcf8d3a157d73fb35e6b98b8c3",
+      "mirror_blob_sha1": "ea7de0a2ea8133487fd94757ec0d8b4a96038327",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-113.csv",
+      "local_sha256": "0a772ce36bce85731d38e2082441bbda69817bf32b4b7edfb19f5f67fc2321bd",
+      "mirror_blob_sha1": "e79f4f971a44b2357de4156539d2bd29a33b39a7",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-114.csv",
+      "local_sha256": "fa07d3717763bb22200539b7a6493d2eeea78bea44769c0dcf8bc4fb090c906f",
+      "mirror_blob_sha1": "43bf227aacbd25ee011498990b24380997a4a6ab",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-115.csv",
+      "local_sha256": "75ac019af65f42233b3b6448c0cd0d804a7acd6f43cacdc754d94f9a7fa2b9c7",
+      "mirror_blob_sha1": "b4fc2b521cf94921c5c1326b0e1811e4498339b5",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-116.csv",
+      "local_sha256": "54f2af13502688c002ea35fb437aaafdd18fd6af9c8f3b9b18c025504b6af167",
+      "mirror_blob_sha1": "00600ba67fa3a4f36bb131483ca1f76712ce3e58",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-117.csv",
+      "local_sha256": "2e3d6ea791dc1ee7bb9ef96211c6dd9432088333f06d6601fc8e1c1ec72b568f",
+      "mirror_blob_sha1": "c30a852502580c4f9fd6f45b6acdc2add1a91833",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-118.csv",
+      "local_sha256": "dc6c2d7f2f1c7d91c9b13f33c3821022ed551ad377b124a18e1696a9ec039695",
+      "mirror_blob_sha1": "667722da8081a0816de1a3280550751bd4e28eef",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-119.csv",
+      "local_sha256": "57c662305765f03277acb5d680c6f1631931a236ad75ee35229e1f8081965f42",
+      "mirror_blob_sha1": "5f88e3c2242929148ba38a46411e5cbf9069623f",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-120.csv",
+      "local_sha256": "7144396b36a87145d918c198c7e1bcdbce7fdbf7ad52e32aa010540449deffae",
+      "mirror_blob_sha1": "b9bc4999ab7bfc4d045f8f579c89e38108720550",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-121.csv",
+      "local_sha256": "61d5400f547f39704d7210a52d5e41aac13c2ee51de09674ea5c470a6c405d32",
+      "mirror_blob_sha1": "9f4fa13213902e286174eeb412b455b153add701",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-122.csv",
+      "local_sha256": "460acec086bf7bfdd03ca07253c4930907d0cc6d444926de891cb55868bb6ab6",
+      "mirror_blob_sha1": "44c360709978a260e6b910042702f71b2b1ba162",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-123.csv",
+      "local_sha256": "3c302374fa47520a31d7a42c02a0749f7e338ce692c0a1c65a5bd7756e92746a",
+      "mirror_blob_sha1": "7820f07fcd84e5ff9fc69fb98887f41e5b41b78e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-124.csv",
+      "local_sha256": "f039d4a5c0ba221ecd3ef69f2475bc488735f14b156cf6332dc1526a21b97410",
+      "mirror_blob_sha1": "fc25478a07f8daed70d739d5f9462c86089682d3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-125.csv",
+      "local_sha256": "04208e0342787441dbc3ddaf1dd65f07f0c2f45b8a0b540581d23c8869ea8fa5",
+      "mirror_blob_sha1": "81f5ae5b238bf2507836fd26165d537ee5969ca3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-126.csv",
+      "local_sha256": "e169900092641ae7e6c4b70ef853623be5baaac0e0f3822c0373eb9298d6739c",
+      "mirror_blob_sha1": "c60cbfa001d1f0adb68cff9674f834e6b5443aeb",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-127.csv",
+      "local_sha256": "be56828a52e2995e1eea1d6253aff4dc58997f52827487527d52ef405facc53a",
+      "mirror_blob_sha1": "47bbcf84d0f052bead70dd335fe67e6ae3ada639",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-128.csv",
+      "local_sha256": "bf3b4887b509eb0a0f205b3c8d0254cc680553731782fd895077d1f813829eff",
+      "mirror_blob_sha1": "c88beab479bfee54c243582c665cdee4fe07e215",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-129.csv",
+      "local_sha256": "98219f92322568210f0c0c6d2bc145d9e3474003439cc1fa787e23e82d115578",
+      "mirror_blob_sha1": "70b9eba3e3dba42f32572133d9dfaa99cd83e3a1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-130.csv",
+      "local_sha256": "04dac0c085fb88385ecc1e10719808846955a819251032645314b2e073b45671",
+      "mirror_blob_sha1": "7e45dca33256ee5be69968993a9d3e3b5c405df3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-131.csv",
+      "local_sha256": "98599afdad49380dfa0bddb00d6f28048e96773db37b32609a05473995f0218c",
+      "mirror_blob_sha1": "68f1c51f9a47ca71601dc46d82a0528de9aeeb3d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-132.csv",
+      "local_sha256": "0610216b4e037fa42170e1bcb4f19fdfb5b7b9bcd119473d8e2d34fd55c02753",
+      "mirror_blob_sha1": "43ba2a7ebdd4f62216a568c8f6ab4bf8b81fd66d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-133.csv",
+      "local_sha256": "89f411662b26fc16f961f24900189867728aee08c817ad96285495d09ca134a0",
+      "mirror_blob_sha1": "fa4d18adb42603c67f277a5452df57dfe2867450",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-134.csv",
+      "local_sha256": "c469ebaba1ecc04d47477670c3f6d5e6b4d21c2af140d1a762691cd7dec8c9a8",
+      "mirror_blob_sha1": "a9c84b66b57763672b29fcd446c5cbac529dee27",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-135.csv",
+      "local_sha256": "46b1fcc85d7a4581723cecbf78668fbe7b246b9822a12fb499610d5b1441ce1c",
+      "mirror_blob_sha1": "b4cd9d70e1a2b0f36aeeda8d0929d18ecacc1152",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-136.csv",
+      "local_sha256": "16a7c2a4452119fa38bebac566a702334cb15066119aaebcd94a9786536a113e",
+      "mirror_blob_sha1": "9c747aa628f895645ba2ec2af6511fe2abda5951",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-137.csv",
+      "local_sha256": "a2f7d2f429944aa67f1b1c530937783c1887fe0465d28557f0b07f4632f7e41f",
+      "mirror_blob_sha1": "96c735594f161bd1c299ed400e2eb82b0168c5c1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-138.csv",
+      "local_sha256": "97018d8651dfb6abba4a25805ccd1928a8527bfbc5c3b5927f4928fe03121373",
+      "mirror_blob_sha1": "107d738bd7da262f33cdcac939c89abce5c86dcb",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-139.csv",
+      "local_sha256": "14d9aef5df7efb49270bc08a746ef6129ac0c09b3e7b9db156611bb8c9455772",
+      "mirror_blob_sha1": "96822a36822a79469e47b38e7aa099424eb34f82",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-140.csv",
+      "local_sha256": "fc95e69256a105c84a19f3ab421497c88c90860cf590454c892d2f65d1e4fa81",
+      "mirror_blob_sha1": "beec5c0de004b8a266de4f6e5f09d12e6ad5f231",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-141.csv",
+      "local_sha256": "7bea48074d0c8c3b5b893902c3080806980c90baeff79583933ed41ea41ac0f3",
+      "mirror_blob_sha1": "fd0f858ff7ab4757727e6f0423014c5790d5c870",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-142.csv",
+      "local_sha256": "e4c9132eecdb77cf85aaeaf34c34071e770d459e701bb71e5cf147d60ad2f9d8",
+      "mirror_blob_sha1": "d1b864aee79f9eefdcf6db5845677a476ab7a8b2",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-143.csv",
+      "local_sha256": "6b0298e30ed3f7ad62cd0d7cb6e67660a8dfdb60bccb511ade0c4268198f7496",
+      "mirror_blob_sha1": "77ad98a732d10a86dcf8fefb358c708464be3db8",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-144.csv",
+      "local_sha256": "dea42678b0907118fd680145bd458533c9bd33286c62f20e710bc1df6e312fe3",
+      "mirror_blob_sha1": "5b0885f9610d2578fee16e37aa5b4c136b9c373c",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-145.csv",
+      "local_sha256": "4b39dcfe2718310946b1e7354f8a21b8cad189b2647038f30019cae69474e3f1",
+      "mirror_blob_sha1": "04c38cf89860d3eb612e7b307cfff56da8c74567",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-146.csv",
+      "local_sha256": "94b209bc70cfa59b04ef853143dea9b8648df2e511c8a5dbdc5f8d12e56399be",
+      "mirror_blob_sha1": "80818596508ba2c3fd4445f5a482df37f9fc2885",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-147.csv",
+      "local_sha256": "9ccad192e86b8adf96cb6a43b808abe79a6c75bf05f5da4256e1ef10af7d8b40",
+      "mirror_blob_sha1": "28c074455ac66a9775a73fbc0486e0aea665cc15",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-148.csv",
+      "local_sha256": "7fc9f539f0de62e527184b69586bd30301b34ed9da7977d87089c437c3099872",
+      "mirror_blob_sha1": "6f33b58454a81ad7fd6880875d9e22e072228156",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-149.csv",
+      "local_sha256": "b9acf86a00ae82f821b0f3db74b1f5aa50a11a5935acbac8953376064543d29e",
+      "mirror_blob_sha1": "387f38f2915d2f5ed36f0f365185d42368e22499",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-150.csv",
+      "local_sha256": "900efba9d4e904d25783407da1b305dd99a9a7849aa681a1e2aa208f3fc92256",
+      "mirror_blob_sha1": "1e1a246a7cb6a37ab5d22289d05a3f6bf75ab8ad",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-151.csv",
+      "local_sha256": "f5c11ce65bc234839fbc4f0acb1d698b9937e9af54aaf8d2258c977aa885c8a1",
+      "mirror_blob_sha1": "1779ab578fbadc66ec50ce170d7d0b019a64d96c",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-152.csv",
+      "local_sha256": "12d302c164b61e163a652f1a8e2361b5f45d6cb82027481b2570855be8cbcb18",
+      "mirror_blob_sha1": "601ec29a64760356077be7e99472fa655054eb8d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-153.csv",
+      "local_sha256": "1dbbe1562ef1e8f6001248c657a461f86776370180cf898178a5b4f0f120d877",
+      "mirror_blob_sha1": "0e9de3e147669a8c116b6ccd230d5d2c05e519df",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-154.csv",
+      "local_sha256": "c19c36923cef96ea9ff715e736abe8aa523f81440fde678fa79618582e5b7097",
+      "mirror_blob_sha1": "6a8d9fbb4aea3f609b2f6f8f7eaf18fe1894cc8e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-155.csv",
+      "local_sha256": "b34bb52802b9c9eca424b6cf9b493a92294c53496969303072508f5260394895",
+      "mirror_blob_sha1": "2944ef7345bc7673ecfe2af411cc866609edfa45",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-156.csv",
+      "local_sha256": "2e9314cc41db4aad75bcbbc9ab7eb48412e6d7daf0483cc91bf71d1c58efc74a",
+      "mirror_blob_sha1": "9427964482ff3dd6c4a5202f63f68fc1ff040b0d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-157.csv",
+      "local_sha256": "a699b25b995bde1d6f86e12737f6f15c2b4ebe705ee33fd07695b2f349dd3a27",
+      "mirror_blob_sha1": "624d07cdc88731a7225e7c962b00277e4ed2aaeb",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-158.csv",
+      "local_sha256": "2af7442debb4d97ca630e662045b16f35cb85d34ba9c1e6c1a013bbd3e44e079",
+      "mirror_blob_sha1": "7b35c0e6bf757c9b7117d2a75f815b4763caa8c1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-159.csv",
+      "local_sha256": "7d655020a58e245d4067c4a5bbc42bff538d375544b749bd913bac9e2fa67f76",
+      "mirror_blob_sha1": "a316639947a9806dc357dd4362e0e078faaed4e3",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-160.csv",
+      "local_sha256": "cebb6b2168e210a5886d6e95d25f95ec915f6ce8bcfa5fc758c985ae56af7a66",
+      "mirror_blob_sha1": "55b1e3f34ce573db7e0c356aff1c0f1a8082f752",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-161.csv",
+      "local_sha256": "b0935813cbd1ce6b5b0dcc6a8858c2ff4b1ee1575a34ee4315cc257b2eabf934",
+      "mirror_blob_sha1": "8a17eee1ee707d962a04a78fae3bc2e3fbb2f752",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-162.csv",
+      "local_sha256": "2ee469879f10fe57893086fc0d57ad316cca990a9b294bb0fd9cda9a23215cec",
+      "mirror_blob_sha1": "1e614d6c955eb7a0ba67bcc81386f2a6b58bf15a",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-163.csv",
+      "local_sha256": "4f5b35cc830e5215d21f98fb19960b3766ac2b0b61ae5961b438869cbdd09ead",
+      "mirror_blob_sha1": "02aa5e7c9cfc840cc55bebab8bf8bd26b90e29ba",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-164.csv",
+      "local_sha256": "8df6738b27716e8a4b4b4e30eca95339258c5b5f18000fa7febd7c340ce0444e",
+      "mirror_blob_sha1": "e3362f286ae7ae4c4571551e7e8d49846cf90e5e",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-165.csv",
+      "local_sha256": "99b90aa7cb98979486ec04211a94c0d329f864ebf31cb22451dbd00a93bed0bf",
+      "mirror_blob_sha1": "26e7a6cd8037f9145194efab9840d4d8f160ae96",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-166.csv",
+      "local_sha256": "fdf6a18b7aff19041e64654f7df8def043938cb8351931ef3cb82dab0197c35b",
+      "mirror_blob_sha1": "d66c5b7aa423bd7f0ee2b0b5c0220dfade8d68e9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-167.csv",
+      "local_sha256": "6c2e2224a0e8e3098491ff89a92599ac924f8d306df763fdc63681bff12306af",
+      "mirror_blob_sha1": "5ec3e6be4148e17eda022acfda8887ea283b8204",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-168.csv",
+      "local_sha256": "0baa85d6ecbf4a4d6969b80f0ba5f5a3bffba6e892ac601536f6bfd002acc51d",
+      "mirror_blob_sha1": "40ccda23c02cd461fabc9f90be6401aa7b107b30",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-169.csv",
+      "local_sha256": "c5377aabe68a35a4b5e8aa952a3ef0637b44b1b481ea426f22074ae346b14d0b",
+      "mirror_blob_sha1": "0c47bb4257fe0590ab8ef43f990fd19e301b98c1",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-170.csv",
+      "local_sha256": "dc359474d63d284ce99bff04df9facca2961441818de2917637c427371b62475",
+      "mirror_blob_sha1": "a2df08c0b168a974cc04acdc9e642216e1042a69",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-171.csv",
+      "local_sha256": "d04c2c3bfe843800caca0c251ec701b3292e7d245b4bf60b2074535e81a9a70c",
+      "mirror_blob_sha1": "7619717f8996ebfc71b69ec1252053785d66ca68",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-172.csv",
+      "local_sha256": "18816752bc0695509c799ebb73db95997b7c37ebd8ff4d431aac6a35fa2107f5",
+      "mirror_blob_sha1": "ba726f59044ef970cff4a1cbbdd8e1f4fad8b130",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-173.csv",
+      "local_sha256": "004e56072533f8dbe19243eb6ee794e3589511bd4f390b08b1aef4b0b331df12",
+      "mirror_blob_sha1": "6038e6398ca0480e75d4382ba88f79b91c24454d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-174.csv",
+      "local_sha256": "00d7aef4c53200fad06dc4ea24ada6d1cd669810e38f645cf85af4e9fe0564cc",
+      "mirror_blob_sha1": "3b7a8c64ac08e5704c044aca6ff74f09db81d072",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-175.csv",
+      "local_sha256": "849ca0cd3b2ccc58437e525140e9bff0139d66a9f24b0c64b921f909d823ae73",
+      "mirror_blob_sha1": "fb6b9b172ad0ef1825180cdb1e57f1da66395b97",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-176.csv",
+      "local_sha256": "78dfd0f9cc2cc83cb01f89c143f1412b708b19e6e142d554894ba043d9531cf2",
+      "mirror_blob_sha1": "a90094e02dbc292a391dbaa290dceef9ac535705",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-177.csv",
+      "local_sha256": "574af1db47cdcd2faafefa4823b5cd9d6fe51a84652802a1f17433377842ab58",
+      "mirror_blob_sha1": "329041133fef51ce4b1ba4ce9ade70b26338db89",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-178.csv",
+      "local_sha256": "e040e147ce95f3e919fd6ac610228e5dc1735561eb7562b093e71307500ece62",
+      "mirror_blob_sha1": "11403e4a3655dfd2b865517de8edfacfe97975cd",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-179.csv",
+      "local_sha256": "61bbe08e8c21b4f18437097985dcd5a54d8bf29d3f46603142ca43be56ae50c2",
+      "mirror_blob_sha1": "db78297915cca5bd14cc5019a9f3ab28a1a4b870",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-180.csv",
+      "local_sha256": "8890d0676600ce81b7b90f340c2df00e864f5c7a17a0ba4844f6c24613f3a4d0",
+      "mirror_blob_sha1": "3c2e72d7162ea5044a7a5d460e402931d690b35d",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-181.csv",
+      "local_sha256": "19cd47ec7caa2f67a7d6e7b3d9661bc442e5519c88801b436156b08ff7544d9e",
+      "mirror_blob_sha1": "96a306c292729e0124d2d5a71a1a5c21039689ba",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-182.csv",
+      "local_sha256": "e0df6a7bff87f308a310773333bcbeeac65b5eaa901a45f7caa5d73168daf0b6",
+      "mirror_blob_sha1": "0ad1cf91fef13c00ae9aea0ed435da37e1e4ee75",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-183.csv",
+      "local_sha256": "d3defe53d160e5742e01f6a53f97b4485e03eb80eccd6f4fa47a8bae9c9f4b5b",
+      "mirror_blob_sha1": "c97399ceb836b95155b081d8594e1e86677c4c81",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-184.csv",
+      "local_sha256": "eee177f99773585c50d5d2cebe1e75fc9b8fafb80d233aa9d4420ea96730d414",
+      "mirror_blob_sha1": "9a7ac5448b05a2164e021649206ff59f37e327eb",
+      "exact_match": true,
+      "lf_normalized_match": true
+    },
+    {
+      "file": "CMP-training-removalrate.csv",
+      "local_sha256": "5b22c120de02adb950b9162a4a40d2cb14ad4458751b3f9747da708ad1c78178",
+      "mirror_blob_sha1": "fa53a6257a333433c4c48a493c8e42b8f0d2a5f9",
+      "exact_match": true,
+      "lf_normalized_match": true
+    }
+  ],
+  "all_training_match": true
+}

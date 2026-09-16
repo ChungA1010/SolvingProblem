@@ -1,0 +1,11 @@
+{
+  "completion_sha256": "87cf691d9cf028cef1632e8aa6fea98ae53fc38e077c9fcb97a1816d1b2b39e4",
+  "reporter_source_sha256": "6e5a2bec5b367451ed17c5b94294d141a95ad3f230421a15e3856341df25d84b",
+  "artifact_hashes": {
+    "REPORT.md": "5d6580a85d51186d1a9f28e75c9b9ea6ee43d946c6a5742b1b33dc8de8fda5d2",
+    "display_summary.csv": "a563d2ed58647ad6003dbccaf6754251d816fb93c57faedff9f4b8a4d7e022c6",
+    "verification.json": "5370dc7ca225e0e38be135316b1cbfc7e99d98b4cf7e9155b149f6c3a453212d",
+    "figures/external_model_comparison.png": "22e4e9da6a879ee6032d35e875c8a70948233cbf634861634ff5b5fa99858029",
+    "figures/external_primary_predictions.png": "16d5056eac620aae740270b1a7b50275e876a7e0de023065eceb15ef107d491e"
+  }
+}

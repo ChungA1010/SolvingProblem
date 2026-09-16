@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "started_at": "2026-09-16T12:01:37.301542+00:00",
+  "prediction_freeze_sha256": "8b47cc5c4e2928c7ee8ace0cc6b7cdd5a80f41beca12fa9c47310f877694f4e4",
+  "answer_manifest_sha256": "b4da172b2fda146b3129b01ec1a15618a1568b145cdd419002ee3d982cec6e3d",
+  "rule": "No refitting, recalibration, or model selection on these outcomes.",
+  "completed_at": "2026-09-16T12:01:39.351654+00:00",
+  "original_artifacts_unchanged": true,
+  "label_counts": {
+    "test": 424,
+    "validation": 424
+  },
+  "metric_sha256": "eac5cb01aaf9b1cb7466742ae5465f8a9a82449c7f9e8ee1197e705fab4ff2f7",
+  "scored_predictions_sha256": "74cbb6d020e9ae16c2ff7ab87e245fffd2ed6cd42e5ecc765958e7a3ea384d22"
+}

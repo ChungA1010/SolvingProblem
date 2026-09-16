@@ -15,6 +15,7 @@ PHM Society 2016 CMP 데이터로 평균 제거율(MRR)을 예측하는 재현 �
 - [저장 모델 재현 검증](runs/phm_cmp_v1/verification.json)
 - [학습된 모델 26개](runs/phm_cmp_v1/models)
 - [Stage B 학습 데이터 중첩 교차검증](runs/phm_cmp_stage_b_stability_v1/REPORT.md)
+- [이전에 사용하지 않은 PHM 분할 평가](runs/phm_cmp_external_v1/REPORT.md)
 
 보고서의 선정 모델은 **Validation MAE**로 정했습니다. Test 결과를 본 뒤 모델이나 설정을 다시 선택하지 않습니다. 모든 모델의 MAE·RMSE·R², Chamber route별·그룹별 평가, 예측구간 실측 coverage를 남깁니다.
 
@@ -39,6 +40,32 @@ python -m cmp_ml.stability_report --run-dir runs/my_stage_b_stability
 ```
 
 실행에는 원본으로 준비한 로컬 `runs/phm_cmp_v1/features.csv.gz`가 필요합니다. 완료된 출력 폴더는 덮어쓰지 않습니다. 추가 결과의 모델 체크포인트 5개는 바깥 구간별 검증용이며 배포 모델이 아닙니다.
+
+## 이전에 사용하지 않은 PHM 분할 평가
+
+PHM 2016의 별도 test·validation 시계열 370개와 정답 848개를 공개 보관본에서 확보했습니다. 기존 데이터의 웨이퍼·파일 연결 그룹과 겹치는 표본을 제외하고 **test 121개, validation 140개**를 평가했습니다. 보관본의 학습 파일 186개는 기존 파일과 바이트 단위로 일치하며, 다운로드 버전과 해시를 기록했습니다.
+
+| 새 평가 구분 | Stage | 기존 선정 모델 | 평가 표본 | MAE | RMSE | R² |
+|---|---|---|---:|---:|---:|---:|
+| test | A | CatBoost | 89 | 2.3131 | 3.0954 | 0.9940 |
+| test | B | Physics+CatBoost | 32 | 2.7250 | 3.3803 | 0.8955 |
+| validation | A | CatBoost | 72 | 2.5815 | 3.5518 | 0.9914 |
+| validation | B | Physics+CatBoost | 68 | 3.0103 | 3.7650 | 0.8168 |
+
+이 점수는 **중복을 제외한 부분집합**의 결과입니다. 모델·예측·제외 기준을 정답 조회 전에 고정했고, 기존 모델을 재학습하거나 새 점수로 다시 선정하지 않았습니다. 같은 2016 데이터의 수집 시기가 겹치는 평가이므로 새 공장이나 미래 생산 환경을 검증한 것은 아닙니다. 기존 Test 점수와의 차이를 학습에 의한 성능 개선으로 해석하지 마세요. [전체 비교·제외 내역·출처·한계](runs/phm_cmp_external_v1/REPORT.md)를 확인하세요.
+
+재현은 아래 순서로 진행합니다. `--original-root`에는 기존 원본 CMP1 폴더를 지정하고, 출력 경로는 비어 있어야 합니다. 원본과 특징표는 `data/` 또는 Git에서 제외되는 경로에 둡니다. 정답 다운로드는 예측 고정 이후에만 허용합니다.
+
+```bash
+python -m cmp_ml.external freeze --source-run runs/phm_cmp_v1 --run-dir runs/my_external
+python tools/fetch_phm_external.py index --data-dir data/phm2016_external --run-dir runs/my_external --original-root /path/to/CMP1
+python tools/fetch_phm_external.py traces --data-dir data/phm2016_external --run-dir runs/my_external
+python -m cmp_ml.external predict --source-run runs/phm_cmp_v1 --data-dir data/phm2016_external --run-dir runs/my_external
+python tools/fetch_phm_external.py labels --data-dir data/phm2016_external --run-dir runs/my_external
+python -m cmp_ml.external score --source-run runs/phm_cmp_v1 --data-dir data/phm2016_external --run-dir runs/my_external
+python -m cmp_ml.external_verify --source-run runs/phm_cmp_v1 --run-dir runs/my_external
+python -m cmp_ml.external_report --run-dir runs/my_external
+```
 
 ## 모델
 

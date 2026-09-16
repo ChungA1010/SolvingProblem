@@ -1,0 +1,139 @@
+{
+  "status": "passed",
+  "verified_at": "2026-09-16T12:04:31.474134+00:00",
+  "models": [
+    {
+      "filename": "A_CatBoost.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_GlobalMean.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_KNN.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_LightGBM.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_PLS.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_Physics_CatBoost.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_Physics_LightGBM.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_PrestonInspired.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_RandomForest.joblib",
+      "samples": 161,
+      "max_prediction_difference": 1.1368683772161603e-13
+    },
+    {
+      "filename": "A_Ridge.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_SVR.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_StageMean.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "A_XGBoost.joblib",
+      "samples": 161,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_CatBoost.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_GlobalMean.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_KNN.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_LightGBM.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_PLS.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_Physics_CatBoost.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_Physics_LightGBM.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_PrestonInspired.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_RandomForest.joblib",
+      "samples": 100,
+      "max_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "filename": "B_Ridge.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_SVR.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_StageMean.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    },
+    {
+      "filename": "B_XGBoost.joblib",
+      "samples": 100,
+      "max_prediction_difference": 0.0
+    }
+  ],
+  "old_wafer_component_exclusion_reproduced": true,
+  "frozen_source_hashes_match": true,
+  "completion_sha256": "87cf691d9cf028cef1632e8aa6fea98ae53fc38e077c9fcb97a1816d1b2b39e4"
+}
