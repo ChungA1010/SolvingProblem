@@ -11,6 +11,7 @@ runs/*/train_started.json
 .env
 *.tmp
 builds/
+/CMP Virtual Lab/
 unity/**/Library/
 unity/**/Temp/
 unity/**/Logs/
