@@ -14,6 +14,7 @@ PHM Society 2016 CMP 데이터로 평균 제거율(MRR)을 예측하는 재현 �
 - [선정 모델·모델 해시](runs/phm_cmp_v1/selection.json)
 - [저장 모델 재현 검증](runs/phm_cmp_v1/verification.json)
 - [학습된 모델 26개](runs/phm_cmp_v1/models)
+- [Stage B 학습 데이터 중첩 교차검증](runs/phm_cmp_stage_b_stability_v1/REPORT.md)
 
 보고서의 선정 모델은 **Validation MAE**로 정했습니다. Test 결과를 본 뒤 모델이나 설정을 다시 선택하지 않습니다. 모든 모델의 MAE·RMSE·R², Chamber route별·그룹별 평가, 예측구간 실측 coverage를 남깁니다.
 
@@ -23,6 +24,21 @@ PHM Society 2016 CMP 데이터로 평균 제거율(MRR)을 예측하는 재현 �
 | B | Physics+CatBoost | 4.6455 | 5.6180 | 0.1774 |
 
 **결과 해석:** 극단 제거율 4건이 모두 Train에 배치되어 이번 Test는 극단값 예측 성능을 검증하지 않습니다. Stage A의 평균 기준선은 이 값들의 영향을 크게 받습니다. Stage B는 Test에서 RandomForest 등 단독 ML이 검증 선정 Hybrid보다 낮은 오차를 냈으며, 이번 결과로 Hybrid 우월성을 주장하지 않습니다. 보정 그룹은 A 1개·B 2개로 적고, A의 예측구간 coverage 96.55%는 명세의 85–95% 범위를 벗어납니다. 다음 개선 실험에는 새 평가 설계가 필요합니다.
+
+## Stage B 추가 안정성 검증
+
+기존 Stage B **Train 489개 표본·31개 연결 그룹** 안에서 바깥 5개 구간, 안쪽 3개 구간의 중첩 그룹 교차검증을 완료했습니다. 8개 모델군·25개 설정 후보를 비교하며, 각 바깥 구간의 모델과 설정은 해당 구간을 제외한 내부 검증으로만 골랐습니다. 결합 모델의 잔차도 각 학습 구간 안에서 별도로 그룹 교차검증해 만들었습니다.
+
+내부 검증으로 모델을 선택하는 절차의 **OOF MAE는 3.5636, RMSE는 4.4774, R²는 0.7182**입니다. 선택 빈도는 XGBoost 2회·CatBoost 2회·RandomForest 1회였습니다. 단독 ML 4종의 MAE는 3.3887–3.4123으로 가까웠고, 결합 모델은 4.6515–4.8101로 더 컸습니다. 이번 설정 범위에서는 결합 모델의 이점을 확인하지 못했습니다. 후보 적합 375회와 바깥 모델 적합 40회를 수행했고, 저장 체크포인트 5개 및 기존 v1 파일 보존 검증을 통과했습니다.
+
+이 결과는 v1 결과를 본 뒤 시작한 **개발 데이터 안정성 진단**입니다. v1 Validation·Calibration·Test는 적합·선택·점수 계산에 사용하지 않고, 기존 v1 모델·평가 파일을 유지합니다. 새로운 독립 Test 성능이나 배포 모델의 성능 개선을 뜻하지 않습니다. [보고서](runs/phm_cmp_stage_b_stability_v1/REPORT.md), [전체 점수](runs/phm_cmp_stage_b_stability_v1/summary.csv), [분할·누수 검사](runs/phm_cmp_stage_b_stability_v1/partition_audit.json), [모델 선택과 실행 완료 검증](runs/phm_cmp_stage_b_stability_v1/completion.json)을 확인하세요.
+
+```bash
+python -m cmp_ml.cli stability --source-run runs/phm_cmp_v1 --output-dir runs/my_stage_b_stability --threads 4
+python -m cmp_ml.stability_report --run-dir runs/my_stage_b_stability
+```
+
+실행에는 원본으로 준비한 로컬 `runs/phm_cmp_v1/features.csv.gz`가 필요합니다. 완료된 출력 폴더는 덮어쓰지 않습니다. 추가 결과의 모델 체크포인트 5개는 바깥 구간별 검증용이며 배포 모델이 아닙니다.
 
 ## 모델
 

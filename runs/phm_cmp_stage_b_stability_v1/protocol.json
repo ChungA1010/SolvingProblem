@@ -1,0 +1,419 @@
+{
+  "started_at": "2026-09-16T11:19:58.164670+00:00",
+  "seed": 20260903,
+  "threads": 4,
+  "stage": "B",
+  "allowed_source_split": "train",
+  "samples": 489,
+  "groups": 31,
+  "source_features_sha256": "ebdc4e898a798d545d582fbb2fe3aa0014df36a6b704044d59cda8d81b635a18",
+  "source_split_sha256": "2568c8e9dec0ad44ad27de0b9f80a2e4f5a8990ce989f49100dc670b87fb3194",
+  "source_run_name": "phm_cmp_v1",
+  "source_artifact_hashes": {
+    "candidate_trials.json": "72e9538d720af615f19e3d1b170901d2ebf44fbb1574afdd8ad6cefc556bfbec",
+    "cross_file_segments.csv": "9c04b9d95d5909b22d979acdf222a7e8eb2275d19ad85a088c0f5eba6e874864",
+    "data_audit.json": "b87d1904d6f443e79aef59da6c7f80791c1d121a3c928be974095f0608542210",
+    "evaluation_seal.json": "604991de4d9c45b37ae795377541f273c703f23bc57ac703c9851c631efbeae3",
+    "feature_schema_A.json": "c65746831dd402a9c3315136af3653eb6c6fbf62148cf0fbd9d1afc3ebba6ed1",
+    "feature_schema_B.json": "5d2acb250f7b59be253933fb7e21d93d3c012befcd14bc6ff8af4a8c49f12ec2",
+    "features.csv.gz": "ebdc4e898a798d545d582fbb2fe3aa0014df36a6b704044d59cda8d81b635a18",
+    "figures/model_comparison.png": "6913cb67d311ef90d4d0f1efadb9d989ff34f553c93a20e5eb0ac5ec2f28accb",
+    "figures/selected_predictions.png": "97cb97dfba0880c787c7bdc703f28e1b60a8125a72dd85851cdb72add407b8a1",
+    "model_comparison.csv": "9218953b9b60b8db043340f46d1de6f41a47d13de7aaee8967ee1ec8809d6b47",
+    "models/A_CatBoost.joblib": "219cb2b380ff0b718e38ffc32bbdb9a00ebd1322087b633f58ef2e334d2c4269",
+    "models/A_GlobalMean.joblib": "cd89ea618b5bf33a14dd9b5cddda357fca28c7973250702e2218da025aa87f08",
+    "models/A_KNN.joblib": "02ad6854b052afc3647ae5f1156c1b5ea0d76bdd1a88f91ee55f13ff79fc19ce",
+    "models/A_LightGBM.joblib": "fb74dfd55089ef7bbebdd42869a432245d8dddbfeb95d14a5c299235ccbbcc34",
+    "models/A_Physics_CatBoost.joblib": "a0d1db5f9e6a2dce84e517b841aba2601326b2c7b8f7c3f06ef1ac5c82338db3",
+    "models/A_Physics_LightGBM.joblib": "80984366f9e0927fedec6f47c674983400af1063426d9654993751c05afbfdf4",
+    "models/A_PLS.joblib": "a21497631b773f392d8f2fd7c2621d7e5560534a40b1e9e253ce8bd1ee9599db",
+    "models/A_PrestonInspired.joblib": "e9f0f521766aa668959fd1549bb45e63974f354d2e054def059f83d177f7a420",
+    "models/A_RandomForest.joblib": "3c0f9a8e0c199b9c4f33587fd3803cb6cbf209cb9e468c2156700893901c298b",
+    "models/A_Ridge.joblib": "97e71942bdd628336402bd8c85bcac57331ca1e46bfada4daa3558fd7167b004",
+    "models/A_StageMean.joblib": "ba37c29ff293cc22332f54f06c24ef77440a1a739678996fdd714a1e84d5f408",
+    "models/A_SVR.joblib": "df06b3b4e2d48e0b23a4f786d602a7302c860d070e97a03a0f062009cfe355cd",
+    "models/A_XGBoost.joblib": "640175b7eafd5d5e759b59ad7deb960adaf59524bfd4165e2d03a5d0f4445037",
+    "models/B_CatBoost.joblib": "f0e0f0fe36f55cc2b42bfb35ee1e744f47f74bb6f0f643acf89fed4b3253cc0b",
+    "models/B_GlobalMean.joblib": "eb8499bcb661dd99cea0e5b8ba3804202f3d09b23b9073ffec78738029dfb1d3",
+    "models/B_KNN.joblib": "89fca08e8aa36cc22ffa66dbee564b360e4569e3d89cf715d9c0164ebca3f9b6",
+    "models/B_LightGBM.joblib": "e82f46432fe03c5d80cd3e4aa9fa9066966b78652077622c022ea7225270a60b",
+    "models/B_Physics_CatBoost.joblib": "cce6396eb9de1687795f6a21933efc56b88f7ccae379e7916aa9b0b644e027b2",
+    "models/B_Physics_LightGBM.joblib": "38041cc57e15509557b1f2e75004f82261566506ac8ec19949132ae03960cd3e",
+    "models/B_PLS.joblib": "46677720dd2d482fea706619fc9ef408b007212ea3d762b283001346251b88e7",
+    "models/B_PrestonInspired.joblib": "26d5b20b6464347a93c514e9395f34119db7c8b73478cb8a13e5a4af825e976f",
+    "models/B_RandomForest.joblib": "66c1728f21d6223e48554cd6ff7ab0d31f64b11988842fe50d292456c5a75df9",
+    "models/B_Ridge.joblib": "448b9027c48cc3d66b7cfcacae43122961fa31c88483f9563cc2b9410308db00",
+    "models/B_StageMean.joblib": "e1e46208295e79efe06dc853831bbd3866b699fbc4cb953f2ec1acfd9c384a2d",
+    "models/B_SVR.joblib": "f6e7a3e9acf70609af85b4ede6f55e7b40817f066c72ab153d5f8fe616494be3",
+    "models/B_XGBoost.joblib": "732d124f7bd836365b2e3f459ff10cf13f71e4103b2f83c988fdd3e5f2a76680",
+    "physics_oof_residuals.csv": "0cff46de96d9709d77b9e072cfd3a577f40f88ebedc53d383f8a373231db5168",
+    "publication_notes.json": "b19102338933f756c4e0ba0917ea63bf46d8e34a9fdb06dafec62eaa7067f88d",
+    "REPORT.md": "1fc1e28ae9bf900e632e47024215519d5707ea63990f153f3575118ed52bd092",
+    "selected_hyperparameters.json": "fa01dab74621269da706cd60c01d28be81e054c0c179ed025c8930f4b48cb4f2",
+    "selected_summary.csv": "6babc25a0720b89672f2ebb67e24f0c355b600756d8a34d0341f46bbead26bef",
+    "selected_test_predictions.csv": "17300225f4945c29e47828d3c7a58de8562a9619b33c59d56a0606f20b9ed656",
+    "selection.json": "12ad46b540d602c462dc94605b046e0ad84f2e0cfbdf190338f46097f192c825",
+    "split_manifest.csv": "2568c8e9dec0ad44ad27de0b9f80a2e4f5a8990ce989f49100dc670b87fb3194",
+    "test_metrics.csv": "4864aebaf182f0f2a3cf4c29290cbe4e6223c694c14c2ec45109bafd805e8a46",
+    "test_predictions.csv": "ee8aea3dfb5f853c6fc3f128eeaf6e2dbdc99b9501d92517f9640c4e19facbd3",
+    "training_protocol.json": "1b2e2aac0c2f7f269be2b1525840ae1c3d8158351f5f89248e4ca0e12668f6b0",
+    "validation_predictions.csv": "e4007bdca44ef1e0696d0265ac241b0284e78bdaa6906ea82197258d2785b4a8",
+    "verification.json": "84f64f78e88dd09282623957ae43ec29a57b8b2484a353507f7a0ae35e84ae7a"
+  },
+  "outer_folds": 5,
+  "inner_folds": 3,
+  "residual_folds": 3,
+  "fold_method": "Deterministic sample-balanced GroupKFold, shuffle=False; no targets supplied.",
+  "selection_rule": "Pooled inner OOF MAE, then RMSE, then fixed candidate ID. No outer-result selection.",
+  "families": [
+    "StageMean",
+    "PrestonInspired",
+    "RandomForest",
+    "XGBoost",
+    "CatBoost",
+    "LightGBM",
+    "Physics+CatBoost",
+    "Physics+LightGBM"
+  ],
+  "candidates": [
+    {
+      "model": "StageMean",
+      "kind": "constant",
+      "config": {},
+      "candidate_id": "c00"
+    },
+    {
+      "model": "PrestonInspired",
+      "kind": "physics",
+      "config": {
+        "regularization": 1.0
+      },
+      "candidate_id": "c01"
+    },
+    {
+      "model": "RandomForest",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 160,
+        "max_depth": 6,
+        "min_samples_leaf": 3,
+        "max_features": 0.7
+      },
+      "candidate_id": "c02"
+    },
+    {
+      "model": "RandomForest",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 160,
+        "max_depth": 6,
+        "min_samples_leaf": 10,
+        "max_features": 0.7
+      },
+      "candidate_id": "c03"
+    },
+    {
+      "model": "RandomForest",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 160,
+        "max_depth": null,
+        "min_samples_leaf": 3,
+        "max_features": 0.7
+      },
+      "candidate_id": "c04"
+    },
+    {
+      "model": "RandomForest",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 160,
+        "max_depth": null,
+        "min_samples_leaf": 10,
+        "max_features": 0.7
+      },
+      "candidate_id": "c05"
+    },
+    {
+      "model": "XGBoost",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "objective": "reg:squarederror",
+        "subsample": 0.9,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 5.0,
+        "reg_alpha": 0.1
+      },
+      "candidate_id": "c06"
+    },
+    {
+      "model": "XGBoost",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "max_depth": 6,
+        "learning_rate": 0.05,
+        "objective": "reg:squarederror",
+        "subsample": 0.9,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 5.0,
+        "reg_alpha": 0.1
+      },
+      "candidate_id": "c07"
+    },
+    {
+      "model": "XGBoost",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "max_depth": 3,
+        "learning_rate": 0.05,
+        "objective": "reg:absoluteerror",
+        "subsample": 0.9,
+        "colsample_bytree": 0.8,
+        "reg_lambda": 5.0,
+        "reg_alpha": 0.1
+      },
+      "candidate_id": "c08"
+    },
+    {
+      "model": "CatBoost",
+      "kind": "tabular",
+      "config": {
+        "iterations": 300,
+        "depth": 4,
+        "loss_function": "RMSE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0
+      },
+      "candidate_id": "c09"
+    },
+    {
+      "model": "CatBoost",
+      "kind": "tabular",
+      "config": {
+        "iterations": 300,
+        "depth": 4,
+        "loss_function": "MAE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0
+      },
+      "candidate_id": "c10"
+    },
+    {
+      "model": "CatBoost",
+      "kind": "tabular",
+      "config": {
+        "iterations": 300,
+        "depth": 6,
+        "loss_function": "RMSE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0
+      },
+      "candidate_id": "c11"
+    },
+    {
+      "model": "CatBoost",
+      "kind": "tabular",
+      "config": {
+        "iterations": 300,
+        "depth": 6,
+        "loss_function": "MAE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0
+      },
+      "candidate_id": "c12"
+    },
+    {
+      "model": "LightGBM",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 7,
+        "objective": "regression",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0
+      },
+      "candidate_id": "c13"
+    },
+    {
+      "model": "LightGBM",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 7,
+        "objective": "regression_l1",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0
+      },
+      "candidate_id": "c14"
+    },
+    {
+      "model": "LightGBM",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 15,
+        "objective": "regression",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0
+      },
+      "candidate_id": "c15"
+    },
+    {
+      "model": "LightGBM",
+      "kind": "tabular",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 15,
+        "objective": "regression_l1",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0
+      },
+      "candidate_id": "c16"
+    },
+    {
+      "model": "Physics+CatBoost",
+      "kind": "hybrid",
+      "config": {
+        "iterations": 300,
+        "depth": 4,
+        "loss_function": "RMSE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c17"
+    },
+    {
+      "model": "Physics+CatBoost",
+      "kind": "hybrid",
+      "config": {
+        "iterations": 300,
+        "depth": 4,
+        "loss_function": "MAE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c18"
+    },
+    {
+      "model": "Physics+CatBoost",
+      "kind": "hybrid",
+      "config": {
+        "iterations": 300,
+        "depth": 6,
+        "loss_function": "RMSE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c19"
+    },
+    {
+      "model": "Physics+CatBoost",
+      "kind": "hybrid",
+      "config": {
+        "iterations": 300,
+        "depth": 6,
+        "loss_function": "MAE",
+        "learning_rate": 0.05,
+        "l2_leaf_reg": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c20"
+    },
+    {
+      "model": "Physics+LightGBM",
+      "kind": "hybrid",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 7,
+        "objective": "regression",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c21"
+    },
+    {
+      "model": "Physics+LightGBM",
+      "kind": "hybrid",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 7,
+        "objective": "regression_l1",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c22"
+    },
+    {
+      "model": "Physics+LightGBM",
+      "kind": "hybrid",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 15,
+        "objective": "regression",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c23"
+    },
+    {
+      "model": "Physics+LightGBM",
+      "kind": "hybrid",
+      "config": {
+        "n_estimators": 300,
+        "num_leaves": 15,
+        "objective": "regression_l1",
+        "learning_rate": 0.05,
+        "min_child_samples": 20,
+        "reg_lambda": 5.0,
+        "physics_regularization": 1.0
+      },
+      "candidate_id": "c24"
+    }
+  ],
+  "physics_policy": "Fixed regularization=1.0. Three-fold group OOF residuals local to each fitting partition.",
+  "scope": "Exploratory stability assessment after v1 results were known. Not a fresh independent test.",
+  "excluded": "All v1 Validation, Calibration, Test samples and all Stage A samples are excluded from fitting and scoring.",
+  "promotion_policy": "Retain v1 selections. Outer fold checkpoints are diagnostics, not deployment models.",
+  "interval_policy": "No interval calibration or claimed coverage; original Calibration is unused.",
+  "python": "3.12.14",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.7.0",
+    "joblib": "1.6.0"
+  },
+  "source_hashes": {
+    "__init__.py": "498b6bcaec113c930f0f68c99aef355c2d863381ff5dfa0cf302f41046cb2a68",
+    "cli.py": "50092b01b576d5ac4f7a20c1f152452c9ef1771ca04a074e910fe959b6d668f6",
+    "common.py": "5ffdb1094dee6c9c201f8f7da30f931386b4b718a091a3374b58154045848541",
+    "data.py": "6ff4eadeaf8d32e5871c7dee8e255480a0331373e6279804e90c0d767b188631",
+    "experiment.py": "e71b06a2e31253a805dd221f7df1a19132eb45c60ded86b41b390a65d0c036b9",
+    "models.py": "05aae95bc4558ed4d6d031cd7547eafea35e9f2fc899f84b9c2414e36fd88357",
+    "report.py": "3d1fbd8fc64764153e20f632167875ca874ddec8971d7afa901b91c2ef5fe90d",
+    "stability.py": "9425322a17a0f28adeffe8bf5e9dba306f33580a1269a8628c371dd69f0d0642",
+    "verify.py": "9d922a97f323ab34148d7fbf52d7b0f35c0e22e91af874a3ab8ebbcd9858df98"
+  },
+  "outer_manifest_sha256": "c93c0a5daf0b1af3986355fc8e9e32b16297e7c29c570730f9f65c73e94822d3"
+}

@@ -1,0 +1,2365 @@
+[
+  {
+    "context": "outer0",
+    "fit_n": 392,
+    "held_n": 97,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner0/residual0",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner0/residual1",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-072.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner0/residual2",
+    "fit_n": 160,
+    "held_n": 101,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv"
+    ],
+    "held_groups": [
+      "CMP-training-072.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner1/residual0",
+    "fit_n": 173,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-115.csv",
+      "CMP-training-145.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner1/residual1",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-045.csv",
+      "CMP-training-067.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-051.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-115.csv",
+      "CMP-training-145.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner1/residual2",
+    "fit_n": 175,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-051.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-045.csv",
+      "CMP-training-072.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner2/residual0",
+    "fit_n": 174,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-071.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-067.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner2/residual1",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-056.csv",
+      "CMP-training-071.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer0/inner2/residual2",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-056.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer0/residual0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer0/residual1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer0/residual2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv"
+    ]
+  },
+  {
+    "context": "outer1",
+    "fit_n": 392,
+    "held_n": 97,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner0/residual0",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-049.csv",
+      "CMP-training-063.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-059.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner0/residual1",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-059.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-049.csv",
+      "CMP-training-063.csv",
+      "CMP-training-087.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner0/residual2",
+    "fit_n": 160,
+    "held_n": 101,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-072.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner1/residual0",
+    "fit_n": 173,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner1/residual1",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-072.csv",
+      "CMP-training-134.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner1/residual2",
+    "fit_n": 175,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-049.csv",
+      "CMP-training-072.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner2/residual0",
+    "fit_n": 174,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-067.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner2/residual1",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-051.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv"
+    ]
+  },
+  {
+    "context": "outer1/inner2/residual2",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-051.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-045.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer1/residual0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer1/residual1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer1/residual2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer2",
+    "fit_n": 392,
+    "held_n": 97,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-056.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner0/residual0",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-053.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-118.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-101.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner0/residual1",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-101.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-053.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-118.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner0/residual2",
+    "fit_n": 160,
+    "held_n": 101,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-072.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner1/residual0",
+    "fit_n": 173,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-166.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner1/residual1",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-072.csv",
+      "CMP-training-134.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-056.csv",
+      "CMP-training-059.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner1/residual2",
+    "fit_n": 175,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-056.csv",
+      "CMP-training-059.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-049.csv",
+      "CMP-training-072.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner2/residual0",
+    "fit_n": 174,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-067.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner2/residual1",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-067.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer2/inner2/residual2",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer2/residual0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-056.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer2/residual1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer2/residual2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer3",
+    "fit_n": 392,
+    "held_n": 97,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner0/residual0",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-137.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner0/residual1",
+    "fit_n": 181,
+    "held_n": 80,
+    "fit_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-099.csv",
+      "CMP-training-115.csv",
+      "CMP-training-137.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner0/residual2",
+    "fit_n": 160,
+    "held_n": 101,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv"
+    ],
+    "held_groups": [
+      "CMP-training-072.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner1/residual0",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner1/residual1",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner1/residual2",
+    "fit_n": 174,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-145.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-137.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner2/residual0",
+    "fit_n": 174,
+    "held_n": 88,
+    "fit_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner2/residual1",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer3/inner2/residual2",
+    "fit_n": 175,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-130.csv",
+      "CMP-training-145.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer3/residual0",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-051.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer3/residual1",
+    "fit_n": 261,
+    "held_n": 131,
+    "fit_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-063.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-166.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer3/residual2",
+    "fit_n": 262,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-172.csv"
+    ],
+    "held_groups": [
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-072.csv",
+      "CMP-training-099.csv",
+      "CMP-training-137.csv"
+    ]
+  },
+  {
+    "context": "outer4",
+    "fit_n": 388,
+    "held_n": 101,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-072.csv",
+      "CMP-training-172.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner0",
+    "fit_n": 258,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-137.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-071.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner0/residual0",
+    "fit_n": 172,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-087.csv",
+      "CMP-training-137.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-169.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner0/residual1",
+    "fit_n": 172,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-053.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-169.csv"
+    ],
+    "held_groups": [
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-137.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner0/residual2",
+    "fit_n": 172,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-137.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-044.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-087.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner1",
+    "fit_n": 259,
+    "held_n": 129,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner1/residual0",
+    "fit_n": 172,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-063.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner1/residual1",
+    "fit_n": 173,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner1/residual2",
+    "fit_n": 173,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-130.csv",
+      "CMP-training-145.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner2",
+    "fit_n": 259,
+    "held_n": 129,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-087.csv",
+      "CMP-training-137.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner2/residual0",
+    "fit_n": 172,
+    "held_n": 87,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-067.csv",
+      "CMP-training-134.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner2/residual1",
+    "fit_n": 173,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-169.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer4/inner2/residual2",
+    "fit_n": 173,
+    "held_n": 86,
+    "fit_groups": [
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-056.csv",
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-118.csv",
+      "CMP-training-134.csv",
+      "CMP-training-169.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-058.csv",
+      "CMP-training-071.csv",
+      "CMP-training-115.csv",
+      "CMP-training-130.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer4/residual0",
+    "fit_n": 258,
+    "held_n": 130,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-067.csv",
+      "CMP-training-087.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-137.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ],
+    "held_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-045.csv",
+      "CMP-training-071.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-182.csv"
+    ]
+  },
+  {
+    "context": "outer4/residual1",
+    "fit_n": 259,
+    "held_n": 129,
+    "fit_groups": [
+      "CMP-training-018.csv",
+      "CMP-training-044.csv",
+      "CMP-training-045.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-071.csv",
+      "CMP-training-087.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-137.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-029.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv"
+    ]
+  },
+  {
+    "context": "outer4/residual2",
+    "fit_n": 259,
+    "held_n": 129,
+    "fit_groups": [
+      "CMP-training-014.csv",
+      "CMP-training-018.csv",
+      "CMP-training-029.csv",
+      "CMP-training-045.csv",
+      "CMP-training-049.csv",
+      "CMP-training-051.csv",
+      "CMP-training-053.csv",
+      "CMP-training-056.csv",
+      "CMP-training-058.csv",
+      "CMP-training-067.csv",
+      "CMP-training-071.csv",
+      "CMP-training-099.csv",
+      "CMP-training-101.csv",
+      "CMP-training-115.csv",
+      "CMP-training-118.csv",
+      "CMP-training-130.csv",
+      "CMP-training-134.csv",
+      "CMP-training-145.csv",
+      "CMP-training-166.csv",
+      "CMP-training-167.csv",
+      "CMP-training-169.csv",
+      "CMP-training-171.csv",
+      "CMP-training-182.csv"
+    ],
+    "held_groups": [
+      "CMP-training-044.csv",
+      "CMP-training-047.csv",
+      "CMP-training-059.csv",
+      "CMP-training-063.csv",
+      "CMP-training-087.csv",
+      "CMP-training-137.csv"
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "completion_sha256": "fb6a4d042b22429f2d3104cadfd3d98fe0e1163569b2edf329eda157722fcf06",
+  "reporter_source_sha256": "301d63b943f05d3cd22f97fae0b310860259219c8aed1909f0001d67cc410897",
+  "artifacts": {
+    "REPORT.md": "8182b08bb5dcf77213a91802778b0bc9b2451be160500582f1dca71a4ca46f83",
+    "figures/nested_group_mae.png": "c6c43197a358d2438b5f745ee3cdf294da6adb612ddd3a920febc3cbe2861e55",
+    "paired_group_comparison.csv": "4367b688084c470d6bf3730d540fbe1cdd8ed9f540767ed49cd51271a996dbc7"
+  }
+}

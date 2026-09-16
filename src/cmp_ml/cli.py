@@ -16,6 +16,10 @@ def main():
     fit.add_argument("--threads", type=int, default=4)
     for name in ["evaluate", "report", "verify"]:
         sub.add_parser(name).add_argument("--run-dir", type=Path, required=True)
+    stability = sub.add_parser("stability", help="Stage B TRAIN-only nested group stability assessment")
+    stability.add_argument("--source-run", type=Path, required=True)
+    stability.add_argument("--output-dir", type=Path, required=True)
+    stability.add_argument("--threads", type=int, default=4)
     args = parser.parse_args()
     if args.command == "prepare":
         from .data import prepare
@@ -29,6 +33,9 @@ def main():
     elif args.command == "report":
         from .report import report
         report(args.run_dir)
+    elif args.command == "stability":
+        from .stability import run_stability
+        run_stability(args.source_run, args.output_dir, max(1, args.threads))
     else:
         from .verify import verify
         verify(args.run_dir)

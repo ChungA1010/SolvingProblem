@@ -1,0 +1,64 @@
+{
+  "outer_fold": 0,
+  "frozen_at": "2026-09-16T11:23:28.252888+00:00",
+  "selected_candidate_id": "c02",
+  "selected_model": "RandomForest",
+  "families": [
+    {
+      "model": "RandomForest",
+      "candidate_id": "c02",
+      "inner_n": 392,
+      "inner_mae": 3.140882054544515,
+      "inner_rmse": 4.017510140387826
+    },
+    {
+      "model": "XGBoost",
+      "candidate_id": "c06",
+      "inner_n": 392,
+      "inner_mae": 3.165466841545883,
+      "inner_rmse": 4.010766669690706
+    },
+    {
+      "model": "LightGBM",
+      "candidate_id": "c15",
+      "inner_n": 392,
+      "inner_mae": 3.2753244068759426,
+      "inner_rmse": 4.098866946464885
+    },
+    {
+      "model": "CatBoost",
+      "candidate_id": "c09",
+      "inner_n": 392,
+      "inner_mae": 3.2970763369370317,
+      "inner_rmse": 4.204296933354108
+    },
+    {
+      "model": "Physics+CatBoost",
+      "candidate_id": "c17",
+      "inner_n": 392,
+      "inner_mae": 4.7980877528642525,
+      "inner_rmse": 7.298061901733452
+    },
+    {
+      "model": "Physics+LightGBM",
+      "candidate_id": "c22",
+      "inner_n": 392,
+      "inner_mae": 5.85395835833233,
+      "inner_rmse": 8.851364787352676
+    },
+    {
+      "model": "StageMean",
+      "candidate_id": "c00",
+      "inner_n": 392,
+      "inner_mae": 6.848259233946276,
+      "inner_rmse": 8.830048662177001
+    },
+    {
+      "model": "PrestonInspired",
+      "candidate_id": "c01",
+      "inner_n": 392,
+      "inner_mae": 7.258326667414147,
+      "inner_rmse": 8.481784485962114
+    }
+  ]
+}

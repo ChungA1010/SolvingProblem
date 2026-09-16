@@ -1,0 +1,59 @@
+{
+  "status": "complete",
+  "completed_at": "2026-09-16T11:38:30.949652+00:00",
+  "elapsed_seconds": 1112.7036110000045,
+  "inner_candidate_fits": 375,
+  "outer_family_fits": 40,
+  "source_artifacts_unchanged": true,
+  "all_partitions_wafer_file_group_disjoint": true,
+  "all_families_oof_coverage_complete": true,
+  "saved_selected_models": [
+    {
+      "outer_fold": 0,
+      "model": "RandomForest",
+      "max_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "outer_fold": 1,
+      "model": "XGBoost",
+      "max_prediction_difference": 0.0
+    },
+    {
+      "outer_fold": 2,
+      "model": "CatBoost",
+      "max_prediction_difference": 0.0
+    },
+    {
+      "outer_fold": 3,
+      "model": "CatBoost",
+      "max_prediction_difference": 0.0
+    },
+    {
+      "outer_fold": 4,
+      "model": "XGBoost",
+      "max_prediction_difference": 0.0
+    }
+  ],
+  "protocol_sha256": "ddec9332caaa88821ff35446fe43ec9ded1c6806d8e366e943361bb05d65ba98",
+  "artifact_hashes": {
+    "fold_metrics.csv": "b2e45501d0f2a5a02d20464b3bd01e321316d2038a813bc21393e53c5e9408cf",
+    "group_metrics.csv": "1012c05490648b9dcd6a41e8c8669d98166f026fbaeec3bf90e55c2cf0d2cedd",
+    "inner_manifest.csv": "682f192248704b8ff182da88b32fcc2aceceaea1feaca6099d58c8392bd2d7b3",
+    "inner_trials.json": "66d8ea0def73041a14fafadf2fb724ed9ef673ed3a707dd6807c1f856714543f",
+    "models/outer0_selected.joblib": "1dbc398b9494c5e529a267582d814dc5c8252be8e18f3fdd5a74d2a9f0e1e0c6",
+    "models/outer1_selected.joblib": "29cd94b73f02f645bb735560c5892ff760564e28c5b626e1f13432224f234eeb",
+    "models/outer2_selected.joblib": "57b713bbb0213c58eecf8ef579e5a2fc0c8f4721c27853bb8611dc3b3a45e4b1",
+    "models/outer3_selected.joblib": "b37fc729c7ea64bdd88d65f669ecc562f368d071a278fce4689c5c15a133c03e",
+    "models/outer4_selected.joblib": "544e40162041bacbe3531815967d81900725d15bfb7270c13322dc37462bf3b4",
+    "outer_manifest.csv": "c93c0a5daf0b1af3986355fc8e9e32b16297e7c29c570730f9f65c73e94822d3",
+    "outer_predictions.csv": "21fce8a8f32d32afe4f70ccfd0f8762fae9e22f3be5d0ac2efcffc38dd4e496d",
+    "partition_audit.json": "3d5b7ee69ee4391c95a75c54fb76ded8e9baa94131da8993bf2d5630207c096b",
+    "protocol.json": "ddec9332caaa88821ff35446fe43ec9ded1c6806d8e366e943361bb05d65ba98",
+    "selection_outer0.json": "9b1191fdfde1fed5851d2f01e2ec0fcfe4b5ca785326ef8b80eb126191421831",
+    "selection_outer1.json": "468c9c27bcb8de5bfe83bb85ab785188bc831ab163c7d383e074ff96a4040334",
+    "selection_outer2.json": "6570081f0137270d077ebc0bb1c1f469143470a35a1cd9f216fab7916fca07d1",
+    "selection_outer3.json": "ee9a9fe90b7bd3b6aa53e108b1fdb33dd7bc3334e6e76a15e88228b3bdf345da",
+    "selection_outer4.json": "bf86b1de5474354b3306ab81fe2bbabb5b139c026334719454f3447ba0c7d909",
+    "summary.csv": "a92f640047d16bd4f68d5831ff79da0d32b3238b3a258437e75bab1041c527f7"
+  }
+}
