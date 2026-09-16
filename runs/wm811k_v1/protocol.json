@@ -1,0 +1,53 @@
+{
+  "created_at": "2026-09-16T12:31:40.820057+00:00",
+  "dataset": "wm811k",
+  "seed": 20260916,
+  "input_size": 64,
+  "label_names": [
+    "none",
+    "Center",
+    "Donut",
+    "Edge-Loc",
+    "Edge-Ring",
+    "Loc",
+    "Near-full",
+    "Scratch",
+    "Random"
+  ],
+  "input_channels": [
+    "valid_die_occupancy",
+    "failed_die_occupancy"
+  ],
+  "resize": "aspect-preserving BOX resampling and centered zero padding, uint8/255",
+  "split": "WM original Test retained, shared lots excluded from development; remaining lots 10-fold stratified group allocation 70/20/10. Mixed input D4 orbits grouped, allocation 60/10/10/20.",
+  "duplicates": "Conflicting orbit labels excluded. Same input or D4 symmetry cannot cross splits. Priority Test > Calibration > Validation > Train.",
+  "invalid_pixels": "Reject images with pixels outside 0,1,2; never relabel 3.",
+  "training": {
+    "model": "WaferCNN_v1",
+    "epochs": 40,
+    "patience": 10,
+    "minimum_epochs": 12,
+    "batch_size": 256,
+    "optimizer": "AdamW",
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "schedule": "cosine to 0.00001 over 40 epochs",
+    "augmentation": "D4 during Train only",
+    "loss": "WM square-root inverse-frequency weighted CE; Mixed BCE positive weights capped at 30"
+  },
+  "selection": "Validation macro F1 at default decision threshold; earlier epoch wins ties",
+  "mixed_thresholds": "After checkpoint selection, each label threshold maximizes validation F1 over 0.15..0.85 by 0.05, closest to 0.5 wins ties",
+  "calibration": "Independent Calibration split reports probability reliability; does not refit weights or decisions",
+  "test": "Evaluate once after weight and decision hashes are frozen; no test-based tuning",
+  "baselines": [
+    "Train prior / majority",
+    "Logistic regression on fixed spatial occupancy"
+  ],
+  "limitations": [
+    "No causal connection to PHM process data",
+    "Mixed GAN parent/lot IDs unavailable; exact symmetry grouping cannot prove independent synthetic families",
+    "WM filtered original Test is not a full standard benchmark score"
+  ],
+  "manifest_sha256": "f978f7c59ffc6e20680773d67b4d26b1ea0552cd638c47043e0b17fb8de4d243",
+  "prepared_sha256": "cff199b39ebdbed533d143bb46996d867739ed01cb464b7f4f9fdd3eb26fd649"
+}

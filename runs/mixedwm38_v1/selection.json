@@ -1,0 +1,68 @@
+{
+  "created_at": "2026-09-16T12:44:23.205383+00:00",
+  "model": "WaferCNN_v1",
+  "dataset": "mixedwm38",
+  "label_names": [
+    "Center",
+    "Donut",
+    "Edge-Loc",
+    "Edge-Ring",
+    "Loc",
+    "Near-full",
+    "Scratch",
+    "Random"
+  ],
+  "best_epoch": 40,
+  "thresholds": [
+    0.5,
+    0.5,
+    0.6,
+    0.5,
+    0.19999999999999998,
+    0.5,
+    0.35,
+    0.5
+  ],
+  "baseline_thresholds": [
+    0.6,
+    0.75,
+    0.35,
+    0.44999999999999996,
+    0.5,
+    0.5,
+    0.35,
+    0.44999999999999996
+  ],
+  "validation": {
+    "n": 3791,
+    "accuracy": 0.9836454761276708,
+    "macro_f1": 0.9918185383699569,
+    "micro_f1": 0.9957330602491893,
+    "hamming_loss": 0.0024729622790820366,
+    "macro_average_precision": 0.9992803633416291,
+    "brier_score": 0.0022643960546702147,
+    "binary_log_loss": 0.011011631228029728
+  },
+  "train_prior": [
+    0.342917436032709,
+    0.3165391717225007,
+    0.342917436032709,
+    0.3165391717225007,
+    0.47480875758375096,
+    0.0037369207772795215,
+    0.5011870218939594,
+    0.02026729974501011
+  ],
+  "weights_sha256": "6ac359006d91d18187026a5d7b4cd704d6695aada966e040066910f1be725598",
+  "baseline_sha256": "0e80b90a6a1bab85eecc0f4233043c9d4a10a62f914da61b36b40136a57a7b5f",
+  "decision_note": "CNN family specified before training. Checkpoint and thresholds selected using Validation only.",
+  "probability_note": "Scores are not calibrated probabilities; Calibration reliability is reported separately.",
+  "training_seconds": 335.8440000000119,
+  "device": "NVIDIA GeForce RTX 4070 SUPER",
+  "torch_version": "2.11.0+cu128",
+  "input_size": 64,
+  "input_channels": [
+    "valid_die_occupancy",
+    "failed_die_occupancy"
+  ]
+}

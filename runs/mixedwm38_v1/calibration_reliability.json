@@ -1,0 +1,41 @@
+{
+  "bins": [
+    {
+      "lower": 0.5,
+      "upper": 0.6000000000000001,
+      "n": 24,
+      "mean_confidence": 0.553604781627655,
+      "observed_accuracy": 0.6666666666666666
+    },
+    {
+      "lower": 0.6000000000000001,
+      "upper": 0.7000000000000001,
+      "n": 24,
+      "mean_confidence": 0.6479272246360779,
+      "observed_accuracy": 0.75
+    },
+    {
+      "lower": 0.7000000000000001,
+      "upper": 0.8,
+      "n": 40,
+      "mean_confidence": 0.7525193095207214,
+      "observed_accuracy": 0.675
+    },
+    {
+      "lower": 0.8,
+      "upper": 0.9,
+      "n": 73,
+      "mean_confidence": 0.8625286817550659,
+      "observed_accuracy": 0.8904109589041096
+    },
+    {
+      "lower": 0.9,
+      "upper": 1.0,
+      "n": 30167,
+      "mean_confidence": 0.998867392539978,
+      "observed_accuracy": 0.9986408989955912
+    }
+  ],
+  "expected_calibration_error": 0.0005648918892079253,
+  "definition": "Equal-width 10 bins; Mixed is pooled binary decisions at 0.5"
+}

@@ -1,0 +1,12 @@
+{
+  "started_at": "2026-09-16T12:38:44.447604+00:00",
+  "protocol_sha256": "a1342777926f1bbaf81c42e6fab159122701c0a23ecbe0526c84c6c875bfd07d",
+  "code_sha256": {
+    "wafer_data.py": "f65ef80bba3f80f0cdbb99340d4e9b86f9ab591a0033ab9e89398c11a866c153",
+    "wafer_model.py": "228a06c7fb23d3186ef4c3d71041c741e2ce79edd138b29b5f204eb66dafc2fa",
+    "wafer_train.py": "96466eb6382992e8f10d8f4905f3d97fbd5aafd41e96649f361db76a282417f6"
+  },
+  "reason": "First batch failed before optimizer step: CUDA adaptive pooling backward lacks deterministic implementation. Equivalent 8-to-4 fixed average pooling substituted.",
+  "original_start_sha256": "ca08544098eec03900a0277f701da6fa139901258d670390bf72c0a16633d16e",
+  "baseline_sha256": "0e80b90a6a1bab85eecc0f4233043c9d4a10a62f914da61b36b40136a57a7b5f"
+}

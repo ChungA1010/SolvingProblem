@@ -1,0 +1,59 @@
+{
+  "verified_at": "2026-09-16T12:58:52.944186+00:00",
+  "cold_app_construction_seconds": 2.61700299999211,
+  "timing_environment": "This Windows workstation; CPU inference, 4 PyTorch threads; includes HTTP TestClient and local SQLite writes, not network or a fresh OS install",
+  "mrr_100_call_max_abs_diff": {
+    "A": 0.0,
+    "B": 0.0
+  },
+  "classification_100_calls": {
+    "wm811k": {
+      "max_score_difference": 0.0,
+      "labels": [
+        "Center"
+      ]
+    },
+    "mixedwm38": {
+      "max_score_difference": 0.0,
+      "labels": []
+    }
+  },
+  "timings": [
+    {
+      "task": "MRR_A",
+      "calls": 100,
+      "p95_seconds": 0.06560063500073739,
+      "max_seconds": 0.0807589000032749
+    },
+    {
+      "task": "MRR_B",
+      "calls": 100,
+      "p95_seconds": 0.06758337001083418,
+      "max_seconds": 0.1538843000016641
+    },
+    {
+      "task": "wm811k",
+      "calls": 100,
+      "p95_seconds": 0.018990920019859914,
+      "max_seconds": 0.02127579998341389
+    },
+    {
+      "task": "mixedwm38",
+      "calls": 100,
+      "p95_seconds": 0.019450920008239336,
+      "max_seconds": 0.03601199999684468
+    }
+  ],
+  "train_raw_feature_max_abs_diff": 2.3283064365386963e-10,
+  "original_phm_26_model_hashes_unchanged": true,
+  "interval_policy": "Existing fixed intervals retained. Observed PHM external coverage exceeds 85-95% QA band; no recalibration against revealed outcomes. Scenario-shift coverage unknown.",
+  "release_status": "research_demo",
+  "human_ux_study_performed": false,
+  "new_factory_data_tested": false,
+  "code_sha256": {
+    "api.py": "be62e84e7211c5393bb84587a4bad304b3c823e87f744862a6dc31732e9d7eb9",
+    "runtime.py": "f800772ca85a614263ce4396acf6defb5156386b3fb2bf43acc0aa847b3d88a2",
+    "storage.py": "72210f56ef681ea9912e9b64270efff5a1f592c332bd68f82497882e5291b5e1",
+    "wafer_model.py": "228a06c7fb23d3186ef4c3d71041c741e2ce79edd138b29b5f204eb66dafc2fa"
+  }
+}

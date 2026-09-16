@@ -1,0 +1,93 @@
+{
+  "created_at": "2026-09-16T12:31:40.717487+00:00",
+  "dataset": "wm811k",
+  "original_counts": {
+    "": 638507,
+    "none": 147431,
+    "Edge-Ring": 9680,
+    "Edge-Loc": 5189,
+    "Center": 4294,
+    "Loc": 3593,
+    "Scratch": 1193,
+    "Random": 866,
+    "Donut": 555,
+    "Near-full": 149
+  },
+  "unlabeled_excluded": 638507,
+  "invalid_images": 0,
+  "valid_images": 172950,
+  "split_counts": {
+    "test": 118581,
+    "train": 35771,
+    "validation": 10257,
+    "calibration": 5105,
+    "excluded": 3236
+  },
+  "class_counts": {
+    "calibration": {
+      "Center": 345,
+      "Donut": 41,
+      "Edge-Loc": 240,
+      "Edge-Ring": 853,
+      "Loc": 159,
+      "Near-full": 4,
+      "Random": 61,
+      "Scratch": 48,
+      "none": 3354
+    },
+    "excluded": {
+      "Center": 8,
+      "Donut": 0,
+      "Edge-Loc": 45,
+      "Edge-Ring": 10,
+      "Loc": 21,
+      "Near-full": 7,
+      "Random": 14,
+      "Scratch": 11,
+      "none": 3120
+    },
+    "test": {
+      "Center": 831,
+      "Donut": 146,
+      "Edge-Loc": 2764,
+      "Edge-Ring": 1126,
+      "Loc": 1970,
+      "Near-full": 95,
+      "Random": 257,
+      "Scratch": 693,
+      "none": 110699
+    },
+    "train": {
+      "Center": 2419,
+      "Donut": 286,
+      "Edge-Loc": 1664,
+      "Edge-Ring": 5981,
+      "Loc": 1119,
+      "Near-full": 33,
+      "Random": 416,
+      "Scratch": 343,
+      "none": 23510
+    },
+    "validation": {
+      "Center": 691,
+      "Donut": 82,
+      "Edge-Loc": 476,
+      "Edge-Ring": 1710,
+      "Loc": 324,
+      "Near-full": 10,
+      "Random": 118,
+      "Scratch": 98,
+      "none": 6748
+    }
+  },
+  "exclusion_reasons": {
+    "image_or_symmetry_present_in_later_split": 3208,
+    "conflicting_labels_for_same_transformed_map": 28
+  },
+  "unique_image_groups": 169685,
+  "image_groups_disjoint": true,
+  "lot_disjoint": true,
+  "synthetic_parent_provenance_available": null,
+  "prepared_sha256": "cff199b39ebdbed533d143bb46996d867739ed01cb464b7f4f9fdd3eb26fd649",
+  "manifest_sha256": "f978f7c59ffc6e20680773d67b4d26b1ea0552cd638c47043e0b17fb8de4d243"
+}

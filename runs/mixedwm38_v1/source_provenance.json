@@ -1,0 +1,20 @@
+{
+  "dataset": "mixedwm38",
+  "source_url": "https://www.kaggle.com/api/v1/datasets/download/co1d7era/mixedtype-wafer-defect-datasets",
+  "author_reference": "https://github.com/Junliangwangdhu/WaferMap",
+  "retrieved_at_utc": "2026-09-16T12:25:40Z",
+  "archive_sha256": "2d83a461291c820ee8a775316add0b2489e187cd341a3c61d51134bae33c1925",
+  "files": [
+    {
+      "name": "Wafer_Map_Datasets.npz",
+      "bytes": 412387226,
+      "sha256": "a19e791c85ccd5051c080169a3d2b17902a42545cf749e9869f6c96312bcdc69"
+    },
+    {
+      "name": "Description.pdf",
+      "bytes": 1008893,
+      "sha256": "03d667237b3389ce69f02da57315b1f413d05e724e16706f4ab6eab24b422543"
+    }
+  ],
+  "license_note": "Original dataset terms apply; raw data is local only and is not republished."
+}

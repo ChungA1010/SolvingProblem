@@ -1,0 +1,50 @@
+{
+  "created_at": "2026-09-16T12:45:37.839929+00:00",
+  "model": "WaferCNN_v1",
+  "dataset": "wm811k",
+  "label_names": [
+    "none",
+    "Center",
+    "Donut",
+    "Edge-Loc",
+    "Edge-Ring",
+    "Loc",
+    "Near-full",
+    "Scratch",
+    "Random"
+  ],
+  "best_epoch": 31,
+  "thresholds": null,
+  "baseline_thresholds": null,
+  "validation": {
+    "n": 10257,
+    "accuracy": 0.9885931558935361,
+    "macro_f1": 0.9573915902825684,
+    "micro_f1": 0.9885931558935361,
+    "log_loss": 0.03306376561522484,
+    "brier_score": 0.017407497833749924
+  },
+  "train_prior": [
+    0.6572363087417181,
+    0.06762461211595985,
+    0.007995303458108524,
+    0.046518129210813226,
+    0.16720248245785693,
+    0.03128232367001202,
+    0.0009225350143971374,
+    0.009588773028430852,
+    0.011629532302703307
+  ],
+  "weights_sha256": "6b31cb03d6a8f903a30ebb887f3022e498c25ec1b59969326a06ef1923171827",
+  "baseline_sha256": "b06b1882ea400d11dd91007155abb3bcc8908a3dc063f841ec6c274cc4bb4e6c",
+  "decision_note": "CNN family specified before training. Checkpoint and thresholds selected using Validation only.",
+  "probability_note": "Scores are not calibrated probabilities; Calibration reliability is reported separately.",
+  "training_seconds": 420.4539999999979,
+  "device": "NVIDIA GeForce RTX 4070 SUPER",
+  "torch_version": "2.11.0+cu128",
+  "input_size": 64,
+  "input_channels": [
+    "valid_die_occupancy",
+    "failed_die_occupancy"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "built_at": "2026-09-16T13:06:32.824130+00:00",
+  "unity_version": "6000.3.21f1",
+  "target": "StandaloneWindows64",
+  "result": "Succeeded",
+  "bytes": 89381029,
+  "file_count": 140,
+  "executable_sha256": "48efab523aa684c653bd1254a6962d3410127b5c02dc1310f6f16f4810666556",
+  "assembly_sha256": "0e27323b4186a58b4947f45ee982acda3b58ccf1e59b738f618a531f706956c8",
+  "smoke_sha256": "60b33ddab1911c27f4c4d05d51178fce239638dca9d2aa7cd2439047806625a4",
+  "screenshots_reviewed": true
+}

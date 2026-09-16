@@ -1,8 +1,38 @@
 # CMP Virtual Lab ML
 
-PHM Society 2016 CMP 데이터로 평균 제거율(MRR)을 예측하는 재현 가능한 머신러닝 실험입니다. Stage A·B 각각에서 13종 모델을 비교하고, 검증 데이터로 선정한 모델을 한 번의 봉인된 테스트에서 평가합니다.
+PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 결함 분류를 학습하고 **로컬 API와 Windows Unity 데모**로 연결한 연구 프로젝트입니다. 원본 데이터는 Git에 포함하지 않고 모델·분할·평가 결과와 검증 증거를 보존합니다.
 
-현재 범위는 **오프라인 제거율 예측 벤치마크**입니다. 실제 단위가 보장된 CMP 시뮬레이터, 공정 제어기, 또는 서비스 배포 완료 상태를 의미하지 않습니다. WM-811K와 MixedWM38의 결함 분류는 별도 후속 과제입니다.
+**학습·API·Unity 데모 구현 및 통합 검증은 완료됐습니다.** 제공 범위는 교육·연구 데모이며 제조 공정 배포 승인을 의미하지 않습니다. WM의 lot 간 성능 저하, Mixed의 합성 데이터 계보 부재, PHM 예측구간의 과도한 coverage 등 확인된 한계를 보고서에 명시합니다.
+
+## 데모 실행과 전체 결과
+
+이 PC에서는 `start-demo.cmd`를 실행합니다. 새 PC에서는 Python 3.12 설치 후 `tools/start-demo.ps1 -Setup`을 사용합니다. Windows 실행 파일은 [GitHub Releases](https://github.com/king-beomsoo/cmp-virtual-lab-ml/releases)에서 받아 `builds/CmpDemo/`에 둡니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요.
+
+| 작업 | 완료 결과 | 보고서 |
+|---|---|---|
+| PHM CMP | Stage별 13종, 총 26개 학습·추가 검증 | [기존 평가](runs/phm_cmp_v1/REPORT.md), [외부 분할](runs/phm_cmp_external_v1/REPORT.md) |
+| WM-811K | Test 118,581개, macro F1 **0.7204**, 정확도 **94.93%** | [분류 보고서](runs/wm811k_v1/REPORT.md) |
+| MixedWM38 | Test 7,582개, macro F1 **0.9902**, 조합 일치율 **97.94%** | [복합 결함 보고서](runs/mixedwm38_v1/REPORT.md) |
+| 서비스 | 원시 시계열·시나리오·웨이퍼 추론, OOD 차단, 실험 저장·조회·내보내기 | [운영 검증](runs/service_v1/REPORT.md) |
+| Unity | 전용 프로젝트·Windows 빌드·실제 HTTP 통합 검사 | [프로젝트](unity/CmpDemo), [통합 검사](runs/service_v1/smoke.json) |
+
+![Unity 제거율 실험 화면](runs/service_v1/cmp-demo.png)
+
+학습과 평가에 사용하지 않은 사용자 조작용 합성 맵 편집기를 포함합니다. 실제 데이터는 API로 넣을 수 있습니다. MRR 모델과 웨이퍼 분류 모델 사이에 인과 연결을 학습한 것은 아닙니다. API는 `127.0.0.1:8765`의 로컬 서비스이며 외부 공개 배포를 설정하지 않았습니다.
+
+분류 학습 재현 명령은 아래와 같습니다. 새 디렉터리에서 시작해도 이미 공개된 Test에 맞춰 튜닝하면 새 독립 평가가 되지는 않습니다. 게시된 run은 덮어쓰지 않습니다.
+
+```bash
+python tools/fetch_wafer_data.py wm811k
+python tools/fetch_wafer_data.py mixedwm38
+python -m cmp_ml.wafer_data wm811k --run-dir runs/my_wm
+python -m cmp_ml.wafer_train --run-dir runs/my_wm --device cuda
+python -m cmp_ml.wafer_verify --run-dir runs/my_wm
+python -m cmp_ml.wafer_report --run-dir runs/my_wm
+# MixedWM38도 dataset=mixedwm38, 별도 run 경로로 같은 순서 실행
+```
+
+분류는 PyTorch를 추가로 사용합니다. CPU 서비스 설치는 `requirements-service.lock.txt`, GPU 학습 설치는 공식 PyTorch cu128 인덱스를 사용합니다. 저장된 CNN 가중치는 `weights_only=True`로 읽으며 API는 업로드된 pickle/joblib을 실행하지 않습니다.
 
 ## 결과 보기
 

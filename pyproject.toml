@@ -4,13 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cmp-virtual-lab-ml"
-version = "0.1.0"
-description = "Reproducible PHM 2016 CMP removal-rate model comparison"
+version = "0.2.0"
+description = "CMP removal-rate and wafer defect models with a local API and Unity demo"
 requires-python = ">=3.12,<3.13"
 dependencies = ["numpy", "pandas", "scipy", "scikit-learn", "catboost", "xgboost", "lightgbm", "matplotlib", "joblib"]
 
+[project.optional-dependencies]
+service = ["torch==2.11.0", "fastapi==0.141.1", "uvicorn==0.53.0", "httpx==0.28.1", "pillow==12.3.0"]
+
 [project.scripts]
 cmp-ml = "cmp_ml.cli:main"
+cmp-api = "cmp_ml.api:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

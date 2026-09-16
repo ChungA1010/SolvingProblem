@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-09-16T13:11:28.579790+00:00",
+  "filename": "CMP-Virtual-Lab-Windows-v0.2.0.zip",
+  "sha256": "b0c1c3648fa35813a7b8d0789359461550667c467bba3fc74cdda521df139dcc",
+  "bytes": 33032155,
+  "files": 140,
+  "extract_to": "builds/CmpDemo",
+  "contains_raw_datasets": false,
+  "contains_local_database": false
+}

@@ -10,3 +10,12 @@ runs/*/training.log
 runs/*/train_started.json
 .env
 *.tmp
+builds/
+unity/**/Library/
+unity/**/Temp/
+unity/**/Logs/
+unity/**/Obj/
+unity/**/UserSettings/
+unity/**/*.csproj
+unity/**/*.sln
+unity/**/.vs/

@@ -1,0 +1,55 @@
+{
+  "bins": [
+    {
+      "lower": 0.30000000000000004,
+      "upper": 0.4,
+      "n": 88,
+      "mean_confidence": 0.37379932403564453,
+      "observed_accuracy": 0.2840909090909091
+    },
+    {
+      "lower": 0.4,
+      "upper": 0.5,
+      "n": 493,
+      "mean_confidence": 0.46401023864746094,
+      "observed_accuracy": 0.4381338742393509
+    },
+    {
+      "lower": 0.5,
+      "upper": 0.6000000000000001,
+      "n": 1613,
+      "mean_confidence": 0.5510191321372986,
+      "observed_accuracy": 0.5027898326100434
+    },
+    {
+      "lower": 0.6000000000000001,
+      "upper": 0.7000000000000001,
+      "n": 1781,
+      "mean_confidence": 0.6514496207237244,
+      "observed_accuracy": 0.5317237507018528
+    },
+    {
+      "lower": 0.7000000000000001,
+      "upper": 0.8,
+      "n": 2472,
+      "mean_confidence": 0.7526673674583435,
+      "observed_accuracy": 0.6112459546925566
+    },
+    {
+      "lower": 0.8,
+      "upper": 0.9,
+      "n": 3641,
+      "mean_confidence": 0.8551380634307861,
+      "observed_accuracy": 0.719582532271354
+    },
+    {
+      "lower": 0.9,
+      "upper": 1.0,
+      "n": 108493,
+      "mean_confidence": 0.9950291514396667,
+      "observed_accuracy": 0.9810402514447937
+    }
+  ],
+  "expected_calibration_error": 0.022537558051180483,
+  "definition": "Equal-width 10 bins; Mixed is pooled binary decisions at 0.5"
+}

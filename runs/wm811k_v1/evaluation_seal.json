@@ -1,0 +1,6 @@
+{
+  "sealed_at": "2026-09-16T12:45:37.852022+00:00",
+  "selection_sha256": "d8d2111795dc097bbad018ee302a532c45560b05adb74372dab3ab1a5d74214e",
+  "manifest_sha256": "f978f7c59ffc6e20680773d67b4d26b1ea0552cd638c47043e0b17fb8de4d243",
+  "no_retraining_after_evaluation": true
+}

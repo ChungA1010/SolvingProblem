@@ -1,0 +1,23 @@
+{
+  "verified_at": "2026-09-16T13:10:35.244046+00:00",
+  "tests": 56,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 14.865,
+  "test_files": {
+    "test_external.py": "acd1e7bd272f6739358bf829a73bd135c30ce20582f98393db9fa7034f561a86",
+    "test_external_artifacts.py": "5b1136210a60fe95885e1a397183ee6c8176e8ed22829530c5c83be2961656f0",
+    "test_integrity.py": "782c6e3bd3972e35e36c3efde43ebd16e51269be74e3c00392582bb25668ec46",
+    "test_published_artifacts.py": "06417058e300047edb9fbe4ee75855f96f28a5e1c79e4718ad1dc37a2d288658",
+    "test_service.py": "f18f75dbd5944ebff690350a112dfc41d614e394dfddc9dfb07f5964c7b1b108",
+    "test_stability.py": "687bc807edde80fed07bcfe7b27411c449f30f945147833f79d76fa32e97daeb",
+    "test_stability_artifacts.py": "8ff18eaecdbb82763f135371d0e13c20a46972dac2a79076e63bf2441043c995",
+    "test_wafer.py": "da6aa19f65c205335f7cccfb81839e73cb4114e8cb1b3f63da31737371bfb9ce",
+    "test_wafer_artifacts.py": "a187544091746619919ef97caac227c3c37970f3c601232c8011ba7018fb1946"
+  },
+  "non_blocking_warnings": [
+    "Starlette HTTPX/AnyIO deprecations",
+    "Float32 softmax CSV scores differ from exact unit sum at float64 precision; classification metrics reproduced exactly"
+  ]
+}

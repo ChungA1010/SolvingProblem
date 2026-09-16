@@ -1,0 +1,242 @@
+[
+  {
+    "scenario_id": "SCN-A-001",
+    "stage": "A",
+    "label": "일반",
+    "anchor_id": "e131cc41ea8524d1629f",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 35.82270408162292
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.205109126982767
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.79928017718104
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 54.79127506259742
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.2095238095238
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-A-002",
+    "stage": "A",
+    "label": "높은 챔버 압력",
+    "anchor_id": "3225fbe683f80629efd5",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 66.25405844154574
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.496527777775114
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.221723044389543
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 55.218301435351016
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.1
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-A-003",
+    "stage": "A",
+    "label": "높은 웨이퍼 회전",
+    "anchor_id": "e131cc41ea8524d1629f",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 35.82270408162292
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.205109126982767
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.79928017718104
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 54.79127506259742
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.2095238095238
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-A-004",
+    "stage": "A",
+    "label": "높은 슬러리 A",
+    "anchor_id": "12db6298d428dff378fa",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 39.852216748771845
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 5.6621168582352
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.332397754604942
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 58.39609800358143
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.6436781609195
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-B-001",
+    "stage": "B",
+    "label": "일반",
+    "anchor_id": "69d4050e3444b11756f0",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 64.10609857975965
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.987410656268655
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.691282469732778
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 58.19829178203102
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.09356725146196
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-B-002",
+    "stage": "B",
+    "label": "높은 챔버 압력",
+    "anchor_id": "3d9dc3b8032cead14c80",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 65.15227021041163
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.9354005167939246
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.718090859919537
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 58.48569461438424
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.21395348837208
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-B-003",
+    "stage": "B",
+    "label": "높은 웨이퍼 회전",
+    "anchor_id": "0513b8d1d574543d7756",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 64.52587991716841
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 4.998792270529653
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.77856420626058
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 58.225400457623415
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.22260869565216
+      }
+    ]
+  },
+  {
+    "scenario_id": "SCN-B-004",
+    "stage": "B",
+    "label": "높은 슬러리 A",
+    "anchor_id": "1cc84c2531253c75b30f",
+    "chamber_route": "4-5-6",
+    "catalog_version": "1.0.0",
+    "defaults": [
+      {
+        "variable_id": "CTRL-PRESSURE-01",
+        "value": 64.27731092434826
+      },
+      {
+        "variable_id": "CTRL-SLURRY-01",
+        "value": 5.570261437906677
+      },
+      {
+        "variable_id": "CTRL-ROTATION-01",
+        "value": 14.590287277696527
+      },
+      {
+        "variable_id": "CTRL-ROTATION-02",
+        "value": 58.38777089778323
+      },
+      {
+        "variable_id": "CTRL-ROTATION-03",
+        "value": 160.19764705882352
+      }
+    ]
+  }
+]

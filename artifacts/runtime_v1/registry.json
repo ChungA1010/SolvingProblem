@@ -1,0 +1,94 @@
+{
+  "version": "runtime-1.0.0",
+  "created_at": "2026-09-16T12:37:34.592635+00:00",
+  "source_run": "phm_cmp_v1",
+  "notice": "교육·연구용 데이터셋 지수입니다. 실제 공정 단위·인과 효과·품질 개선을 보증하지 않습니다.",
+  "release_status": "research_demo",
+  "stages": {
+    "A": {
+      "models": [
+        {
+          "name": "StageMean",
+          "file": "A_StageMean.joblib",
+          "sha256": "ba37c29ff293cc22332f54f06c24ef77440a1a739678996fdd714a1e84d5f408",
+          "role": "reference",
+          "model_type": "stage_mean"
+        },
+        {
+          "name": "PrestonInspired",
+          "file": "A_PrestonInspired.joblib",
+          "sha256": "e9f0f521766aa668959fd1549bb45e63974f354d2e054def059f83d177f7a420",
+          "role": "comparison",
+          "model_type": "physics"
+        },
+        {
+          "name": "CatBoost",
+          "file": "A_CatBoost.joblib",
+          "sha256": "219cb2b380ff0b718e38ffc32bbdb9a00ebd1322087b633f58ef2e334d2c4269",
+          "role": "primary",
+          "model_type": "ml"
+        }
+      ],
+      "train_n": 692,
+      "train_chambers": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "ood_policy": "training-standardized-k10-loo-1.0.0",
+      "q95": 49.036193003350405,
+      "q99": 69.07012143251438
+    },
+    "B": {
+      "models": [
+        {
+          "name": "StageMean",
+          "file": "B_StageMean.joblib",
+          "sha256": "e1e46208295e79efe06dc853831bbd3866b699fbc4cb953f2ec1acfd9c384a2d",
+          "role": "reference",
+          "model_type": "stage_mean"
+        },
+        {
+          "name": "PrestonInspired",
+          "file": "B_PrestonInspired.joblib",
+          "sha256": "26d5b20b6464347a93c514e9395f34119db7c8b73478cb8a13e5a4af825e976f",
+          "role": "comparison",
+          "model_type": "physics"
+        },
+        {
+          "name": "Physics+CatBoost",
+          "file": "B_Physics_CatBoost.joblib",
+          "sha256": "cce6396eb9de1687795f6a21933efc56b88f7ccae379e7916aa9b0b644e027b2",
+          "role": "primary",
+          "model_type": "hybrid"
+        }
+      ],
+      "train_n": 489,
+      "train_chambers": [
+        "4",
+        "5",
+        "6"
+      ],
+      "ood_policy": "training-standardized-k10-loo-1.0.0",
+      "q95": 31.59740100470598,
+      "q99": 73.3105682935088
+    }
+  },
+  "files": {
+    "ood_A.joblib": "80ce5ca3f5c9d0eebcdf050e038a8d86c5f7a5ff88f3c8543ef40329caa9eb28",
+    "ood_B.joblib": "5ceb91d8d4305f14dde3e3468fa84b9454ef59648f721378a23d5e0cae10622f",
+    "scenarios.json": "235f6e0a0057324d8017a382839e2210c56b9f6acb4eac3cae9fc2891ec52159",
+    "SCN-A-001.json": "6674c5641a9bd78151123b94307724ecc23d329e4cd3e9ab7444cc45fd1eda8f",
+    "SCN-A-002.json": "3fb588dc2b0c5248e617aab252d7b7f649f707a11c974fae29f4bae2d338e6bc",
+    "SCN-A-003.json": "6674c5641a9bd78151123b94307724ecc23d329e4cd3e9ab7444cc45fd1eda8f",
+    "SCN-A-004.json": "4794b4e3e841cf81795badd3d3b76019bcb6024d37393a3ae5f163dff8c92727",
+    "SCN-B-001.json": "4df272e305cd4ba351c9cef328c1e773f944686009975ac8472c7a6fedc713d3",
+    "SCN-B-002.json": "019c8dec9560ae03ec19c39547d6df57b91d854783cd4c1bc6ea859d1ffd1a64",
+    "SCN-B-003.json": "08c4c6c59470e24e3d37c0499dabe1534ac06969b5c9ce1acddaf84d0459f222",
+    "SCN-B-004.json": "41166836f2cae4e0f5cc5138464964c1a86bcf907057bf373142595a8e417cf8",
+    "variables.json": "e1229060c84924013ef66bda857f6dcda2ce7953d9776a90b4eb4b86380528e9"
+  }
+}

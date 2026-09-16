@@ -1,0 +1,15 @@
+{
+  "dataset": "wm811k",
+  "source_url": "https://www.kaggle.com/api/v1/datasets/download/qingyi/wm811k-wafer-map",
+  "author_reference": "https://mirlab.org/dataSet/public/",
+  "retrieved_at_utc": "2026-09-16T12:25:36Z",
+  "archive_sha256": "0e4bd4316a110a04e475a88071f5e1c7fe4303b12ee53c851d2cae4d995a93e2",
+  "files": [
+    {
+      "name": "LSWMD.pkl",
+      "bytes": 2095505977,
+      "sha256": "1d04fccb3dd3176b276878b926b20fead7e077c5751e4d353ea9741a5e7b5c65"
+    }
+  ],
+  "license_note": "Original dataset terms apply; raw data is local only and is not republished."
+}

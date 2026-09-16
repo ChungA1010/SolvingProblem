@@ -1,0 +1,17 @@
+{
+  "verified_at": "2026-09-16T12:53:13.783946+00:00",
+  "dataset": "wm811k",
+  "samples": 512,
+  "split": "validation",
+  "cpu_repeat_max_abs_logit_diff": 0.0,
+  "cpu_full_fp32_gpu_max_abs_logit_diff": 5.7220458984375e-06,
+  "full_fp32_logit_tolerance": 0.001,
+  "passed": true,
+  "original_gpu_tf32_cpu_max_abs_logit_diff": 0.005750060081481934,
+  "original_gpu_tf32_cpu_max_abs_score_diff": 0.00037097930908203125,
+  "original_gpu_tf32_cpu_different_decisions": 0,
+  "recovery_note": "Original finalizer compared CPU FP32 with default cuDNN TF32 against a strict logit tolerance. The new check disables TF32 for the cross-device FP32 comparison. Frozen training/evaluation scores remain unchanged and used default GPU TF32. Runtime uses CPU FP32; no deployment accuracy identity is claimed from this subset check.",
+  "weights_sha256": "6b31cb03d6a8f903a30ebb887f3022e498c25ec1b59969326a06ef1923171827",
+  "selection_sha256": "d8d2111795dc097bbad018ee302a532c45560b05adb74372dab3ab1a5d74214e",
+  "verification_code_sha256": "2320232aeca1a3bf2aad205a9f590a7b96d38312063035b5072f125e4a5c4710"
+}

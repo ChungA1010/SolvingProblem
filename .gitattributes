@@ -1,5 +1,11 @@
 * text=auto eol=lf
 # Frozen results are hashed byte-for-byte, including their original line endings.
 runs/** -text whitespace=cr-at-eol
+artifacts/** -text whitespace=cr-at-eol
+*.pt binary
 *.joblib binary
 *.png binary
+# Unity serializes empty YAML fields with a trailing space.
+*.asset whitespace=-blank-at-eol
+*.meta whitespace=-blank-at-eol
+*.unity whitespace=-blank-at-eol

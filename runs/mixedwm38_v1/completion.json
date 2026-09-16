@@ -1,0 +1,12 @@
+{
+  "completed_at": "2026-09-16T12:49:36.454858+00:00",
+  "best_epoch": 40,
+  "epochs_run": 40,
+  "weights_sha256": "6ac359006d91d18187026a5d7b4cd704d6695aada966e040066910f1be725598",
+  "selection_sha256": "9ed14a9245c555e1a144accd103d30b0083662b9781376616f595c710e2c2209",
+  "metrics_sha256": "46836d1f82e797f1dca267deb9c3aa1630797ffba852fbc21e512e5545b531b8",
+  "predictions_sha256": "dd36b8938ed9b1a377eeaf48c60db8f02702e1847fa15db6eb0f94eda9a62c1b",
+  "holdout_evaluated_once": true,
+  "portability_finalizer": "wafer_verify.py",
+  "verification_sha256": "54e7182fa4854754a20d7028b443e883e51445a5b190a47cba319b43d0aa353b"
+}
