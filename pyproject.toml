@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cmp-virtual-lab-ml"
+version = "0.1.0"
+description = "Reproducible PHM 2016 CMP removal-rate model comparison"
+requires-python = ">=3.12,<3.13"
+dependencies = ["numpy", "pandas", "scipy", "scikit-learn", "catboost", "xgboost", "lightgbm", "matplotlib", "joblib"]
+
+[project.scripts]
+cmp-ml = "cmp_ml.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

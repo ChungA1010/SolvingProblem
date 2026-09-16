@@ -1,0 +1,58 @@
+{
+  "frozen_at": "2026-09-16T11:02:32.054379+00:00",
+  "training_seconds": 228.84742819998064,
+  "stages": {
+    "A": {
+      "selected_by_validation": "CatBoost",
+      "validation_mae": 3.111225710276315,
+      "validation_rmse": 3.990056088896893,
+      "train_n": 692,
+      "validation_n": 175,
+      "calibration_n": 125,
+      "train_groups": 40,
+      "calibration_groups": 1,
+      "features_after_train_filter": 2329
+    },
+    "B": {
+      "selected_by_validation": "Physics+CatBoost",
+      "validation_mae": 3.326700610281559,
+      "validation_rmse": 4.104828213702658,
+      "train_n": 489,
+      "validation_n": 122,
+      "calibration_n": 82,
+      "train_groups": 31,
+      "calibration_groups": 2,
+      "features_after_train_filter": 1049
+    }
+  },
+  "model_hashes": {
+    "A_CatBoost.joblib": "219cb2b380ff0b718e38ffc32bbdb9a00ebd1322087b633f58ef2e334d2c4269",
+    "A_GlobalMean.joblib": "cd89ea618b5bf33a14dd9b5cddda357fca28c7973250702e2218da025aa87f08",
+    "A_KNN.joblib": "02ad6854b052afc3647ae5f1156c1b5ea0d76bdd1a88f91ee55f13ff79fc19ce",
+    "A_LightGBM.joblib": "fb74dfd55089ef7bbebdd42869a432245d8dddbfeb95d14a5c299235ccbbcc34",
+    "A_Physics_CatBoost.joblib": "a0d1db5f9e6a2dce84e517b841aba2601326b2c7b8f7c3f06ef1ac5c82338db3",
+    "A_Physics_LightGBM.joblib": "80984366f9e0927fedec6f47c674983400af1063426d9654993751c05afbfdf4",
+    "A_PLS.joblib": "a21497631b773f392d8f2fd7c2621d7e5560534a40b1e9e253ce8bd1ee9599db",
+    "A_PrestonInspired.joblib": "e9f0f521766aa668959fd1549bb45e63974f354d2e054def059f83d177f7a420",
+    "A_RandomForest.joblib": "3c0f9a8e0c199b9c4f33587fd3803cb6cbf209cb9e468c2156700893901c298b",
+    "A_Ridge.joblib": "97e71942bdd628336402bd8c85bcac57331ca1e46bfada4daa3558fd7167b004",
+    "A_StageMean.joblib": "ba37c29ff293cc22332f54f06c24ef77440a1a739678996fdd714a1e84d5f408",
+    "A_SVR.joblib": "df06b3b4e2d48e0b23a4f786d602a7302c860d070e97a03a0f062009cfe355cd",
+    "A_XGBoost.joblib": "640175b7eafd5d5e759b59ad7deb960adaf59524bfd4165e2d03a5d0f4445037",
+    "B_CatBoost.joblib": "f0e0f0fe36f55cc2b42bfb35ee1e744f47f74bb6f0f643acf89fed4b3253cc0b",
+    "B_GlobalMean.joblib": "eb8499bcb661dd99cea0e5b8ba3804202f3d09b23b9073ffec78738029dfb1d3",
+    "B_KNN.joblib": "89fca08e8aa36cc22ffa66dbee564b360e4569e3d89cf715d9c0164ebca3f9b6",
+    "B_LightGBM.joblib": "e82f46432fe03c5d80cd3e4aa9fa9066966b78652077622c022ea7225270a60b",
+    "B_Physics_CatBoost.joblib": "cce6396eb9de1687795f6a21933efc56b88f7ccae379e7916aa9b0b644e027b2",
+    "B_Physics_LightGBM.joblib": "38041cc57e15509557b1f2e75004f82261566506ac8ec19949132ae03960cd3e",
+    "B_PLS.joblib": "46677720dd2d482fea706619fc9ef408b007212ea3d762b283001346251b88e7",
+    "B_PrestonInspired.joblib": "26d5b20b6464347a93c514e9395f34119db7c8b73478cb8a13e5a4af825e976f",
+    "B_RandomForest.joblib": "66c1728f21d6223e48554cd6ff7ab0d31f64b11988842fe50d292456c5a75df9",
+    "B_Ridge.joblib": "448b9027c48cc3d66b7cfcacae43122961fa31c88483f9563cc2b9410308db00",
+    "B_StageMean.joblib": "e1e46208295e79efe06dc853831bbd3866b699fbc4cb953f2ec1acfd9c384a2d",
+    "B_SVR.joblib": "f6e7a3e9acf70609af85b4ede6f55e7b40817f066c72ab153d5f8fe616494be3",
+    "B_XGBoost.joblib": "732d124f7bd836365b2e3f459ff10cf13f71e4103b2f83c988fdd3e5f2a76680"
+  },
+  "protocol_sha256": "1b2e2aac0c2f7f269be2b1525840ae1c3d8158351f5f89248e4ca0e12668f6b0",
+  "split_sha256": "2568c8e9dec0ad44ad27de0b9f80a2e4f5a8990ce989f49100dc670b87fb3194"
+}

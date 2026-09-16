@@ -1,0 +1,40 @@
+{
+  "started_at": "2026-09-16T10:58:43.207303+00:00",
+  "seed": 20260903,
+  "threads": 4,
+  "selection_rule": "Minimum Validation MAE; tie-break RMSE. All families frozen before Test.",
+  "refit_policy": "Train only; no Train+Validation refit, preserving calibration independence.",
+  "hybrid_policy": "5-fold file/wafer-component OOF physics residuals inside Train; final physics fit on Train.",
+  "calibration_policy": "Per-stage n>=80, finite-sample rank ceil((n+1)*0.9); sample-level diagnostic intervals.",
+  "interval_limitation": "Within-group dependence violates iid sample exchangeability; no formal coverage guarantee.",
+  "target_units": "dataset_scale",
+  "source_split_sha256": "2568c8e9dec0ad44ad27de0b9f80a2e4f5a8990ce989f49100dc670b87fb3194",
+  "predeclared_extreme_ids": [
+    1834206730,
+    1834206944,
+    1834206972,
+    2058207580
+  ],
+  "python": "3.12.14",
+  "packages": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5",
+    "scipy": "1.18.1",
+    "scikit-learn": "1.9.1",
+    "catboost": "1.2.10",
+    "xgboost": "3.4.1",
+    "lightgbm": "4.7.0",
+    "joblib": "1.6.0",
+    "matplotlib": "3.11.2"
+  },
+  "source_hashes": {
+    "__init__.py": "42e889c291287caef22c2ff1baf8005baea268ccd91956366c49bacee70df671",
+    "cli.py": "c8ab6875394f25368ab9cf7aabb8a86efa9b45c9849ca7075496308e68aca1e0",
+    "common.py": "3034410e55278260b4d89775eb0fef34ec98c96696b40f30ea1875d2b21d221e",
+    "data.py": "6ff4eadeaf8d32e5871c7dee8e255480a0331373e6279804e90c0d767b188631",
+    "experiment.py": "e71b06a2e31253a805dd221f7df1a19132eb45c60ded86b41b390a65d0c036b9",
+    "models.py": "05aae95bc4558ed4d6d031cd7547eafea35e9f2fc899f84b9c2414e36fd88357",
+    "report.py": "9b22996224b38cbd11bb98c3d3e807f746c68fcfe8c3839f903c873ff2e5e49a",
+    "verify.py": "08cd3d2b7fc50d9fbd34d2896b12116f3ae824b7076eb4c08297548cc767ac7c"
+  }
+}

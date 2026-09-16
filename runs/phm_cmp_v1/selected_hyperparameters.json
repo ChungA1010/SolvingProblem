@@ -1,0 +1,138 @@
+{
+  "A": {
+    "GlobalMean": {},
+    "StageMean": {},
+    "PrestonInspired": {
+      "regularization": 0.1,
+      "loss": "soft_l1_on_log_target"
+    },
+    "Ridge": {
+      "alpha": 10000.0
+    },
+    "PLS": {
+      "n_components": 2
+    },
+    "KNN": {
+      "n_neighbors": 15,
+      "weights": "distance"
+    },
+    "SVR": {
+      "C": 1.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "RandomForest": {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "XGBoost": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "objective": "reg:absoluteerror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "CatBoost": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "LightGBM": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "Physics+CatBoost": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "Physics+LightGBM": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    }
+  },
+  "B": {
+    "GlobalMean": {},
+    "StageMean": {},
+    "PrestonInspired": {
+      "regularization": 0.1,
+      "loss": "soft_l1_on_log_target"
+    },
+    "Ridge": {
+      "alpha": 10000.0
+    },
+    "PLS": {
+      "n_components": 5
+    },
+    "KNN": {
+      "n_neighbors": 5,
+      "weights": "distance"
+    },
+    "SVR": {
+      "C": 1.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "RandomForest": {
+      "n_estimators": 160,
+      "max_depth": null,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "XGBoost": {
+      "n_estimators": 300,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "objective": "reg:squarederror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "CatBoost": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "LightGBM": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "Physics+CatBoost": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "Physics+LightGBM": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    }
+  }
+}

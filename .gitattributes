@@ -1,0 +1,5 @@
+* text=auto eol=lf
+# Frozen results are hashed byte-for-byte, including their original line endings.
+runs/** -text whitespace=cr-at-eol
+*.joblib binary
+*.png binary

@@ -1,0 +1,9 @@
+{
+  "started_at": "2026-09-16T11:02:54.728369+00:00",
+  "status": "complete",
+  "selection_sha256": "12ad46b540d602c462dc94605b046e0ad84f2e0cfbdf190338f46097f192c825",
+  "rule": "No retuning or new model selection on these Test outcomes.",
+  "completed_at": "2026-09-16T11:02:55.983552+00:00",
+  "test_metrics_sha256": "4864aebaf182f0f2a3cf4c29290cbe4e6223c694c14c2ec45109bafd805e8a46",
+  "test_predictions_sha256": "ee8aea3dfb5f853c6fc3f128eeaf6e2dbdc99b9501d92517f9640c4e19facbd3"
+}

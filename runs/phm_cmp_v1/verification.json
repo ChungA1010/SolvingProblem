@@ -1,0 +1,157 @@
+{
+  "verified_at": "2026-09-16T11:03:34.853773+00:00",
+  "status": "passed",
+  "model_count": 26,
+  "split_hash_matches": true,
+  "wafer_file_group_disjoint": true,
+  "oof_train_coverage_complete": true,
+  "oof_groups_disjoint": true,
+  "saved_predictions": [
+    {
+      "stage": "A",
+      "model": "CatBoost",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "GlobalMean",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "A",
+      "model": "KNN",
+      "max_saved_prediction_difference": 5.684341886080802e-14
+    },
+    {
+      "stage": "A",
+      "model": "LightGBM",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "Physics+CatBoost",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "Physics+LightGBM",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "PLS",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "A",
+      "model": "PrestonInspired",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "RandomForest",
+      "max_saved_prediction_difference": 1.1368683772161603e-13
+    },
+    {
+      "stage": "A",
+      "model": "Ridge",
+      "max_saved_prediction_difference": 5.684341886080802e-14
+    },
+    {
+      "stage": "A",
+      "model": "StageMean",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "A",
+      "model": "SVR",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "A",
+      "model": "XGBoost",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "CatBoost",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "GlobalMean",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "KNN",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "LightGBM",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "Physics+CatBoost",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "Physics+LightGBM",
+      "max_saved_prediction_difference": 1.4210854715202004e-14
+    },
+    {
+      "stage": "B",
+      "model": "PLS",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "PrestonInspired",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "RandomForest",
+      "max_saved_prediction_difference": 2.842170943040401e-14
+    },
+    {
+      "stage": "B",
+      "model": "Ridge",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "StageMean",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "SVR",
+      "max_saved_prediction_difference": 0.0
+    },
+    {
+      "stage": "B",
+      "model": "XGBoost",
+      "max_saved_prediction_difference": 7.105427357601002e-15
+    }
+  ],
+  "selected_model_reproducibility_and_latency": [
+    {
+      "stage": "A",
+      "model": "CatBoost",
+      "repetitions": 100,
+      "max_difference": 0.0,
+      "warm_p95_seconds": 0.06620578999718417
+    },
+    {
+      "stage": "B",
+      "model": "Physics+CatBoost",
+      "repetitions": 100,
+      "max_difference": 0.0,
+      "warm_p95_seconds": 0.011351349981850844
+    }
+  ]
+}

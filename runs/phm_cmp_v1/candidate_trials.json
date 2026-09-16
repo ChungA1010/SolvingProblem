@@ -1,0 +1,1342 @@
+[
+  {
+    "stage": "A",
+    "model": "GlobalMean",
+    "config": {},
+    "fit_seconds": 0.0,
+    "n": 175,
+    "mae": 38.25991879690334,
+    "rmse": 39.29511489950282,
+    "r2": -0.007806494831319455,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "StageMean",
+    "config": {},
+    "fit_seconds": 0.0,
+    "n": 175,
+    "mae": 42.80296213377374,
+    "rmse": 43.81310964895413,
+    "r2": -0.2528762705100891,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 0.1,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.005559500015806407,
+    "n": 175,
+    "mae": 13.656650129904826,
+    "rmse": 26.148721384174085,
+    "r2": 0.5537266610651185,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 1.0,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.005592500005150214,
+    "n": 175,
+    "mae": 13.80406609695907,
+    "rmse": 26.51434028517895,
+    "r2": 0.5411595697776679,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 10.0,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.005264700012048706,
+    "n": 175,
+    "mae": 14.21789679606159,
+    "rmse": 27.2448902156896,
+    "r2": 0.5155263610271448,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Ridge",
+    "config": {
+      "alpha": 1.0
+    },
+    "fit_seconds": 0.17109690001234412,
+    "n": 175,
+    "mae": 258.075135958617,
+    "rmse": 627.2788677095957,
+    "r2": -255.81556434911028,
+    "negative_predictions": 35,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Ridge",
+    "config": {
+      "alpha": 100.0
+    },
+    "fit_seconds": 0.1747687000024598,
+    "n": 175,
+    "mae": 94.29190812791292,
+    "rmse": 176.97870418068152,
+    "r2": -19.442878558181537,
+    "negative_predictions": 35,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Ridge",
+    "config": {
+      "alpha": 10000.0
+    },
+    "fit_seconds": 0.1824475000030361,
+    "n": 175,
+    "mae": 40.49448685524992,
+    "rmse": 71.27698103047888,
+    "r2": -2.3158785870583367,
+    "negative_predictions": 6,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PLS",
+    "config": {
+      "n_components": 2
+    },
+    "fit_seconds": 0.018618300004163757,
+    "n": 175,
+    "mae": 69.22297192456227,
+    "rmse": 107.57154108358738,
+    "r2": -6.55257084430428,
+    "negative_predictions": 12,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PLS",
+    "config": {
+      "n_components": 5
+    },
+    "fit_seconds": 0.03810210002120584,
+    "n": 175,
+    "mae": 108.41818765769104,
+    "rmse": 164.4851792912786,
+    "r2": -16.65849033342608,
+    "negative_predictions": 48,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "PLS",
+    "config": {
+      "n_components": 10
+    },
+    "fit_seconds": 0.06678270001430064,
+    "n": 175,
+    "mae": 87.09421080253011,
+    "rmse": 153.3837507155333,
+    "r2": -14.355315130933914,
+    "negative_predictions": 24,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 5,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.004443200014065951,
+    "n": 175,
+    "mae": 7.497054596370092,
+    "rmse": 52.53809998660363,
+    "r2": -0.801560089632301,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 15,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.005939499998930842,
+    "n": 175,
+    "mae": 4.972009743896768,
+    "rmse": 20.823842437679932,
+    "r2": 0.7169769772862185,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 35,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.005078299989691004,
+    "n": 175,
+    "mae": 10.75976475935923,
+    "rmse": 30.55254513837323,
+    "r2": 0.3907510131365305,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "SVR",
+    "config": {
+      "C": 1.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.031108299997868016,
+    "n": 175,
+    "mae": 8.731128116619137,
+    "rmse": 11.831785793428491,
+    "r2": 0.9086306314023352,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "SVR",
+    "config": {
+      "C": 10.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.05361800000537187,
+    "n": 175,
+    "mae": 12.767609730562045,
+    "rmse": 22.20062295675986,
+    "r2": 0.6783153418065218,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "SVR",
+    "config": {
+      "C": 100.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.07833469999604858,
+    "n": 175,
+    "mae": 34.59839721937259,
+    "rmse": 69.19321812446657,
+    "r2": -2.1248349719285815,
+    "negative_predictions": 4,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "fit_seconds": 1.675756700016791,
+    "n": 175,
+    "mae": 24.210918341918763,
+    "rmse": 91.63820192293089,
+    "r2": -4.480915986044769,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 10,
+      "max_features": 0.7
+    },
+    "fit_seconds": 1.565626700001303,
+    "n": 175,
+    "mae": 37.74053152141567,
+    "rmse": 81.5637495038463,
+    "r2": -3.3420457112996704,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": null,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "fit_seconds": 2.4333245999878272,
+    "n": 175,
+    "mae": 24.37738872337046,
+    "rmse": 92.09469893781772,
+    "r2": -4.535658520544958,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": null,
+      "min_samples_leaf": 10,
+      "max_features": 0.7
+    },
+    "fit_seconds": 1.8242481000197586,
+    "n": 175,
+    "mae": 37.795430076464456,
+    "rmse": 81.5833691810926,
+    "r2": -3.3441348693357345,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "objective": "reg:squarederror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 2.09454600000754,
+    "n": 175,
+    "mae": 13.357776664899554,
+    "rmse": 65.40652632972935,
+    "r2": -1.792172185576391,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "objective": "reg:squarederror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 4.124254199996358,
+    "n": 175,
+    "mae": 14.528038589006696,
+    "rmse": 71.42146480555331,
+    "r2": -2.32933528023813,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "objective": "reg:absoluteerror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 2.2474365000089165,
+    "n": 175,
+    "mae": 3.2037154646344868,
+    "rmse": 4.143462380791852,
+    "r2": 0.988794613855444,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 7.114927099988563,
+    "n": 175,
+    "mae": 22.02195330212636,
+    "rmse": 130.77018866399476,
+    "r2": -10.161370570617237,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 7.110463999997592,
+    "n": 175,
+    "mae": 3.111225710276315,
+    "rmse": 3.990056088896893,
+    "r2": 0.9896089836488605,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 20.746894899988547,
+    "n": 175,
+    "mae": 13.591676751667881,
+    "rmse": 72.16424650200301,
+    "r2": -2.398945410135448,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 19.882771100004902,
+    "n": 175,
+    "mae": 5.371479578692964,
+    "rmse": 20.431834879095888,
+    "r2": 0.7275324622021969,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.8064129000122193,
+    "n": 175,
+    "mae": 55.76078886251231,
+    "rmse": 134.07464529214317,
+    "r2": -10.73257502947806,
+    "negative_predictions": 5,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.8734312000160571,
+    "n": 175,
+    "mae": 3.2544137062986804,
+    "rmse": 4.1307150167297175,
+    "r2": 0.9888634545501082,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 1.5371679999807384,
+    "n": 175,
+    "mae": 58.08545620671823,
+    "rmse": 137.8876583443263,
+    "r2": -11.409401023758086,
+    "negative_predictions": 5,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 1.5823881000105757,
+    "n": 175,
+    "mae": 3.3473565158161436,
+    "rmse": 4.246546098496157,
+    "r2": 0.9882301287337837,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 6.756903500005137,
+    "n": 175,
+    "mae": 21.473077348150962,
+    "rmse": 131.71505819846433,
+    "r2": -10.323244448811632,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 6.702476000005845,
+    "n": 175,
+    "mae": 4.162415567232023,
+    "rmse": 5.582042081646717,
+    "r2": 0.9796630304080106,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 19.723035599978175,
+    "n": 175,
+    "mae": 14.465201285166648,
+    "rmse": 76.02021050214589,
+    "r2": -2.7718825626779386,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 19.69041529999231,
+    "n": 175,
+    "mae": 5.236287961468906,
+    "rmse": 12.958972209077483,
+    "r2": 0.8903922800028854,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.8205659000086598,
+    "n": 175,
+    "mae": 56.2792826470963,
+    "rmse": 132.9638711200738,
+    "r2": -10.538977546643805,
+    "negative_predictions": 5,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.9088270999782253,
+    "n": 175,
+    "mae": 4.196210197414495,
+    "rmse": 5.568199330559747,
+    "r2": 0.9797637715122464,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 1.4706857999844942,
+    "n": 175,
+    "mae": 60.76962984365604,
+    "rmse": 142.37917548886605,
+    "r2": -12.231009282225182,
+    "negative_predictions": 4,
+    "warnings": []
+  },
+  {
+    "stage": "A",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 1.4856854999961797,
+    "n": 175,
+    "mae": 4.387131711058711,
+    "rmse": 5.8692999427540675,
+    "r2": 0.9775160487435851,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "GlobalMean",
+    "config": {},
+    "fit_seconds": 0.0,
+    "n": 122,
+    "mae": 29.29770658479199,
+    "rmse": 30.68124190621483,
+    "r2": -10.343753244350314,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "StageMean",
+    "config": {},
+    "fit_seconds": 0.0,
+    "n": 122,
+    "mae": 8.895647734587149,
+    "rmse": 11.096846550358128,
+    "r2": -0.4839185446837324,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 0.1,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.0063372000004164875,
+    "n": 122,
+    "mae": 5.531551833844034,
+    "rmse": 6.690584734492625,
+    "r2": 0.46056508628042625,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 1.0,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.004005800001323223,
+    "n": 122,
+    "mae": 5.550168884509101,
+    "rmse": 6.713735970279421,
+    "r2": 0.4568254454809625,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PrestonInspired",
+    "config": {
+      "regularization": 10.0,
+      "loss": "soft_l1_on_log_target"
+    },
+    "fit_seconds": 0.003934000007575378,
+    "n": 122,
+    "mae": 5.653741536210311,
+    "rmse": 6.847335538716554,
+    "r2": 0.43499261903498443,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Ridge",
+    "config": {
+      "alpha": 1.0
+    },
+    "fit_seconds": 0.08002910000504926,
+    "n": 122,
+    "mae": 136.79058016576866,
+    "rmse": 1463.162799949568,
+    "r2": -25797.603806159743,
+    "negative_predictions": 1,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Ridge",
+    "config": {
+      "alpha": 100.0
+    },
+    "fit_seconds": 0.07651859999168664,
+    "n": 122,
+    "mae": 24.65346262783593,
+    "rmse": 227.6974928485143,
+    "r2": -623.7804024461614,
+    "negative_predictions": 1,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Ridge",
+    "config": {
+      "alpha": 10000.0
+    },
+    "fit_seconds": 0.07332709999172948,
+    "n": 122,
+    "mae": 7.669949485590775,
+    "rmse": 13.131269119383166,
+    "r2": -1.077898384151509,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PLS",
+    "config": {
+      "n_components": 2
+    },
+    "fit_seconds": 0.006053099990822375,
+    "n": 122,
+    "mae": 7.822475156398499,
+    "rmse": 21.488033117813043,
+    "r2": -4.564219200157016,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PLS",
+    "config": {
+      "n_components": 5
+    },
+    "fit_seconds": 0.010797599999932572,
+    "n": 122,
+    "mae": 6.126740420900975,
+    "rmse": 23.114141056817036,
+    "r2": -5.438228996854221,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "PLS",
+    "config": {
+      "n_components": 10
+    },
+    "fit_seconds": 0.020162700006039813,
+    "n": 122,
+    "mae": 7.972559227345151,
+    "rmse": 40.48139437542353,
+    "r2": -18.747941306392345,
+    "negative_predictions": 1,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 5,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.0016008999955374748,
+    "n": 122,
+    "mae": 8.973695443111247,
+    "rmse": 10.883136597586326,
+    "r2": -0.4273124746138097,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 15,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.0017083999991882592,
+    "n": 122,
+    "mae": 9.4544205896081,
+    "rmse": 11.07377270489497,
+    "r2": -0.47775389070800434,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "KNN",
+    "config": {
+      "n_neighbors": 35,
+      "weights": "distance"
+    },
+    "fit_seconds": 0.0017157999973278493,
+    "n": 122,
+    "mae": 9.672680311037919,
+    "rmse": 11.252439905945065,
+    "r2": -0.5258235220332641,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "SVR",
+    "config": {
+      "C": 1.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.036305799992987886,
+    "n": 122,
+    "mae": 5.860237140949625,
+    "rmse": 6.9909479696694685,
+    "r2": 0.41104374174881386,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "SVR",
+    "config": {
+      "C": 10.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.04281210000044666,
+    "n": 122,
+    "mae": 6.19577034718449,
+    "rmse": 7.401504353192037,
+    "r2": 0.33983742697757524,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "SVR",
+    "config": {
+      "C": 100.0,
+      "epsilon_scaled_y": 0.05
+    },
+    "fit_seconds": 0.051302900013979524,
+    "n": 122,
+    "mae": 6.693075734383095,
+    "rmse": 8.062039168086905,
+    "r2": 0.21674944964289733,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "fit_seconds": 0.9199596999969799,
+    "n": 122,
+    "mae": 4.568912165572895,
+    "rmse": 5.446834857102066,
+    "r2": 0.6424808432494646,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": 6,
+      "min_samples_leaf": 10,
+      "max_features": 0.7
+    },
+    "fit_seconds": 0.8045398999820463,
+    "n": 122,
+    "mae": 4.67352143060779,
+    "rmse": 5.577339438455614,
+    "r2": 0.625143492719066,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": null,
+      "min_samples_leaf": 3,
+      "max_features": 0.7
+    },
+    "fit_seconds": 1.272622600023169,
+    "n": 122,
+    "mae": 4.498124244023979,
+    "rmse": 5.371257199121949,
+    "r2": 0.6523335374484602,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "RandomForest",
+    "config": {
+      "n_estimators": 160,
+      "max_depth": null,
+      "min_samples_leaf": 10,
+      "max_features": 0.7
+    },
+    "fit_seconds": 0.9873097999952734,
+    "n": 122,
+    "mae": 4.630139582355985,
+    "rmse": 5.523256768546856,
+    "r2": 0.6323781061393987,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "objective": "reg:squarederror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 1.5470970000023954,
+    "n": 122,
+    "mae": 4.528104338498975,
+    "rmse": 5.390395820268983,
+    "r2": 0.6498515445644457,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 6,
+      "learning_rate": 0.05,
+      "objective": "reg:squarederror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 6.447241400019266,
+    "n": 122,
+    "mae": 4.176590245931657,
+    "rmse": 5.0783590222236,
+    "r2": 0.6892166794168817,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "XGBoost",
+    "config": {
+      "n_estimators": 300,
+      "max_depth": 3,
+      "learning_rate": 0.05,
+      "objective": "reg:absoluteerror",
+      "subsample": 0.9,
+      "colsample_bytree": 0.8,
+      "reg_lambda": 5.0,
+      "reg_alpha": 0.1
+    },
+    "fit_seconds": 1.4711281999771018,
+    "n": 122,
+    "mae": 4.53260126402808,
+    "rmse": 5.413597465700664,
+    "r2": 0.6468308000714889,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 4.500418800016632,
+    "n": 122,
+    "mae": 4.27763174934133,
+    "rmse": 5.283562978598487,
+    "r2": 0.6635932679998792,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 4.655668399995193,
+    "n": 122,
+    "mae": 4.9983850514804615,
+    "rmse": 6.052181582224316,
+    "r2": 0.5585974880381281,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 13.774877499992726,
+    "n": 122,
+    "mae": 4.897455002696576,
+    "rmse": 5.894372825143144,
+    "r2": 0.5813162502395453,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 13.419058800005587,
+    "n": 122,
+    "mae": 5.032371623586629,
+    "rmse": 5.990730398599292,
+    "r2": 0.567515594770738,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.3684794999717269,
+    "n": 122,
+    "mae": 4.247954732473083,
+    "rmse": 5.05600908432738,
+    "r2": 0.6919461844333163,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.3916040000040084,
+    "n": 122,
+    "mae": 4.437423576528669,
+    "rmse": 5.20981255435667,
+    "r2": 0.6729191655367184,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.6662711999961175,
+    "n": 122,
+    "mae": 4.1235895997602245,
+    "rmse": 4.932258346681892,
+    "r2": 0.7068414708781273,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.613878800009843,
+    "n": 122,
+    "mae": 4.3057843843941095,
+    "rmse": 5.204993305363801,
+    "r2": 0.6735240068465413,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 4.312963300006231,
+    "n": 122,
+    "mae": 3.326700610281559,
+    "rmse": 4.104828213702658,
+    "r2": 0.7969509908396293,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 4,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 4.443155200016918,
+    "n": 122,
+    "mae": 3.681428746427488,
+    "rmse": 4.43657156736589,
+    "r2": 0.7628048064311388,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "RMSE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 14.117331099987496,
+    "n": 122,
+    "mae": 3.4521770716337774,
+    "rmse": 4.180684110041031,
+    "r2": 0.7893770900279374,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+CatBoost",
+    "config": {
+      "iterations": 300,
+      "depth": 6,
+      "loss_function": "MAE",
+      "learning_rate": 0.05,
+      "l2_leaf_reg": 5.0
+    },
+    "fit_seconds": 13.485061600018525,
+    "n": 122,
+    "mae": 3.647948925615513,
+    "rmse": 4.317893295527104,
+    "r2": 0.7753250194710193,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.3975916000199504,
+    "n": 122,
+    "mae": 3.691975683955484,
+    "rmse": 4.528749954519672,
+    "r2": 0.7528460324635197,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 7,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.45449549998738803,
+    "n": 122,
+    "mae": 3.543353307291768,
+    "rmse": 4.274639882664209,
+    "r2": 0.7798037249041316,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.8421128000190947,
+    "n": 122,
+    "mae": 3.6758436706742295,
+    "rmse": 4.463648942268655,
+    "r2": 0.759900661901259,
+    "negative_predictions": 0,
+    "warnings": []
+  },
+  {
+    "stage": "B",
+    "model": "Physics+LightGBM",
+    "config": {
+      "n_estimators": 300,
+      "num_leaves": 15,
+      "objective": "regression_l1",
+      "learning_rate": 0.05,
+      "min_child_samples": 20,
+      "reg_lambda": 5.0
+    },
+    "fit_seconds": 0.6821088999859057,
+    "n": 122,
+    "mae": 3.705683383156782,
+    "rmse": 4.427768029634018,
+    "r2": 0.7637452105375276,
+    "negative_predictions": 0,
+    "warnings": []
+  }
+]

@@ -1,0 +1,36 @@
+{
+  "published_at": "2026-09-16T11:07:12.505995+00:00",
+  "post_training_source_changes": [
+    {
+      "file": "src/cmp_ml/__init__.py",
+      "training_sha256": "42e889c291287caef22c2ff1baf8005baea268ccd91956366c49bacee70df671",
+      "published_sha256": "498b6bcaec113c930f0f68c99aef355c2d863381ff5dfa0cf302f41046cb2a68",
+      "change": "trailing blank line cleanup only; no behavior change"
+    },
+    {
+      "file": "src/cmp_ml/cli.py",
+      "training_sha256": "c8ab6875394f25368ab9cf7aabb8a86efa9b45c9849ca7075496308e68aca1e0",
+      "published_sha256": "b820e36db5864c1bc5a6ad6d6506d4119b37143c0d97cbe8aebc9723d5b5da1f",
+      "change": "trailing blank line cleanup only; no behavior change"
+    },
+    {
+      "file": "src/cmp_ml/common.py",
+      "training_sha256": "3034410e55278260b4d89775eb0fef34ec98c96696b40f30ea1875d2b21d221e",
+      "published_sha256": "5ffdb1094dee6c9c201f8f7da30f931386b4b718a091a3374b58154045848541",
+      "change": "trailing blank line cleanup only; no behavior change"
+    },
+    {
+      "file": "src/cmp_ml/report.py",
+      "training_sha256": "9b22996224b38cbd11bb98c3d3e807f746c68fcfe8c3839f903c873ff2e5e49a",
+      "published_sha256": "3d1fbd8fc64764153e20f632167875ca874ddec8971d7afa901b91c2ef5fe90d",
+      "change": "report labels/limitations and tick formatting"
+    },
+    {
+      "file": "src/cmp_ml/verify.py",
+      "training_sha256": "08cd3d2b7fc50d9fbd34d2896b12116f3ae824b7076eb4c08297548cc767ac7c",
+      "published_sha256": "9d922a97f323ab34148d7fbf52d7b0f35c0e22e91af874a3ab8ebbcd9858df98",
+      "change": "trailing blank line cleanup only; no behavior change"
+    }
+  ],
+  "model_artifacts_and_test_metrics": "unchanged; verified against frozen hash chain"
+}
