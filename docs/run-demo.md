@@ -25,10 +25,16 @@ git clone --branch feat/cmp-virtual-lab --single-branch https://github.com/Chung
 cd SolvingProblem
 ```
 
-[v0.2.0 Release](https://github.com/ChungA1010/SolvingProblem/releases/tag/v0.2.0)의 `CMP-Virtual-Lab-Windows-v0.2.0.zip`을 `builds/CmpDemo/`에 압축 해제합니다. 결과 경로는 `builds/CmpDemo/CmpDemo.exe`여야 합니다. 모델과 API 코드는 저장소에 들어 있으므로 실행 파일 ZIP과 저장소가 모두 필요합니다.
+이 공유 저장소에는 코드·학습 모델·결과 보고서·Unity 프로젝트가 포함되어 있습니다. Windows 실행 파일 ZIP은 아직 별도로 게시하지 않았습니다. 아래 **Unity 프로젝트 열기·빌드** 절차로 `builds/CmpDemo/CmpDemo.exe`를 만든 다음 설치 명령을 실행하세요.
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\start-demo.ps1 -Setup
+```
+
+Unity 화면 없이 API만 사용할 때는 빌드 과정 대신 다음 명령을 사용합니다.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\start-demo.ps1 -Setup -ApiOnly
 ```
 
 설치 스크립트는 공식 PyTorch CPU 패키지와 고정된 서비스 의존성을 설치합니다. 최초 설치에는 네트워크가 필요합니다. 추론에는 GPU나 원본 학습 데이터가 필요하지 않습니다. 학습을 다시 수행하려면 GPU용 PyTorch와 로컬 원본 데이터가 별도로 필요합니다.
