@@ -1,0 +1,7 @@
+{
+  "sealed_at": "2026-09-17T08:03:47.301940+00:00",
+  "selection_sha256": "76ef4a7a554aba61aedc97a8f1f871378d1177c8dd633a3bf984dd92caeebab7",
+  "predictions_sha256": "e7e8aecef8f3078a6315659643005578cb1d4052575dad7b491b9095063b7a2f",
+  "repeated_predictions_sha256": "d8571b2ff8543069cacea35eaddf1a76cb8b7902c2b4d84c12232ffea69d5806",
+  "rule": "No test-based reselection"
+}

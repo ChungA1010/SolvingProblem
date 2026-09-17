@@ -1,0 +1,32 @@
+[
+  {
+    "model_file": "grouped_P2_Cond1.joblib",
+    "n": 472,
+    "only_allowed_training_ids": true
+  },
+  {
+    "model_file": "grouped_P2_Cond2.joblib",
+    "n": 489,
+    "only_allowed_training_ids": true
+  },
+  {
+    "model_file": "grouped_P2_Cond3.joblib",
+    "n": 216,
+    "only_allowed_training_ids": true
+  },
+  {
+    "model_file": "official_P2_Cond1.joblib",
+    "n": 798,
+    "only_allowed_training_ids": true
+  },
+  {
+    "model_file": "official_P2_Cond2.joblib",
+    "n": 815,
+    "only_allowed_training_ids": true
+  },
+  {
+    "model_file": "official_P2_Cond3.joblib",
+    "n": 364,
+    "only_allowed_training_ids": true
+  }
+]

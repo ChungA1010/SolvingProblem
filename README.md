@@ -4,6 +4,18 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 **학습·API·Unity 데모 구현 및 통합 검증은 완료됐습니다.** 제공 범위는 교육·연구 데모이며 제조 공정 배포 승인을 의미하지 않습니다. WM의 lot 간 성능 저하, Mixed의 합성 데이터 계보 부재, PHM 예측구간의 과도한 coverage 등 확인된 한계를 보고서에 명시합니다.
 
+## 추가: 사용자 제공 논문 세 편의 PHM 재현 비교
+
+2026-09-17에 제공된 CMP 논문 세 편을 기준으로 **13개 후보를 원래 대회 분할과 기존 wafer/file 그룹 분할에서 비교**했습니다. P1은 발표된 35개 특징·RF/GBT/ERT·CART/ELM stacking과 20회 반복, P2는 과거 11개/이웃 10개 제거율·물리 통계·20회 Monte Carlo CV·오차 기반 가중식, P3는 발표된 최종 특징 목록과 RF/CPP 잔차 보정을 구현했습니다. 최종 연구 후보는 그룹 분할의 Validation MSE로 선택한 **P2_LR**입니다(Validation MSE 33.3632, Test MSE 21.7463). 원래 대회 분할의 선정 모델은 **P3_RF_CPP**입니다(Validation MSE 7.8327, Test MSE 8.6851). 분할에 따라 순위가 달라 보편적인 우월성을 주장하지 않습니다.
+
+**명시된 조건을 구현하고 미기재 조건을 공개한 부분 재현입니다.** 원문에 없는 ELM/SVR 설정, CV 분할 비율, polishing phase 규칙은 가정으로 기록했고, P3의 GA 탐색은 전체 후보·설정 부재로 재현하지 않았습니다. 이전 Test를 재사용했으므로 새 독립 검증이라고 부르지 않습니다. 기존 API/Unity의 모델은 자동 교체하지 않았습니다.
+
+- [논문별 결과·한계](runs/phm_cmp_papers_v1/REPORT.md)
+- [원문 페이지·표와 구현 조건 대응](docs/paper-reproduction.md)
+- [논문 발표 지표와 이번 실행값 비교](runs/phm_cmp_papers_v1/paper_comparison.csv)
+- [35개/125개/최종 특징 번호 대응표](runs/phm_cmp_papers_v1/feature_catalog.csv)
+- [선정 모델과 근거](runs/phm_cmp_papers_v1/selection.json), [실제 모델 파일 목록](runs/phm_cmp_papers_v1/final_candidate.json)
+
 ## 데모 실행과 전체 결과
 
 이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12를 설치합니다. Windows 실행 파일은 아직 이 저장소에 별도로 게시하지 않았습니다. 포함된 Unity 프로젝트를 빌드한 뒤 `tools/start-demo.ps1 -Setup`으로 환경을 준비합니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요. API만 사용할 때는 Unity 빌드 없이 `tools/start-demo.ps1 -Setup -ApiOnly`를 실행할 수 있습니다.

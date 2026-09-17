@@ -1,0 +1,23 @@
+{
+  "completed_at": "2026-09-17T08:03:44.340901+00:00",
+  "seconds": 0.19280439999420196,
+  "prediction_sha256": "cc60767195b2490e66aced9c4f04d2d3850b5b02005fcf1deede5ebdb014d941",
+  "model_sha256": "56c74c1a6865255e6525e2e015ad1f132de625e7c0f8f5f39ae96c3caa7f2c35",
+  "metadata": {
+    "features": [
+      "p3_wafer",
+      "p3_stage",
+      "p3_dresser",
+      "p3_dresser_table",
+      "p3_table",
+      "p3_membrane",
+      "p3_duration",
+      "p3_pressure_integral",
+      "p3_first",
+      "p3_start",
+      "p3_cpp"
+    ],
+    "train_cpp_n": 412,
+    "train_n": 961
+  }
+}

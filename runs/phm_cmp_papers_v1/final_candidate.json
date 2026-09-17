@@ -1,0 +1,22 @@
+{
+  "model": "P2_LR",
+  "chosen_by": "grouped Validation MSE",
+  "seed": 20260917,
+  "deployment_status": "research_only; not installed into existing Unity/API",
+  "artifacts": [
+    {
+      "path": "models/grouped_P2_Cond1.joblib",
+      "sha256": "ddc714d9247e74331093e823bdcc38ee6ad47378a3c74023e9f20e60b386645a"
+    },
+    {
+      "path": "models/grouped_P2_Cond2.joblib",
+      "sha256": "33ef62dc56d962ae8d2b51851502b21701fe438fbb2b72296b19c0e76905967b"
+    },
+    {
+      "path": "models/grouped_P2_Cond3.joblib",
+      "sha256": "0e57f53b69b4cd0a127f4ef024e9657925d3c5cf744b00fcb57bc9ca4a355ee1"
+    }
+  ],
+  "input": "Per-wafer-stage paper features and context as defined by paper_features.py; not one raw sensor row",
+  "history_requirement": "P2 needs fitted historical training library; P3 needs the original CPP context; see PROTOCOL.md"
+}

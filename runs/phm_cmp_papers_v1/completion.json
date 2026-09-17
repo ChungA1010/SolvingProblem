@@ -1,0 +1,8 @@
+{
+  "completed_at": "2026-09-17T08:03:47.724363+00:00",
+  "selection_sha256": "76ef4a7a554aba61aedc97a8f1f871378d1177c8dd633a3bf984dd92caeebab7",
+  "metrics_sha256": "30e6876e63c5b679747f8c85271830f35e0a67f334d845b313d811956e436d3b",
+  "status": "completed_partial_paper_reconstruction",
+  "final_research_candidate": "P2_LR",
+  "models_saved": 14
+}

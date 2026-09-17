@@ -1,0 +1,17 @@
+{
+  "verified_at": "2026-09-17T08:06:31.306604+00:00",
+  "metric_rows_recomputed_with_sklearn": 156,
+  "validation_selection_reproduced": true,
+  "p1_twenty_repetitions_checked": true,
+  "p2_weights_recomputed": [
+    "grouped_P2_Cond1",
+    "grouped_P2_Cond2",
+    "grouped_P2_Cond3",
+    "official_P2_Cond1",
+    "official_P2_Cond2",
+    "official_P2_Cond3"
+  ],
+  "prior_26_models_unchanged": true,
+  "original_model_code_preserved": true,
+  "all_checks_passed": true
+}

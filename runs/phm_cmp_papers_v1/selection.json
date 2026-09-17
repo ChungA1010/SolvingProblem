@@ -1,0 +1,49 @@
+{
+  "created_at": "2026-09-17T08:03:46.651409+00:00",
+  "tracks": {
+    "official": {
+      "model": "P3_RF_CPP",
+      "validation": {
+        "model": "P3_RF_CPP",
+        "n": 424,
+        "mse": 7.8327369967252745,
+        "rmse": 2.798702734612105,
+        "mae": 2.045305839206841,
+        "r2": 0.9904794716271007,
+        "relative_error": 0.024926332819492494,
+        "mape_percent": 2.4926332819492494,
+        "s_score_literal_mean": 1.2210992041540483,
+        "s_score_minus_one_mean": 0.22109920415404802
+      },
+      "counts": {
+        "train": 1977,
+        "validation": 424,
+        "test": 424
+      },
+      "selected_at": "2026-09-17T08:00:09.110225+00:00"
+    },
+    "grouped": {
+      "model": "P2_LR",
+      "validation": {
+        "model": "P2_LR",
+        "n": 297,
+        "mse": 33.36315515183373,
+        "rmse": 5.776084759751516,
+        "mae": 4.657065402291614,
+        "r2": 0.9696275654621964,
+        "relative_error": 0.05696872162457695,
+        "mape_percent": 5.696872162457695,
+        "s_score_literal_mean": 1.6348731817091757,
+        "s_score_minus_one_mean": 0.6348731817091757
+      },
+      "counts": {
+        "train": 1177,
+        "validation": 297,
+        "test": 296
+      },
+      "selected_at": "2026-09-17T08:03:44.536232+00:00"
+    }
+  },
+  "final_research_candidate": "P2_LR",
+  "deployment_status": "research_candidate; existing API unchanged"
+}

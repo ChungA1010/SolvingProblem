@@ -1,0 +1,18 @@
+{
+  "completed_at": "2026-09-17T08:00:09.096696+00:00",
+  "seconds": 0.15356720000272617,
+  "prediction_sha256": "d3acf6a5953b5d54074775cdac16d1eb09a62964c36340a75eee959f92cb711b",
+  "model_sha256": "c1ea2eb36838773af56abc59a5cf1259be4fbf4cee1cb5e7197fb6472525d4b4",
+  "metadata": {
+    "features": [
+      "p3_wafer",
+      "p3_dresser",
+      "p3_dresser_table",
+      "p3_table",
+      "p3_membrane",
+      "p3_cpp"
+    ],
+    "train_cpp_n": 216,
+    "train_n": 364
+  }
+}
