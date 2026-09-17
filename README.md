@@ -6,7 +6,12 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 ## 데모 실행과 전체 결과
 
-이 PC에서는 `start-demo.cmd`를 실행합니다. 새 PC에서는 Python 3.12 설치 후 `tools/start-demo.ps1 -Setup`을 사용합니다. Windows 실행 파일은 [GitHub Releases](https://github.com/king-beomsoo/cmp-virtual-lab-ml/releases)에서 받아 `builds/CmpDemo/`에 둡니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요.
+이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12 설치 후 `tools/start-demo.ps1 -Setup`을 사용합니다. Windows 실행 파일은 [v0.2.0 다운로드](https://github.com/ChungA1010/SolvingProblem/releases/tag/v0.2.0)에서 받아 `builds/CmpDemo/`에 둡니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요.
+
+```powershell
+git clone --branch feat/cmp-virtual-lab --single-branch https://github.com/ChungA1010/SolvingProblem.git
+cd SolvingProblem
+```
 
 | 작업 | 완료 결과 | 보고서 |
 |---|---|---|

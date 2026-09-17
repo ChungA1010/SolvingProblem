@@ -18,10 +18,17 @@ API만 실행하려면 `.\tools\start-demo.ps1 -ApiOnly`를 사용합니다. API
 
 ## 새 PC
 
-Python 3.12를 설치하고 저장소를 내려받습니다. GitHub Release의 Windows 실행 파일 ZIP을 `builds/CmpDemo/`에 압축 해제합니다. 결과 경로는 `builds/CmpDemo/CmpDemo.exe`여야 합니다.
+Python 3.12와 Git을 설치하고 아래 브랜치를 내려받습니다. Git 대신 [브랜치 ZIP](https://github.com/ChungA1010/SolvingProblem/archive/refs/heads/feat/cmp-virtual-lab.zip)을 내려받아 압축을 풀어도 됩니다.
 
 ```powershell
-.\tools\start-demo.ps1 -Setup
+git clone --branch feat/cmp-virtual-lab --single-branch https://github.com/ChungA1010/SolvingProblem.git
+cd SolvingProblem
+```
+
+[v0.2.0 Release](https://github.com/ChungA1010/SolvingProblem/releases/tag/v0.2.0)의 `CMP-Virtual-Lab-Windows-v0.2.0.zip`을 `builds/CmpDemo/`에 압축 해제합니다. 결과 경로는 `builds/CmpDemo/CmpDemo.exe`여야 합니다. 모델과 API 코드는 저장소에 들어 있으므로 실행 파일 ZIP과 저장소가 모두 필요합니다.
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\start-demo.ps1 -Setup
 ```
 
 설치 스크립트는 공식 PyTorch CPU 패키지와 고정된 서비스 의존성을 설치합니다. 최초 설치에는 네트워크가 필요합니다. 추론에는 GPU나 원본 학습 데이터가 필요하지 않습니다. 학습을 다시 수행하려면 GPU용 PyTorch와 로컬 원본 데이터가 별도로 필요합니다.
