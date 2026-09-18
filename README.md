@@ -16,6 +16,8 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 - [35개/125개/최종 특징 번호 대응표](runs/phm_cmp_papers_v1/feature_catalog.csv)
 - [선정 모델과 근거](runs/phm_cmp_papers_v1/selection.json), [실제 모델 파일 목록](runs/phm_cmp_papers_v1/final_candidate.json)
 
+각 논문을 따로 실행하는 **[baseline 사용 안내](baselines/README.md)**도 제공합니다. [P1 5종](baselines/p1/README.md), [P2 6종](baselines/p2/README.md), [P3 2종](baselines/p3/README.md)의 설정·학습 모델·개별 결과를 연결하고 `python -m cmp_ml.baselines train/evaluate/verify/predict`로 선택 실행합니다. 논문별 결과는 기존 학습 모델을 실제 재로딩해 재평가한 것이며, 이를 새로운 학습이나 독립 Test로 표시하지 않습니다.
+
 ## 데모 실행과 전체 결과
 
 이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12를 설치합니다. Windows 실행 파일은 아직 이 저장소에 별도로 게시하지 않았습니다. 포함된 Unity 프로젝트를 빌드한 뒤 `tools/start-demo.ps1 -Setup`으로 환경을 준비합니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요. API만 사용할 때는 Unity 빌드 없이 `tools/start-demo.ps1 -Setup -ApiOnly`를 실행할 수 있습니다.

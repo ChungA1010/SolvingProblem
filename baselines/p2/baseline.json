@@ -1,0 +1,20 @@
+{
+  "paper": "p2",
+  "title": "Enhanced Virtual Metrology on Chemical Mechanical Planarization Process using an Integrated Model and Data-Driven Approach",
+  "year": 2017,
+  "source": "https://papers.phmsociety.org/index.php/ijphm/article/view/2641",
+  "models": ["P2_Persistent", "P2_KNN", "P2_LR", "P2_SVR", "P2_Bagging", "P2_Integrated"],
+  "reference_models": ["P2_Integrated"],
+  "routing_column": "condition",
+  "routing_values": ["Cond1", "Cond2", "Cond3"],
+  "feature_counts": {"Cond1": 125, "Cond2": 125, "Cond3": 125},
+  "reported_metrics": ["mse"],
+  "seed": 20260917,
+  "training_repeats": 1,
+  "monte_carlo_folds": 20,
+  "saved_repeat": 0,
+  "status": "partial_with_declared_assumptions",
+  "implemented": ["11 past MRR + 10 usage-neighbor MRR + 104 physical features", "Condition-specific training", "20 fold-local Monte Carlo feature-selection and validation runs", "Eq.5-6 inverse-cubed error weights"],
+  "assumptions": ["CV holdout fraction=0.2; feature selection uses OR and at least 10/20 votes", "RBF SVR C=10, epsilon=0.1, gamma=scale; OLS LR", "Bagging: 100 trees, min_samples_leaf=5; selector: 32 trees", "Four flow signals mapped to slurry A/B/C plus dressing-water status", "History and neighbors use training targets only; four Stage A exclusions extended from P1"],
+  "not_implemented": ["DBN cited as an external comparison"]
+}

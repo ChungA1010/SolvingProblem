@@ -1,0 +1,29 @@
+{
+  "paper": "p1",
+  "records": [
+    {
+      "path": "../../phm_cmp_papers_v1/models/official_P1_A_seed00.joblib",
+      "sha256": "dc0e5b1505e015b7c4f266411e71d9a0907fac82dd7d8fef8f7ec0ca2b26872c",
+      "track": "official",
+      "route": "A"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/official_P1_B_seed00.joblib",
+      "sha256": "8b68cd739aebf70035549a9c101e09cc44513dc61454ef1206891dbb6a19c6dd",
+      "track": "official",
+      "route": "B"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/grouped_P1_A_seed00.joblib",
+      "sha256": "29e1085745dc5000723d3da4f558a9d410cb08d9da67b9881d31a7fba181b38b",
+      "track": "grouped",
+      "route": "A"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/grouped_P1_B_seed00.joblib",
+      "sha256": "1531d1f73caf6c9e7439c5099d82b95be6696240337872569e25e9f00270b5bd",
+      "track": "grouped",
+      "route": "B"
+    }
+  ]
+}

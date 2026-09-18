@@ -1,0 +1,10 @@
+{
+  "created_at": "2026-09-18T09:09:00.802272+00:00",
+  "reload_max_difference": 1.7462298274040222e-10,
+  "prediction_rows": 7205,
+  "metric_rows": 60,
+  "model_files_checked": 4,
+  "all_predictions_finite": true,
+  "comparison": "source sealed predictions",
+  "p1_repeat_evidence": "source frozen 20-repeat predictions (not 20 reloaded models)"
+}

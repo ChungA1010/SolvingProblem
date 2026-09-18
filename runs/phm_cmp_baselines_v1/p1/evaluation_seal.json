@@ -1,0 +1,6 @@
+{
+  "sealed_at": "2026-09-18T09:09:00.150818+00:00",
+  "predictions_sha256": "a9bd161fca7d232f44d6d795a78456a7475018842c4b1d7d8c38a6ccc89b36d0",
+  "models_index_sha256": "726b9f6d5c7032f8476b2d7a2ac0f21826a338a3c12f3f71f4d18dc39c10b038",
+  "selection_rule": "All paper baselines retained; no new global or within-paper selection"
+}

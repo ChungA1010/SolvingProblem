@@ -1,0 +1,19 @@
+{
+  "paper": "p3",
+  "title": "Assessment of Physics-Based and Data-Driven Models for Material Removal Rate Prediction in Chemical Mechanical Polishing",
+  "year": 2018,
+  "source": "https://www.atlantis-press.com/proceedings/iceea-18/25894228",
+  "models": ["P3_RF", "P3_RF_CPP"],
+  "reference_models": ["P3_RF_CPP"],
+  "routing_column": "route",
+  "routing_values": ["456", "123"],
+  "feature_counts": {"456": 11, "123": 6},
+  "reported_metrics": ["mse"],
+  "seed": 20260917,
+  "training_repeats": 1,
+  "saved_repeat": 0,
+  "status": "partial_with_declared_assumptions",
+  "implemented": ["Table III final 11/6-feature subsets", "Route-specific Random Forest", "Training-only mean CPP residual correction"],
+  "assumptions": ["100 trees, max_features=1.0, min_samples_leaf=1", "Numeric wafer/CPP IDs; label-free transductive CPP context", "Effective phase uses positive pressure/rotation/slurry with primary-chamber fallback", "Four Stage A exclusions extended from P1; CPP count differs from the paper"],
+  "not_implemented": ["Full 47/12 candidate extraction and GA search", "Ensemble neural network cited as a comparison", "Separate calibrated physics-only predictive model"]
+}

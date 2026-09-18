@@ -1,0 +1,34 @@
+{
+  "created_at": "2026-09-18T09:09:03.136863+00:00",
+  "mode": "evaluate",
+  "paper": "p2",
+  "tracks": [
+    "official",
+    "grouped"
+  ],
+  "status": "frozen_before_execution",
+  "counts": {
+    "official": {
+      "train": 1977,
+      "validation": 424,
+      "test": 424
+    },
+    "grouped": {
+      "train": 1177,
+      "validation": 297,
+      "test": 296
+    }
+  },
+  "source_run": "../../phm_cmp_papers_v1",
+  "source_protocol_sha256": "5a3caf9781d4327c09378a2480f7fcd7145713f8254b57156727654e93fc59ac",
+  "feature_cache_sha256": "bdbde7d25f4d676adb72dfdc4a2a0a65262d4405d118c36467301d14c9f31544",
+  "test_exposure": "Both official and grouped Test outcomes were already observed in earlier project work; not fresh independent tests",
+  "selection": "All paper baselines retained; no new global or within-paper selection",
+  "implementation_sha256": {
+    "paper_benchmark.py": "37ad4c60f441960e4d1b8fee3855b2e910fa88a4d72f0bc4a87a2fa16f21c75c",
+    "paper_features.py": "51331b72d4bf8665b53ee3a376ae6b06054cbc1c22ed1dd3e0717c8e7d3ad082",
+    "paper_models.py": "b3f4e2ec7cd65be683611b48fdbd2ef560833eddd2b9a2a5953271bd497938d8",
+    "baselines.py": "565390284631dd01ab614a0ca63d4845fa3368f5244b16b691ceca1239ccb8a0"
+  },
+  "baseline_spec_sha256": "4e79cb12b9ae3b1b9c62f236cb5ffe6d8c954a4e48220d4ae776900991f97dba"
+}

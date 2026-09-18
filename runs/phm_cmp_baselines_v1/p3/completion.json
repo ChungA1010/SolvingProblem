@@ -1,0 +1,21 @@
+{
+  "completed_at": "2026-09-18T09:09:06.691989+00:00",
+  "seconds": 0.501970799989067,
+  "status": "completed_partial_paper_baseline",
+  "artifact_sha256": {
+    "baseline.json": "bdc1a1207726b77e4972f097e00a96599d6b53859db85512c662d3f12da0f765",
+    "code_snapshot/baselines.py": "565390284631dd01ab614a0ca63d4845fa3368f5244b16b691ceca1239ccb8a0",
+    "code_snapshot/paper_benchmark.py": "37ad4c60f441960e4d1b8fee3855b2e910fa88a4d72f0bc4a87a2fa16f21c75c",
+    "code_snapshot/paper_features.py": "51331b72d4bf8665b53ee3a376ae6b06054cbc1c22ed1dd3e0717c8e7d3ad082",
+    "code_snapshot/paper_models.py": "b3f4e2ec7cd65be683611b48fdbd2ef560833eddd2b9a2a5953271bd497938d8",
+    "environment.json": "940d3a93fefb80164ca0bae1fb51b0d12a768d893cee8c84d4db7d63944c2e4b",
+    "evaluation_seal.json": "f348486d8aae3d1be802386c69b34f2e1beb2f3af867f430c505dca68e79f49c",
+    "metrics.csv": "1887eedf169438129295ee1fb97331ab9f13ff046e6046e18d245de42d1fd85f",
+    "models.json": "0af849659ed1ab29f3a969becadfb3b81e72a3e37de4f10607f80304c2a31e87",
+    "predictions.csv.gz": "5939565fed913eee6d49cd52f11e1c7f7e21c2e143b53152b97d23ded560f40f",
+    "protocol.json": "bbe184ced7ebf9747383d2c9a78a919679d25724df32b0520b31412abde0e755",
+    "PROTOCOL.md": "13ffde46d54c384b5f632600295ad8e8608f32e675f61171198ad3cc81b8d9f7",
+    "REPORT.md": "556c3900cf4d51f3557a01ade628171de96ef4ba8bf867568ac8f07f07803658",
+    "verification.json": "c3228b601564b93db8c1d4b3cb5238bf2b670b4f7d1422bccb6075fe514b7ab8"
+  }
+}

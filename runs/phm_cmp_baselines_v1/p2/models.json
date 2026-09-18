@@ -1,0 +1,41 @@
+{
+  "paper": "p2",
+  "records": [
+    {
+      "path": "../../phm_cmp_papers_v1/models/official_P2_Cond1.joblib",
+      "sha256": "7cb92799bc29544b970adb84cbf41bcff43892a3aba0aa7e51740752d3364bb9",
+      "track": "official",
+      "route": "Cond1"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/official_P2_Cond2.joblib",
+      "sha256": "919712615dff6c59712d847f2968c2534f60969a8327d6f82189e614873cb06d",
+      "track": "official",
+      "route": "Cond2"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/official_P2_Cond3.joblib",
+      "sha256": "02bbc6fc9996213cf0b56918eba52ec5f2fa9d64ff77d11a442e3b386e2150aa",
+      "track": "official",
+      "route": "Cond3"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/grouped_P2_Cond1.joblib",
+      "sha256": "ddc714d9247e74331093e823bdcc38ee6ad47378a3c74023e9f20e60b386645a",
+      "track": "grouped",
+      "route": "Cond1"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/grouped_P2_Cond2.joblib",
+      "sha256": "33ef62dc56d962ae8d2b51851502b21701fe438fbb2b72296b19c0e76905967b",
+      "track": "grouped",
+      "route": "Cond2"
+    },
+    {
+      "path": "../../phm_cmp_papers_v1/models/grouped_P2_Cond3.joblib",
+      "sha256": "0e57f53b69b4cd0a127f4ef024e9657925d3c5cf744b00fcb57bc9ca4a355ee1",
+      "track": "grouped",
+      "route": "Cond3"
+    }
+  ]
+}

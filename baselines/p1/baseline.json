@@ -1,0 +1,19 @@
+{
+  "paper": "p1",
+  "title": "Prediction of Material Removal Rate for Chemical Mechanical Planarization Using Decision Tree-Based Ensemble Learning",
+  "year": 2019,
+  "source": "https://doi.org/10.1115/1.4042051",
+  "models": ["P1_RF", "P1_GBT", "P1_ERT", "P1_CART_Stack", "P1_ELM_Stack"],
+  "reference_models": ["P1_CART_Stack", "P1_ELM_Stack"],
+  "routing_column": "STAGE",
+  "routing_values": ["A", "B"],
+  "feature_counts": {"A": 35, "B": 35},
+  "reported_metrics": ["rmse", "r2", "relative_error", "s_score_literal_mean", "s_score_minus_one_mean"],
+  "seed": 20260917,
+  "training_repeats": 20,
+  "saved_repeat": 0,
+  "status": "partial_with_declared_assumptions",
+  "implemented": ["Appendix F1-F35", "100-tree RF/GBT/ERT", "5-fold OOF CART/ELM stacking", "20 seed repeats"],
+  "assumptions": ["5 folds; grouped track uses GroupKFold", "ELM: 50 sigmoid units, Uniform(-1,1), pseudoinverse rcond=1e-8", "CART min_samples_leaf=5; GBT learning_rate=0.1", "Standard R2; two S-score interpretations because the source formula and tables conflict"],
+  "not_implemented": ["Full 85-to-35 feature search", "50-to-800 tree sensitivity search"]
+}

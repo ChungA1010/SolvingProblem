@@ -1,0 +1,52 @@
+{
+  "created_at": "2026-09-18T09:11:08.250078+00:00",
+  "baseline_model_families": 13,
+  "reloaded_bundles": 14,
+  "metric_rows": 156,
+  "tests": {
+    "tests": 73,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "cli_prediction_checks": {
+    "p1": {
+      "prediction_rows": 30,
+      "max_difference": 1.0186340659856796e-10,
+      "artifact_check": {
+        "verified": true,
+        "models": 4,
+        "paper": "p1"
+      }
+    },
+    "p2": {
+      "prediction_rows": 36,
+      "max_difference": 6.821210263296962e-13,
+      "artifact_check": {
+        "verified": true,
+        "models": 6,
+        "paper": "p2"
+      }
+    },
+    "p3": {
+      "prediction_rows": 12,
+      "max_difference": 1.4210854715202004e-14,
+      "artifact_check": {
+        "verified": true,
+        "models": 4,
+        "paper": "p3"
+      }
+    }
+  },
+  "p3_full_data_retraining": {
+    "tracks": [
+      "official",
+      "grouped"
+    ],
+    "metric_rows": 24,
+    "max_mse_difference": 4.263256414560601e-14,
+    "mode": "fixed settings smoke test; not new independent evaluation"
+  },
+  "unchanged_source_protocol_sha256": "5a3caf9781d4327c09378a2480f7fcd7145713f8254b57156727654e93fc59ac",
+  "reproduction_status": "partial_with_declared_assumptions"
+}
