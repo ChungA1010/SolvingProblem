@@ -1,0 +1,36 @@
+{
+  "completed_at": "2026-09-18T09:53:21.591967+00:00",
+  "selection_sha256": "375c0458ec3315a4e0d3e0e77d5b9f7b091b0e341de66ee77673bbc57720cfdf",
+  "predictions_sha256": "4ccd2924aed34aa003b7e622bda1bc49302e6b14b987accd6246665ecfc8043b",
+  "repeated_predictions_sha256": "da6c1444c7ac72aabb5affb361f88baa51325f7ce94d9cba0debb46791fc3794",
+  "models": [
+    {
+      "file": "P1_A.joblib",
+      "sha256": "cc9cf80efa72ab6b09c43b336d2065e230bc0540a36f22fafb9239b85ad806b1"
+    },
+    {
+      "file": "P1_B.joblib",
+      "sha256": "f43e4702bf9f768f92b8bbccbb32c035b95b87c1d8f85edc13224af192e9aee8"
+    },
+    {
+      "file": "P2_Cond1.joblib",
+      "sha256": "c3ba3464204f5d9196c6c0dfd84ddcc92dcdf087ef2e51c531f928f7e9657bb1"
+    },
+    {
+      "file": "P2_Cond2.joblib",
+      "sha256": "f3b8671dfeb67db3a0c7b4e9724bce49998e426d083b9ca020ca84d5aff5e15c"
+    },
+    {
+      "file": "P2_Cond3.joblib",
+      "sha256": "9808a507c23fdb24a8be53f2d6a3cdfaa15085c80cbf7ad256fcf1a8f069c6c7"
+    },
+    {
+      "file": "P3_123.joblib",
+      "sha256": "19aff12e94d78e435ae6802ed1f78a7afc8b2d242a5dbd24dbf3ec53c873a9cb"
+    },
+    {
+      "file": "P3_456.joblib",
+      "sha256": "60ce96151e257ab6e1edde2b54f1c83c318a571b7d2711ddef7bd28606be65f7"
+    }
+  ]
+}

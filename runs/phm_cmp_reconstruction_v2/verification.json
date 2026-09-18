@@ -1,0 +1,15 @@
+{
+  "verified_at": "2026-09-18T09:53:29.163992+00:00",
+  "reload_max_difference": {
+    "P1_A.joblib": 2.5579538487363607e-13,
+    "P1_B.joblib": 3.069544618483633e-12,
+    "P2_Cond1.joblib": 2.842170943040401e-14,
+    "P2_Cond2.joblib": 4.263256414560601e-14,
+    "P2_Cond3.joblib": 5.684341886080802e-14,
+    "P3_123.joblib": 5.684341886080802e-14,
+    "P3_456.joblib": 5.684341886080802e-14
+  },
+  "original_models_unchanged": true,
+  "evaluation_n": 424,
+  "same_test_sample_ids_as_v1": true
+}

@@ -1,0 +1,43 @@
+{
+  "verified_at": "2026-09-18T09:53:43.196719+00:00",
+  "metric_rows_recomputed_with_sklearn": 78,
+  "v1_control_validation_mse_max_difference": 5.329070518200751e-15,
+  "p2_libraries_and_weights": {
+    "P2_Cond1.joblib": {
+      "rows": 798,
+      "training_only": true,
+      "weights": {
+        "P2_Persistent": 0.07179649165480505,
+        "P2_KNN": 0.13075470830248184,
+        "P2_LR": 5.372656782155549e-07,
+        "P2_SVR": 0.3050252860610998,
+        "P2_Bagging": 0.492422976715935
+      }
+    },
+    "P2_Cond2.joblib": {
+      "rows": 815,
+      "training_only": true,
+      "weights": {
+        "P2_Persistent": 0.07186185402676508,
+        "P2_KNN": 0.042335064917304245,
+        "P2_LR": 1.1077840541401753e-08,
+        "P2_SVR": 0.20537081982499544,
+        "P2_Bagging": 0.6804322501530946
+      }
+    },
+    "P2_Cond3.joblib": {
+      "rows": 364,
+      "training_only": true,
+      "weights": {
+        "P2_Persistent": 0.08775399394173729,
+        "P2_KNN": 0.28012999175393116,
+        "P2_LR": 0.018389854226465715,
+        "P2_SVR": 0.3537117055029965,
+        "P2_Bagging": 0.26001445457486944
+      }
+    }
+  },
+  "original_deployment_model_hashes_checked": 26,
+  "p1_repeats_checked": 20,
+  "all_checks_passed": true
+}

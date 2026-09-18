@@ -1,0 +1,7 @@
+{
+  "completed_at": "2026-09-18T09:53:29.225190+00:00",
+  "status": "completed_partial_reconstruction_v2",
+  "metrics_sha256": "795390ad54ee4029add16b767d279df9f1f85127071e4190b3c08e37035d9595",
+  "selection_sha256": "375c0458ec3315a4e0d3e0e77d5b9f7b091b0e341de66ee77673bbc57720cfdf",
+  "report_sha256": "60ca0905ac09fd923b0f591e655a99641c99835cd513a85d569f18247717e5c8"
+}

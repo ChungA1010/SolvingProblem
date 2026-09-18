@@ -2,6 +2,8 @@
 
 세 논문을 **따로 실행 가능한 3개 baseline 묶음, 총 13개 모델**로 제공한다. 각 묶음은 특징 처리, 학습 함수, 저장 모델, 평가 지표, 설정과 가정을 연결한다. 우리 모델과 비교하기 위한 선행연구 baseline이며 원저자의 코드나 성능 수치를 완전히 재현했다는 뜻은 아니다.
 
+후속 **[원문 조건 차이 검증 v2](../runs/phm_cmp_reconstruction_v2/REPORT.md)**에서는 학습을 새로 수행해 스태킹·이력·CPP 등의 차이를 검증했다. [후보 설정과 실행법](../docs/paper-reconstruction-v2.md)은 별도이며, 아래 v1 baseline의 설정·모델·결과를 덮어쓰지 않는다.
+
 | 묶음 | 논문 | 모델 수 | 실행 구성 | 기존 학습 모델 재평가 |
 |---|---|---:|---|---|
 | [P1](p1/README.md) | Decision Tree-Based Ensemble Learning (2019) | 5 | Stage A/B별 35개 특징, RF/GBT/ERT, CART/ELM 스태킹 | [보고서](../runs/phm_cmp_baselines_v1/p1/REPORT.md) |

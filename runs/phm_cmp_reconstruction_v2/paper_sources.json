@@ -1,0 +1,20 @@
+[
+  {
+    "paper": 1,
+    "name": "Prediction-of-Material-Removal-Rate-for-Chemical-Mechanical-Planarization-Using-Decision-Tree-Based-Ensemble-Learning.pdf",
+    "pages": 14,
+    "sha256": "52a30e3243b626f2ca8299e9aaa70899a2b12947a0ed1607fbede47c0727bb93"
+  },
+  {
+    "paper": 2,
+    "name": "2641-Full-Length_Manuscripts-7489-1-10-20201202.pdf",
+    "pages": 8,
+    "sha256": "db39586edc7551b2d7e2c22783401c275cdfd54735691c486b854720450f9c33"
+  },
+  {
+    "paper": 3,
+    "name": "25894228.pdf",
+    "pages": 6,
+    "sha256": "15e5fe73f55868cd24847c0107b57ec70d7ca87eb5f118b8c9c831b7d2383d51"
+  }
+]
