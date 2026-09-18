@@ -1,0 +1,13 @@
+{
+  "verified_at": "2026-09-18T14:24:41.699065+00:00",
+  "metric_rows_recomputed": 216,
+  "inner_selection_partitions_checked": 42,
+  "availability_rows_checked": 5982,
+  "preserved_files_checked": 318,
+  "preserved_files_unchanged": true,
+  "incumbent_reference_metrics_match_v2": true,
+  "saved_models_train_only": true,
+  "code_and_artifact_hashes_verified": true,
+  "bootstrap_replicates": 2000,
+  "bootstrap_note": "Descriptive paired group resampling of fixed predictions; not independent confirmatory inference."
+}

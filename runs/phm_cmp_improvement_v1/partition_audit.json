@@ -1,0 +1,62 @@
+{
+  "outer_0": {
+    "train_n": 1307,
+    "evaluation_n": 670,
+    "train_groups": 43,
+    "evaluation_groups": 11,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 487268210.333,
+    "min_evaluation_start": 482011505.667
+  },
+  "outer_1": {
+    "train_n": 1543,
+    "evaluation_n": 434,
+    "train_groups": 43,
+    "evaluation_groups": 11,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 487268210.333,
+    "min_evaluation_start": 481634409.667
+  },
+  "outer_2": {
+    "train_n": 1551,
+    "evaluation_n": 426,
+    "train_groups": 43,
+    "evaluation_groups": 11,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 487268210.333,
+    "min_evaluation_start": 482205822.333
+  },
+  "outer_3": {
+    "train_n": 1789,
+    "evaluation_n": 188,
+    "train_groups": 43,
+    "evaluation_groups": 11,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 487268210.333,
+    "min_evaluation_start": 482594949.667
+  },
+  "outer_4": {
+    "train_n": 1718,
+    "evaluation_n": 259,
+    "train_groups": 44,
+    "evaluation_groups": 10,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 487219292.333,
+    "min_evaluation_start": 483019254.667
+  },
+  "temporal": {
+    "train_n": 1551,
+    "evaluation_n": 166,
+    "train_groups": 41,
+    "evaluation_groups": 11,
+    "overlapping_wafers": 0,
+    "overlapping_groups": 0,
+    "max_training_end": 486032311.0,
+    "min_evaluation_start": 486129069.667
+  }
+}

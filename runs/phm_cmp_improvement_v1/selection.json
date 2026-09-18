@@ -1,0 +1,3394 @@
+{
+  "selected_at": "2026-09-18T14:19:27.659458+00:00",
+  "selections": {
+    "outer_0_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.23226658327290284,
+          0.048827061246494316,
+          1.1661671468197227e-07,
+          0.45750296546703145,
+          0.2614032733968567
+        ],
+        "inner_mse": 47.92773217172448
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.11830374880760104,
+          0.024869803943908603,
+          0.31789735501056726,
+          0.3015475491157906,
+          0.23738154312213247
+        ],
+        "inner_mse": 45.25230655094772
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_1000_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.14394211253578093,
+          0.03025949857141718,
+          0.34944621866020215,
+          0.29452856455674337,
+          0.18182360567585643
+        ],
+        "inner_mse": 44.576853343949836
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_1000_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.17351647361451195,
+          0.0,
+          0.3425319625173982,
+          0.4839515638680843,
+          5.452307223298672e-15
+        ],
+        "inner_mse": 41.3572466492437
+      }
+    },
+    "outer_0_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.009646554979085512,
+          0.03490844455372711,
+          3.338774474692396e-08,
+          0.43916925998809875,
+          0.5162757070913438
+        ],
+        "inner_mse": 38.57136709638719
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.006400739267137417,
+          0.02316265778759003,
+          0.0021765460113658706,
+          0.30930497421560244,
+          0.6589550827183042
+        ],
+        "inner_mse": 33.69324962026115
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.006400739267137417,
+          0.02316265778759003,
+          0.0021765460113658706,
+          0.30930497421560244,
+          0.6589550827183042
+        ],
+        "inner_mse": 33.69324962026115
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_1",
+          "history/svr_10_0.01_0.1",
+          "history/bag_depth10"
+        ],
+        "weights": [
+          0.026710461538532806,
+          0.0,
+          0.0,
+          1.2491501620328034e-12,
+          0.973289538460218
+        ],
+        "inner_mse": 32.29570496492661
+      }
+    },
+    "outer_0_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.07480247086311691,
+          0.09459346830739156,
+          2.0592346442884067e-05,
+          0.4998106250316412,
+          0.3307728434514075
+        ],
+        "inner_mse": 13.773070921386491
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.0576668019892605,
+          0.072924099209795,
+          0.2281469973955923,
+          0.3884359968463274,
+          0.2528261045590249
+        ],
+        "inner_mse": 13.126482217521035
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.0576668019892605,
+          0.072924099209795,
+          0.2281469973955923,
+          0.3884359968463274,
+          0.2528261045590249
+        ],
+        "inner_mse": 13.126482217521035
+      },
+      "proposed": {
+        "id": "base_ridge",
+        "view": "base",
+        "method": "single",
+        "keys": [
+          "base/ridge_100"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 12.705729265862221
+      }
+    },
+    "outer_0_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.09834183475074885,
+          0.016508105001429456,
+          1.0204569607456687e-08,
+          0.39416373989426134,
+          0.49098631014899075
+        ],
+        "inner_mse": 34.462587598913835
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.05386862224776301,
+          0.009042630479716963,
+          0.36105957734082655,
+          0.24443509931203986,
+          0.3315940706196536
+        ],
+        "inner_mse": 32.33436783490089
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.05386862224776301,
+          0.009042630479716963,
+          0.36105957734082655,
+          0.24443509931203986,
+          0.3315940706196536
+        ],
+        "inner_mse": 32.33436783490089
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_depth10"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.6933609749032278,
+          7.3475745979666e-13,
+          0.3066390250960373
+        ],
+        "inner_mse": 30.89612343874965
+      }
+    },
+    "outer_0_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0007434433114968729,
+          0.00027514406790266364,
+          2.9460787942939026e-12,
+          0.006743105831560035,
+          0.9922383067860944
+        ],
+        "inner_mse": 19.507829076189935
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0007495654252213219,
+          0.00027740982676854956,
+          1.6786745705834052e-05,
+          0.024430258663273387,
+          0.9745259793390308
+        ],
+        "inner_mse": 18.57444853148303
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0007495654252213219,
+          0.00027740982676854956,
+          1.6786745705834052e-05,
+          0.024430258663273387,
+          0.9745259793390308
+        ],
+        "inner_mse": 18.57444853148303
+      },
+      "proposed": {
+        "id": "base_simplex",
+        "view": "base",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          2.9808979412932405e-14,
+          3.955694849276161e-13,
+          0.0026855682966246256,
+          0.017003240745474452,
+          0.9803111909574755
+        ],
+        "inner_mse": 18.56055222569845
+      }
+    },
+    "outer_0_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.05140226107757127,
+          0.12173629682287691,
+          2.777884625267656e-06,
+          0.43769780588943064,
+          0.38916085832549585
+        ],
+        "inner_mse": 12.713144588199752
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.04043790858089381,
+          0.09576935213941465,
+          0.25321506335270105,
+          0.33991486171516966,
+          0.27066281421182087
+        ],
+        "inner_mse": 12.14516650242285
+      },
+      "features": {
+        "id": "history_paper",
+        "view": "history",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_100",
+          "history/svr_10_0.01_0.1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.04044063404245658,
+          0.09577580686710231,
+          0.23448322434945865,
+          0.2912071609325454,
+          0.338093173808437
+        ],
+        "inner_mse": 11.941391130852224
+      },
+      "proposed": {
+        "id": "base_ridge",
+        "view": "base",
+        "method": "single",
+        "keys": [
+          "base/ridge_100"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 11.64538885539701
+      }
+    },
+    "outer_1_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.16501240204205705,
+          0.0823303855240142,
+          5.6175800502268854e-08,
+          0.6129322406185221,
+          0.1397249156396061
+        ],
+        "inner_mse": 27.9203863925726
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_scale_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.12847000142362777,
+          0.06409811998726102,
+          0.14343094554082364,
+          0.477196894599349,
+          0.18680403844893861
+        ],
+        "inner_mse": 28.560595179542002
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.15202329466219863,
+          0.07584967131730869,
+          0.1489840114121032,
+          0.41531137901582404,
+          0.20783164359256542
+        ],
+        "inner_mse": 27.113954892474705
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_100",
+          "history/svr_10_scale_0.1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.3396383705957165,
+          0.0,
+          5.8205532522061494e-15,
+          0.6603616294042713,
+          6.4810405185004496e-15
+        ],
+        "inner_mse": 22.930832631764417
+      }
+    },
+    "outer_1_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.00858557167808648,
+          0.019395207067656545,
+          0.039286060302178134,
+          0.49029336276459146,
+          0.44243979818748747
+        ],
+        "inner_mse": 57.65792126212635
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.004331543908220732,
+          0.009785159820750747,
+          2.908161513886795e-05,
+          0.2539085929610754,
+          0.7319456216948143
+        ],
+        "inner_mse": 50.17402471393012
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.004331543908220732,
+          0.009785159820750747,
+          2.908161513886795e-05,
+          0.2539085929610754,
+          0.7319456216948143
+        ],
+        "inner_mse": 50.17402471393012
+      },
+      "proposed": {
+        "id": "base_simplex",
+        "view": "base",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.03873623078446765,
+          2.2926239782398644e-12,
+          2.6874653240826314e-13,
+          0.0,
+          0.961263769212971
+        ],
+        "inner_mse": 47.98181117157136
+      }
+    },
+    "outer_1_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.13992411230372415,
+          0.3201611798044889,
+          8.11112678388355e-05,
+          0.27231048288567905,
+          0.2675231137382691
+        ],
+        "inner_mse": 15.736703792050553
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.11131583124855668,
+          0.2547024045869666,
+          0.1892870188412401,
+          0.21582577572995598,
+          0.22886896959328065
+        ],
+        "inner_mse": 15.653452843936234
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.11131583124855668,
+          0.2547024045869666,
+          0.1892870188412401,
+          0.21582577572995598,
+          0.22886896959328065
+        ],
+        "inner_mse": 15.653452843936234
+      },
+      "proposed": {
+        "id": "base_simplex",
+        "view": "base",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.1571868033837393,
+          0.18782088538636674,
+          0.11499881941870137,
+          0.06862358450081994,
+          0.47136990731037265
+        ],
+        "inner_mse": 15.371594895287055
+      }
+    },
+    "outer_1_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.09160577796204722,
+          0.03881137271925143,
+          2.4260913711727127e-08,
+          0.24613423061038253,
+          0.6234485944474051
+        ],
+        "inner_mse": 21.854804025283073
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0802560734009624,
+          0.03400275012171013,
+          0.20602264622740185,
+          0.2041161091165478,
+          0.47560242113337786
+        ],
+        "inner_mse": 20.67988741216055
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.08668817108277882,
+          0.03672788980229925,
+          0.2482961416305719,
+          0.20983761700846285,
+          0.4184501804758872
+        ],
+        "inner_mse": 20.46522221087779
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          7.442690398148523e-13,
+          0.47622184264682893,
+          0.024038153263299132,
+          0.49974000408912767
+        ],
+        "inner_mse": 18.842359137775556
+      }
+    },
+    "outer_1_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0028894101429387305,
+          0.002668112597026113,
+          1.8995384565773471e-06,
+          0.2957410824853774,
+          0.6986994952362012
+        ],
+        "inner_mse": 28.07489699370629
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_0.01_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0033489834664949696,
+          0.0030924875777930995,
+          0.003409678276269876,
+          0.1803181441205787,
+          0.8098307065588634
+        ],
+        "inner_mse": 26.75086723649198
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_100_0.01_0.1",
+          "physics/bag_default"
+        ],
+        "weights": [
+          0.0031572656903169944,
+          0.002915453308378501,
+          0.0006816058125106821,
+          0.2548019552377717,
+          0.7384437199510221
+        ],
+        "inner_mse": 26.64463387898477
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_100_0.01_0.1",
+          "physics/bag_default"
+        ],
+        "weights": [
+          2.607663303266674e-12,
+          3.299042592217298e-15,
+          0.0,
+          0.14802094975333774,
+          0.8519790502440514
+        ],
+        "inner_mse": 26.288781457253567
+      }
+    },
+    "outer_1_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.12425456589489167,
+          0.3098974126685203,
+          5.201470115120829e-06,
+          0.3556438113766177,
+          0.21019900858985516
+        ],
+        "inner_mse": 16.476107411230803
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0977370107719351,
+          0.24376123760151655,
+          0.23338318900939078,
+          0.25977878118670816,
+          0.16533978143044933
+        ],
+        "inner_mse": 16.43005807991216
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_1000_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.10420515222806848,
+          0.2598931220726701,
+          0.17993691195975067,
+          0.29879367714595867,
+          0.15717113659355203
+        ],
+        "inner_mse": 15.876956309243054
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_1000_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.009647301455261733,
+          0.21523331421247396,
+          0.1626147662008233,
+          0.3562337915035331,
+          0.2562708266279078
+        ],
+        "inner_mse": 15.767663431297594
+      }
+    },
+    "outer_2_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.05986369516702976,
+          0.08273395918555684,
+          0.22394145743727556,
+          0.48315763549005725,
+          0.15030325272008055
+        ],
+        "inner_mse": 59.672362844359704
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.03698659292911736,
+          0.05111691253392153,
+          0.28646704427100994,
+          0.49392900092525827,
+          0.13150044934069302
+        ],
+        "inner_mse": 56.07327872505806
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.03129272640519907,
+          0.04324776714816673,
+          0.26764263036939806,
+          0.529393622859924,
+          0.1284232532173122
+        ],
+        "inner_mse": 53.000833080646046
+      },
+      "proposed": {
+        "id": "both_svr",
+        "view": "both",
+        "method": "single",
+        "keys": [
+          "both/svr_10_scale_0.1"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 48.15547943822198
+      }
+    },
+    "outer_2_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.11494363668479926,
+          0.03826742676420751,
+          2.835376075763682e-11,
+          0.5435980658497338,
+          0.30319087067290557
+        ],
+        "inner_mse": 60.19321339965251
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_1000_scale_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.06986774581965259,
+          0.023260607750436695,
+          0.04370946528598211,
+          0.5770415148563331,
+          0.2861206662875955
+        ],
+        "inner_mse": 57.03214347358451
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_1000_scale_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.05946558811812968,
+          0.019797486002128488,
+          0.025009306555464284,
+          0.6113075995995456,
+          0.28442001972473197
+        ],
+        "inner_mse": 55.69723425867696
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_1000_scale_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.2779579889056695,
+          1.709733481252701e-12,
+          0.0,
+          0.47770144652318297,
+          0.24434056456943784
+        ],
+        "inner_mse": 51.3090506573637
+      }
+    },
+    "outer_2_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.11607167065768403,
+          0.5511558230760804,
+          0.018262512603315875,
+          0.2835180063031083,
+          0.030991987359811495
+        ],
+        "inner_mse": 14.943689940889296
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf10"
+        ],
+        "weights": [
+          0.09679123103477044,
+          0.4596044004987735,
+          0.17080955340609344,
+          0.24259801738738607,
+          0.030196797672976543
+        ],
+        "inner_mse": 14.79121640233668
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0710010051877303,
+          0.3371418472030232,
+          0.23168649046417186,
+          0.3050175774429629,
+          0.05515307970211193
+        ],
+        "inner_mse": 13.866177863503873
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_100",
+          "history/svr_10_0.01_0.1",
+          "history/bag_depth10"
+        ],
+        "weights": [
+          0.0,
+          0.17148451545202853,
+          0.3859245969661659,
+          0.4425908875818055,
+          0.0
+        ],
+        "inner_mse": 13.41563761958223
+      }
+    },
+    "outer_2_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.039713675732755166,
+          0.07216637485252854,
+          9.73722116222062e-07,
+          0.8266007817130836,
+          0.06151819397951637
+        ],
+        "inner_mse": 40.02346461275684
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.02561320971795309,
+          0.04654347550503088,
+          0.3196657224029173,
+          0.5635110863233254,
+          0.044666506050773526
+        ],
+        "inner_mse": 38.77643004152308
+      },
+      "features": {
+        "id": "history_paper",
+        "view": "history",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_10",
+          "history/svr_100_0.01_0.1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.044135809603009994,
+          0.08020212990769862,
+          0.13456484044315553,
+          0.6667189760190352,
+          0.07437824402710075
+        ],
+        "inner_mse": 34.81230106357343
+      },
+      "proposed": {
+        "id": "history_svr",
+        "view": "history",
+        "method": "single",
+        "keys": [
+          "history/svr_100_0.01_0.1"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 30.584434332883475
+      }
+    },
+    "outer_2_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.006964652497454793,
+          0.026837752338002827,
+          2.899007599360167e-12,
+          0.5655850869292146,
+          0.40061250823242883
+        ],
+        "inner_mse": 29.215444118687813
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.004846850334789713,
+          0.018676964708862237,
+          2.5484848870205407e-06,
+          0.7099493773343296,
+          0.26652425913713135
+        ],
+        "inner_mse": 29.150951561350166
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_100_scale_1",
+          "physics/bag_depth10"
+        ],
+        "weights": [
+          0.004660780751638121,
+          0.017959959891739954,
+          2.5793124338792402e-06,
+          0.673557092726943,
+          0.30381958731724523
+        ],
+        "inner_mse": 28.751226901168728
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_0.5",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.004082116346154478,
+          0.4015197044336211,
+          0.5943981792202245
+        ],
+        "inner_mse": 25.3381951019432
+      }
+    },
+    "outer_2_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.17059220221744095,
+          0.5035881412483484,
+          0.013740894607573436,
+          0.2973285864895149,
+          0.01475017543712226
+        ],
+        "inner_mse": 16.99438553547388
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.09546537760543491,
+          0.28181377247604095,
+          0.3286845412378017,
+          0.28373309429009325,
+          0.01030321439062926
+        ],
+        "inner_mse": 15.551984476849535
+      },
+      "features": {
+        "id": "history_paper",
+        "view": "history",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_100",
+          "history/svr_10_0.01_0.1",
+          "history/bag_depth10"
+        ],
+        "weights": [
+          0.1018951894675237,
+          0.3007945755966822,
+          0.2608093135148305,
+          0.32056347149933967,
+          0.015937449921623967
+        ],
+        "inner_mse": 14.230913412148492
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_100",
+          "history/svr_10_0.01_0.1",
+          "history/bag_depth10"
+        ],
+        "weights": [
+          1.6856780100710003e-17,
+          2.0104163288316644e-16,
+          0.46412212882263637,
+          0.5358778711773632,
+          3.2275125632283774e-16
+        ],
+        "inner_mse": 12.639494500302021
+      }
+    },
+    "outer_3_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.08249446857332135,
+          0.11836278564010379,
+          0.00022713513094075019,
+          0.7446244931634647,
+          0.0542911174921694
+        ],
+        "inner_mse": 34.03246117341762
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_scale_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.052631675386462046,
+          0.0755157505634504,
+          0.34526010601645846,
+          0.47507227195669915,
+          0.05152019607692988
+        ],
+        "inner_mse": 33.14663671889787
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.037676676572892365,
+          0.05405836863916696,
+          0.3532209417589114,
+          0.5182372545544162,
+          0.03680675847461323
+        ],
+        "inner_mse": 29.94099974176393
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.05244812237549011,
+          3.1611298616811405e-14,
+          0.3715119176268091,
+          0.5760399599976416,
+          2.7558386540085482e-14
+        ],
+        "inner_mse": 28.39608571945791
+      }
+    },
+    "outer_3_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.022881152593524006,
+          0.01616453000021719,
+          0.01247154299527079,
+          0.9255463927034931,
+          0.022936381707494836
+        ],
+        "inner_mse": 38.87015143550347
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.014761038418500754,
+          0.010428025746296792,
+          0.37498587689553015,
+          0.5571596976773532,
+          0.04266536126231923
+        ],
+        "inner_mse": 39.00219397186724
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.013540007638835075,
+          0.00956542109434929,
+          0.3414886632241897,
+          0.5985038865914099,
+          0.03690202145121615
+        ],
+        "inner_mse": 38.528951776903284
+      },
+      "proposed": {
+        "id": "base_simplex",
+        "view": "base",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.14231062956830873,
+          0.0,
+          0.04845052672197575,
+          0.8092388437086906,
+          1.0250059985223069e-12
+        ],
+        "inner_mse": 36.00870632601378
+      }
+    },
+    "outer_3_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.05267836951501287,
+          0.1401778118952326,
+          0.017166219103042252,
+          0.27098631518171534,
+          0.5189912843049969
+        ],
+        "inner_mse": 13.445550458905775
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.05212628264494167,
+          0.13870870170569624,
+          0.07951411220054157,
+          0.32082506913279046,
+          0.40882583431603015
+        ],
+        "inner_mse": 13.343581948178699
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_depth10"
+        ],
+        "weights": [
+          0.03963846297059738,
+          0.10547845457754741,
+          0.10891135009066802,
+          0.35598817099726937,
+          0.3899835613639179
+        ],
+        "inner_mse": 12.902287309857813
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_depth10"
+        ],
+        "weights": [
+          0.2822821361607422,
+          0.0927185587734031,
+          0.005788768946105765,
+          0.3373712179834535,
+          0.2818393181362955
+        ],
+        "inner_mse": 12.31388695410371
+      }
+    },
+    "outer_3_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0050404982032433935,
+          0.0029816262316993843,
+          1.3445343916246454e-07,
+          0.35486290391635117,
+          0.6371148371952667
+        ],
+        "inner_mse": 17.877684120076026
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.00301795397391941,
+          0.0017852224863227472,
+          0.21350954480488965,
+          0.2336182550469945,
+          0.5480690236878738
+        ],
+        "inner_mse": 16.652126164716236
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.0027871843861292963,
+          0.0016487144213083193,
+          0.2299190027242469,
+          0.1969938305304375,
+          0.568651267937878
+        ],
+        "inner_mse": 16.340784627941307
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_10_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          1.2028418780824853e-13,
+          1.5596173504727712e-14,
+          0.3345599344132357,
+          0.00558306476542729,
+          0.6598570008212011
+        ],
+        "inner_mse": 16.029926128096463
+      }
+    },
+    "outer_3_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0038701444648804838,
+          0.0006765068945317204,
+          0.0008059985002854687,
+          0.48191232938509365,
+          0.5127350207552087
+        ],
+        "inner_mse": 24.21316858908949
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.002531525202204948,
+          0.00044251429591668804,
+          0.03981534416321008,
+          0.6142736736919341,
+          0.34293694264673413
+        ],
+        "inner_mse": 22.436136751535663
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.002531525202204948,
+          0.00044251429591668804,
+          0.03981534416321008,
+          0.6142736736919341,
+          0.34293694264673413
+        ],
+        "inner_mse": 22.436136751535663
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.39536554437099286,
+          0.3374392201648866,
+          0.26719523546412044
+        ],
+        "inner_mse": 21.62731400583552
+      }
+    },
+    "outer_3_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.03377767315637481,
+          0.05800679853823226,
+          0.00998092390273819,
+          0.12120262582880231,
+          0.7770319785738524
+        ],
+        "inner_mse": 11.721665634120493
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_scale_0.1",
+          "base/bag_leaf10"
+        ],
+        "weights": [
+          0.03257550542130073,
+          0.055942301635358876,
+          0.07395120372256246,
+          0.1168889513639245,
+          0.7206420378568534
+        ],
+        "inner_mse": 11.542344659161754
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_10_scale_0.1",
+          "physics/bag_leaf10"
+        ],
+        "weights": [
+          0.03108862158628501,
+          0.05338885839880979,
+          0.0886376162983134,
+          0.1289220176740684,
+          0.6979628860425234
+        ],
+        "inner_mse": 11.498439929395516
+      },
+      "proposed": {
+        "id": "physics_bag",
+        "view": "physics",
+        "method": "single",
+        "keys": [
+          "physics/bag_leaf10"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 10.996822167935546
+      }
+    },
+    "outer_4_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.3171516880477615,
+          0.09015805774674054,
+          0.10987398029545796,
+          0.3956190846438559,
+          0.08719718926618415
+        ],
+        "inner_mse": 37.12769043459323
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.23342961623244057,
+          0.06635802870743196,
+          0.21434370967803693,
+          0.4115812149317189,
+          0.0742874304503716
+        ],
+        "inner_mse": 34.84132638095887
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.07608250963408739,
+          0.021628298242177397,
+          0.2975997196774681,
+          0.5866550384488355,
+          0.01803443399743153
+        ],
+        "inner_mse": 28.213727909093418
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.1685495845103792,
+          6.11272307824119e-13,
+          0.23240832965523114,
+          0.5990420858333686,
+          4.0982357216256664e-13
+        ],
+        "inner_mse": 27.035117766157708
+      }
+    },
+    "outer_4_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.09527679870166678,
+          0.09169347634363145,
+          7.583948694877657e-11,
+          0.2739144801002465,
+          0.5391152447786158
+        ],
+        "inner_mse": 56.02863302017294
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.06950978955625495,
+          0.06689555412419376,
+          2.2261236484690374e-05,
+          0.29197345318151424,
+          0.5715989419015525
+        ],
+        "inner_mse": 48.996615789254115
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_100_scale_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.06338744544755874,
+          0.061003468932959416,
+          1.5160902425128765e-05,
+          0.29536028534902414,
+          0.5802336393680325
+        ],
+        "inner_mse": 47.874932104396706
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_10",
+          "both/svr_1000_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.204916539102295,
+          8.274560885272977e-13,
+          0.008047078634400052,
+          0.6384712090924294,
+          0.1485651731700481
+        ],
+        "inner_mse": 41.79602048747025
+      }
+    },
+    "outer_4_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.10745857077839568,
+          0.1056741387211141,
+          0.0250483834738792,
+          0.47019321949762,
+          0.2916256875289911
+        ],
+        "inner_mse": 14.690177794178608
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_scale_0.5",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.07201048985744664,
+          0.07081470039522522,
+          0.3011103277412622,
+          0.37415113889245877,
+          0.18191334311360705
+        ],
+        "inner_mse": 13.799281246518568
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_scale_0.5",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.07201048985744664,
+          0.07081470039522522,
+          0.3011103277412622,
+          0.37415113889245877,
+          0.18191334311360705
+        ],
+        "inner_mse": 13.799281246518568
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          7.459342457435212e-16,
+          0.34468716005381755,
+          0.554046741830037,
+          0.10126609811614473
+        ],
+        "inner_mse": 13.230771386801132
+      }
+    },
+    "outer_4_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.013389639852053332,
+          0.007277877338292744,
+          2.88741065397771e-10,
+          0.6986842539417109,
+          0.2806482285792021
+        ],
+        "inner_mse": 19.757581884051685
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.019712079088914664,
+          0.01071441019153671,
+          0.0002484338519708858,
+          0.5938206687320702,
+          0.37550440813550756
+        ],
+        "inner_mse": 18.645237072757716
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0066505976710107655,
+          0.0036149018652304643,
+          0.36236468068154504,
+          0.45247526691009515,
+          0.1748945528721186
+        ],
+        "inner_mse": 17.053822196844077
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          6.1292515658813e-16,
+          2.8992161590262034e-15,
+          0.3903503793876788,
+          0.11255445550110241,
+          0.49709516511121526
+        ],
+        "inner_mse": 15.897113616786196
+      }
+    },
+    "outer_4_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.002618965869822777,
+          0.0005540587943484742,
+          9.717296094569852e-13,
+          0.0921742982695397,
+          0.9046526770653173
+        ],
+        "inner_mse": 23.618408623743417
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0027675537121577137,
+          0.0005854934921914464,
+          1.6193922485726108e-07,
+          0.10377656196320799,
+          0.8928702288932181
+        ],
+        "inner_mse": 22.127490969397474
+      },
+      "features": {
+        "id": "history_paper",
+        "view": "history",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_10",
+          "history/svr_10_0.01_0.1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.002567713149510794,
+          0.0005432159572002916,
+          1.6173150839956127e-07,
+          0.1596198454178082,
+          0.8372690637439723
+        ],
+        "inner_mse": 21.353765936951145
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_10",
+          "history/svr_10_0.01_0.1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          5.415645900335725e-13,
+          0.20766563833603174,
+          0.7923343616634266
+        ],
+        "inner_mse": 21.243167853758035
+      }
+    },
+    "outer_4_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.12720865426358244,
+          0.10598028875017161,
+          0.055543010137128535,
+          0.4368466076004017,
+          0.2744214392487156
+        ],
+        "inner_mse": 16.667324376332804
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.09996326169748021,
+          0.0832815613091572,
+          0.2578256425537487,
+          0.34328334035145086,
+          0.21564619408816302
+        ],
+        "inner_mse": 16.348324582918533
+      },
+      "features": {
+        "id": "history_paper",
+        "view": "history",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_10",
+          "history/svr_100_scale_1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.14384602580132547,
+          0.11984124380721031,
+          0.12452811578328793,
+          0.3486392093001034,
+          0.26314540530807295
+        ],
+        "inner_mse": 15.468112866703258
+      },
+      "proposed": {
+        "id": "history_simplex",
+        "view": "history",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "history/ridge_10",
+          "history/svr_100_scale_1",
+          "history/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.4976560517885021,
+          0.2735312926622798,
+          0.22881265554921817
+        ],
+        "inner_mse": 13.914384835331
+      }
+    },
+    "temporal_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.0390658048972724,
+          0.042808067567573854,
+          0.0014339224891512484,
+          0.8129525870883721,
+          0.1037396179576303
+        ],
+        "inner_mse": 46.87795385354505
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.028432724648433376,
+          0.031156403946648002,
+          0.2435673043551142,
+          0.5835585484142843,
+          0.11328501863552015
+        ],
+        "inner_mse": 47.407000881014135
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.010204559391015297,
+          0.011182093113315156,
+          0.19714042452395306,
+          0.7322195494447544,
+          0.04925337352696204
+        ],
+        "inner_mse": 37.107033448375596
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.16535904645695382,
+          0.0,
+          2.531485200706221e-12,
+          0.8346409535405146,
+          0.0
+        ],
+        "inner_mse": 34.042912051358606
+      }
+    },
+    "temporal_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.04417645274564912,
+          0.2982307506203358,
+          6.612977000547654e-07,
+          0.5823637880172811,
+          0.07522834731903393
+        ],
+        "inner_mse": 45.9401121487331
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.03536244525982125,
+          0.2387282802973742,
+          0.0018239780201735564,
+          0.526064667983006,
+          0.198020628439625
+        ],
+        "inner_mse": 42.60684535648014
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_1",
+          "physics/svr_100_scale_0.5",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.03182973149545927,
+          0.2148792880811255,
+          0.0014765516252863682,
+          0.5794735252566009,
+          0.172340903541528
+        ],
+        "inner_mse": 39.59504484357992
+      },
+      "proposed": {
+        "id": "physics_svr",
+        "view": "physics",
+        "method": "single",
+        "keys": [
+          "physics/svr_100_scale_0.5"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 35.03685657169622
+      }
+    },
+    "temporal_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.33285024661978524,
+          0.30403608135548926,
+          1.7503877851911182e-09,
+          0.18923940942824077,
+          0.173874260846097
+        ],
+        "inner_mse": 13.332961391740515
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.24242252993494637,
+          0.22143650720468985,
+          0.20938528948599194,
+          0.18820374731336295,
+          0.13855192606100886
+        ],
+        "inner_mse": 13.150851988595457
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_depth10"
+        ],
+        "weights": [
+          0.23684058711983885,
+          0.21633778176557572,
+          0.23557827082301525,
+          0.11591139166999605,
+          0.1953319686215742
+        ],
+        "inner_mse": 12.965205549505022
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_depth10"
+        ],
+        "weights": [
+          0.3220386255729695,
+          0.16705147595901565,
+          0.33033575548979743,
+          2.850962802917974e-17,
+          0.18057414297821753
+        ],
+        "inner_mse": 12.797755188692397
+      }
+    },
+    "temporal_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.004713707571306377,
+          0.003003405170306607,
+          8.329352845445313e-07,
+          0.3414425166091305,
+          0.6508395377139721
+        ],
+        "inner_mse": 19.844243345081527
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0025912296242013694,
+          0.0016510384518022105,
+          0.328322588876386,
+          0.2768877850814312,
+          0.3905473579661793
+        ],
+        "inner_mse": 17.64233904769147
+      },
+      "features": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0025912296242013694,
+          0.0016510384518022105,
+          0.328322588876386,
+          0.2768877850814312,
+          0.3905473579661793
+        ],
+        "inner_mse": 17.64233904769147
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_100_scale_1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.4222145725023298,
+          3.7263956993639825e-13,
+          0.5777854274972976
+        ],
+        "inner_mse": 16.84904067656717
+      }
+    },
+    "temporal_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.002580347084571812,
+          0.003940309817241832,
+          1.8428442245778842e-08,
+          0.08563592025272446,
+          0.9078434044170196
+        ],
+        "inner_mse": 24.939739020846492
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_1",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.0013382443400203315,
+          0.0020435612489416153,
+          9.644579717283976e-05,
+          0.3497869423505999,
+          0.6467348062632653
+        ],
+        "inner_mse": 23.31552825407341
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_1",
+          "both/svr_100_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.002219957851885806,
+          0.0033899787241607766,
+          3.74292499394928e-05,
+          0.2724678769146066,
+          0.7218847572594074
+        ],
+        "inner_mse": 21.85174796296801
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_1",
+          "both/svr_100_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          0.018571334046252202,
+          0.3088976698012151,
+          0.6725309961525325
+        ],
+        "inner_mse": 21.587078691482304
+      }
+    },
+    "temporal_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.18929834167739717,
+          0.07381379876823194,
+          1.3596745192734112e-12,
+          0.3971184729841546,
+          0.3397693865688566
+        ],
+        "inner_mse": 10.571648013206746
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.16070856178802712,
+          0.0626656807187964,
+          0.19060360707450114,
+          0.2975682264633497,
+          0.28845392395532554
+        ],
+        "inner_mse": 10.587027096082965
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.13711883832631078,
+          0.05346725306659431,
+          0.2108938900886021,
+          0.2928646978603607,
+          0.30565532065813217
+        ],
+        "inner_mse": 9.944091402180575
+      },
+      "proposed": {
+        "id": "both_bag",
+        "view": "both",
+        "method": "single",
+        "keys": [
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          1.0
+        ],
+        "inner_mse": 9.192631839448056
+      }
+    },
+    "final_retrospective_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.04564558906210839,
+          0.14554015275757037,
+          0.015802378299362613,
+          0.46097461714233373,
+          0.3320372627386248
+        ],
+        "inner_mse": 39.55546151500167
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.03459549539424092,
+          0.11030712469392492,
+          0.08236525124323119,
+          0.5332503149013134,
+          0.23948181376728953
+        ],
+        "inner_mse": 36.261020655547654
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.029919941550864252,
+          0.09539920402572238,
+          0.31691948922671886,
+          0.3891941010428368,
+          0.16856726415385767
+        ],
+        "inner_mse": 33.27424369497868
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.09617807911840032,
+          6.2036055878582054e-15,
+          0.19893819220072712,
+          0.7048837286808645,
+          1.970433300326523e-15
+        ],
+        "inner_mse": 29.19201627788542
+      }
+    },
+    "final_retrospective_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.048809659666288786,
+          0.15851778828734558,
+          1.2047572460710195e-06,
+          0.6634262042950251,
+          0.12924514299409443
+        ],
+        "inner_mse": 58.98033875280761
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_1000_scale_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.048387901064854626,
+          0.1571480544857251,
+          0.00017486513901851568,
+          0.47292923114548835,
+          0.3213599481649135
+        ],
+        "inner_mse": 52.0490951594214
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_1000_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.0383215525002783,
+          0.12445585131332255,
+          3.577179022188639e-05,
+          0.4734538221876139,
+          0.36373300220856336
+        ],
+        "inner_mse": 49.594272419222776
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_10",
+          "physics/svr_1000_0.01_0.1",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.14918733087037506,
+          5.396235692867933e-14,
+          0.0018186614112879718,
+          0.5067127279694503,
+          0.34228127974883266
+        ],
+        "inner_mse": 44.205240525520026
+      }
+    },
+    "final_retrospective_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.15744124010991895,
+          0.22741118993493153,
+          0.0618899710158794,
+          0.35032103157875794,
+          0.20293656736051233
+        ],
+        "inner_mse": 12.347053895623676
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.12150949008899897,
+          0.17551067122079372,
+          0.23417385393625556,
+          0.29186959237519644,
+          0.17693639237875536
+        ],
+        "inner_mse": 12.101101982313113
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.11667484587137628,
+          0.16852741706404278,
+          0.2687424206602644,
+          0.2958180966352928,
+          0.15023721976902385
+        ],
+        "inner_mse": 12.027234997539475
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_0.01_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.15444028326905004,
+          0.26411213196296573,
+          0.3121088794872339,
+          0.17007584808392176,
+          0.09926285719682862
+        ],
+        "inner_mse": 11.926164900320048
+      }
+    },
+    "final_completed_Cond1": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.023071070983291135,
+          0.013538158658181362,
+          0.01783912310130905,
+          0.3610130476139002,
+          0.5845385996433183
+        ],
+        "inner_mse": 24.342505688384623
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_scale_1",
+          "base/bag_leaf2"
+        ],
+        "weights": [
+          0.013129473275401591,
+          0.007704405765535147,
+          0.20188653177367144,
+          0.26041359167705175,
+          0.5168659975083401
+        ],
+        "inner_mse": 21.4484375266929
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.005633868438724722,
+          0.0033059672365454884,
+          0.5443990375890695,
+          0.22733533067064882,
+          0.2193257960650114
+        ],
+        "inner_mse": 18.927832095127286
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_100_scale_1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.025467709389558613,
+          1.9951783359248457e-13,
+          0.5156949852171154,
+          0.15591351465853107,
+          0.3029237907345953
+        ],
+        "inner_mse": 18.77382040334882
+      }
+    },
+    "final_completed_Cond2": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.00988756995001173,
+          0.0014634082336934544,
+          3.059427241686448e-11,
+          0.16122625473895372,
+          0.8274227670467468
+        ],
+        "inner_mse": 25.05878191435602
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_10",
+          "base/svr_100_scale_0.5",
+          "base/bag_depth10"
+        ],
+        "weights": [
+          0.00677636254425117,
+          0.0010029344714509274,
+          1.853014462407561e-06,
+          0.2121608311185598,
+          0.7800580188512757
+        ],
+        "inner_mse": 23.36485230874808
+      },
+      "features": {
+        "id": "physics_paper",
+        "view": "physics",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_100_scale_0.5",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.00658007755929545,
+          0.0009738833431568359,
+          1.050002427950273e-06,
+          0.28661545011191275,
+          0.705829538983207
+        ],
+        "inner_mse": 23.072169139589533
+      },
+      "proposed": {
+        "id": "physics_simplex",
+        "view": "physics",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "physics/ridge_100",
+          "physics/svr_100_scale_0.5",
+          "physics/bag_leaf2"
+        ],
+        "weights": [
+          0.0,
+          0.0,
+          4.2341966439905884e-14,
+          0.22247004686508162,
+          0.777529953134876
+        ],
+        "inner_mse": 22.854784419841152
+      }
+    },
+    "final_completed_Cond3": {
+      "control": {
+        "id": "base_control",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ols",
+          "base/svr_10_scale_0.1",
+          "base/bag_default"
+        ],
+        "weights": [
+          0.1118544601642939,
+          0.11637267350455262,
+          0.04650982663896172,
+          0.30831067958440556,
+          0.4169523601077862
+        ],
+        "inner_mse": 12.275776024259802
+      },
+      "tuned": {
+        "id": "base_paper",
+        "view": "base",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "base/ridge_100",
+          "base/svr_10_0.01_0.1",
+          "base/bag_leaf10"
+        ],
+        "weights": [
+          0.09689188434700499,
+          0.1008057041783861,
+          0.19510430579460142,
+          0.288386408100282,
+          0.31881169757972555
+        ],
+        "inner_mse": 12.19256066783299
+      },
+      "features": {
+        "id": "both_paper",
+        "view": "both",
+        "method": "paper",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          0.07140490032942037,
+          0.07428920706832338,
+          0.16873920124590694,
+          0.32371144555875275,
+          0.3618552457975964
+        ],
+        "inner_mse": 11.661734303470089
+      },
+      "proposed": {
+        "id": "both_simplex",
+        "view": "both",
+        "method": "simplex",
+        "keys": [
+          "persistent",
+          "knn",
+          "both/ridge_100",
+          "both/svr_10_scale_0.1",
+          "both/bag_leaf2"
+        ],
+        "weights": [
+          5.048006270831722e-17,
+          0.0,
+          0.12416949099153128,
+          0.29352686942758777,
+          0.5823036395808809
+        ],
+        "inner_mse": 11.305330062383144
+      }
+    }
+  },
+  "rule": "Within each training partition/condition only: minimize inner OOF MSE; tie candidate id. Both history policies retained; no test-based choice."
+}

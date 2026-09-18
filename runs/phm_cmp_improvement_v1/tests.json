@@ -1,0 +1,8 @@
+{
+  "command": "python -m pytest -q --junitxml=runs/phm_cmp_improvement_v1/tests.xml",
+  "tests": 91,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 25.969
+}

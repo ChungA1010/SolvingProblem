@@ -1,0 +1,159 @@
+{
+  "analyzed_at": "2026-09-18T14:22:01.034906+00:00",
+  "sample_id": "78f0c2e5cda9415ecec3",
+  "partition": "outer_3",
+  "condition": "Cond2",
+  "truth": 73.1484,
+  "predictions": {
+    "control": 75.21447341105097,
+    "tuned": 49.03440838322556,
+    "features": 49.03440838322556,
+    "proposed": -197.08494646972702
+  },
+  "component_predictions": {
+    "base/bag_default": 73.66419462838789,
+    "base/bag_leaf2": 72.49691315535712,
+    "base/ols": -1758.160564754653,
+    "base/ridge_100": -628.4328814858015,
+    "base/svr_10_0.01_0.1": 79.69609448250375,
+    "base/svr_10_scale_0.1": 79.88293860077896,
+    "both/bag_leaf2": 73.83865207678573,
+    "both/ridge_100": -616.6751405703928,
+    "both/svr_10_scale_0.1": 80.00794970051982
+  },
+  "proposed_recipe": {
+    "id": "both_simplex",
+    "view": "both",
+    "method": "simplex",
+    "keys": [
+      "persistent",
+      "knn",
+      "both/ridge_100",
+      "both/svr_10_scale_0.1",
+      "both/bag_leaf2"
+    ],
+    "weights": [
+      0.0,
+      0.0,
+      0.39536554437099286,
+      0.3374392201648866,
+      0.26719523546412044
+    ],
+    "inner_mse": 21.62731400583552
+  },
+  "missing_physical_features": [
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_std",
+    "p2_secondary_DRESSING_WATER_STATUS_auc",
+    "p2_secondary_DRESSING_WATER_STATUS_mean",
+    "p2_secondary_DRESSING_WATER_STATUS_std",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_std",
+    "p2_secondary_HEAD_ROTATION_mean",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_std",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_mean",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_std",
+    "p2_secondary_RETAINER_RING_PRESSURE_auc",
+    "p2_secondary_RETAINER_RING_PRESSURE_mean",
+    "p2_secondary_RETAINER_RING_PRESSURE_std",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_std",
+    "p2_secondary_SLURRY_FLOW_LINE_A_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_A_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_A_std",
+    "p2_secondary_SLURRY_FLOW_LINE_B_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_B_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_B_std",
+    "p2_secondary_SLURRY_FLOW_LINE_C_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_C_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_C_std",
+    "p2_secondary_STAGE_ROTATION_mean",
+    "p2_secondary_USAGE_OF_BACKING_FILM_mean",
+    "p2_secondary_USAGE_OF_BACKING_FILM_std",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_mean",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_std",
+    "p2_secondary_USAGE_OF_DRESSER_mean",
+    "p2_secondary_USAGE_OF_DRESSER_std",
+    "p2_secondary_USAGE_OF_MEMBRANE_mean",
+    "p2_secondary_USAGE_OF_MEMBRANE_std",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_mean",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_std",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_mean",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_std",
+    "p2_secondary_WAFER_ROTATION_mean"
+  ],
+  "largest_ridge_contributions": [
+    {
+      "feature": "p2_primary_CENTER_AIR_BAG_PRESSURE_auc",
+      "raw_value": 137451.86343764886,
+      "standardized_value": 242.3950165982864,
+      "contribution": -127.2789647766367
+    },
+    {
+      "feature": "p2_primary_SLURRY_FLOW_LINE_C_auc",
+      "raw_value": 751110.4895091474,
+      "standardized_value": 195.82661860563172,
+      "contribution": -121.01331381546727
+    },
+    {
+      "feature": "p2_primary_RIPPLE_AIR_BAG_PRESSURE_auc",
+      "raw_value": 21177.133659144612,
+      "standardized_value": 245.1389193756244,
+      "contribution": -119.15670930701938
+    },
+    {
+      "feature": "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+      "raw_value": 577848.6936013699,
+      "standardized_value": 274.72992206233425,
+      "contribution": -101.89251574741074
+    },
+    {
+      "feature": "p2_primary_duration",
+      "raw_value": 5283.0,
+      "standardized_value": 507.83530018822506,
+      "contribution": 101.23665513945033
+    },
+    {
+      "feature": "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+      "raw_value": 169649.50404758495,
+      "standardized_value": 235.4447051922977,
+      "contribution": -70.83602938570813
+    },
+    {
+      "feature": "p2_primary_RETAINER_RING_PRESSURE_auc",
+      "raw_value": 3722256.9550698865,
+      "standardized_value": 234.02972988392898,
+      "contribution": -56.37909181924223
+    },
+    {
+      "feature": "p2_primary_USAGE_OF_BACKING_FILM_std",
+      "raw_value": 20.55719396595508,
+      "standardized_value": 152.87416835052795,
+      "contribution": -45.46389364613618
+    },
+    {
+      "feature": "p2_primary_USAGE_OF_MEMBRANE_std",
+      "raw_value": 0.2437578893661329,
+      "standardized_value": 152.90932163161457,
+      "contribution": -44.399006489453015
+    },
+    {
+      "feature": "p2_primary_USAGE_OF_PRESSURIZED_SHEET_std",
+      "raw_value": 6.16707460103996,
+      "standardized_value": 152.87119627157867,
+      "contribution": -44.18436297724396
+    }
+  ],
+  "decision": "Do not modify frozen predictions, remove the case, clip after evaluation, or promote this proposal. This is a post-evaluation failure analysis, not a new model or performance claim.",
+  "duration_evidence": {
+    "full_primary_duration": 5283.0,
+    "previous_v2_heuristic_active_phase_duration": 70.0,
+    "note": "The 70-unit phase estimate is a previously frozen heuristic, not ground-truth active duration."
+  }
+}

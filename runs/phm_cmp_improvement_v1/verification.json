@@ -1,0 +1,117 @@
+{
+  "verified_at": "2026-09-18T14:19:46.849417+00:00",
+  "reload_max_differences": {
+    "validation_retrospective_Cond1": 1.4210854715202004e-14,
+    "test_retrospective_Cond1": 1.4210854715202004e-14,
+    "validation_retrospective_Cond2": 1.4210854715202004e-14,
+    "test_retrospective_Cond2": 1.4210854715202004e-14,
+    "validation_retrospective_Cond3": 2.842170943040401e-14,
+    "test_retrospective_Cond3": 2.842170943040401e-14,
+    "validation_completed_Cond1": 2.842170943040401e-14,
+    "test_completed_Cond1": 2.842170943040401e-14,
+    "validation_completed_Cond2": 4.263256414560601e-14,
+    "test_completed_Cond2": 4.263256414560601e-14,
+    "validation_completed_Cond3": 2.842170943040401e-14,
+    "test_completed_Cond3": 2.842170943040401e-14
+  },
+  "reference_history_audit": {
+    "validation_retrospective_Cond1": {
+      "queries": 185,
+      "references": 3863,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 1056,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_retrospective_Cond1": {
+      "queries": 165,
+      "references": 3450,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 942,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "validation_retrospective_Cond2": {
+      "queries": 172,
+      "references": 3588,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 1001,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_retrospective_Cond2": {
+      "queries": 186,
+      "references": 3890,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 1109,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "validation_retrospective_Cond3": {
+      "queries": 67,
+      "references": 1407,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 420,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_retrospective_Cond3": {
+      "queries": 73,
+      "references": 1512,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 403,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "validation_completed_Cond1": {
+      "queries": 185,
+      "references": 3845,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_completed_Cond1": {
+      "queries": 165,
+      "references": 3435,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "validation_completed_Cond2": {
+      "queries": 172,
+      "references": 3567,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_completed_Cond2": {
+      "queries": 186,
+      "references": 3876,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "validation_completed_Cond3": {
+      "queries": 67,
+      "references": 1407,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    },
+    "test_completed_Cond3": {
+      "queries": 73,
+      "references": 1494,
+      "same_wafer_references": 0,
+      "not_completed_at_query_start": 0,
+      "queries_without_lag": 0,
+      "queries_without_neighbors": 0
+    }
+  },
+  "preserved_files_checked": 318,
+  "preserved_files_unchanged": true
+}

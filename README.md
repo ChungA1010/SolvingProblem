@@ -20,6 +20,12 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 **원문 조건 차이 검증 v2:** 원문을 다시 확인하고 P1의 스태킹 해석·meta 설정, P2의 이상치·이웃·lag·OLS 계산, P3의 연마 구간·CPP·forest 설정을 새 실험으로 비교했습니다. 후보와 코드를 먼저 고정하고 Validation으로 선택한 뒤 같은 Test에서 비교했습니다. [v2 결과](runs/phm_cmp_reconstruction_v2/REPORT.md), [가정·대조군·실행법](docs/paper-reconstruction-v2.md), [모든 검증 후보](runs/phm_cmp_reconstruction_v2/validation_trials.csv), [선정 모델 파일·해시](runs/phm_cmp_reconstruction_v2/training_complete.json)를 확인하세요. 기존 실행은 보존하며, 이 실험도 이미 확인한 Test를 사용하는 부분 재현입니다.
 
+## P2 제안 모델 개선 실험
+
+논문 baseline을 고정한 상태에서 **Bagging/SVR 튜닝, Ridge 대체, 공정·이력 특징, OOF 가중 결합**을 새 실험으로 비교했습니다. 원래 Train 1,977건의 wafer/file 연결 그룹을 나눠 바깥 5fold·안쪽 3fold로 평가하고, 과거 1,551건 → 이후 166건의 시간순 진단도 수행했습니다. 기존 방식의 이웃 참조와 완료된 과거 공정만 참조하는 방식을 분리해 보고합니다. 최종 설정은 Train 안에서 정하며, 이전 공식 Validation/Test 점수는 선택이 끝난 뒤 참고용으로 산출합니다.
+
+[개선 결과와 해석](runs/phm_cmp_improvement_v1/README.md), [사전 고정한 실험 계획](docs/p2-improvement-v1.md), [전체 지표](runs/phm_cmp_improvement_v1/metrics.csv), [조건별 최종 모델](runs/phm_cmp_improvement_v1/training_complete.json), [검증 증거](runs/phm_cmp_improvement_v1/independent_verification.json)를 확인하세요. 이 결과는 제안 모델 연구이며 논문 성능의 완전 재현이나 새 독립 Test가 아닙니다. API/Unity 모델은 자동 교체하지 않았습니다.
+
 ## 데모 실행과 전체 결과
 
 이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12를 설치합니다. Windows 실행 파일은 아직 이 저장소에 별도로 게시하지 않았습니다. 포함된 Unity 프로젝트를 빌드한 뒤 `tools/start-demo.ps1 -Setup`으로 환경을 준비합니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요. API만 사용할 때는 Unity 빌드 없이 `tools/start-demo.ps1 -Setup -ApiOnly`를 실행할 수 있습니다.
