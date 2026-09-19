@@ -1,0 +1,1430 @@
+{
+  "models/retrospective_Cond1.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.17622115085447004,
+        0.0,
+        0.47687296006991986,
+        0.3469058890756087,
+        1.3498068758530769e-15
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": false,
+      "weights": [
+        0.19906077255339188,
+        1.985287832045014e-14,
+        0.2499999999999476,
+        0.5509392274466407,
+        0.0
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": true,
+      "weights": [
+        0.19941598874819427,
+        5.18384321754882e-14,
+        0.249999999999859,
+        0.5505840112518948,
+        0.0
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": false,
+      "weights": [
+        0.2602934971026222,
+        4.8773937687900235e-14,
+        0.2499999999999433,
+        0.4897065028973424,
+        4.329448182187866e-14
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  },
+  "models/retrospective_Cond2.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.15391294668314862,
+        0.0,
+        7.765314210066377e-13,
+        0.4354674138274493,
+        0.4106196394886255
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_1000": {
+          "C": 1000.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": false,
+      "weights": [
+        8.833454800942323e-13,
+        0.0,
+        0.24999999999948447,
+        0.7499999999995072,
+        1.2506662372376597e-13
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": true,
+      "weights": [
+        4.3321769782576054e-13,
+        0.0,
+        0.2499999999997949,
+        0.7499999999997595,
+        1.2406742300175945e-14
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": false,
+      "weights": [
+        0.2989267146818243,
+        1.745798521405909e-12,
+        0.24999999999864386,
+        0.45107328531759683,
+        1.8915987947541012e-13
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  },
+  "models/retrospective_Cond3.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.15136280913186675,
+        0.23080413867268382,
+        0.3342351926670083,
+        0.10834009290872743,
+        0.1752577666197137
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": true,
+      "weights": [
+        0.1124689487887603,
+        0.25843562105247186,
+        0.24999999999999997,
+        0.2437198565389243,
+        0.1353755736198436
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_10": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 10,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": false,
+      "weights": [
+        0.1124689487887559,
+        0.25843562105246143,
+        0.25000000000000006,
+        0.24371985653891703,
+        0.13537557361986569
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_10": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 10,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": false,
+      "weights": [
+        0.11190371224323101,
+        0.26877343092715866,
+        0.25000000000000006,
+        0.2561273214328803,
+        0.11319553539673012
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  },
+  "models/completed_Cond1.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.0,
+        2.118107534070183e-12,
+        0.12753208937140897,
+        0.24654805193828278,
+        0.62591985868819
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_1000": {
+          "C": 1000.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": false,
+      "weights": [
+        0.06894652717937888,
+        3.74893734214878e-13,
+        0.24999999999984387,
+        0.3196129157303703,
+        0.36144055709003203
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_1000": {
+          "C": 1000.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": true,
+      "weights": [
+        0.060021060362345696,
+        0.0,
+        0.24999999999997746,
+        0.28149215083340573,
+        0.4084867888042712
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_1000": {
+          "C": 1000.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": false,
+      "weights": [
+        0.1284257602427912,
+        0.0,
+        0.24999999999999922,
+        5.8708835581617875e-15,
+        0.6215742397572037
+      ],
+      "range": [
+        53.42655,
+        88.70205
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  },
+  "models/completed_Cond2.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.0,
+        0.0,
+        1.0121977013952579e-13,
+        0.11613877829945847,
+        0.8838612217004402
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_10": {
+          "alpha": 10.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_100": {
+          "C": 100.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": true,
+      "weights": [
+        5.262444911282537e-13,
+        3.56443989852306e-13,
+        0.24999999999955863,
+        0.18435250710204704,
+        0.5656474928975117
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_100": {
+          "alpha": 100.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": false,
+      "weights": [
+        0.0,
+        0.0,
+        0.24999999999994688,
+        0.19564615457955095,
+        0.5543538454205021
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_100": {
+          "alpha": 100.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": false,
+      "weights": [
+        0.0,
+        0.0,
+        0.24999999999999956,
+        0.20517564351160772,
+        0.5448243564883926
+      ],
+      "range": [
+        54.3072,
+        101.4648
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_100": {
+          "C": 100.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_2": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 0.7,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 2,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  },
+  "models/completed_Cond3.joblib": {
+    "raw_unprotected": {
+      "selected": false,
+      "weights": [
+        0.0,
+        0.0,
+        0.13794111463382042,
+        0.1815251693031974,
+        0.6805337160629823
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_5": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 5,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "raw_guarded": {
+      "selected": false,
+      "weights": [
+        0.022971619206160046,
+        0.03292642794699641,
+        0.25,
+        0.28155888756934927,
+        0.41254306527749435
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_5": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 5,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "gap_guarded": {
+      "selected": false,
+      "weights": [
+        0.022971619206180047,
+        0.03292642794700129,
+        0.25000000000000006,
+        0.28155888756933706,
+        0.4125430652774817
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_5": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 5,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    },
+    "phase_guarded": {
+      "selected": true,
+      "weights": [
+        0.036191063472421604,
+        0.031177348892034072,
+        0.25,
+        0.27552100980769256,
+        0.4071105778278517
+      ],
+      "range": [
+        138.55335,
+        162.6417
+      ],
+      "models": {
+        "ridge_1000": {
+          "alpha": 1000.0,
+          "copy_X": true,
+          "fit_intercept": true,
+          "max_iter": null,
+          "positive": false,
+          "random_state": null,
+          "solver": "auto",
+          "tol": 0.0001
+        },
+        "svr_10": {
+          "C": 10.0,
+          "cache_size": 200,
+          "coef0": 0.0,
+          "degree": 3,
+          "epsilon": 0.1,
+          "gamma": "scale",
+          "kernel": "rbf",
+          "max_iter": -1,
+          "shrinking": true,
+          "tol": 0.001,
+          "verbose": false
+        },
+        "bag_5": {
+          "bootstrap": true,
+          "ccp_alpha": 0.0,
+          "criterion": "squared_error",
+          "max_depth": null,
+          "max_features": 1.0,
+          "max_leaf_nodes": null,
+          "max_samples": null,
+          "min_impurity_decrease": 0.0,
+          "min_samples_leaf": 5,
+          "min_samples_split": 2,
+          "min_weight_fraction_leaf": 0.0,
+          "monotonic_cst": null,
+          "n_estimators": 100,
+          "n_jobs": 4,
+          "oob_score": false,
+          "random_state": 20260918,
+          "verbose": 0,
+          "warm_start": false
+        }
+      }
+    }
+  }
+}

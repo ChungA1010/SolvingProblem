@@ -26,6 +26,14 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 [개선 결과와 해석](runs/phm_cmp_improvement_v1/README.md), [사전 고정한 실험 계획](docs/p2-improvement-v1.md), [전체 지표](runs/phm_cmp_improvement_v1/metrics.csv), [조건별 최종 모델](runs/phm_cmp_improvement_v1/training_complete.json), [검증 증거](runs/phm_cmp_improvement_v1/independent_verification.json)를 확인하세요. 이 결과는 제안 모델 연구이며 논문 성능의 완전 재현이나 새 독립 Test가 아닙니다. API/Unity 모델은 자동 교체하지 않았습니다.
 
+## P2 구간 정제와 입력 보호 후속 실험
+
+이전 개선 실험에서 발생한 큰 음수 예측을 추적해, 같은 웨이퍼 ID 아래 반복된 활성·대기 구간과 보조 공정 기록 누락을 확인했습니다. **기록 공백을 제외한 집계, 대표 활성 구간 집계, 학습 fold에서 정한 입력 범위·결측 처리, Bagging 대체 예측, 선형 가중치 상한**을 고정한 후 같은 그룹·시간순 분할에서 비교했습니다. 문제가 된 평가 표본도 그대로 유지합니다.
+
+완료된 과거 공정 이력만 쓰는 조건에서 기존 안정 대조군 대비 MSE가 그룹 검증 **22.4289 → 21.7694**, 시간순 검증 **12.4201 → 11.7714**, 기존 Test **9.3458 → 8.9491**로 낮아졌습니다. 다만 재표집 구간이 개선 확정을 뒷받침하지 않으며, 논문 비교용 이력 조건에서는 기존 P2의 Test **7.0743**이 새 절차 **7.2980**보다 좋았습니다.
+
+[구간 정제·입력 보호 결과](runs/phm_cmp_robust_v2/README.md), [사전 계획](docs/p2-robust-v2.md), [원시 기록 진단](runs/phm_cmp_robust_v2/raw_failure_audit.json), [전체 지표](runs/phm_cmp_robust_v2/metrics.csv), [검증 증거](runs/phm_cmp_robust_v2/independent_verification.json)를 확인하세요. 대표 구간과 실측 제거율의 대응은 확인되지 않은 가정이며, 같은 데이터의 후속 개발 결과입니다. 기존 baseline과 API/Unity 모델은 보존했습니다.
+
 ## 데모 실행과 전체 결과
 
 이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12를 설치합니다. Windows 실행 파일은 아직 이 저장소에 별도로 게시하지 않았습니다. 포함된 Unity 프로젝트를 빌드한 뒤 `tools/start-demo.ps1 -Setup`으로 환경을 준비합니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요. API만 사용할 때는 Unity 빌드 없이 `tools/start-demo.ps1 -Setup -ApiOnly`를 실행할 수 있습니다.

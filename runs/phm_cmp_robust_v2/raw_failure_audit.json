@@ -1,0 +1,19 @@
+{
+  "wafer_id": 3015014228,
+  "stage": "B",
+  "source_file": "CMP-training-097.csv",
+  "source_sha256": "8c77a017362d84cfb74497a010b81560242a9fc4a38fc229e84b1882d612c8e7",
+  "raw_rows": 5205,
+  "chambers": [
+    4.0
+  ],
+  "timestamp_span": 5283.0,
+  "largest_timestamp_gap": 63.0,
+  "selected_duration": 72.0,
+  "selected_offset_start": 416.33300000429153,
+  "selected_offset_end": 488.33300000429153,
+  "fallback": false,
+  "episodes": 27,
+  "ambiguous": true,
+  "label_alignment": "unknown; selected episode is a deterministic heuristic, not confirmed ground truth"
+}

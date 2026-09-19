@@ -1,0 +1,10 @@
+{
+  "verified_at": "2026-09-19T04:33:49.011971+00:00",
+  "metric_rows_recomputed": 360,
+  "inner_partitions_checked": 42,
+  "history_and_query_invariance_blocks_checked": 48,
+  "previous_files_preserved": 464,
+  "paired_outer_partitions_unchanged": true,
+  "protected_predictions_within_training_support": true,
+  "bootstrap_note": "Descriptive fixed-prediction group resampling, not independent confirmatory inference."
+}

@@ -1,0 +1,317 @@
+{
+  "policy": "retrospective",
+  "condition": "Cond3",
+  "train_n": 274,
+  "selected": "phase_guarded",
+  "variants": {
+    "raw_unprotected": {
+      "view": "raw",
+      "guarded": false,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_100",
+        "svr_10",
+        "bag_10"
+      ],
+      "weights": [
+        0.08365705168846974,
+        0.33551615785047234,
+        0.45673782195123397,
+        0.12408896850982362,
+        2.3920408147095193e-16
+      ],
+      "inner_mse": 14.439964652064077,
+      "inner_fallback_n": 0,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 19.672292514407793,
+          "processed_mse": 19.672292514407793
+        },
+        {
+          "id": "knn",
+          "raw_mse": 16.119610735123096,
+          "processed_mse": 16.119610735123096
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 16.045514688014766,
+          "processed_mse": 16.045514688014766
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 14.39698604550007,
+          "processed_mse": 14.39698604550007
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 14.823833152943207,
+          "processed_mse": 14.823833152943207
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 15.66568221277273,
+          "processed_mse": 15.66568221277273
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 19.155962052962703,
+          "processed_mse": 19.155962052962703
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 20.509931786513953,
+          "processed_mse": 20.509931786513953
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 19.941454762160173,
+          "processed_mse": 19.941454762160173
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 20.23966669000096,
+          "processed_mse": 20.23966669000096
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 19.862530079116443,
+          "processed_mse": 19.862530079116443
+        }
+      ]
+    },
+    "raw_guarded": {
+      "view": "raw",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_1000",
+        "svr_10",
+        "bag_2"
+      ],
+      "weights": [
+        0.1786034433458867,
+        0.25256531993546943,
+        0.24999999999999992,
+        0.3188312367186439,
+        9.145361393185604e-18
+      ],
+      "inner_mse": 19.073916831826573,
+      "inner_fallback_n": 223,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 19.672292514407793,
+          "processed_mse": 19.672292514407793
+        },
+        {
+          "id": "knn",
+          "raw_mse": 16.119610735123096,
+          "processed_mse": 16.119610735123096
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 16.25362973493491,
+          "processed_mse": 16.25362973493491
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 13.508376550910068,
+          "processed_mse": 13.508376550910068
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 13.289693188462202,
+          "processed_mse": 13.289693188462202
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 14.401346468916582,
+          "processed_mse": 14.401346468916582
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 17.39208723255266,
+          "processed_mse": 17.39208723255266
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 18.929013708620403,
+          "processed_mse": 18.929013708620403
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 19.95976066217327,
+          "processed_mse": 19.95976066217327
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 20.190533311951302,
+          "processed_mse": 20.190533311951302
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 20.007008983111138,
+          "processed_mse": 20.007008983111138
+        }
+      ]
+    },
+    "gap_guarded": {
+      "view": "gap",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_1000",
+        "svr_10",
+        "bag_2"
+      ],
+      "weights": [
+        0.17860344334588396,
+        0.2525653199354711,
+        0.24999999999999994,
+        0.3188312367186451,
+        0.0
+      ],
+      "inner_mse": 19.073916831826548,
+      "inner_fallback_n": 223,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 19.672292514407793,
+          "processed_mse": 19.672292514407793
+        },
+        {
+          "id": "knn",
+          "raw_mse": 16.119610735123096,
+          "processed_mse": 16.119610735123096
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 16.25362973493491,
+          "processed_mse": 16.25362973493491
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 13.508376550910068,
+          "processed_mse": 13.508376550910068
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 13.289693188462202,
+          "processed_mse": 13.289693188462202
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 14.401346468916582,
+          "processed_mse": 14.401346468916582
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 17.39208723255266,
+          "processed_mse": 17.39208723255266
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 18.929013708620403,
+          "processed_mse": 18.929013708620403
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 19.959760662173263,
+          "processed_mse": 19.959760662173263
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 20.190533311951327,
+          "processed_mse": 20.190533311951327
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 20.007008983111135,
+          "processed_mse": 20.007008983111135
+        }
+      ]
+    },
+    "phase_guarded": {
+      "view": "phase",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_1000",
+        "svr_10",
+        "bag_10"
+      ],
+      "weights": [
+        0.15393225525994964,
+        0.23394070182209073,
+        0.25,
+        0.3621270429179597,
+        0.0
+      ],
+      "inner_mse": 18.726950704641407,
+      "inner_fallback_n": 225,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 19.672292514407793,
+          "processed_mse": 19.672292514407793
+        },
+        {
+          "id": "knn",
+          "raw_mse": 16.12137336917437,
+          "processed_mse": 16.12137336917437
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 15.961367862270853,
+          "processed_mse": 15.619574479368781
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 13.302043763889905,
+          "processed_mse": 13.302043763889905
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 13.253681419247986,
+          "processed_mse": 13.253681419247986
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 14.23497772350287,
+          "processed_mse": 14.23497772350287
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 17.321026196327605,
+          "processed_mse": 17.321026196327605
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 18.894828484564727,
+          "processed_mse": 18.894828484564727
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 21.027314618433042,
+          "processed_mse": 21.027314618433042
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 20.023332643587914,
+          "processed_mse": 20.023332643587914
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 19.593063997061613,
+          "processed_mse": 19.593063997061613
+        }
+      ]
+    }
+  },
+  "feature_count": 125
+}

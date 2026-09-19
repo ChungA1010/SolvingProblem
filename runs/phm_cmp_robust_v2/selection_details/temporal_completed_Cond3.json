@@ -1,0 +1,317 @@
+{
+  "policy": "completed",
+  "condition": "Cond3",
+  "train_n": 289,
+  "selected": "gap_guarded",
+  "variants": {
+    "raw_unprotected": {
+      "view": "raw",
+      "guarded": false,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_100",
+        "svr_10",
+        "bag_5"
+      ],
+      "weights": [
+        0.003454510756129687,
+        7.267746923462601e-16,
+        0.05951755356996303,
+        0.13920346259295494,
+        0.7978244730809517
+      ],
+      "inner_mse": 9.57645297366598,
+      "inner_fallback_n": 0,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 14.687631473622863,
+          "processed_mse": 14.687631473622863
+        },
+        {
+          "id": "knn",
+          "raw_mse": 18.38124117781679,
+          "processed_mse": 18.38124117781679
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 12.18557781470605,
+          "processed_mse": 12.18557781470605
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 11.80112579527853,
+          "processed_mse": 11.80112579527853
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 12.531826629778871,
+          "processed_mse": 12.531826629778871
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 12.714528943978388,
+          "processed_mse": 12.714528943978388
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 13.983771949640365,
+          "processed_mse": 13.983771949640365
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 17.41556852936965,
+          "processed_mse": 17.41556852936965
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 9.648325909006262,
+          "processed_mse": 9.648325909006262
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 9.434701852634307,
+          "processed_mse": 9.434701852634307
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 9.740387663089715,
+          "processed_mse": 9.740387663089715
+        }
+      ]
+    },
+    "raw_guarded": {
+      "view": "raw",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_100",
+        "svr_10",
+        "bag_5"
+      ],
+      "weights": [
+        0.09403444864433264,
+        2.3120411291158023e-17,
+        0.24999999999999986,
+        0.2599208098103054,
+        0.39604474154536207
+      ],
+      "inner_mse": 9.417428337607964,
+      "inner_fallback_n": 235,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 14.687631473622863,
+          "processed_mse": 14.687631473622863
+        },
+        {
+          "id": "knn",
+          "raw_mse": 18.38124117781679,
+          "processed_mse": 18.38124117781679
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 11.049803805653525,
+          "processed_mse": 11.049803805653525
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 10.218500634171571,
+          "processed_mse": 10.218500634171571
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 10.326419043879937,
+          "processed_mse": 10.326419043879937
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 11.783273044921975,
+          "processed_mse": 11.783273044921975
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 13.692889599361152,
+          "processed_mse": 13.692889599361152
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 17.001416187365013,
+          "processed_mse": 17.001416187365013
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 9.692833290547172,
+          "processed_mse": 9.692833290547172
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 9.44094935695989,
+          "processed_mse": 9.44094935695989
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 9.740652394687759,
+          "processed_mse": 9.740652394687759
+        }
+      ]
+    },
+    "gap_guarded": {
+      "view": "gap",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_100",
+        "svr_10",
+        "bag_5"
+      ],
+      "weights": [
+        0.09403444864432532,
+        6.124584779113042e-18,
+        0.25,
+        0.25992080981029925,
+        0.3960447415453754
+      ],
+      "inner_mse": 9.417428337607964,
+      "inner_fallback_n": 235,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 14.687631473622863,
+          "processed_mse": 14.687631473622863
+        },
+        {
+          "id": "knn",
+          "raw_mse": 18.38124117781679,
+          "processed_mse": 18.38124117781679
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 11.049803805653525,
+          "processed_mse": 11.049803805653525
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 10.218500634171571,
+          "processed_mse": 10.218500634171571
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 10.326419043879937,
+          "processed_mse": 10.326419043879937
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 11.783273044921975,
+          "processed_mse": 11.783273044921975
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 13.692889599361152,
+          "processed_mse": 13.692889599361152
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 17.001416187365013,
+          "processed_mse": 17.001416187365013
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 9.692833290547178,
+          "processed_mse": 9.692833290547178
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 9.44094935695989,
+          "processed_mse": 9.44094935695989
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 9.74065239468778,
+          "processed_mse": 9.74065239468778
+        }
+      ]
+    },
+    "phase_guarded": {
+      "view": "phase",
+      "guarded": true,
+      "keys": [
+        "persistent",
+        "knn",
+        "ridge_1000",
+        "svr_10",
+        "bag_5"
+      ],
+      "weights": [
+        0.10210412125900764,
+        0.0,
+        0.25,
+        0.23564622205065633,
+        0.4122496566903361
+      ],
+      "inner_mse": 9.477688346013561,
+      "inner_fallback_n": 238,
+      "candidates": [
+        {
+          "id": "persistent",
+          "raw_mse": 14.687631473622863,
+          "processed_mse": 14.687631473622863
+        },
+        {
+          "id": "knn",
+          "raw_mse": 18.3860412844712,
+          "processed_mse": 18.3860412844712
+        },
+        {
+          "id": "ridge_10",
+          "raw_mse": 13.095335374493846,
+          "processed_mse": 12.626619573495276
+        },
+        {
+          "id": "ridge_100",
+          "raw_mse": 10.402155748745514,
+          "processed_mse": 10.402155748745514
+        },
+        {
+          "id": "ridge_1000",
+          "raw_mse": 10.33872655620008,
+          "processed_mse": 10.33872655620008
+        },
+        {
+          "id": "svr_10",
+          "raw_mse": 12.504896224758431,
+          "processed_mse": 12.504896224758431
+        },
+        {
+          "id": "svr_100",
+          "raw_mse": 14.090433709131702,
+          "processed_mse": 14.090433709131702
+        },
+        {
+          "id": "svr_1000",
+          "raw_mse": 17.35596614863385,
+          "processed_mse": 17.35596614863385
+        },
+        {
+          "id": "bag_2",
+          "raw_mse": 9.624640196378726,
+          "processed_mse": 9.624640196378726
+        },
+        {
+          "id": "bag_5",
+          "raw_mse": 9.45552202646536,
+          "processed_mse": 9.45552202646536
+        },
+        {
+          "id": "bag_10",
+          "raw_mse": 9.476279596280778,
+          "processed_mse": 9.476279596280778
+        }
+      ]
+    }
+  },
+  "feature_count": 125
+}

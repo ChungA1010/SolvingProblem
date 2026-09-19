@@ -1,0 +1,9 @@
+{
+  "command": "python -m pytest -q --junitxml=.cache/robust/phm_cmp_robust_v2/tests.xml",
+  "tests": 102,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 24.756,
+  "started_at": "2026-09-19T13:32:51.956281+09:00"
+}
