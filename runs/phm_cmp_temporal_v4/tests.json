@@ -1,0 +1,9 @@
+{
+  "command": "python -m pytest -q --junitxml=.cache/temporal-v4-tests.xml",
+  "tests": 119,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 23.943,
+  "started_at": "2026-09-19T14:39:36.046093+09:00"
+}

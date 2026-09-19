@@ -1,0 +1,25 @@
+{
+  "sealed_at": "2026-09-19T05:38:53.998660+00:00",
+  "selection_sha256": "69a96f259ac2ff6b41485db664ed712324758f902a54a5a7ed404bf5a5f027d7",
+  "models": [
+    {
+      "file": "models/completed_Cond1.joblib",
+      "sha256": "cda22ebac449df619c341fa9c36f1025eac7505169dc58a806db5fc3700705f0",
+      "policy": "completed",
+      "condition": "Cond1"
+    },
+    {
+      "file": "models/completed_Cond2.joblib",
+      "sha256": "81b7e804a77c5ad8984c5deb4eb055d752d039f163a7d435136819915827c719",
+      "policy": "completed",
+      "condition": "Cond2"
+    },
+    {
+      "file": "models/completed_Cond3.joblib",
+      "sha256": "1f43acf958aeb4fa11495dba8d25803d7b17598e3edcfa4add87b6c131a20802",
+      "policy": "completed",
+      "condition": "Cond3"
+    }
+  ],
+  "predictions_sha256": "2318956b5c1b8ab6776cd61003a823ea507f00025670e9a975af5a99051a0420"
+}

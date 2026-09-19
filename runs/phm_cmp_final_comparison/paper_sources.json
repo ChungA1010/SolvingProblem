@@ -1,0 +1,951 @@
+{
+  "verified_on": "2026-09-19",
+  "sources": [
+    {
+      "paper": "P1",
+      "title": "Prediction of Material Removal Rate for Chemical Mechanical Planarization Using Decision Tree-Based Ensemble Learning",
+      "year": 2019,
+      "url": "https://doi.org/10.1115/1.4042051",
+      "pdf_page": 11,
+      "tables": [
+        "7 (Stage A)",
+        "8 (Stage B)"
+      ],
+      "pdf_name": "Prediction-of-Material-Removal-Rate-for-Chemical-Mechanical-Planarization-Using-Decision-Tree-Based-Ensemble-Learning.pdf",
+      "pdf_sha256": "52a30e3243b626f2ca8299e9aaa70899a2b12947a0ed1607fbede47c0727bb93"
+    },
+    {
+      "paper": "P2",
+      "title": "Enhanced Virtual Metrology on Chemical Mechanical Planarization Process using an Integrated Model and Data-Driven Approach",
+      "year": 2017,
+      "url": "https://papers.phmsociety.org/index.php/ijphm/article/view/2641",
+      "pdf_page": 7,
+      "tables": [
+        "5 (testing data)"
+      ],
+      "pdf_name": "2641-Full-Length_Manuscripts-7489-1-10-20201202.pdf",
+      "pdf_sha256": "db39586edc7551b2d7e2c22783401c275cdfd54735691c486b854720450f9c33"
+    },
+    {
+      "paper": "P3",
+      "title": "Assessment of Physics-Based and Data-Driven Models for Material Removal Rate Prediction in Chemical Mechanical Polishing",
+      "year": 2018,
+      "url": "https://www.atlantis-press.com/proceedings/iceea-18/25894228",
+      "pdf_page": 5,
+      "tables": [
+        "II (Real test MSE)"
+      ],
+      "pdf_name": "25894228.pdf",
+      "pdf_sha256": "15e5fe73f55868cd24847c0107b57ec70d7ca87eb5f118b8c9c831b7d2383d51"
+    }
+  ],
+  "original_table_values": [
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "r2",
+      "paper_value": 0.97
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "rmse",
+      "paper_value": 6.552
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "relative_error",
+      "paper_value": 0.051
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "s_score",
+      "paper_value": 1.674
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "r2",
+      "paper_value": 0.981
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "rmse",
+      "paper_value": 5.395
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "relative_error",
+      "paper_value": 0.046
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "s_score",
+      "paper_value": 0.512
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "r2",
+      "paper_value": 0.966
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "rmse",
+      "paper_value": 7.048
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "relative_error",
+      "paper_value": 0.05
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "s_score",
+      "paper_value": 3.723
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "r2",
+      "paper_value": 0.983
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "rmse",
+      "paper_value": 5.065
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.047
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "s_score",
+      "paper_value": 0.479
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "r2",
+      "paper_value": 0.984
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "rmse",
+      "paper_value": 4.795
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.043
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "s_score",
+      "paper_value": 0.446
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "r2",
+      "paper_value": 0.687
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "rmse",
+      "paper_value": 4.781
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "relative_error",
+      "paper_value": 0.047
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "s_score",
+      "paper_value": 0.44
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "r2",
+      "paper_value": 0.722
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "rmse",
+      "paper_value": 4.598
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "relative_error",
+      "paper_value": 0.045
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "s_score",
+      "paper_value": 0.419
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "r2",
+      "paper_value": 0.701
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "rmse",
+      "paper_value": 4.792
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "relative_error",
+      "paper_value": 0.048
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "s_score",
+      "paper_value": 0.444
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "r2",
+      "paper_value": 0.725
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "rmse",
+      "paper_value": 4.5
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.044
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "s_score",
+      "paper_value": 0.404
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "r2",
+      "paper_value": 0.727
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "rmse",
+      "paper_value": 4.485
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.044
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "test",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "s_score",
+      "paper_value": 0.404
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "r2",
+      "paper_value": 0.977
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "rmse",
+      "paper_value": 5.415
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "relative_error",
+      "paper_value": 0.043
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_GBT",
+      "metric": "s_score",
+      "paper_value": 0.5
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "r2",
+      "paper_value": 0.976
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "rmse",
+      "paper_value": 5.514
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "relative_error",
+      "paper_value": 0.045
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_RF",
+      "metric": "s_score",
+      "paper_value": 0.511
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "r2",
+      "paper_value": 0.973
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "rmse",
+      "paper_value": 5.92
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "relative_error",
+      "paper_value": 0.046
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ERT",
+      "metric": "s_score",
+      "paper_value": 0.564
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "r2",
+      "paper_value": 0.987
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "rmse",
+      "paper_value": 3.987
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.035
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_CART_Stack",
+      "metric": "s_score",
+      "paper_value": 0.335
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "r2",
+      "paper_value": 0.986
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "rmse",
+      "paper_value": 4.208
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.037
+    },
+    {
+      "paper": "P1",
+      "table": "7",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "A",
+      "model": "P1_ELM_Stack",
+      "metric": "s_score",
+      "paper_value": 0.37
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "r2",
+      "paper_value": 0.721
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "rmse",
+      "paper_value": 5.032
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "relative_error",
+      "paper_value": 0.052
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_GBT",
+      "metric": "s_score",
+      "paper_value": 0.493
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "r2",
+      "paper_value": 0.734
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "rmse",
+      "paper_value": 5.059
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "relative_error",
+      "paper_value": 0.051
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_RF",
+      "metric": "s_score",
+      "paper_value": 0.49
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "r2",
+      "paper_value": 0.763
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "rmse",
+      "paper_value": 4.947
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "relative_error",
+      "paper_value": 0.051
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ERT",
+      "metric": "s_score",
+      "paper_value": 0.487
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "r2",
+      "paper_value": 0.826
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "rmse",
+      "paper_value": 4.082
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.041
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_CART_Stack",
+      "metric": "s_score",
+      "paper_value": 0.37
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "r2",
+      "paper_value": 0.788
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "rmse",
+      "paper_value": 4.405
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "relative_error",
+      "paper_value": 0.047
+    },
+    {
+      "paper": "P1",
+      "table": "8",
+      "pdf_page": 11,
+      "split": "validation",
+      "stage": "B",
+      "model": "P1_ELM_Stack",
+      "metric": "s_score",
+      "paper_value": 0.41
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_Integrated",
+      "metric": "mse",
+      "paper_value": 7.07
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_Persistent",
+      "metric": "mse",
+      "paper_value": 8.23
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_KNN",
+      "metric": "mse",
+      "paper_value": 9.6
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_SVR",
+      "metric": "mse",
+      "paper_value": 7.44
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_LR",
+      "metric": "mse",
+      "paper_value": 7.32
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_Bagging",
+      "metric": "mse",
+      "paper_value": 7.22
+    },
+    {
+      "paper": "P2",
+      "table": "5",
+      "pdf_page": 7,
+      "split": "test",
+      "stage": "all",
+      "model": "P2_DBN",
+      "metric": "mse",
+      "paper_value": 7.29
+    },
+    {
+      "paper": "P3",
+      "table": "II",
+      "pdf_page": 5,
+      "split": "test",
+      "stage": "all",
+      "model": "P3_RF",
+      "metric": "mse",
+      "paper_value": 7.6
+    },
+    {
+      "paper": "P3",
+      "table": "II",
+      "pdf_page": 5,
+      "split": "test",
+      "stage": "all",
+      "model": "P3_RF_CPP",
+      "metric": "mse",
+      "paper_value": 7.4
+    },
+    {
+      "paper": "P3",
+      "table": "II",
+      "pdf_page": 5,
+      "split": "test",
+      "stage": "all",
+      "model": "P3_Ensemble_NN",
+      "metric": "mse",
+      "paper_value": 8.2
+    }
+  ],
+  "scope": "P1 stage-specific Tables 7/8; P2 official testing Table 5; P3 Real test column in Table II.",
+  "visual_checks": [
+    "P1 PDF p11",
+    "P2 PDF p7",
+    "P3 PDF p5"
+  ],
+  "pdf_files_redistributed": false
+}

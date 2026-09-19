@@ -4,6 +4,14 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 **학습·API·Unity 데모 구현 및 통합 검증은 완료됐습니다.** 제공 범위는 교육·연구 데모이며 제조 공정 배포 승인을 의미하지 않습니다. WM의 lot 간 성능 저하, Mixed의 합성 데이터 계보 부재, PHM 예측구간의 과도한 coverage 등 확인된 한계를 보고서에 명시합니다.
 
+## 세 논문 원문과 구현 성능의 최종 비교 (2026-09-19)
+
+**[최종 비교 보고서](runs/phm_cmp_final_comparison/README.md)**에 P1 5종·P2 6종·P3 2종의 원문 발표값과 저장된 재현 v2의 성능을 대조했습니다. P1은 Stage A/B별 RMSE와 20회 반복을 구분하고, P2/P3는 공식 Test MSE를 비교합니다. R²·RE·S-score의 정의 차이, 미구현 DBN/NN/전체 GA, 원문과의 조건 차이도 기록했습니다. 아래 이전 실험 소개는 이력을 보존한 내용입니다.
+
+원문과 가장 가까운 대표 결과는 **P2 통합 모델 MSE 7.07 → 7.0743**입니다. P3 보정 RF는 **7.4 → 8.6851**, P1 ELM Stage A는 **4.795 → 8.9624**, Stage B는 **4.485 → 4.5035**입니다. P1 값은 저장된 seed 0의 RMSE이며 20회 평균과는 다릅니다. P2 LR **7.32 → 351.1079**의 큰 격차도 남아 있어 **세 논문의 완전한 성능 재현으로 결론 내리지 않습니다**.
+
+추가 시간순 선택 v4까지 학습·평가·검증을 마쳤지만, 완료된 과거 이력 조건에서 기존 robust v2보다 그룹·시간순·기존 Test 모두 악화됐습니다. 기존 연구 모델과 API/Unity 모델은 유지합니다. [후속 실험 전체 비교](runs/phm_cmp_final_comparison/improvement_comparison.csv), [원문 대비 전체 지표](runs/phm_cmp_final_comparison/paper_metric_comparison.csv).
+
 ## 추가: 사용자 제공 논문 세 편의 PHM 재현 비교
 
 2026-09-17에 제공된 CMP 논문 세 편을 기준으로 **13개 후보를 원래 대회 분할과 기존 wafer/file 그룹 분할에서 비교**했습니다. P1은 발표된 35개 특징·RF/GBT/ERT·CART/ELM stacking과 20회 반복, P2는 과거 11개/이웃 10개 제거율·물리 통계·20회 Monte Carlo CV·오차 기반 가중식, P3는 발표된 최종 특징 목록과 RF/CPP 잔차 보정을 구현했습니다. 최종 연구 후보는 그룹 분할의 Validation MSE로 선택한 **P2_LR**입니다(Validation MSE 33.3632, Test MSE 21.7463). 원래 대회 분할의 선정 모델은 **P3_RF_CPP**입니다(Validation MSE 7.8327, Test MSE 8.6851). 분할에 따라 순위가 달라 보편적인 우월성을 주장하지 않습니다.
@@ -41,6 +49,12 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 과거 이력 조건의 그룹 검증 MSE는 **21.7694 → 18.6431**로 줄었지만, 시간순은 **11.7714 → 14.3296**, 기존 Test는 **8.9491 → 11.3107**로 악화됐습니다. **이번 후보로 기존 모델을 교체하지 않습니다.** Cond2의 그룹 개선이 이후 시간에 이어지지 않았고, 잔차 보정과 특징 추가도 일관된 우위를 보이지 않았습니다.
 
 [v3 결과와 해석](runs/phm_cmp_boosted_v3/README.md), [학습 전 고정 계획](docs/p2-boosted-v3.md), [99건 원시 기록 점검](runs/phm_cmp_boosted_v3/tail_audit.csv), [전체 지표](runs/phm_cmp_boosted_v3/metrics.csv), [검증 증거](runs/phm_cmp_boosted_v3/independent_verification.json)를 확인하세요. 기존 데이터를 재사용한 제안 모델 연구이며 논문 성능의 완전 재현이나 새 독립 검증이 아닙니다.
+
+## P2 시간순 내부 선택 최종 실험
+
+시간 경계를 넘는 웨이퍼/파일 그룹을 제외한 59개 유효 검증 창으로 CatBoost 후보와 기존 robust 절차를 비교했습니다. 21개 부모 학습 분할마다 시간순 검증 MSE로 선택한 결과, 기존 robust v2 대비 MSE가 그룹 **21.7694 → 24.4634**, 시간순 **11.7714 → 14.6734**, 기존 Test **8.9491 → 13.8081**로 높아졌습니다. **추가 오차 감소에 성공하지 못했고 이 후보로 모델을 교체하지 않습니다.**
+
+[v4 결과·한계](runs/phm_cmp_temporal_v4/README.md), [학습 전 계획](docs/p2-temporal-v4.md), [시간순 분할 크기](runs/phm_cmp_temporal_v4/rolling_coverage.csv), [독립 재계산·모델 검증](runs/phm_cmp_temporal_v4/independent_verification.json). 이전 산출물 741개를 보존했고 전체 테스트 119개가 통과했습니다. 계획한 후속 개발 실험은 여기서 마치며, 이미 확인한 Test를 새로운 독립 검증으로 표시하지 않습니다.
 
 ## 데모 실행과 전체 결과
 

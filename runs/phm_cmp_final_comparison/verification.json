@@ -1,0 +1,28 @@
+{
+  "verified_at": "2026-09-19T05:42:44.832929+00:00",
+  "saved_metric_rows_recomputed": 78,
+  "repeat_metric_rows_recomputed": 600,
+  "source_code_sha256": "647f5dc97a131bd7ad7e247f31026f591d8480cbeaf64a5e7f1041776c645cb6",
+  "original_PDFs_visually_checked": true,
+  "input_files": {
+    "runs/phm_cmp_reconstruction_v2/training_complete.json": "5065982620e9bf533657fbd8aeef1a1003bb4e401411e4385f49fd19036c68c1",
+    "runs/phm_cmp_reconstruction_v2/completion.json": "2bebf0581a1d07cf3ecf4c0fc50d4fc90c0622b54b5a3faec75b3913f973fb11",
+    "runs/phm_cmp_reconstruction_v2/predictions.csv.gz": "4ccd2924aed34aa003b7e622bda1bc49302e6b14b987accd6246665ecfc8043b",
+    "runs/phm_cmp_reconstruction_v2/scored_predictions.csv.gz": "05fa7602d6b6973065197d11ec9aef17a784d2529e691c5517ffc771c9604a66",
+    "runs/phm_cmp_reconstruction_v2/metrics.csv": "795390ad54ee4029add16b767d279df9f1f85127071e4190b3c08e37035d9595",
+    "runs/phm_cmp_reconstruction_v2/p1_repeated_predictions.csv.gz": "da6c1444c7ac72aabb5affb361f88baa51325f7ce94d9cba0debb46791fc3794",
+    "runs/phm_cmp_reconstruction_v2/p1_repeat_metrics.csv": "d34a1edd4a085ff23d9d4637fd718d5cce399a3ead13265aa7c5a243e13f15bf",
+    "runs/phm_cmp_reconstruction_v2/p1_repeat_summary.csv": "febc17775bc4f50342079e3dc489b2133cadf85bd9956debead49d6908da6d28",
+    "runs/phm_cmp_reconstruction_v2/paper_sources.json": "6bdff08ca5874a2ed3ac06b5f1a1ee1aa475f1b6c2bfc1492522e7727f4cf046",
+    "runs/phm_cmp_improvement_v1/metrics.csv": "a279b16e49222a63825a7bd4869eb36c6cd8f44b4ac45306927b4409af0081de",
+    "runs/phm_cmp_robust_v2/metrics.csv": "eee9ce341910974817a8fa8d2b9b1ecd6356787211935c16d512a19aebfb5a10",
+    "runs/phm_cmp_boosted_v3/metrics.csv": "507fe06ed139aa07b57b9003d7d26a392c7c51e568fc04746dc860d56e37e9d3",
+    "runs/phm_cmp_temporal_v4/metrics.csv": "206edd0186a4128494f2b0e3c82d3ab6cc65cd384649a98f6e8f971668fba670"
+  },
+  "same_424_Test_IDs_and_truth_for_13_implementations": true,
+  "unimplemented_models": [
+    "P2_DBN",
+    "P3_Ensemble_NN"
+  ],
+  "new_independent_test": false
+}

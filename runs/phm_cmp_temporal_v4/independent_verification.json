@@ -1,0 +1,11 @@
+{
+  "verified_at": "2026-09-19T05:39:33.771791+00:00",
+  "metric_rows_recomputed": 216,
+  "inner_partitions_checked": 21,
+  "eligible_origins_checked": 59,
+  "feature_crossfit_blocks_checked": 240,
+  "model_query_blocks_checked": 24,
+  "previous_files_preserved": 741,
+  "paired_partitions_unchanged": true,
+  "bootstrap_note": "Descriptive fixed-prediction group resampling, not independent confirmation."
+}

@@ -1,0 +1,33 @@
+{
+  "created_at": "2026-09-19T05:43:14.950842+00:00",
+  "files": {
+    "improvement_comparison.csv": {
+      "sha256": "8f7ec9068f2b191998bd2177d2a15cc9ac1227e02700d39d95d64da6928d4e3b",
+      "bytes": 404
+    },
+    "our_common_test_ranking.csv": {
+      "sha256": "13c01712f30a3e6a0d4fba1b657d7c85d464ed3d092f4249db9a77fe95285cce",
+      "bytes": 2390
+    },
+    "paper_comparison.png": {
+      "sha256": "6ca1683f62e74f0d5863faf3bf26b1d2eb857d98362aa2c057aed416ea36313c",
+      "bytes": 184163
+    },
+    "paper_metric_comparison.csv": {
+      "sha256": "b2eefd4bad12fad5d1927b38c4b7b06a3736070bcce387e8493a76a185a980c8",
+      "bytes": 18695
+    },
+    "paper_sources.json": {
+      "sha256": "570bd9bb17236de28573663a1b5b17f4b791c61c27b0ae6c30e7ad42006ec67a",
+      "bytes": 21004
+    },
+    "README.md": {
+      "sha256": "3a81eb4f52bec120ad3a492533ded597357c0e978309b66216b90ec4c70fe9bb",
+      "bytes": 10343
+    },
+    "verification.json": {
+      "sha256": "2c4a702ecf3f8e2f323014cf21e09df0c3b3ca11607e47d198111c39657991fe",
+      "bytes": 2074
+    }
+  }
+}
