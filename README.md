@@ -34,6 +34,14 @@ PHM 2016 CMP 제거율 예측, WM-811K 단일 결함 분류, MixedWM38 복합 �
 
 [구간 정제·입력 보호 결과](runs/phm_cmp_robust_v2/README.md), [사전 계획](docs/p2-robust-v2.md), [원시 기록 진단](runs/phm_cmp_robust_v2/raw_failure_audit.json), [전체 지표](runs/phm_cmp_robust_v2/metrics.csv), [검증 증거](runs/phm_cmp_robust_v2/independent_verification.json)를 확인하세요. 대표 구간과 실측 제거율의 대응은 확인되지 않은 가정이며, 같은 데이터의 후속 개발 결과입니다. 기존 baseline과 API/Unity 모델은 보존했습니다.
 
+## P2 다중 구간·CatBoost 직접/잔차 비교
+
+상위 오차 99건의 원본 제거율과 준비된 타깃이 모두 일치함을 확인한 뒤, **기본 125개 특징과 다중 구간·품질·이력 요약을 결합한 401개 특징**으로 CatBoost 직접 예측과 이력 기준값의 잔차 보정을 비교했습니다. 학습용 이력은 웨이퍼/파일 그룹 교차 적합으로 만들고, 동일한 바깥 그룹·시간순 분할에서 기존 robust v2 모델과 비교합니다.
+
+과거 이력 조건의 그룹 검증 MSE는 **21.7694 → 18.6431**로 줄었지만, 시간순은 **11.7714 → 14.3296**, 기존 Test는 **8.9491 → 11.3107**로 악화됐습니다. **이번 후보로 기존 모델을 교체하지 않습니다.** Cond2의 그룹 개선이 이후 시간에 이어지지 않았고, 잔차 보정과 특징 추가도 일관된 우위를 보이지 않았습니다.
+
+[v3 결과와 해석](runs/phm_cmp_boosted_v3/README.md), [학습 전 고정 계획](docs/p2-boosted-v3.md), [99건 원시 기록 점검](runs/phm_cmp_boosted_v3/tail_audit.csv), [전체 지표](runs/phm_cmp_boosted_v3/metrics.csv), [검증 증거](runs/phm_cmp_boosted_v3/independent_verification.json)를 확인하세요. 기존 데이터를 재사용한 제안 모델 연구이며 논문 성능의 완전 재현이나 새 독립 검증이 아닙니다.
+
 ## 데모 실행과 전체 결과
 
 이 프로젝트는 `ChungA1010/SolvingProblem`의 **`feat/cmp-virtual-lab` 브랜치**에 있습니다. 새 PC에서는 이 브랜치를 내려받고 Python 3.12를 설치합니다. Windows 실행 파일은 아직 이 저장소에 별도로 게시하지 않았습니다. 포함된 Unity 프로젝트를 빌드한 뒤 `tools/start-demo.ps1 -Setup`으로 환경을 준비합니다. 설치를 마친 PC에서는 `start-demo.cmd`를 실행합니다. **[설치·실행·API 사용 안내](docs/run-demo.md)**를 참고하세요. API만 사용할 때는 Unity 빌드 없이 `tools/start-demo.ps1 -Setup -ApiOnly`를 실행할 수 있습니다.

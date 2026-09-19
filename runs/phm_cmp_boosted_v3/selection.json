@@ -1,0 +1,1980 @@
+{
+  "selected_at": "2026-09-19T05:12:20.430267+00:00",
+  "decisions": {
+    "outer_0_retrospective_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 26.103593621029408,
+        "joint_direct": 30.879973365192896,
+        "base_residual": 58.14887155857833,
+        "joint_residual": 60.25033059930179,
+        "robust_reference": 48.59787652486933
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_0_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 19.43420448958318,
+        "joint_direct": 21.281112089113137,
+        "base_residual": 40.35623585072608,
+        "joint_residual": 42.302009369711044,
+        "robust_reference": 33.84766616220173
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_0_retrospective_Cond3": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 12.790674817985643,
+        "joint_direct": 13.392651118026329,
+        "base_residual": 15.279642761027894,
+        "joint_residual": 15.50425531543096,
+        "robust_reference": 13.470631248906033
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_0_completed_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 25.474217102019068,
+        "joint_direct": 30.513289489332216,
+        "base_residual": 60.70608274647119,
+        "joint_residual": 59.7308379417875,
+        "robust_reference": 33.28181041634375
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_0_completed_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 19.05070347216,
+        "joint_direct": 21.050697251725037,
+        "base_residual": 50.14788264181675,
+        "joint_residual": 89.15909596070686,
+        "robust_reference": 19.162859702576295
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_0_completed_Cond3": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 12.46097803493884,
+        "joint_direct": 11.82394231774691,
+        "base_residual": 14.139690272219681,
+        "joint_residual": 13.123114874444674,
+        "robust_reference": 13.302775484565322
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_1_retrospective_Cond1": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 17.602885307047313,
+        "joint_direct": 17.49481602595498,
+        "base_residual": 20.00866449157027,
+        "joint_residual": 19.579003487363785,
+        "robust_reference": 26.315492692063756
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_1_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.134561493350834,
+        "joint_direct": 20.53825895057028,
+        "base_residual": 30.783933376438622,
+        "joint_residual": 32.77331124215365,
+        "robust_reference": 44.96258896518183
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_1_retrospective_Cond3": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 13.754319949839104,
+        "joint_direct": 16.45052803812943,
+        "base_residual": 15.024395463309913,
+        "joint_residual": 15.143532999157022,
+        "robust_reference": 15.007788133768996
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_1_completed_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 16.098193338934436,
+        "joint_direct": 17.174522258409137,
+        "base_residual": 20.12656979572451,
+        "joint_residual": 21.927050690705197,
+        "robust_reference": 21.950638963932775
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_1_completed_Cond2": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 20.245884343591147,
+        "joint_direct": 20.021690118292504,
+        "base_residual": 40.57905233652574,
+        "joint_residual": 41.900471143314036,
+        "robust_reference": 26.627507601495747
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_1_completed_Cond3": {
+      "selected": "base_residual",
+      "scores": {
+        "base_direct": 14.960690318928995,
+        "joint_direct": 16.64208226438534,
+        "base_residual": 12.280997494726169,
+        "joint_residual": 12.989239140438816,
+        "robust_reference": 16.38928511549083
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    },
+    "outer_2_retrospective_Cond1": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 19.197241714749552,
+        "joint_direct": 18.614959988652792,
+        "base_residual": 34.09510106155447,
+        "joint_residual": 36.42945072304333,
+        "robust_reference": 46.836305014203994
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_2_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 22.857662859463847,
+        "joint_direct": 24.095324145542538,
+        "base_residual": 42.488938238492956,
+        "joint_residual": 45.07238853073865,
+        "robust_reference": 44.91782145005459
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_2_retrospective_Cond3": {
+      "selected": "joint_residual",
+      "scores": {
+        "base_direct": 17.98403313315702,
+        "joint_direct": 20.933720545062837,
+        "base_residual": 15.70096539789572,
+        "joint_residual": 15.286046893787635,
+        "robust_reference": 18.726950704641407
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    },
+    "outer_2_completed_Cond1": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 17.355747941510796,
+        "joint_direct": 17.1790927865699,
+        "base_residual": 25.183787964794565,
+        "joint_residual": 24.167025499925685,
+        "robust_reference": 34.841162259056105
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_2_completed_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.874376559117355,
+        "joint_direct": 22.916763852350915,
+        "base_residual": 28.5245208147712,
+        "joint_residual": 38.88088383685889,
+        "robust_reference": 23.043042343218538
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_2_completed_Cond3": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 16.051564187720352,
+        "joint_direct": 15.481863422506573,
+        "base_residual": 15.739978989287044,
+        "joint_residual": 16.260220347455366,
+        "robust_reference": 21.00748022378499
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_3_retrospective_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 16.497996151838436,
+        "joint_direct": 16.63336757386156,
+        "base_residual": 26.665191320302903,
+        "joint_residual": 27.67824714920961,
+        "robust_reference": 30.402894350436725
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_3_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.82803327555669,
+        "joint_direct": 22.092133697416205,
+        "base_residual": 31.884975049631798,
+        "joint_residual": 35.15720932731385,
+        "robust_reference": 38.15632411419623
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_3_retrospective_Cond3": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 13.960323199219998,
+        "joint_direct": 14.481890828391785,
+        "base_residual": 16.195528182670216,
+        "joint_residual": 16.996054543949644,
+        "robust_reference": 12.82993916722657
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_3_completed_Cond1": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 17.75897404213866,
+        "joint_direct": 16.67357480015095,
+        "base_residual": 19.23501309601634,
+        "joint_residual": 22.29147195377603,
+        "robust_reference": 16.508727429305882
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_3_completed_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.238829484984965,
+        "joint_direct": 22.72377559551179,
+        "base_residual": 36.12830437687799,
+        "joint_residual": 44.77161553476467,
+        "robust_reference": 21.738335056725013
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_3_completed_Cond3": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 13.23157856391245,
+        "joint_direct": 12.5308872518455,
+        "base_residual": 16.25885973832375,
+        "joint_residual": 16.04608657167962,
+        "robust_reference": 10.849872317945861
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    },
+    "outer_4_retrospective_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 18.89284005930998,
+        "joint_direct": 22.018832120405268,
+        "base_residual": 35.23025379060221,
+        "joint_residual": 38.311666477105256,
+        "robust_reference": 27.278252412534673
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_4_retrospective_Cond2": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 17.903948342629988,
+        "joint_direct": 17.071846484602187,
+        "base_residual": 26.76754590273884,
+        "joint_residual": 29.89348162825898,
+        "robust_reference": 33.53970741712669
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_4_retrospective_Cond3": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 15.313607926811654,
+        "joint_direct": 16.38769184224725,
+        "base_residual": 16.60557989795479,
+        "joint_residual": 18.44611536430326,
+        "robust_reference": 14.823825848244038
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "raw_guarded"
+    },
+    "outer_4_completed_Cond1": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 18.805047083372433,
+        "joint_direct": 20.809607275121078,
+        "base_residual": 18.801000467078243,
+        "joint_residual": 20.48625497226251,
+        "robust_reference": 17.517045865693866
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_4_completed_Cond2": {
+      "selected": "joint_direct",
+      "scores": {
+        "base_direct": 17.429238986757937,
+        "joint_direct": 17.027031776880502,
+        "base_residual": 27.240098076313885,
+        "joint_residual": 38.725059688969,
+        "robust_reference": 19.369130102932477
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "outer_4_completed_Cond3": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 14.173120310366988,
+        "joint_direct": 14.719041052164187,
+        "base_residual": 17.228198957041116,
+        "joint_residual": 18.523955591885898,
+        "robust_reference": 14.493142456828249
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    },
+    "temporal_retrospective_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 21.038377173590657,
+        "joint_direct": 23.48225093846153,
+        "base_residual": 27.586010870887144,
+        "joint_residual": 37.52968913097088,
+        "robust_reference": 35.13735103475403
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "temporal_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 19.747113216288746,
+        "joint_direct": 20.421377600765627,
+        "base_residual": 41.35891244766329,
+        "joint_residual": 46.81751050322907,
+        "robust_reference": 30.12899278020004
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "temporal_retrospective_Cond3": {
+      "selected": "base_residual",
+      "scores": {
+        "base_direct": 12.660554460581036,
+        "joint_direct": 12.675115229210398,
+        "base_residual": 12.570216697726385,
+        "joint_residual": 13.592331113284692,
+        "robust_reference": 12.804522322398999
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    },
+    "temporal_completed_Cond1": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 22.088484249500894,
+        "joint_direct": 25.185703003891895,
+        "base_residual": 23.134337889602996,
+        "joint_residual": 29.93108728910427,
+        "robust_reference": 17.777173428027474
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "temporal_completed_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 18.096717626692435,
+        "joint_direct": 18.10370488077801,
+        "base_residual": 28.71263489408854,
+        "joint_residual": 30.994815719153817,
+        "robust_reference": 19.67466054911553
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "temporal_completed_Cond3": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 11.510198624247296,
+        "joint_direct": 11.205722657838642,
+        "base_residual": 15.07867726055571,
+        "joint_residual": 15.731724681566867,
+        "robust_reference": 9.417428337607964
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "gap_guarded"
+    },
+    "final_retrospective_Cond1": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 18.949399784232572,
+        "joint_direct": 19.847600996622905,
+        "base_residual": 26.61483261929808,
+        "joint_residual": 25.296804178459933,
+        "robust_reference": 29.06394601508704
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "final_retrospective_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.065934625935373,
+        "joint_direct": 21.74150097126285,
+        "base_residual": 37.7014854338545,
+        "joint_residual": 38.762603516667205,
+        "robust_reference": 37.122871316108544
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond2",
+      "reference_variant": "gap_guarded"
+    },
+    "final_retrospective_Cond3": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 11.671731665363703,
+        "joint_direct": 11.841017187963102,
+        "base_residual": 12.792505300610486,
+        "joint_residual": 12.574267000804792,
+        "robust_reference": 12.789055492666686
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "retrospective",
+      "condition": "Cond3",
+      "reference_variant": "raw_guarded"
+    },
+    "final_completed_Cond1": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 19.86321490336954,
+        "joint_direct": 20.390576559256093,
+        "base_residual": 30.0521917348309,
+        "joint_residual": 26.544465879939754,
+        "robust_reference": 19.637623696681885
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d3",
+          "depth": 3,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond1",
+      "reference_variant": "gap_guarded"
+    },
+    "final_completed_Cond2": {
+      "selected": "base_direct",
+      "scores": {
+        "base_direct": 20.61747197216781,
+        "joint_direct": 22.25645705845022,
+        "base_residual": 31.88527282384499,
+        "joint_residual": 37.28383250646173,
+        "robust_reference": 22.164584881270333
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond2",
+      "reference_variant": "raw_guarded"
+    },
+    "final_completed_Cond3": {
+      "selected": "robust_reference",
+      "scores": {
+        "base_direct": 11.514164700809028,
+        "joint_direct": 12.353306530573859,
+        "base_residual": 14.188532716628007,
+        "joint_residual": 14.466549734284708,
+        "robust_reference": 11.504715181767436
+      },
+      "chosen_specs": {
+        "base_direct": {
+          "id": "rmse_d5",
+          "depth": 5,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_direct": {
+          "id": "rmse_d3",
+          "depth": 3,
+          "loss": "RMSE",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "base_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        },
+        "joint_residual": {
+          "id": "huber_d5",
+          "depth": 5,
+          "loss": "Huber:delta=5",
+          "iterations": 300,
+          "learning_rate": 0.05,
+          "l2_leaf_reg": 10.0
+        }
+      },
+      "policy": "completed",
+      "condition": "Cond3",
+      "reference_variant": "phase_guarded"
+    }
+  },
+  "rule": "Minimum inner MSE among four tuned CatBoost variants and robust v2 reference; tie ID. No reference split selection."
+}

@@ -1,0 +1,386 @@
+{
+  "outer_0_retrospective_Cond1:outer_0": {
+    "queries": 269,
+    "references": 5649,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1406,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_0_retrospective_Cond2:outer_0": {
+    "queries": 302,
+    "references": 6342,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1739,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_0_retrospective_Cond3:outer_0": {
+    "queries": 99,
+    "references": 2079,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 727,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_0_completed_Cond1:outer_0": {
+    "queries": 269,
+    "references": 5649,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_0_completed_Cond2:outer_0": {
+    "queries": 302,
+    "references": 6342,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_0_completed_Cond3:outer_0": {
+    "queries": 99,
+    "references": 2079,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_1_retrospective_Cond1:outer_1": {
+    "queries": 167,
+    "references": 2550,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1065,
+    "queries_without_lag": 87,
+    "queries_without_neighbors": 0
+  },
+  "outer_1_retrospective_Cond2:outer_1": {
+    "queries": 157,
+    "references": 2406,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 857,
+    "queries_without_lag": 81,
+    "queries_without_neighbors": 0
+  },
+  "outer_1_retrospective_Cond3:outer_1": {
+    "queries": 110,
+    "references": 1892,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1001,
+    "queries_without_lag": 38,
+    "queries_without_neighbors": 0
+  },
+  "outer_1_completed_Cond1:outer_1": {
+    "queries": 167,
+    "references": 1680,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 87,
+    "queries_without_neighbors": 87
+  },
+  "outer_1_completed_Cond2:outer_1": {
+    "queries": 157,
+    "references": 1596,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 81,
+    "queries_without_neighbors": 81
+  },
+  "outer_1_completed_Cond3:outer_1": {
+    "queries": 110,
+    "references": 1512,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 38,
+    "queries_without_neighbors": 38
+  },
+  "outer_2_retrospective_Cond1:outer_2": {
+    "queries": 147,
+    "references": 3087,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 170,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_2_retrospective_Cond2:outer_2": {
+    "queries": 189,
+    "references": 3969,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 151,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_2_retrospective_Cond3:outer_2": {
+    "queries": 90,
+    "references": 1890,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 123,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_2_completed_Cond1:outer_2": {
+    "queries": 147,
+    "references": 3087,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_2_completed_Cond2:outer_2": {
+    "queries": 189,
+    "references": 3969,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_2_completed_Cond3:outer_2": {
+    "queries": 90,
+    "references": 1890,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_retrospective_Cond1:outer_3": {
+    "queries": 91,
+    "references": 1911,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 499,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_retrospective_Cond2:outer_3": {
+    "queries": 77,
+    "references": 1617,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 525,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_retrospective_Cond3:outer_3": {
+    "queries": 20,
+    "references": 420,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 103,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_completed_Cond1:outer_3": {
+    "queries": 91,
+    "references": 1911,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_completed_Cond2:outer_3": {
+    "queries": 77,
+    "references": 1617,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_3_completed_Cond3:outer_3": {
+    "queries": 20,
+    "references": 420,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_retrospective_Cond1:outer_4": {
+    "queries": 124,
+    "references": 2604,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 634,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_retrospective_Cond2:outer_4": {
+    "queries": 90,
+    "references": 1890,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 426,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_retrospective_Cond3:outer_4": {
+    "queries": 45,
+    "references": 945,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 191,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_completed_Cond1:outer_4": {
+    "queries": 124,
+    "references": 2604,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_completed_Cond2:outer_4": {
+    "queries": 90,
+    "references": 1890,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "outer_4_completed_Cond3:outer_4": {
+    "queries": 45,
+    "references": 945,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_retrospective_Cond1:temporal": {
+    "queries": 74,
+    "references": 1554,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_retrospective_Cond2:temporal": {
+    "queries": 67,
+    "references": 1407,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_retrospective_Cond3:temporal": {
+    "queries": 25,
+    "references": 525,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_completed_Cond1:temporal": {
+    "queries": 74,
+    "references": 1554,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_completed_Cond2:temporal": {
+    "queries": 67,
+    "references": 1407,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "temporal_completed_Cond3:temporal": {
+    "queries": 25,
+    "references": 525,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond1:validation": {
+    "queries": 185,
+    "references": 3863,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1056,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond1:test": {
+    "queries": 165,
+    "references": 3450,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 942,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond2:validation": {
+    "queries": 172,
+    "references": 3588,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1001,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond2:test": {
+    "queries": 186,
+    "references": 3890,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 1109,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond3:validation": {
+    "queries": 67,
+    "references": 1407,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 420,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_retrospective_Cond3:test": {
+    "queries": 73,
+    "references": 1512,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 403,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond1:validation": {
+    "queries": 185,
+    "references": 3845,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond1:test": {
+    "queries": 165,
+    "references": 3435,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond2:validation": {
+    "queries": 172,
+    "references": 3567,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond2:test": {
+    "queries": 186,
+    "references": 3876,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond3:validation": {
+    "queries": 67,
+    "references": 1407,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  },
+  "final_completed_Cond3:test": {
+    "queries": 73,
+    "references": 1494,
+    "same_wafer_references": 0,
+    "not_completed_at_query_start": 0,
+    "queries_without_lag": 0,
+    "queries_without_neighbors": 0
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "command": "python -m pytest -q --junitxml=.cache/boosted/phm_cmp_boosted_v3/tests.xml",
+  "tests": 113,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 17.106,
+  "started_at": "2026-09-19T14:12:43.072930+09:00"
+}
