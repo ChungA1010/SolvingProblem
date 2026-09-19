@@ -1,0 +1,24 @@
+{
+  "recorded_at": "2026-09-19T12:28:05.442725+00:00",
+  "command": "python -m pytest -q",
+  "passed": 148,
+  "warnings": 4,
+  "duration_seconds": 37.82,
+  "warning_notes": [
+    "Existing Starlette/httpx deprecation",
+    "Existing anyio BlockingPortal deprecation",
+    "Two existing wafer probability-sum warnings"
+  ],
+  "test_sha256": "3ea5e027b51b8950ffc277b4c195dedb86cfaf10381101f7f3c5c9a4b4e876ed",
+  "source_sha256": {
+    "completion.py": "cecb1b4de243272174569a5d019744febcdad60f445dc80d35ad70d06c7ba90f",
+    "completion_features.py": "2507038af323eb8b44c7d7fe4db716b065bcb666707987ab03dd302fac759ade",
+    "completion_models.py": "60536aaf180e904b54ad34506d16784c5b9038f26bbe42aff507ba1ccc049236",
+    "common.py": "5ffdb1094dee6c9c201f8f7da30f931386b4b718a091a3374b58154045848541",
+    "paper_features.py": "51331b72d4bf8665b53ee3a376ae6b06054cbc1c22ed1dd3e0717c8e7d3ad082",
+    "paper_models.py": "b3f4e2ec7cd65be683611b48fdbd2ef560833eddd2b9a2a5953271bd497938d8",
+    "reconstruction.py": "3ce398272a86e729fc9a26ccca296c1e87a11ca16f225f910e55959f48674598",
+    "reconstruction_models.py": "fe82aa3ae2a384b5aefd4bffbd6ffa389becef97f793b2055002c7a6121c0f42",
+    "reconstruction_features.py": "d4691af287b1b34f97e29158d76e98e2805b17d1ced93668936fa9cd2fac8a84"
+  }
+}

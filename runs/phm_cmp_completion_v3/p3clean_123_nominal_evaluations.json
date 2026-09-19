@@ -1,0 +1,1196 @@
+[
+  {
+    "evaluation": 0,
+    "generation_first_seen": 0,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 12,
+    "mse": 8.770726928385404,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.010329100012313575
+  },
+  {
+    "evaluation": 1,
+    "generation_first_seen": 0,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 12,
+    "mse": 8.85173258052462,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.010357599996495992
+  },
+  {
+    "evaluation": 2,
+    "generation_first_seen": 0,
+    "family": "svr",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 12,
+    "mse": 9.181837922467727,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.021976099989842623
+  },
+  {
+    "evaluation": 3,
+    "generation_first_seen": 0,
+    "family": "ensemble_nn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 12,
+    "mse": 10.546946464631432,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.8935425999807194
+  },
+  {
+    "evaluation": 4,
+    "generation_first_seen": 0,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 12,
+    "mse": 6.697571881845731,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.30150680005317554
+  },
+  {
+    "evaluation": 5,
+    "generation_first_seen": 0,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 6,
+    "mse": 6.673301714096614,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2489750999957323
+  },
+  {
+    "evaluation": 6,
+    "generation_first_seen": 0,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first"
+    ],
+    "feature_count": 6,
+    "mse": 8.957501713810037,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.006586699979379773
+  },
+  {
+    "evaluation": 7,
+    "generation_first_seen": 0,
+    "family": "svr",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_first"
+    ],
+    "feature_count": 6,
+    "mse": 10.433741974819586,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.013134600012563169
+  },
+  {
+    "evaluation": 8,
+    "generation_first_seen": 0,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage"
+    ],
+    "feature_count": 6,
+    "mse": 8.072727683774438,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.007009299995843321
+  },
+  {
+    "evaluation": 9,
+    "generation_first_seen": 0,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 8.063446041130574,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.005254200019408017
+  },
+  {
+    "evaluation": 10,
+    "generation_first_seen": 0,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.236198234109304,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24549579998711124
+  },
+  {
+    "evaluation": 11,
+    "generation_first_seen": 0,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 8.591043167552176,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.0066621999721974134
+  },
+  {
+    "evaluation": 12,
+    "generation_first_seen": 1,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 8,
+    "mse": 8.556553910634321,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.006524400028865784
+  },
+  {
+    "evaluation": 13,
+    "generation_first_seen": 1,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 11,
+    "mse": 6.71377407589873,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.29150440002558753
+  },
+  {
+    "evaluation": 14,
+    "generation_first_seen": 1,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage"
+    ],
+    "feature_count": 5,
+    "mse": 8.03935798874192,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.006255700020119548
+  },
+  {
+    "evaluation": 15,
+    "generation_first_seen": 1,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 9,
+    "mse": 6.774681108290151,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.27010690001770854
+  },
+  {
+    "evaluation": 16,
+    "generation_first_seen": 1,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 4,
+    "mse": 6.277878456175828,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22664259996963665
+  },
+  {
+    "evaluation": 17,
+    "generation_first_seen": 1,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 10,
+    "mse": 8.547845226083052,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.006912100012414157
+  },
+  {
+    "evaluation": 18,
+    "generation_first_seen": 1,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 8.138351334854098,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.005392200022470206
+  },
+  {
+    "evaluation": 19,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.200107023925557,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.25056339998263866
+  },
+  {
+    "evaluation": 20,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_wafer",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.396257553729286,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24285420001251623
+  },
+  {
+    "evaluation": 21,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 4,
+    "mse": 6.221279062969328,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22701659996528178
+  },
+  {
+    "evaluation": 22,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 5,
+    "mse": 6.2818130123987705,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22762180003337562
+  },
+  {
+    "evaluation": 23,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 4,
+    "mse": 6.697111593277653,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.218172799970489
+  },
+  {
+    "evaluation": 24,
+    "generation_first_seen": 2,
+    "family": "ensemble_nn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 11.40358723648754,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.49538470001425594
+  },
+  {
+    "evaluation": 25,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 4,
+    "mse": 6.70930168635124,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22453330003190786
+  },
+  {
+    "evaluation": 26,
+    "generation_first_seen": 2,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.19851967326801,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24222969997208565
+  },
+  {
+    "evaluation": 27,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 6,
+    "mse": 6.698090805593788,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2330521999974735
+  },
+  {
+    "evaluation": 28,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.291683006215275,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2389427999733016
+  },
+  {
+    "evaluation": 29,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.686669234731211,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.25814440002432093
+  },
+  {
+    "evaluation": 30,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.235057470987889,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24590590002480894
+  },
+  {
+    "evaluation": 31,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.205844530757303,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2645803000195883
+  },
+  {
+    "evaluation": 32,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.357548509551487,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2683190999669023
+  },
+  {
+    "evaluation": 33,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.227979617381748,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2559324000030756
+  },
+  {
+    "evaluation": 34,
+    "generation_first_seen": 3,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.215547374557559,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2471400999929756
+  },
+  {
+    "evaluation": 35,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 3,
+    "mse": 7.039143549901148,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22864630003459752
+  },
+  {
+    "evaluation": 36,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.997692474803836,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22192609997000545
+  },
+  {
+    "evaluation": 37,
+    "generation_first_seen": 4,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_first",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 9.081483720192178,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.0056404999922961
+  },
+  {
+    "evaluation": 38,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.667482684663883,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.27328120003221557
+  },
+  {
+    "evaluation": 39,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 6,
+    "mse": 6.278520244766093,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.23049879999598488
+  },
+  {
+    "evaluation": 40,
+    "generation_first_seen": 4,
+    "family": "knn",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 5,
+    "mse": 6.987317598911967,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.0059083999949507415
+  },
+  {
+    "evaluation": 41,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.553524675572547,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.23784690001048148
+  },
+  {
+    "evaluation": 42,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 5,
+    "mse": 6.218382941176572,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22961390001000836
+  },
+  {
+    "evaluation": 43,
+    "generation_first_seen": 4,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.80177245422917,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2612309999531135
+  },
+  {
+    "evaluation": 44,
+    "generation_first_seen": 5,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 7,
+    "mse": 6.3610316726425955,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24794400000246242
+  },
+  {
+    "evaluation": 45,
+    "generation_first_seen": 5,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 9,
+    "mse": 6.80691449171689,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.28725150000536814
+  },
+  {
+    "evaluation": 46,
+    "generation_first_seen": 5,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 4,
+    "mse": 7.542788315069422,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.00688950001494959
+  },
+  {
+    "evaluation": 47,
+    "generation_first_seen": 5,
+    "family": "tree",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 7.938382683740772,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.005645399971399456
+  },
+  {
+    "evaluation": 48,
+    "generation_first_seen": 5,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 7.058903595148824,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2610479000140913
+  },
+  {
+    "evaluation": 49,
+    "generation_first_seen": 5,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.626803429979409,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2536262000212446
+  },
+  {
+    "evaluation": 50,
+    "generation_first_seen": 5,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.631544406700958,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.23531660001026466
+  },
+  {
+    "evaluation": 51,
+    "generation_first_seen": 6,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 7,
+    "mse": 6.822610691500118,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2547191000194289
+  },
+  {
+    "evaluation": 52,
+    "generation_first_seen": 6,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_start",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 5,
+    "mse": 6.6897129473871795,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24972289998549968
+  },
+  {
+    "evaluation": 53,
+    "generation_first_seen": 6,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.344571662262774,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.266553700028453
+  },
+  {
+    "evaluation": 54,
+    "generation_first_seen": 6,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 6,
+    "mse": 6.251254812593543,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2516699999687262
+  },
+  {
+    "evaluation": 55,
+    "generation_first_seen": 6,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 7,
+    "mse": 6.246441426159608,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2507342000026256
+  },
+  {
+    "evaluation": 56,
+    "generation_first_seen": 7,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_initial_USAGE_OF_PRESSURIZED_SHEET",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start"
+    ],
+    "feature_count": 6,
+    "mse": 6.435588126677725,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.24198659998364747
+  },
+  {
+    "evaluation": 57,
+    "generation_first_seen": 7,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp"
+    ],
+    "feature_count": 6,
+    "mse": 6.283556503119644,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.22894749999977648
+  },
+  {
+    "evaluation": 58,
+    "generation_first_seen": 7,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_POLISHING_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.740505478960753,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.25589919998310506
+  },
+  {
+    "evaluation": 59,
+    "generation_first_seen": 7,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_DRESSER_TABLE",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.257478616422939,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2522158999927342
+  },
+  {
+    "evaluation": 60,
+    "generation_first_seen": 7,
+    "family": "rf",
+    "selected": [
+      "c3_nominal_initial_USAGE_OF_BACKING_FILM",
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_start",
+      "c3_nominal_duration"
+    ],
+    "feature_count": 7,
+    "mse": 6.3197285277449895,
+    "warnings": 0,
+    "warning_messages": [],
+    "failure": null,
+    "seconds": 0.2627900000079535
+  }
+]

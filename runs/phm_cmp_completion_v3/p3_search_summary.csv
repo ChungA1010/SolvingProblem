@@ -1,0 +1,6 @@
+Search,Unique_candidates,Failures,Warning_count,Best_CV_MSE
+p3_123_nominal,58,0,0,64633.68343279969
+p3_456_loose,65,0,20,10.024530797781123
+p3_456_nominal,65,0,19,10.04958317305053
+p3_456_strict,65,0,18,9.925955998428535
+p3clean_123_nominal,61,0,0,6.19851967326801

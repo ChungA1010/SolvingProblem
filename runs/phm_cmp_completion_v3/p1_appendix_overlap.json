@@ -1,0 +1,16 @@
+[
+  {
+    "stage": "A",
+    "view": "rows_dc",
+    "selected_k": 20,
+    "appendix35_overlap": 11,
+    "learned_top35_frequency_features": 7
+  },
+  {
+    "stage": "B",
+    "view": "time_ac",
+    "selected_k": 35,
+    "appendix35_overlap": 16,
+    "learned_top35_frequency_features": 2
+  }
+]

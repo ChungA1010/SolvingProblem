@@ -2,6 +2,8 @@
 
 Li, Wu, Yu (2019), [Prediction of Material Removal Rate for Chemical Mechanical Planarization Using Decision Tree-Based Ensemble Learning](https://doi.org/10.1115/1.4042051).
 
+**추가 v3:** 기존 고정 35개 baseline과 별도로 [85개 후보에서 RF 중요도·특징 수를 선택하는 실험](../../runs/phm_cmp_completion_v3/README.md)을 제공합니다. 두 주파수 정의, 6개 특징 수, Stage별 세 기본 모델을 20회 비교하며 가정은 [프로토콜](../../docs/paper-completion-v3.md)에 명시합니다. 아래 v1 명령·저장 모델은 그대로 유지합니다.
+
 **구축 완료: 5개 비교 모델의 특징 처리·학습·저장 모델·독립 재평가 명령.** 원문에 없는 설정을 가정한 부분 재현이다.
 
 | 비교 모델 | 역할 |

@@ -1,0 +1,21 @@
+{
+  "completed_at": "2026-09-19T12:33:06.549646+00:00",
+  "selection": {
+    "route": "123",
+    "phase": "nominal",
+    "family": "rf",
+    "columns": [
+      "c3_nominal_initial_USAGE_OF_DRESSER",
+      "c3_nominal_initial_USAGE_OF_MEMBRANE",
+      "c3_nominal_wafer",
+      "c3_nominal_stage",
+      "c3_nominal_cpp",
+      "c3_nominal_duration"
+    ],
+    "cv_mse": 6.19851967326801
+  },
+  "evaluations": 61,
+  "protocol_sha256": "1d42f51e2c11123f265ce11f4c9525da912ae4a560d8906632c75068f1bed01f",
+  "prior_seal_sha256": "c29f60f12d10bade4722272b04a0ab5695a026175360cd2be4c5dff4a063cc98",
+  "script_sha256": "7a552111b5d674efc33df48b939312ef688f9f77477c2f828ceb7ccd0030e032"
+}

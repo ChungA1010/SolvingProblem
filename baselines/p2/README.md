@@ -2,6 +2,8 @@
 
 Di, Jia, Lee (2017), [Enhanced Virtual Metrology on Chemical Mechanical Planarization Process using an Integrated Model and Data-Driven Approach](https://papers.phmsociety.org/index.php/ijphm/article/view/2641).
 
+**추가 v3:** [일반 LR·안정화 LR·이력 정책·하이퍼파라미터 민감도](../../runs/phm_cmp_completion_v3/README.md)를 별도로 비교합니다. Train 안에서 설정을 선택하고, 20회 CV의 예측·특징 투표·결합 가중치를 보존합니다. 미기재 조건은 [프로토콜](../../docs/paper-completion-v3.md)에 명시합니다. 아래 v1 명령·저장 모델은 그대로 유지합니다.
+
 **구축 완료: 6개 비교 모델의 이력 특징·조건별 학습·저장 모델·독립 재평가 명령.** 원문에 없는 설정을 가정한 부분 재현이다.
 
 | 비교 모델 | 역할 |

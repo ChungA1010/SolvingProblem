@@ -1,0 +1,29 @@
+{
+  "frozen_at": "2026-09-19T12:32:41.138209+00:00",
+  "reason": "Train-only diagnosis: all four previously excluded extremes are in fine route 123, MRR 4129-4326 versus median 151.15. Add a matched-1977-row comparison so feature/GA effects are not conflated with removing those records. Current-run Test predictions/targets have not been evaluated.",
+  "arms": [
+    "ga_clean_1977",
+    "phase_clean_1977",
+    "legacy_clean_1977"
+  ],
+  "selection": "No Test selection. Reuse every rough model unchanged (no excluded records there); rerun fine GA on 1977-row cohort with identical population12/generations8/families/seed/3fold settings, nominal phase. Also fit the fixed six-feature nominal and legacy RF fine controls.",
+  "excluded_ids": [
+    "2de784ff2c2e489233a4",
+    "2c576bc68d1b316117b2",
+    "1a1b0602c26beb89ae14",
+    "98a5789c01a1c88bb858"
+  ],
+  "script_sha256": "7a552111b5d674efc33df48b939312ef688f9f77477c2f828ceb7ccd0030e032",
+  "core_code_sha256": {
+    "completion.py": "cecb1b4de243272174569a5d019744febcdad60f445dc80d35ad70d06c7ba90f",
+    "completion_features.py": "2507038af323eb8b44c7d7fe4db716b065bcb666707987ab03dd302fac759ade",
+    "completion_models.py": "60536aaf180e904b54ad34506d16784c5b9038f26bbe42aff507ba1ccc049236",
+    "common.py": "5ffdb1094dee6c9c201f8f7da30f931386b4b718a091a3374b58154045848541",
+    "paper_features.py": "51331b72d4bf8665b53ee3a376ae6b06054cbc1c22ed1dd3e0717c8e7d3ad082",
+    "paper_models.py": "b3f4e2ec7cd65be683611b48fdbd2ef560833eddd2b9a2a5953271bd497938d8",
+    "reconstruction.py": "3ce398272a86e729fc9a26ccca296c1e87a11ca16f225f910e55959f48674598",
+    "reconstruction_models.py": "fe82aa3ae2a384b5aefd4bffbd6ffa389becef97f793b2055002c7a6121c0f42",
+    "reconstruction_features.py": "d4691af287b1b34f97e29158d76e98e2805b17d1ced93668936fa9cd2fac8a84"
+  },
+  "limitation": "A sensitivity arm using the earlier P1 exclusions, not a claim that P3 authors removed these four records."
+}

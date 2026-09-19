@@ -2,6 +2,8 @@
 
 Li et al. (2018), [Assessment of Physics-Based and Data-Driven Models for Material Removal Rate Prediction in Chemical Mechanical Polishing](https://www.atlantis-press.com/proceedings/iceea-18/25894228).
 
+**추가 v3:** [실제 GA 탐색·연마 구간 민감도 실험](../../runs/phm_cmp_completion_v3/README.md)을 별도로 제공합니다. RF·신경망 앙상블 등을 포함해 모델 종류와 특징 mask를 탐색합니다. 원문에 전체 목록이 없는 rough 47개는 **명시한 45개 재구성 후보**로, fine은 12개로 구현합니다. [가정·탐색 설정](../../docs/paper-completion-v3.md)을 확인하세요. 아래 v1 최종 특징 baseline은 그대로 유지합니다.
+
 **구축 완료: 2개 비교 모델의 최종 특징·경로별 학습·저장 모델·독립 재평가 명령.** 원문에 없는 설정과 물리 구간 근사를 포함한 부분 재현이다.
 
 | 비교 모델 | 역할 |

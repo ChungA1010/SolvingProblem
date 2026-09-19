@@ -1,0 +1,17 @@
+{
+  "verified_at": "2026-09-19T12:35:03.737511+00:00",
+  "preserved_files": 1171,
+  "model_files": 32,
+  "registered_model_routes": 35,
+  "prediction_rows": 50032,
+  "replay_maximum_absolute_difference": 2.0037305148434825e-12,
+  "metric_rows": 944,
+  "p1_grid_fits": 1440,
+  "p1_rankings": 80,
+  "p2_inner_folds": 360,
+  "ga_unique_evaluations": 314,
+  "poisoned_query_labels_and_reversed_order": "passed",
+  "selection_and_weights": "passed",
+  "implementation_amendments": 1,
+  "limitation": "Verifies this implementation and arithmetic, not undisclosed author settings or fresh generalization."
+}
