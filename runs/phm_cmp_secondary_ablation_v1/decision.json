@@ -1,0 +1,7 @@
+{
+  "created_at": "2026-09-19T11:10:40.138173+00:00",
+  "group_and_time_both_lower": false,
+  "model_promoted": false,
+  "reason": "그룹과 시간순 평가에서 일관된 개선이 없어 기존 모델을 유지한다.",
+  "test_not_used_for_selection": true
+}

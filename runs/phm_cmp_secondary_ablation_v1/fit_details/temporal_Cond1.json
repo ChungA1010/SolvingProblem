@@ -1,0 +1,688 @@
+{
+  "train_n": 610,
+  "seed": 20260917,
+  "feature_count": 73,
+  "removed_features": [
+    "p2_secondary_duration",
+    "p2_secondary_USAGE_OF_BACKING_FILM_mean",
+    "p2_secondary_USAGE_OF_BACKING_FILM_std",
+    "p2_secondary_USAGE_OF_BACKING_FILM_decreasing",
+    "p2_secondary_USAGE_OF_DRESSER_mean",
+    "p2_secondary_USAGE_OF_DRESSER_std",
+    "p2_secondary_USAGE_OF_DRESSER_decreasing",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_mean",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_std",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_decreasing",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_mean",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_std",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_decreasing",
+    "p2_secondary_USAGE_OF_MEMBRANE_mean",
+    "p2_secondary_USAGE_OF_MEMBRANE_std",
+    "p2_secondary_USAGE_OF_MEMBRANE_decreasing",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_mean",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_std",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_decreasing",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_mean",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_std",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_std",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_std",
+    "p2_secondary_CENTER_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_RETAINER_RING_PRESSURE_mean",
+    "p2_secondary_RETAINER_RING_PRESSURE_std",
+    "p2_secondary_RETAINER_RING_PRESSURE_auc",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_std",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_std",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_A_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_A_std",
+    "p2_secondary_SLURRY_FLOW_LINE_A_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_B_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_B_std",
+    "p2_secondary_SLURRY_FLOW_LINE_B_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_C_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_C_std",
+    "p2_secondary_SLURRY_FLOW_LINE_C_auc",
+    "p2_secondary_DRESSING_WATER_STATUS_mean",
+    "p2_secondary_DRESSING_WATER_STATUS_std",
+    "p2_secondary_DRESSING_WATER_STATUS_auc",
+    "p2_secondary_WAFER_ROTATION_mean",
+    "p2_secondary_STAGE_ROTATION_mean",
+    "p2_secondary_HEAD_ROTATION_mean"
+  ],
+  "selected_features": [
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "lag_4",
+    "lag_5",
+    "lag_6",
+    "lag_7",
+    "lag_8",
+    "lag_9",
+    "lag_10",
+    "neighbor_1",
+    "neighbor_2",
+    "neighbor_3",
+    "neighbor_4",
+    "neighbor_5",
+    "neighbor_6",
+    "neighbor_7",
+    "neighbor_8",
+    "neighbor_9",
+    "neighbor_10",
+    "p2_primary_CENTER_AIR_BAG_PRESSURE_mean",
+    "p2_primary_CENTER_AIR_BAG_PRESSURE_std",
+    "p2_primary_DRESSING_WATER_STATUS_auc",
+    "p2_primary_DRESSING_WATER_STATUS_mean",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_auc",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_mean",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_std",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_mean",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_std",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_mean",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_std",
+    "p2_primary_RIPPLE_AIR_BAG_PRESSURE_auc",
+    "p2_primary_RIPPLE_AIR_BAG_PRESSURE_std",
+    "p2_primary_SLURRY_FLOW_LINE_A_auc",
+    "p2_primary_SLURRY_FLOW_LINE_A_mean",
+    "p2_primary_SLURRY_FLOW_LINE_A_std",
+    "p2_primary_SLURRY_FLOW_LINE_C_auc",
+    "p2_primary_SLURRY_FLOW_LINE_C_mean",
+    "p2_primary_STAGE_ROTATION_mean",
+    "p2_primary_USAGE_OF_BACKING_FILM_decreasing",
+    "p2_primary_USAGE_OF_BACKING_FILM_mean",
+    "p2_primary_USAGE_OF_BACKING_FILM_std",
+    "p2_primary_USAGE_OF_DRESSER_TABLE_mean",
+    "p2_primary_USAGE_OF_DRESSER_TABLE_std",
+    "p2_primary_USAGE_OF_DRESSER_mean",
+    "p2_primary_USAGE_OF_MEMBRANE_decreasing",
+    "p2_primary_USAGE_OF_MEMBRANE_mean",
+    "p2_primary_USAGE_OF_MEMBRANE_std",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_decreasing",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_mean",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_std",
+    "p2_primary_WAFER_ROTATION_mean"
+  ],
+  "original_selected_features": [
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "lag_4",
+    "lag_5",
+    "lag_6",
+    "lag_7",
+    "lag_8",
+    "lag_9",
+    "lag_10",
+    "lag_11",
+    "neighbor_1",
+    "neighbor_2",
+    "neighbor_3",
+    "neighbor_4",
+    "neighbor_5",
+    "neighbor_6",
+    "neighbor_7",
+    "neighbor_8",
+    "neighbor_9",
+    "p2_primary_CENTER_AIR_BAG_PRESSURE_mean",
+    "p2_primary_CENTER_AIR_BAG_PRESSURE_std",
+    "p2_primary_DRESSING_WATER_STATUS_auc",
+    "p2_primary_DRESSING_WATER_STATUS_mean",
+    "p2_primary_DRESSING_WATER_STATUS_std",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_auc",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_mean",
+    "p2_primary_EDGE_AIR_BAG_PRESSURE_std",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_mean",
+    "p2_primary_MAIN_OUTER_AIR_BAG_PRESSURE_std",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_mean",
+    "p2_primary_PRESSURIZED_CHAMBER_PRESSURE_std",
+    "p2_primary_RIPPLE_AIR_BAG_PRESSURE_auc",
+    "p2_primary_RIPPLE_AIR_BAG_PRESSURE_std",
+    "p2_primary_SLURRY_FLOW_LINE_A_auc",
+    "p2_primary_SLURRY_FLOW_LINE_A_mean",
+    "p2_primary_SLURRY_FLOW_LINE_A_std",
+    "p2_primary_SLURRY_FLOW_LINE_C_auc",
+    "p2_primary_SLURRY_FLOW_LINE_C_mean",
+    "p2_primary_STAGE_ROTATION_mean",
+    "p2_primary_USAGE_OF_BACKING_FILM_decreasing",
+    "p2_primary_USAGE_OF_BACKING_FILM_mean",
+    "p2_primary_USAGE_OF_BACKING_FILM_std",
+    "p2_primary_USAGE_OF_DRESSER_TABLE_decreasing",
+    "p2_primary_USAGE_OF_DRESSER_TABLE_mean",
+    "p2_primary_USAGE_OF_DRESSER_TABLE_std",
+    "p2_primary_USAGE_OF_DRESSER_mean",
+    "p2_primary_USAGE_OF_DRESSER_std",
+    "p2_primary_USAGE_OF_MEMBRANE_decreasing",
+    "p2_primary_USAGE_OF_MEMBRANE_mean",
+    "p2_primary_USAGE_OF_MEMBRANE_std",
+    "p2_primary_USAGE_OF_POLISHING_TABLE_mean",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_decreasing",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_mean",
+    "p2_primary_USAGE_OF_PRESSURIZED_SHEET_std",
+    "p2_primary_WAFER_ROTATION_mean",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_EDGE_AIR_BAG_PRESSURE_std",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_MAIN_OUTER_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_auc",
+    "p2_secondary_PRESSURIZED_CHAMBER_PRESSURE_mean",
+    "p2_secondary_RETAINER_RING_PRESSURE_auc",
+    "p2_secondary_RETAINER_RING_PRESSURE_mean",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_auc",
+    "p2_secondary_RIPPLE_AIR_BAG_PRESSURE_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_A_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_A_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_A_std",
+    "p2_secondary_SLURRY_FLOW_LINE_B_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_B_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_C_auc",
+    "p2_secondary_SLURRY_FLOW_LINE_C_mean",
+    "p2_secondary_SLURRY_FLOW_LINE_C_std",
+    "p2_secondary_USAGE_OF_BACKING_FILM_decreasing",
+    "p2_secondary_USAGE_OF_BACKING_FILM_mean",
+    "p2_secondary_USAGE_OF_BACKING_FILM_std",
+    "p2_secondary_USAGE_OF_DRESSER_TABLE_mean",
+    "p2_secondary_USAGE_OF_DRESSER_mean",
+    "p2_secondary_USAGE_OF_MEMBRANE_decreasing",
+    "p2_secondary_USAGE_OF_MEMBRANE_mean",
+    "p2_secondary_USAGE_OF_MEMBRANE_std",
+    "p2_secondary_USAGE_OF_POLISHING_TABLE_mean",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_decreasing",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_mean",
+    "p2_secondary_USAGE_OF_PRESSURIZED_SHEET_std",
+    "p2_secondary_WAFER_ROTATION_mean"
+  ],
+  "original_weights": [
+    0.13453135534373523,
+    0.20315715943176105,
+    2.3681395894767467e-07,
+    0.35952842791549733,
+    0.3027828204950474
+  ],
+  "candidate_weights": [
+    0.13243347613954692,
+    0.19998913084195832,
+    0.0033957789944650918,
+    0.3728856657216077,
+    0.29129594830242195
+  ],
+  "original_cv_errors": [
+    [
+      7.890956741434422,
+      6.601446246351027,
+      5.482242132648965,
+      6.390232324221,
+      4.630771045312254
+    ],
+    [
+      9.080179454729356,
+      7.943265704264757,
+      572.0939593016208,
+      6.746706902606423,
+      6.268594295077015
+    ],
+    [
+      12.376774354241803,
+      12.372942708627058,
+      9.630081584447536,
+      10.044669388928844,
+      8.470624239993963
+    ],
+    [
+      13.90169107106557,
+      8.50575901259693,
+      1148.252881895229,
+      9.743925225369464,
+      7.087569639226057
+    ],
+    [
+      17.89478698473745,
+      13.471888041833607,
+      9.260478937036824,
+      9.742173182140526,
+      6.393189891140977
+    ],
+    [
+      9.941240405506345,
+      10.461601931761475,
+      6.763175853108713,
+      7.283573452244713,
+      6.806093411581018
+    ],
+    [
+      13.365636289303279,
+      10.39892802751659,
+      6.894000798742645,
+      8.506437918193962,
+      5.60107545329518
+    ],
+    [
+      11.774133691782781,
+      10.459408653304306,
+      19.33521418783704,
+      11.722145261170837,
+      13.521172834699458
+    ],
+    [
+      8.473039452663935,
+      9.62112330187561,
+      6.3255628105946204,
+      7.671346185659934,
+      6.096726054328934
+    ],
+    [
+      11.615842390758193,
+      11.166588561631357,
+      93.16943409433134,
+      8.592656142427318,
+      7.146696852667298
+    ],
+    [
+      10.493971365245903,
+      10.649662926643025,
+      12.613273040695121,
+      8.82526405372565,
+      7.465122646680731
+    ],
+    [
+      10.75108631477459,
+      14.889489209819255,
+      1046.3898684965425,
+      9.639906760754508,
+      9.75117832558549
+    ],
+    [
+      14.772810667253284,
+      11.798547874679494,
+      772.4594063218256,
+      11.647156816490641,
+      10.163375268521133
+    ],
+    [
+      11.107869276393442,
+      9.872583516398365,
+      8.361835978113517,
+      7.988783796158843,
+      7.705195824908129
+    ],
+    [
+      9.44637148825819,
+      9.770168466641799,
+      8.354656250609079,
+      8.721614628637285,
+      5.100515645123898
+    ],
+    [
+      11.967945908936878,
+      9.600883869553888,
+      8.84749935667597,
+      7.358056543641814,
+      5.892824144781566
+    ],
+    [
+      11.95466466393443,
+      10.911893774090158,
+      8.062127321284876,
+      10.38805969245193,
+      7.345240909953562
+    ],
+    [
+      10.286482856864751,
+      11.024025954753684,
+      7.719407596343186,
+      8.391352939901935,
+      6.014206855400954
+    ],
+    [
+      10.821917073504096,
+      8.699424291210244,
+      52.55807793420175,
+      8.879054424479394,
+      8.597211002848592
+    ],
+    [
+      11.01479101635245,
+      10.156834898837703,
+      1135.9854092858639,
+      9.237146289605699,
+      10.640687198154685
+    ]
+  ],
+  "candidate_cv_errors": [
+    [
+      7.890956741434422,
+      6.601446246351027,
+      4.467751075697451,
+      5.314687276896973,
+      4.624195201246166
+    ],
+    [
+      9.080179454729356,
+      7.943265704264757,
+      5.29301736733205,
+      6.042327689000629,
+      6.377270159637474
+    ],
+    [
+      12.376774354241803,
+      12.372942708627058,
+      9.077917201999078,
+      9.466100904778015,
+      8.738068184605284
+    ],
+    [
+      13.90169107106557,
+      8.50575901259693,
+      6.1686546798638835,
+      7.929433259118071,
+      7.141278492524851
+    ],
+    [
+      17.89478698473745,
+      13.471888041833607,
+      5.977434668051451,
+      8.346728715586028,
+      6.318051659841305
+    ],
+    [
+      9.941240405506345,
+      10.461601931761475,
+      5.373754728143361,
+      6.526223922512915,
+      6.929096642245171
+    ],
+    [
+      13.365636289303279,
+      10.39892802751659,
+      5.6170469366255675,
+      5.638303136875911,
+      5.790747817378337
+    ],
+    [
+      11.774133691782781,
+      10.459408653304306,
+      10.048161300515993,
+      10.9366816479344,
+      13.575446897031036
+    ],
+    [
+      8.473039452663935,
+      9.62112330187561,
+      5.566902549659651,
+      7.999227953125515,
+      6.009103900544337
+    ],
+    [
+      11.615842390758193,
+      11.166588561631357,
+      80.3786194773319,
+      7.746139402998112,
+      7.173583080359434
+    ],
+    [
+      10.493971365245903,
+      10.649662926643025,
+      6.722332959556665,
+      8.023099751821363,
+      7.369181813882863
+    ],
+    [
+      10.75108631477459,
+      14.889489209819255,
+      7.676089215389416,
+      9.451516708447965,
+      9.872418363448828
+    ],
+    [
+      14.772810667253284,
+      11.798547874679494,
+      9.892408113118698,
+      10.927752311727662,
+      10.372134512565081
+    ],
+    [
+      11.107869276393442,
+      9.872583516398365,
+      6.748615835416623,
+      8.38111313330252,
+      7.485365169443152
+    ],
+    [
+      9.44637148825819,
+      9.770168466641799,
+      5.398602542448931,
+      8.44254843810224,
+      4.945942907232778
+    ],
+    [
+      11.967945908936878,
+      9.600883869553888,
+      7.018757397142421,
+      7.906366825532156,
+      5.696749464815282
+    ],
+    [
+      11.95466466393443,
+      10.911893774090158,
+      8.185755311959808,
+      10.104972312764556,
+      7.39052178453862
+    ],
+    [
+      10.286482856864751,
+      11.024025954753684,
+      6.265907115047918,
+      8.456990556894327,
+      6.238790177087392
+    ],
+    [
+      10.821917073504096,
+      8.699424291210244,
+      27.202367064594664,
+      9.088246667087034,
+      8.474103601429618
+    ],
+    [
+      11.01479101635245,
+      10.156834898837703,
+      7.684843763956093,
+      9.317266954437914,
+      10.582819223422137
+    ]
+  ],
+  "folds": [
+    {
+      "fold": 0,
+      "fit_ids_sha256": "00b3add45ecc8a45c13ebe91b948ec49ed64a18561c2208beb49951390a16741",
+      "query_ids_sha256": "7c7ad7709be3a6ac825160a9c174a5e2060e46ef28bbfef922fc4c00e3ffd342",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 18
+    },
+    {
+      "fold": 1,
+      "fit_ids_sha256": "cedc068fbb301edd0ca06e19ffb298e78b77c568b02ed749160fded27f63b8c6",
+      "query_ids_sha256": "e05e0e05e08324d067fa6b602c4f123c825b836b7194672e6368a391aa222fd5",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 22
+    },
+    {
+      "fold": 2,
+      "fit_ids_sha256": "f8e6b0813297376965cba76edf630e23c518e141c63a6504e7fa010399645a79",
+      "query_ids_sha256": "5af39969016b5a0f68bb419f3c3fe778c6423a91688d4ad000e434350d958e93",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 20
+    },
+    {
+      "fold": 3,
+      "fit_ids_sha256": "9e60667e7c4df62eb7e9f614d378e5ee7828333266afa92787a24884a34e4313",
+      "query_ids_sha256": "cb59c05fcbb6ab88aad1ceae23f2c10dceeb2e600343cade80a314aa49c75b1d",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 23
+    },
+    {
+      "fold": 4,
+      "fit_ids_sha256": "fc19057a4d13b7615c72a86d8c5ceb2280333a9c978e8c973440d9746434fd49",
+      "query_ids_sha256": "73785593170655ce718c04f0f77f77757c853af722b4c8872d340c41bcfe7025",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 23
+    },
+    {
+      "fold": 5,
+      "fit_ids_sha256": "3a31097c5c4ea11ae84f0f2eb814c2880d3a9884a07aa2aec2869dbe6d3899a1",
+      "query_ids_sha256": "e8b3dd22e6d99e922bd59ddcc36a0d6d7447865201931078339528a1cf4f9a43",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 21
+    },
+    {
+      "fold": 6,
+      "fit_ids_sha256": "9569790b8bd2bd1d1cecfa2dcdfe38e32fe9e79fc09bc6b64dc9320ed3ebdf2c",
+      "query_ids_sha256": "05fac4c01b20e28354ec9f2649d5014bebd90db44fa7db5b413801cb6a898496",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 18
+    },
+    {
+      "fold": 7,
+      "fit_ids_sha256": "85c470e6389a3019e73af2366d0a94237da14fa940f2d8a8e9b3226ebeff85ad",
+      "query_ids_sha256": "ddcdf69ce1a1e094653d606568b9b69d708809c4e8209c9994593c3ccb8c9ced",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 20
+    },
+    {
+      "fold": 8,
+      "fit_ids_sha256": "09e795eb8c971a6013859c56a1cf0479f2b6871031ab78f749c93856a50936a0",
+      "query_ids_sha256": "2918f7cfb01958dfb072423f73b0c2b0bb03b46adbdd91349617e2d8ac291fe3",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 20
+    },
+    {
+      "fold": 9,
+      "fit_ids_sha256": "c6e9d772a8ea626a62ae57f941fc8e3a20d22180a96596bfbdda67ebed410978",
+      "query_ids_sha256": "a29e5d35ef3a796519f2db5212fa10c5eb2fd1eeb7a67ec707d1864b1d031933",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 19
+    },
+    {
+      "fold": 10,
+      "fit_ids_sha256": "31d91824738847966acb7f08d97d07758284c66cc61055824d2b86c38d2c5f60",
+      "query_ids_sha256": "1e34a4d897a9f7b6d01937a51e3c0d271ac69e660fe0ee4cdae3321180be2415",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 21
+    },
+    {
+      "fold": 11,
+      "fit_ids_sha256": "d10094a986393020fb65936510b4302baf347521a1036e0d91a71002c882f178",
+      "query_ids_sha256": "3a50d5e9e4aad614ed6d1e06dc8093047d16e62f64477b2b60eecb46d171ef21",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 23
+    },
+    {
+      "fold": 12,
+      "fit_ids_sha256": "b2d0c1c64cf7ff5be377f9690cb9fc1bae227986ef08bc69a66650e48787dcbb",
+      "query_ids_sha256": "c0d62dfdc8b84c866dea8f06a0b0c243c0d56f4793b9297a8fba131f38b5c6f4",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 21
+    },
+    {
+      "fold": 13,
+      "fit_ids_sha256": "0f4f9f378adc0ab13811ce8acca5a2e9232492df1ef37fc2f895793e659b23ac",
+      "query_ids_sha256": "dc78233227fb0b1b50207ad9b5f08ab92db35e368e7912539cfc958857a4202b",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 22
+    },
+    {
+      "fold": 14,
+      "fit_ids_sha256": "562b7f6eacf253d84b770c128047c0c13ce85fd6571cb013b8e4d7bf54d36ee0",
+      "query_ids_sha256": "f2baa4010bacd252c30c29a2eae743167777ce78a0f913a4fa1050291432fc19",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 21
+    },
+    {
+      "fold": 15,
+      "fit_ids_sha256": "a5863c99a09a1fd7986698428449e2bf84256d59d3ab5e939d9908a42c3d7a73",
+      "query_ids_sha256": "0d9c9ce7c02d2261f8cc5b8026d83eddfb0d7884daf2a4fb359236a78e469759",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 22
+    },
+    {
+      "fold": 16,
+      "fit_ids_sha256": "37842c0f01824e6fc7eb1c4d3591ca186f222426cc99ce8b611e4780f00ea547",
+      "query_ids_sha256": "185786dc408d02c8f0b171485806ba9d5aab71eaafdee54de9e26f71eaa2b55e",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 21
+    },
+    {
+      "fold": 17,
+      "fit_ids_sha256": "92f61c8964c0e3c7c42a45c943d42445721665f8b8ccbd2910cbb906099b5bbc",
+      "query_ids_sha256": "2ff970cf11e1b4a02a48a3a3d3b3aac91885994b3299ff76cda63e9bfffe9b16",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 19
+    },
+    {
+      "fold": 18,
+      "fit_ids_sha256": "26c8456bbbed64d500b4a9691400a2f5e7d1d1bc1f8c0b531d2e640863ed82e7",
+      "query_ids_sha256": "a142cb6701e375026b5a065fc2be0501518b44ff8d2dde4a5e52049bc141c518",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 22
+    },
+    {
+      "fold": 19,
+      "fit_ids_sha256": "996de0368086e954cff054c6f064f66d0d60287e253610ca5ae13235f8355720",
+      "query_ids_sha256": "af555b41c479150c34d15b9ec502980b5f2063349c7190fcb1962d846cb56855",
+      "train_n": 488,
+      "query_n": 122,
+      "overlapping_wafers": 0,
+      "overlapping_file_groups": 19
+    }
+  ],
+  "inner_cv_policy": "Original wafer-only splits; file-group overlap remains unchanged."
+}

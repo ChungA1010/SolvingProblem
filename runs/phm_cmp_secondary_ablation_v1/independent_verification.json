@@ -1,0 +1,12 @@
+{
+  "inner_folds_checked": 420,
+  "model_query_blocks_checked": 24,
+  "max_prediction_replay_difference": 8.526512829121202e-14,
+  "preserved_previous_files": 950,
+  "secondary_values_and_query_target_and_order_invariant": true,
+  "persistent_and_knn_unchanged": true,
+  "hyperparameters_unchanged": true,
+  "verified_at": "2026-09-19T11:10:40.030453+00:00",
+  "metric_rows_recomputed": 288,
+  "metrics_sha256": "d1ed5afa1565c72a97b5041c4501a5801c180ec031790655e1b585ffe0327b53"
+}
