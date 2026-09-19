@@ -1,0 +1,68 @@
+{
+  "raw_rows": 672744,
+  "exact_duplicate_records": 1819,
+  "conflicting_keys": 401,
+  "conflicting_unique_rows": 802,
+  "candidate_row_pairs": 3040639,
+  "verified_exact_row_pairs": 3040639,
+  "audit_rows": 670123,
+  "samples": 1981,
+  "segments": 6309,
+  "primary_segments": 2234,
+  "secondary_segments": 4075,
+  "secondary_rows": 308889,
+  "blocks_min_10_rows": 2781,
+  "strong_blocks": 1495,
+  "strong_covered_secondary_rows": 117141,
+  "simultaneous_other_covered_rows": 117141,
+  "previous_same_stage_covered_rows": 0,
+  "sample_counts": {
+    "strong_any_blocks": 738,
+    "strong_same_stage_previous_blocks": 0,
+    "strong_same_stage_later_blocks": 690,
+    "strong_cross_stage_blocks": 49,
+    "strong_same_wafer_blocks": 0,
+    "strong_simultaneous_other_wafer_blocks": 738
+  },
+  "rows_by_condition": [
+    {
+      "STAGE": "A",
+      "route": "123",
+      "secondary_rows": 47362,
+      "any_strong_rows": 5715,
+      "simultaneous_other_rows": 5715,
+      "previous_same_stage_rows": 0
+    },
+    {
+      "STAGE": "A",
+      "route": "456",
+      "secondary_rows": 126264,
+      "any_strong_rows": 54202,
+      "simultaneous_other_rows": 54202,
+      "previous_same_stage_rows": 0
+    },
+    {
+      "STAGE": "B",
+      "route": "456",
+      "secondary_rows": 135263,
+      "any_strong_rows": 57224,
+      "simultaneous_other_rows": 57224,
+      "previous_same_stage_rows": 0
+    }
+  ],
+  "limitation": "Exact repeated sequences do not establish which sensor/wafer caused the signal. Train-only gaps may hide previous wafers.",
+  "strong_block_relations": [
+    {
+      "same_stage": false,
+      "relation": "later_primary",
+      "simultaneous": true,
+      "blocks": 94
+    },
+    {
+      "same_stage": true,
+      "relation": "later_primary",
+      "simultaneous": true,
+      "blocks": 1401
+    }
+  ]
+}

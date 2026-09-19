@@ -1,0 +1,15 @@
+{
+  "selection": "Same Stage, 40-200 matching rows, one prior own primary segment; closest length to eligible median, tie by segment IDs.",
+  "query_sample": "aabfebf8e14b506d8151",
+  "reference_sample": "69608816b1a4f857c209",
+  "q_segment": 50,
+  "p_segment": 68,
+  "verified_raw_rows": 74,
+  "all_19_signals_exact": true,
+  "identical_timestamps": true,
+  "row_fingerprints_sha256": "300f88c99373b36f003d0e424438e3aae846ad9f2ba85ba1317fea7e4bfba516",
+  "raw_source_files": [
+    "CMP-training-006.csv"
+  ],
+  "no_removal_rate_values_used": true
+}

@@ -1,0 +1,4 @@
+STAGE,route,secondary_rows,any_strong_rows,simultaneous_other_rows,previous_same_stage_rows
+A,123,47362,5715,5715,0
+A,456,126264,54202,54202,0
+B,456,135263,57224,57224,0

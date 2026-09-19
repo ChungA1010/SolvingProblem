@@ -1,0 +1,18 @@
+{
+  "audit_source.py": "cb40847ee0ec4ffe90435fd826b81beaf9ebf50917f95f8e84e4e2a9bf6ac58a",
+  "blocks.csv.gz": "a93db9122dff98fa2632e0feee1b4d13005e8fd2da33dcc47ce1ef5bbb525e0c",
+  "condition_summary.csv": "fb493e07be5922ebecd6033e19ba51a4af73554aa5a7634c5a7c3633a8ae5e95",
+  "conflicting_keys.csv": "ece593aed945740d9aeb97ff4d53a3a35960cfbcf51115589b1ec266987a3e6c",
+  "examples.csv": "e90c6b094277ae54e52479cf958853adf7c8c38ce23ee17960e57d3836b64a7e",
+  "group_checks.json": "5cdf38fbf6496bfd9d222e43f7240fb37b834832a33fc1df5a592b635797d4ab",
+  "illustration.json": "99f55805ed8a99f4d8518a159cc1a3aa5118f7ca9c77e778c95d1e910038af93",
+  "protocol.json": "9f8f0db6fb962df8e34b36a549d5f2b163058860107d647b5a1a6061e63ed299",
+  "README.md": "b0d3fb2d38f24982c892b096f1107f3d79c44f0d01fb899a81c630cae35d806a",
+  "report_source.py": "2aa50922fd1304706095410909f74ab0dd1b38654cfabe86083ee6a94b88d29e",
+  "samples.csv": "35997a9a99a6b6cbee08e3b5f3cab32da86f96a930e00d76e19ef941c9a28201",
+  "segments.csv.gz": "4953729b6287d5521c89cf906ff1ef6847a9603cee886a246ee2eb55b8924d9e",
+  "simultaneous_example.png": "427c72339f8fa1fe9b9384596dd3a6058b655edb69e8088cbd67dd9c209df51e",
+  "summary.json": "c2def9a7d39f8a424db820ade940cd89a77a1d386d7a2ea42eddad88c8892e10",
+  "tests.json": "d713b9907a9acfe680a80d58d64c3c39192bd364723ecec008e008dd5b02f464",
+  "verification.json": "093d14449d9b15f00ffd24e22bad8d776d9a54afa774f4222b98617e72658cbe"
+}

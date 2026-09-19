@@ -1,0 +1,14 @@
+{
+  "recorded_at": "2026-09-19T10:47:08.814794+00:00",
+  "command": "python -m pytest -q",
+  "exit_code": 0,
+  "passed": 135,
+  "warnings": 4,
+  "duration_seconds": 26.76,
+  "new_audit_tests": 10,
+  "warnings_detail": [
+    "fastapi/starlette HTTPX deprecation",
+    "anyio BlockingPortal alias deprecation",
+    "two existing wafer probability-sum warnings"
+  ]
+}

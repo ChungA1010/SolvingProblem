@@ -1,0 +1,8 @@
+{
+  "manifest_sha256": "3bfeb4b68f8fdfadf7ca9e914bf7a1b6326ffa0ffc94745b5f8aded843610162",
+  "strong_blocks": 1495,
+  "same_file_group_blocks": 1495,
+  "different_file_group_blocks": 0,
+  "shared_raw_file_blocks": 1495,
+  "scope": "Original Train wafer/file groups only; no official Validation/Test signal audit or inner-CV leakage conclusion."
+}
