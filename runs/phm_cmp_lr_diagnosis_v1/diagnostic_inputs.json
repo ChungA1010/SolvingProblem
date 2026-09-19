@@ -1,0 +1,12 @@
+{
+  "quality_cache_hashes": {
+    ".cache/robust/phm_cmp_robust_v2/validation.csv.gz": "6e034045df931874a221030c8df94bedfc0e0796406650d0fa9d5270de181b11",
+    ".cache/robust/phm_cmp_robust_v2/test.csv.gz": "5c5f303f0f7c37f088cb65aae1156872c40b0934ae1169434c43ee48839febca"
+  },
+  "tail_selection": "Largest existing original Test squared errors; descriptive only.",
+  "top10_integrated_test_sse_share": 0.31404332168580223,
+  "top10_truth_outside_non_lr_prediction_range": 10,
+  "top10_secondary_missing": 0,
+  "top10_primary_ambiguous": 6,
+  "no_rows_removed_or_targets_changed": true
+}

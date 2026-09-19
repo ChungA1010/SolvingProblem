@@ -1,0 +1,22 @@
+{
+  "sealed_at": "2026-09-19T09:29:56.242045+00:00",
+  "models": [
+    {
+      "file": "models/Cond1.joblib",
+      "sha256": "c9def4e265476255926d36d996b946c5479faf9cdc50c831469a3cdf6d3ef61c",
+      "condition": "Cond1"
+    },
+    {
+      "file": "models/Cond2.joblib",
+      "sha256": "d141cbea87dfb82b6113eec36cf6b834c0fd884313a3abc5e047811a5d0dc15f",
+      "condition": "Cond2"
+    },
+    {
+      "file": "models/Cond3.joblib",
+      "sha256": "1b2eb6970daa8a82d5a4e6e5a36a434384f1087f1d5330ed1ebf008df0750bb1",
+      "condition": "Cond3"
+    }
+  ],
+  "configuration_sha256": "ad3d40947adee7b0d23e4e1761121a7749dfa2fdb141869b5bcf11f4de648641",
+  "predictions_sha256": "c333ba5d141f51a4679177d6de949715f0ef35cfbad67127018eab8da493009f"
+}

@@ -1,0 +1,9 @@
+{
+  "command": "python -m pytest -q --junitxml=.cache/lr-ablation-tests.xml",
+  "tests": 125,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 31.046,
+  "started_at": "2026-09-19T18:36:57.789655+09:00"
+}
