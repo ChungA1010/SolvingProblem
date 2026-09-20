@@ -1,0 +1,7 @@
+paper,table,model,paper_test_rmse_A,paper_test_rmse_B,our_paper_matched_test_result
+P1,12,Preston equation,42.3,16.6,not available
+P1,12,Luo-Dornfeld,7.6,,not available
+P1,13,LR-stacking,5.863,4.794,not available
+P1,13,BLR-stacking,6.521,4.667,not available
+P1,13,AdaBoost-stacking,5.367,4.548,not available
+P1,13,SVR-stacking,5.209,4.579,not available

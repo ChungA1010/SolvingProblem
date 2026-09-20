@@ -1,0 +1,53 @@
+{
+  "verified_at": "2026-09-20T11:48:28.571210+00:00",
+  "status": "passed",
+  "no_new_training": true,
+  "recomputed_paper_metric_values": 42,
+  "v4_models_recomputed": 9,
+  "v4_test_rows_per_model": 424,
+  "source_pdfs": [
+    {
+      "paper": "P1",
+      "file": "Prediction-of-Material-Removal-Rate-for-Chemical-Mechanical-Planarization-Using-Decision-Tree-Based-Ensemble-Learning.pdf",
+      "sha256": "52a30e3243b626f2ca8299e9aaa70899a2b12947a0ed1607fbede47c0727bb93",
+      "table_pages": [
+        11,
+        13
+      ]
+    },
+    {
+      "paper": "P2",
+      "file": "2641-Full-Length_Manuscripts-7489-1-10-20201202.pdf",
+      "sha256": "db39586edc7551b2d7e2c22783401c275cdfd54735691c486b854720450f9c33",
+      "table_pages": [
+        7
+      ]
+    },
+    {
+      "paper": "P3",
+      "file": "25894228.pdf",
+      "sha256": "15e5fe73f55868cd24847c0107b57ec70d7ca87eb5f118b8c9c831b7d2383d51",
+      "table_pages": [
+        5
+      ]
+    }
+  ],
+  "input_hashes": {
+    "runs/phm_cmp_final_comparison/paper_sources.json": "570bd9bb17236de28573663a1b5b17f4b791c61c27b0ae6c30e7ad42006ec67a",
+    "runs/phm_cmp_completion_v3/metrics.csv": "c49f8fccbc4e6944c968f39b54a3322e16d95e308ac14d00c07e3dd0518798e2",
+    "runs/phm_cmp_completion_v3/predictions.csv.gz": "af6a262532421cea0de972ab10f22b0b917398e2645dd1cdd1c66efd424c1397",
+    "runs/phm_cmp_completion_v3/p1_paper_comparison.csv": "b16f3735d3fe5a798aacc3b1d32ef0d29f095734dc4bbc6fc3715848370fbaed",
+    "runs/phm_cmp_final_comparison/paper_metric_comparison.csv": "b2eefd4bad12fad5d1927b38c4b7b06a3736070bcce387e8493a76a185a980c8",
+    "runs/phm_cmp_staged_v4/reference_scored_predictions.csv.gz": "58f74ccd486a7b0cf756d51e2bb7f648da375a8bf29433b4f500dab2619c3245",
+    "runs/phm_cmp_staged_v4/metrics.csv": "0895254dd10524820569a3e1f355f0e63ae55c7d97dc50560d951089fe4ea581"
+  },
+  "outputs": {
+    "additional_paper_comparators.csv": "1fa0d25587f0a82cb8d72b99994078ef37fafe69d1d66f7089b128be415a1e83",
+    "p3_fixed_and_ga.csv": "8d45731e2708623d5a382c9384b8af8909b02c178b5f3b2de2ef8641b9564ac0",
+    "paper_model_comparison.csv": "c2b076fc107ac0be2e82c69293496859abc8e93add6cbfa22533b2a0451c8611",
+    "README.md": "311272d362200dca11a5330b9dd0dec6c2c02ee68b5b646605605be3d54b8111",
+    "v4_test_metrics.csv": "69e6be1105056ccaf57783b88cc3bc5419aa4bd7c4b48217b868e41a1cbdcb78",
+    "v4_vs_paper_reference_only.csv": "befce88f1e35d0d59f434ec7047ba1e6e70c54d08ef8dcd887d795b2a21b2c20"
+  },
+  "builder_sha256": "1e272f0f9e20dee8c25bacdef7107d2fbf0c70f310d2edcb453751db873bf5b0"
+}
