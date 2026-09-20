@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-09-20T10:04:59.899569+00:00",
+  "command": "python -m pytest -q",
+  "passed": 155,
+  "warnings": 4,
+  "duration_seconds": 35.28,
+  "new_test_file_sha256": "3a349393b57ff308424bb7e9f4bac0c099b4e0646afea255ac1a7e4ba21f612a",
+  "new_tests": 7,
+  "warnings_scope": "existing Starlette/anyio deprecations and wafer-classification probability warnings",
+  "after_reporting_fix": {
+    "recorded_at": "2026-09-20T10:15:58.858605+00:00",
+    "passed": 156,
+    "warnings": 4,
+    "duration_seconds": 29.71,
+    "new_tests": 8,
+    "new_test_file_sha256": "d3fa1acf4a5230cafe55c859e949e5e90e7467b02c0f612437aef8d4376a0a0b"
+  }
+}

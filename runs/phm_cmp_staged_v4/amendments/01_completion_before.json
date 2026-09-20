@@ -1,0 +1,14 @@
+{
+  "completed_at": "2026-09-20T10:10:47.190170+00:00",
+  "status": "completed_research_only_no_service_promotion",
+  "prediction_rows": 110679,
+  "historical_files_preserved": 1348,
+  "max_model_reload_difference": 0.0,
+  "training_seal_sha256": "b2bdb096c9ec5c517c25027126efb3a5623dcc633ee3876650c2c0c5cbb880d3",
+  "artifact_hashes": {
+    "metrics.csv": "0895254dd10524820569a3e1f355f0e63ae55c7d97dc50560d951089fe4ea581",
+    "paired_comparisons.csv": "60347f3451cac606caf8f4251f6d0d407d30500775b68fd09f158a77c0498cda",
+    "fold_metrics.csv": "22cd7e218e6966358e04af00906cb7fdf870ee1b555a104297a2acadd81be3b8",
+    "reference_scored_predictions.csv.gz": "58f74ccd486a7b0cf756d51e2bb7f648da375a8bf29433b4f500dab2619c3245"
+  }
+}

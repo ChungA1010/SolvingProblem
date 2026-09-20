@@ -1,0 +1,33 @@
+evaluation,baseline,candidate,groups,baseline_rmse,candidate_rmse,rmse_improvement_pct,bootstrap_low_pct,bootstrap_high_pct,interval_scope
+group_oof,full125_rf,S1_features,54,4.838958696183967,4.813321077614641,0.5298168506696288,-0.7652156905113305,2.23386101296869,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_rf,S2_phase,54,4.838958696183967,4.8023485284636465,0.7565711967988387,-0.7344903285144194,2.6934696876911604,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_rf,S3_history,54,4.838958696183967,4.3594155412079685,9.91004852664209,6.130792692903361,13.26338604735227,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_rf,S4_final,54,4.838958696183967,4.3594155412079685,9.91004852664209,5.974461478449115,13.180689948434592,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_bag,S1_features,54,4.848740437427225,4.813321077614641,0.7304857884159688,-0.5065579062383724,2.0453171907889165,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_bag,S2_phase,54,4.848740437427225,4.8023485284636465,0.9567826853646766,-0.4764866585996285,2.4376608144305525,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_bag,S3_history,54,4.848740437427225,4.3594155412079685,10.09179399338802,4.779370158405139,13.943573708731268,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+group_oof,full125_bag,S4_final,54,4.848740437427225,4.3594155412079685,10.09179399338802,4.88400962969286,13.628774642306158,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_rf,S1_features,11,3.651748013020569,4.202996219303032,-15.0954612508023,-31.48336070657057,7.297824827384843,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_rf,S2_phase,11,3.651748013020569,4.202996219303032,-15.0954612508023,-31.761841716361815,7.172145447436513,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_rf,S3_history,11,3.651748013020569,4.163232983793349,-14.00657901227147,-31.16834597860111,8.829931659676632,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_rf,S4_final,11,3.651748013020569,4.163232983793349,-14.00657901227147,-30.742844980964183,8.681747795343652,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_bag,S1_features,11,3.6931501713280435,4.202996219303032,-13.805180518604532,-30.149997791147765,8.571343742196715,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_bag,S2_phase,11,3.6931501713280435,4.202996219303032,-13.805180518604532,-28.98009156735743,8.302559150118691,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_bag,S3_history,11,3.6931501713280435,4.163232983793349,-12.728505223394837,-29.553358427474663,9.925216204055788,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+temporal,full125_bag,S4_final,11,3.6931501713280435,4.163232983793349,-12.728505223394837,-28.782329766011873,9.719841403184033,"paired connected-group bootstrap; descriptive, no multiplicity correction or model-refit uncertainty"
+test,full125_rf,S1_features,0,3.0357276923299383,3.3912504165618316,-11.71128507771484,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_rf,S2_phase,0,3.0357276923299383,3.3801404555107335,-11.345311506397216,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_rf,S3_history,0,3.0357276923299383,3.5087622001383054,-15.582244382575382,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_rf,S4_final,0,3.0357276923299383,3.5087622001383054,-15.582244382575382,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_bag,S1_features,0,3.047028898424482,3.3912504165618316,-11.296956137020398,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_bag,S2_phase,0,3.047028898424482,3.3801404555107335,-10.932339934763746,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_bag,S3_history,0,3.047028898424482,3.5087622001383054,-15.153558338503803,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+test,full125_bag,S4_final,0,3.047028898424482,3.5087622001383054,-15.153558338503803,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_rf,S1_features,0,3.042307860378621,3.4007773287415852,-11.78281373267569,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_rf,S2_phase,0,3.042307860378621,3.396951858328661,-11.657071349311243,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_rf,S3_history,0,3.042307860378621,3.43338389561383,-12.854584518824419,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_rf,S4_final,0,3.042307860378621,3.43338389561383,-12.854584518824419,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_bag,S1_features,0,3.0702078638667842,3.4007773287415852,-10.767005998690404,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_bag,S2_phase,0,3.0702078638667842,3.396951858328661,-10.642406278327933,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_bag,S3_history,0,3.0702078638667842,3.43338389561383,-11.829037246020292,,,unavailable: reference connected-group metadata absent; no IID-row replacement
+validation,full125_bag,S4_final,0,3.0702078638667842,3.43338389561383,-11.829037246020292,,,unavailable: reference connected-group metadata absent; no IID-row replacement

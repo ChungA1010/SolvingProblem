@@ -1,0 +1,84 @@
+{
+  "main_gate_passed": false,
+  "all_bootstrap_intervals_positive": false,
+  "incumbent_group_and_time_improved": false,
+  "inner_candidate_evaluations": 2336,
+  "inner_tree_fits": 2168,
+  "historical_comparison": [
+    {
+      "evaluation": "group_oof",
+      "robust_v2_rmse": 4.665771421932081,
+      "staged_v4_rmse": 4.3594155412079685,
+      "rmse_improvement_pct": 6.566028487466092,
+      "robust_v2_mse": 21.769422961718107,
+      "staged_v4_mse": 19.004503860925567
+    },
+    {
+      "evaluation": "temporal",
+      "robust_v2_rmse": 3.430948243316014,
+      "staged_v4_rmse": 4.163232983793349,
+      "rmse_improvement_pct": -21.34350880704574,
+      "robust_v2_mse": 11.771405848313242,
+      "staged_v4_mse": 17.33250887734487
+    },
+    {
+      "evaluation": "validation",
+      "robust_v2_rmse": 2.922364304945904,
+      "staged_v4_rmse": 3.43338389561383,
+      "rmse_improvement_pct": -17.486512198464087,
+      "robust_v2_mse": 8.540213130821956,
+      "staged_v4_mse": 11.788124974660397
+    },
+    {
+      "evaluation": "test",
+      "robust_v2_rmse": 2.991503126515927,
+      "staged_v4_rmse": 3.5087622001383054,
+      "rmse_improvement_pct": -17.290942103236496,
+      "robust_v2_mse": 8.949090955954565,
+      "staged_v4_mse": 12.3114121771194
+    }
+  ],
+  "main_comparisons": [
+    {
+      "evaluation": "group_oof",
+      "baseline": "full125_rf",
+      "baseline_rmse": 4.838958696183967,
+      "candidate_rmse": 4.3594155412079685,
+      "rmse_improvement_pct": 9.91004852664209,
+      "bootstrap_low_pct": 5.974461478449115,
+      "bootstrap_high_pct": 13.180689948434592,
+      "groups": 54
+    },
+    {
+      "evaluation": "group_oof",
+      "baseline": "full125_bag",
+      "baseline_rmse": 4.848740437427225,
+      "candidate_rmse": 4.3594155412079685,
+      "rmse_improvement_pct": 10.09179399338802,
+      "bootstrap_low_pct": 4.88400962969286,
+      "bootstrap_high_pct": 13.628774642306158,
+      "groups": 54
+    },
+    {
+      "evaluation": "temporal",
+      "baseline": "full125_rf",
+      "baseline_rmse": 3.651748013020569,
+      "candidate_rmse": 4.163232983793349,
+      "rmse_improvement_pct": -14.00657901227147,
+      "bootstrap_low_pct": -30.742844980964183,
+      "bootstrap_high_pct": 8.681747795343652,
+      "groups": 11
+    },
+    {
+      "evaluation": "temporal",
+      "baseline": "full125_bag",
+      "baseline_rmse": 3.693150171328044,
+      "candidate_rmse": 4.163232983793349,
+      "rmse_improvement_pct": -12.728505223394835,
+      "bootstrap_low_pct": -28.782329766011877,
+      "bootstrap_high_pct": 9.719841403184033,
+      "groups": 11
+    }
+  ],
+  "report_sha256": "3c5bffa71a8be3274b916009c4615436b30bf77f13900c417368333b3b23e441"
+}

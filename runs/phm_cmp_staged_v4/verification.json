@@ -1,0 +1,20 @@
+{
+  "verified_at": "2026-09-20T10:14:32.406013+00:00",
+  "status": "passed",
+  "prediction_rows": 110679,
+  "recomputed_metric_rows": 592,
+  "selection_checks": 84,
+  "model_routes_checked": 18,
+  "max_reload_difference": 0.0,
+  "historical_files_unchanged": 1348,
+  "causal_history_violations": 0,
+  "recomputed_history_references": 208042,
+  "feature_counts_verified": [
+    125,
+    73,
+    12,
+    33
+  ],
+  "historical_comparison_query_rows_verified": 2991,
+  "method": "Recomputed metrics from row predictions; reconstructed every inner-score selection; checked all split/audit records and replayed all saved models; no service promotion."
+}

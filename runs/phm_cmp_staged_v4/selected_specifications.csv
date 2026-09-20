@@ -1,0 +1,13 @@
+condition,stage,features,phase,history,family,inputs
+Cond1,S1_features,compact12,raw,none,rf,12
+Cond1,S2_phase,compact12,gap,none,rf,12
+Cond1,S3_history,compact12,gap,none,rf,12
+Cond1,S4_final,compact12,gap,none,rf,12
+Cond2,S1_features,primary73,raw,raw,rf,73
+Cond2,S2_phase,primary73,gap,raw,rf,73
+Cond2,S3_history,primary73,gap,none,rf,52
+Cond2,S4_final,primary73,gap,none,rf,52
+Cond3,S1_features,full125,raw,raw,rf,125
+Cond3,S2_phase,full125,longest,raw,rf,125
+Cond3,S3_history,full125,longest,standardized,rf,125
+Cond3,S4_final,full125,longest,standardized,rf,125
