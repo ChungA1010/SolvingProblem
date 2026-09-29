@@ -115,7 +115,7 @@ class Classifiers:
 
 
 def envelope(request,data=None,error=None,status="success"):
-    return {"request_id":getattr(request.state,"request_id",uuid.uuid4().hex),"api_version":"1.0",
+    return {"request_id":getattr(request.state,"request_id",uuid.uuid4().hex),"api_version":"2.0" if request.url.path.startswith('/api/v2/') else "1.0",
             "status":"error" if error else status,"data":data,"error":error}
 
 
@@ -234,6 +234,8 @@ def create_app(root:Path|None=None,db_path:Path|None=None,classifiers=True):
         items=[app.state.store.detail(i) for i in body.experiment_ids]
         versions={i["prediction"].get("model_bundle_version",i["prediction"].get("model_version")) for i in items}
         return envelope(request,{"items":items,"version_mismatch":len(versions)>1})
+    from .measurement_api import install_replay_routes
+    install_replay_routes(app,root,envelope)
     return app
 
 

@@ -1,0 +1,29 @@
+{
+  "status": "completed",
+  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF",
+  "source_hashes": {
+    "src/cmp_ml/api.py": "e8252ca1cacfcaedf6e70cefea12fd2154cc219aface1621f55cf92a4646c9ad",
+    "src/cmp_ml/measurement_api.py": "aed7f455d72f1f8f9fed4df394e004ec7827eb93896e31eac21b6a10ba9e4e6d",
+    "src/cmp_ml/measurement_replay.py": "5e2e6d0f0a6ff5ab11fc5dc3731326c35c9dc1531bdf95a6667cd637d831e810",
+    "tests/test_measurement_api.py": "2e4345a9df0ba3a7154db5bb4b5d4baf1da72bfff012cb79f1d395776a79a102",
+    "tests/test_measurement_replay.py": "3d6e94ffe8b0dc29b23cc1585fb0b4286035c2621a2148d229e23f3313187a60",
+    "tools/start-demo.ps1": "ad387358d59523933a78ea7549daeaaaf7405a475ccc2920c287d422cc26fb1d",
+    "tools/verify_measurement_demo.py": "0463df4bc01231b68b81e23dde51e1c8dfc97f928a4e10d6f75af2a4a554be80",
+    "unity/CmpDemo/Assets/CmpLab/CmpDemo.cs": "f2c6ac82a69f23f0aafa7eae8c08d4fa3b7fa1508c3beaa62b6987e3a055e231",
+    "unity/CmpDemo/Assets/CmpLab/CmpReplay.cs": "3c2eb27d5400e0b01f65a5333cdd22acc02b585e4329f45b32e77350e49519f4",
+    "unity/CmpDemo/Assets/CmpLab/CmpApiClient.cs": "babbd7afa080e6e382664e5daac3ca0a20b83f1a13a648bc445fe5c48d5f68dc",
+    "unity/CmpDemo/Assets/Editor/CmpBuild.cs": "cd2aa7584c57a7fd066f5e0218ce25ace6b789928df5d035af0849b5f28e3f5b",
+    "docs/run-demo.md": "0ade53755fe97350d86894d7eda982c17fd1e2ab8511ad5030622a89357d1457"
+  },
+  "hashes": {
+    "http-verification.json": "c570fbeb9267cf30f1a9f28ad16f31937ecaa12669167ce66945c1c30033fffb",
+    "legacy-smoke.json": "60b33ddab1911c27f4c4d05d51178fce239638dca9d2aa7cd2439047806625a4",
+    "measurement-complete.png": "e4221db2ffddc4af63d3f29de8b6c8edf123d8daa21e36f233af36ec0bf8df1c",
+    "measurement-progress.png": "c036f398dd0c2cc3d29a6d3e85dae06eea3e8972aee05a2bd3de5906b34db730",
+    "pytest-summary.json": "96398c54987db4921dd1ff9b3ebff65c6b3b4e509f3c3044e8911bf832dc0dd2",
+    "README.md": "93c18b09aa351f6e946ce9d485d9a33b94fcb1fe4e3639056f40d90511545bca",
+    "unity-replay-smoke.json": "6304b86de53883f20c2ee48c5c679e19d133375bcd11749a03f9aa7315562617",
+    "validation.json": "7528322a412cc3f6e0a9a0e19d2ff3c86d7553e904c3494b01bb55f32d266bc2",
+    "windows-package.json": "0b721c1c043935896b16241042e433616b47568f0bee88392c6068e69a41318d"
+  }
+}

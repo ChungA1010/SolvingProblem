@@ -1,7 +1,12 @@
-param([switch]$Setup, [switch]$ApiOnly, [int]$Port = 8765)
+param([switch]$Setup, [switch]$ApiOnly, [int]$Port = 8765, [string]$PythonPath)
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$python = Join-Path $projectRoot '.venv/Scripts/python.exe'
+$python = if ($PythonPath) { (Resolve-Path -LiteralPath $PythonPath).Path } else { Join-Path $projectRoot '.venv/Scripts/python.exe' }
+if (-not $Setup -and -not $PythonPath -and -not (Test-Path -LiteralPath $python)) {
+    $sharedPython = Join-Path (Split-Path -Parent $projectRoot) 'cmp-virtual-lab-ml/.venv/Scripts/python.exe'
+    if (Test-Path -LiteralPath $sharedPython) { $python = $sharedPython }
+}
+$env:PYTHONPATH = Join-Path $projectRoot 'src'
 Set-Location -LiteralPath $projectRoot
 if ($Setup) {
     if (-not (Test-Path -LiteralPath $python)) {
@@ -31,6 +36,11 @@ if (-not ($health -and $health.api_version -eq '1.0' -and $health.data.ready)) {
     }
 }
 if (-not ($health -and $health.data.ready -and $health.data.wafer_classification)) { throw 'API did not become ready with all models.' }
+$replay = $null
+try { $replay = Invoke-RestMethod -Uri "http://127.0.0.1:$Port/api/v2/state-scenarios" -TimeoutSec 5 } catch { }
+if (-not ($replay -and $replay.data.version -eq 'measurement-replay-v1')) {
+    throw "The server on port $Port does not support the current replay. Restart it with this source, or use -Port 8767."
+}
 Write-Host "API ready: http://127.0.0.1:$Port/docs"
 if (-not $ApiOnly) {
     $demoPath = Join-Path $projectRoot 'builds/CmpDemo/CmpDemo.exe'

@@ -1,0 +1,20 @@
+{
+  "status": "completed",
+  "hashes": {
+    "canonical_summary.csv": "989a7b06b17f05b542f60c4807b2a95b19330a315fcefb31798fd59c5e353d1c",
+    "fold_sensitivity.csv": "64dc6f1155654cdd587e04968ffc63029312550c60a9e9f2859dfd59d23c19f4",
+    "measurement_counts.csv": "c16512fa6191fff4a5488ca1699ba82fdc4053ed5ec13c1e3e770f3efb11a1ed",
+    "metrics.csv": "fc1b590daaf7fc51e9dac3a67144bbec1ab599172731f014571336e7852cd233",
+    "phase_sensitivity.csv": "db91b2740942fa3e187df4d919439f9961feea8cc2413b08f3c45426a490172e",
+    "predictions.csv.gz": "203fe1cf10477f1256d3eb6a1202134a87c72695f2dbbe0b31d42018d0514602",
+    "protocol.json": "7b74718f757cfa237c462ee95e3818b8a2abc802b626bb23ff7b38bdacb556eb",
+    "PROTOCOL.md": "96c7dfc0238c9f56f362bc15b4c710e54e40ebcbc9d5ddd9d77eeb35e54b1bd7",
+    "README.md": "509d13bfbef3fcc65a2e9ab355c57042c0255f5ee99a3df1f9e4665c86ef9024",
+    "replay_fixture.json": "8bb6925b845dac09a3178bad8c0f55318802939e2211df5e699f17c1ce1c6133",
+    "summary.csv": "fde86a84afba42710dfe7ebe06b6055ae646e36e96fb008a691131aca629e3b0",
+    "verification.json": "e750748c48e110f9dfb1ca5d6d94769152a555e5f4252a074f7a5caa16c1208d",
+    "code_snapshot/measurement-cycle-protocol.md": "96c7dfc0238c9f56f362bc15b4c710e54e40ebcbc9d5ddd9d77eeb35e54b1bd7",
+    "code_snapshot/measurement_replay.py": "5e2e6d0f0a6ff5ab11fc5dc3731326c35c9dc1531bdf95a6667cd637d831e810",
+    "code_snapshot/run_measurement_cycles.py": "6bf4f09ca9bd8492361cb39e290b2f03fdc9425f85454d9ea7eb2c1db3a9e626"
+  }
+}

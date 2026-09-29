@@ -1,0 +1,13 @@
+{
+    "passed": true,
+    "health": true,
+    "stageA": true,
+    "stageB": true,
+    "wm811k": true,
+    "mixedwm38": true,
+    "save": true,
+    "list": true,
+    "api_version": "1.0",
+    "unity_version": "6000.3.21f1",
+    "error": ""
+}

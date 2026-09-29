@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace CmpLab
 {
-    public class CmpDemo : MonoBehaviour
+    public partial class CmpDemo : MonoBehaviour
     {
         CmpApiClient api;
         Variable[] variables = Array.Empty<Variable>();
@@ -18,7 +18,7 @@ namespace CmpLab
         WaferPrediction waferPrediction;
         Experiment[] experiments = Array.Empty<Experiment>();
         string stage = "A", scenarioId = "SCN-A-001", status = "API에 연결하는 중", error = "", saveName = "첫 CMP 실험";
-        int page, datasetIndex, patternIndex = 1, brush = 2;
+        int page = 3, datasetIndex, patternIndex = 1, brush = 2;
         int[] pixels;
         Texture2D waferTexture;
         bool busy, ready, dirty, confirmStage, interval;
@@ -41,6 +41,7 @@ namespace CmpLab
             GenerateMap();
             yield return Connect();
             if (args.Contains("-cmp-smoke")) yield return Smoke();
+            if (args.Contains("-cmp-replay-smoke")) yield return ReplaySmoke();
         }
 
         IEnumerator Connect()
@@ -163,7 +164,7 @@ namespace CmpLab
             Box(new Rect(0, 0, 224, 900), Panel);
             GUI.Label(new Rect(26, 34, 180, 60), "CMP LAB", title);
             GUI.Label(new Rect(27, 97, 170, 50), "데이터로 살펴보는\n가상 실험실", muted);
-            string[] tabs = { "01  제거율 실험", "02  웨이퍼 분류", "03  실험 기록" };
+            string[] tabs = { "01  제거율 실험", "02  웨이퍼 분류", "03  실험 기록", "04  측정·상태 추적" };
             for (int i = 0; i < tabs.Length; i++)
             {
                 if (page == i) Box(new Rect(16, 190 + i * 62, 192, 50), new Color(.12f, .24f, .29f));
@@ -172,10 +173,10 @@ namespace CmpLab
             GUI.Label(new Rect(26, 704, 173, 35), ready ? "●  LOCAL API" : "○  연결 대기", muted);
             GUI.Label(new Rect(26, 744, 173, 58), "연구 데모 v1.0\n모델은 이 PC에서 실행", small);
             if (Button(new Rect(24, 820, 176, 40), "서버 다시 연결") && !busy) StartCoroutine(Connect());
-            GUI.Label(new Rect(260, 30, 930, 52), page == 0 ? "CMP 제거율 실험" : page == 1 ? "웨이퍼 결함 패턴 분류" : "저장한 실험", title);
-            GUI.Label(new Rect(262, 87, 1110, 46), page == 0 ? "관측 지수를 바꾸고, 고정된 모델의 반응을 비교하세요." : page == 1 ? "웨이퍼 맵을 직접 편집하고 단일·복합 결함을 분류하세요." : "이 PC에 저장한 예측과 모델 버전을 다시 확인하세요.", muted);
+            GUI.Label(new Rect(260, 30, 930, 52), page == 0 ? "CMP 제거율 실험" : page == 1 ? "웨이퍼 결함 패턴 분류" : page == 2 ? "저장한 실험" : "측정 횟수와 예측 오차", title);
+            GUI.Label(new Rect(262, 87, 1110, 46), page == 0 ? "관측 지수를 바꾸고, 고정된 모델의 반응을 비교하세요." : page == 1 ? "웨이퍼 맵을 직접 편집하고 단일·복합 결함을 분류하세요." : page == 2 ? "이 PC에 저장한 예측과 모델 버전을 다시 확인하세요." : "같은 장비 기록에서 측정 주기와 A·B 공유 추적을 비교하세요. 미래 측정값은 공개 전까지 사용하지 않습니다.", muted);
             GUI.enabled = ready && !busy;
-            if (page == 0) DrawMrr(); else if (page == 1) DrawWafer(); else DrawHistory();
+            if (page == 0) DrawMrr(); else if (page == 1) DrawWafer(); else if (page == 2) DrawHistory(); else DrawReplay();
             GUI.enabled = true;
             Box(new Rect(252, 766, 1158, 56), string.IsNullOrEmpty(error) ? Panel : new Color(.29f, .13f, .12f));
             GUI.Label(new Rect(270, 776, 1120, 43), busy ? "계산 중… 입력을 잠시 유지합니다." : string.IsNullOrEmpty(error) ? status : error, muted);

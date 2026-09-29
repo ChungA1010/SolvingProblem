@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "independent_predictions_checked": 82304,
+  "max_difference": 7.105427357601002e-14,
+  "noncausal_or_self_references": 0,
+  "same_measurement_budget": true,
+  "queries_per_configuration": 1286,
+  "configuration_runs": 256,
+  "missing_kp_model": true
+}

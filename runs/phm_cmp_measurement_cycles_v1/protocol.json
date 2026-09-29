@@ -1,0 +1,29 @@
+{
+  "alpha": 0.4,
+  "periods": [
+    1,
+    5,
+    10
+  ],
+  "delays": [
+    0,
+    5
+  ],
+  "modes": [
+    "separate",
+    "shared"
+  ],
+  "source_archive_sha256": "3da73a99843df2bb9d2de08befde7fcc78f57d0c830984fab709ba00361a28fa",
+  "fixture_sha256": "8bb6925b845dac09a3178bad8c0f55318802939e2211df5e699f17c1ce1c6133",
+  "source_hashes": {
+    "src/cmp_ml/measurement_replay.py": "5e2e6d0f0a6ff5ab11fc5dc3731326c35c9dc1531bdf95a6667cd637d831e810",
+    "tools/run_measurement_cycles.py": "6bf4f09ca9bd8492361cb39e290b2f03fdc9425f85454d9ea7eb2c1db3a9e626",
+    "docs/measurement-cycle-protocol.md": "96c7dfc0238c9f56f362bc15b4c710e54e40ebcbc9d5ddd9d77eeb35e54b1bd7"
+  },
+  "previous_partition_hashes": {
+    "partition_fold2.csv": "fc02d915cd4985f7b7c26d079496d2f4f283089553f9b56b8e54cc1156f3fa60",
+    "partition_fold3.csv": "05ff870c1efba650d874629a8affa50683ceb39660c0036bbc222e5cbf674bf7",
+    "partition_fold4.csv": "4c3547fbac8eb981f4cd0e529381ff91689190fa47cf9df9c5755fb483bd622c",
+    "partition_fold5.csv": "2ac423d9912b0722d6797a9cb75426a5e20ed2e2fb0120b8827a60db677d7feb"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "unity_version": "6000.3.21f1",
+  "target": "StandaloneWindows64",
+  "scripting_backend": "Mono2x",
+  "build_report_bytes": 89395013,
+  "build_exit_code": 0,
+  "pytest_passed": 185,
+  "pytest_warnings": 4,
+  "executable_sha256": "48efab523aa684c653bd1254a6962d3410127b5c02dc1310f6f16f4810666556",
+  "managed_assembly_sha256": "98700258e960158a51104b285c860e27f739469afe8d4b23feae25d7858ac953",
+  "visible_screenshots_reviewed": [
+    "measurement-progress.png",
+    "measurement-complete.png"
+  ],
+  "launcher_check": "-ApiOnly -Port 8767, automatic shared Python detection and v2 readiness passed",
+  "http_configurations": 48,
+  "http_evaluations": 15432,
+  "legacy_smoke_passed": true,
+  "replay_smoke_passed": true
+}
