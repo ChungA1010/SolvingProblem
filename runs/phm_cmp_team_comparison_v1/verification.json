@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "metric_rows_recomputed": 828,
+  "history_references_checked": 3569444,
+  "history_query_rows": 12533,
+  "noncausal_references": 0,
+  "excluded_or_same_wafer_references": 0,
+  "model_files_reloaded": 128,
+  "prediction_spot_checks": 576,
+  "max_reload_difference": 1.4210854715202004e-14,
+  "fold_calibration_verified": 4,
+  "actual_future_covariate_invariance_checks": 4,
+  "old_artifacts_unchanged": 1468,
+  "no_official_validation_or_test_read": true
+}

@@ -1,0 +1,35 @@
+{
+  "seeds": [
+    20260920,
+    20260921,
+    20260922
+  ],
+  "alpha": 0.4,
+  "policies": [
+    "frozen",
+    "online",
+    "delay5"
+  ],
+  "input_sha256": {
+    "archive": "3da73a99843df2bb9d2de08befde7fcc78f57d0c830984fab709ba00361a28fa",
+    "legacy_training_cache": "ede30faa733416cd97d41053fe9ed2be5f986d9b3e5023bb2605e98f9a0e8786"
+  },
+  "code_hashes": {
+    "src/cmp_ml/team_preprocessing.py": "7f36dfdc567c6c1a7eb571af5b92abdafc0e17aa197fa288bc64fcc4ec03172f",
+    "src/cmp_ml/team_models.py": "aa8c6b02c3f334a04c67234b39ed39aac8ea612a58bc887784ce40656a4c71ca",
+    "tools/run_team_comparison.py": "3d99551ec65ef70bec0ac2edbcd186cfdaee28b4a406c66e47fba56a7170abfd",
+    "src/cmp_ml/staged_models.py": "52424def8b33e3cfeabacc5728190ab217e0a7d50aaefbc701b7a0eb2af1306f",
+    "docs/team-comparison-protocol.md": "bf8cba38f568b44c7e2e0d7519fb1daa8663065760137bd5ffaad2097e8b26e6"
+  },
+  "environment": {
+    "numpy": "2.5.3",
+    "pandas": "3.0.5",
+    "scikit-learn": "1.9.1",
+    "joblib": "1.6.0"
+  },
+  "scope": "development data only; historical RF/Bagging configurations refitted, not every paper model",
+  "missing_original_models": [
+    "kp_model.py",
+    "fit_kp.py"
+  ]
+}

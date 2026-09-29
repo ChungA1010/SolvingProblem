@@ -1,0 +1,770 @@
+[
+  {
+    "file": "fold2_A456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 162
+  },
+  {
+    "file": "fold2_A456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 162
+  },
+  {
+    "file": "fold2_A456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 158
+  },
+  {
+    "file": "fold2_A456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 167
+  },
+  {
+    "file": "fold2_A456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 158
+  },
+  {
+    "file": "fold2_B456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 146
+  },
+  {
+    "file": "fold2_B456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 146
+  },
+  {
+    "file": "fold2_B456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 143
+  },
+  {
+    "file": "fold2_B456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 151
+  },
+  {
+    "file": "fold2_B456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 143
+  },
+  {
+    "file": "fold3_A456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 314
+  },
+  {
+    "file": "fold3_A456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 314
+  },
+  {
+    "file": "fold3_A456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 310
+  },
+  {
+    "file": "fold3_A456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 319
+  },
+  {
+    "file": "fold3_A456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 310
+  },
+  {
+    "file": "fold3_B456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 303
+  },
+  {
+    "file": "fold3_B456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 303
+  },
+  {
+    "file": "fold3_B456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 300
+  },
+  {
+    "file": "fold3_B456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 308
+  },
+  {
+    "file": "fold3_B456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 300
+  },
+  {
+    "file": "fold4_A456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 476
+  },
+  {
+    "file": "fold4_A456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 476
+  },
+  {
+    "file": "fold4_A456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 472
+  },
+  {
+    "file": "fold4_A456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 481
+  },
+  {
+    "file": "fold4_A456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 472
+  },
+  {
+    "file": "fold4_B456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 462
+  },
+  {
+    "file": "fold4_B456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 462
+  },
+  {
+    "file": "fold4_B456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 459
+  },
+  {
+    "file": "fold4_B456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 467
+  },
+  {
+    "file": "fold4_B456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 459
+  },
+  {
+    "file": "fold5_A456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 616
+  },
+  {
+    "file": "fold5_A456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 616
+  },
+  {
+    "file": "fold5_A456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 612
+  },
+  {
+    "file": "fold5_A456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 621
+  },
+  {
+    "file": "fold5_A456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 612
+  },
+  {
+    "file": "fold5_B456_delay0_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 650
+  },
+  {
+    "file": "fold5_B456_delay0_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay0_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 650
+  },
+  {
+    "file": "fold5_B456_delay5_legacy_full125_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_legacy_primary73_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_new_conditions_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_new_state_residual_rf.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 647
+  },
+  {
+    "file": "fold5_B456_delay5_legacy_full125_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 125,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_legacy_primary73_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 73,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_new_conditions_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 20,
+    "train_n": 655
+  },
+  {
+    "file": "fold5_B456_delay5_new_state_residual_bag.joblib",
+    "max_difference": 0.0,
+    "n_features": 25,
+    "train_n": 647
+  }
+]

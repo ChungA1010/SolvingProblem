@@ -1,0 +1,8 @@
+{
+  "runs/phm_cmp_team_comparison_v1/summary.csv": "9f5e78210a9fefd3462aeb9190f6eb1c73e875d3360c3b73a493e94d7dfe64b8",
+  "runs/phm_cmp_team_comparison_v1/README.md": "0c88dd58d4aaa8c029912960903347ca90e24270667e4f997a059b97cbd9b291",
+  "docs/simulator-state-design.md": "6be1a7365390debc780ac39c18ece016fa82e839e3e2edba8d0164a2daed2937",
+  "tools/report_team_comparison.py": "44363890027fe580c60c1fff195001f1bedb3a313761eb52a158a985283ba558",
+  "tools/verify_team_comparison.py": "eb9f18b893d618c068fa32a057afd0febc3ac3bc02e287dddb4a1e3beed521fb",
+  "runs/phm_cmp_team_comparison_v1/verification.json": "3be95f06ec4886c1ba9a652484050485b203731cc3a9b372365603037b0336a8"
+}
