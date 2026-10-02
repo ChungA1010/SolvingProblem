@@ -1,0 +1,26 @@
+﻿# Python cache and build files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+.omc/
+
+# OS files
+.DS_Store
+__MACOSX/
+Thumbs.db
+
+# Archive files
+*.zip
+
+# Raw and generated datasets
+/Dataset/CMP1/CMP-data/training/
+/Dataset/CMP1/CMP-training-removalrate.csv
+/Dataset/CMP1/processed/
+
+# Experiment outputs
+/results/*
+!/results/di2017_final_audit/
+!/results/di2017_final_audit/**
