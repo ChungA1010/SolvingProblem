@@ -1,0 +1,16 @@
+{
+  "prep_rows": 1977,
+  "matched_rows": 1974,
+  "known_prev_links": 1732,
+  "hidden_prev_links": 890,
+  "prev_value_comparisons": 1971,
+  "prev_value_matches": 1968,
+  "n_splits": 20,
+  "test_size": 0.2,
+  "seed": 2017,
+  "final_chronology": "preprocessed_same_recipe_timestamp",
+  "final_lag_mode": "history_first",
+  "final_selection": "absolute_t_plus_oob_permutation_rank_vote_top_55",
+  "freeze_status": "READY TO FREEZE",
+  "exact_reproduction_status": "BLOCKED BY UNDER-SPECIFICATION"
+}

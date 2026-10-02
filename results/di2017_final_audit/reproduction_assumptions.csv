@@ -1,0 +1,15 @@
+setting,classification,detail
+Condition definitions,Paper-specified,"Cond1=A/456, Cond2=B/456, Cond3=A/123."
+125 feature groups,Paper-specified,Table 3 count and chamber grouping retained.
+DRESSING_WATER_STATUS as fourth flow/status variable,Our reproduction assumption,"Table 1 lists it, but Table 3 does not explicitly name the fourth flow/status variable."
+Usage decreasing_rate formula,Our reproduction assumption,Implemented as (last-first)/processing time; formula/sign are not published.
+Chronology,Paper-under-specified,Paper says recent past MRR but does not publish sample ordering or hidden-wafer handling.
+Final chronology choice,Our reproduction assumption,Same-condition timestamp order without gap resets; matches package prev_mrr ordering and preserves lag1..11.
+Lag semantics,Paper-under-specified,"Random Monte Carlo split is stated, but whether history is built before or after splitting is not."
+Final lag semantics,Our reproduction assumption,history-first: earlier measured wafer MRR is considered available at prediction time.
+Physical feature segment,Paper-specified,"Separate features and processing times for chamber 4/1 and chambers 5,6/2,3."
+Exact t/OOB thresholds and vote cutoff,Paper-under-specified,Figure describes thresholds and repeated voting but exact values are not published.
+Selection cutoff,Our reproduction assumption,Rank-sum vote of absolute t and OOB permutation MSE increase; keep 55.
+KNN neighbor count,Our reproduction assumption,Average the MRR of the 10 usage-nearest training wafers matching the 10 neighbor features in Table 3.
+SVR/tree/KNN parameters and CV holdout fraction,Paper-under-specified,Exact values are not published.
+Integration equation,Paper-specified,Five models weighted by inverse cube of mean(MSE)+3*std(MSE).

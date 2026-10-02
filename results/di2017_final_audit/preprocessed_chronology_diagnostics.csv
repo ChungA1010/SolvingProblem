@@ -1,0 +1,7 @@
+question,finding,value
+Q1,The previous recorded same-recipe row is not always the actual immediately preceding processed wafer.,890/1730 known links skip one or more estimated wafers.
+Q2,Missing wafers are inferred from pad-usage increments relative to the median near-pair increment.,872 rows have hidden_wafers_est > 0.
+Q3,"prev_wafers_back = round(delta pad usage / median pad step), clipped to at least 1 when usage does not reset.",maximum=70
+Q4,A large time gap can contain hidden wafers and is not a justified sequence reset by itself.,700/953 gaps >500 s include estimated hidden wafers.
+Q5,Usage continuity identifies likely skipped wafers and replacement boundaries but cannot recover their missing MRR labels.,pad replacements=167; dresser replacements=6
+alignment,Package prev_mrr versus final same-recipe timestamp lag1.,1968/1971 values agree.
