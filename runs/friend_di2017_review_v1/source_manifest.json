@@ -1,0 +1,15 @@
+{
+  "commit": "8888c82bc4c3ad3ae88f12585ac61957496d3d92",
+  "input_sha256": {
+    "results/di2017_final_audit/cv_predictions.csv": "4d82bb7a8ae3172b3a0bf1ae69d81c01847300bfe9dd3cef716d596d3f8a919f",
+    "results/di2017_final_audit/cv_fold_metrics.csv": "59373a338d5394f1849a4a9ba27f49ec31bb8ee718463cb441282f4cad8179b7",
+    "results/di2017_final_audit/final_di2017_feature_table.csv": "b781057ff2f4b93e4140794a80f0914ff8b5f9444f96979c86e89e55e3af05b5",
+    "results/di2017_final_audit/final_summary_vs_paper.csv": "534c8743fe17cebc16e41e1138f69b36693c60803f65818bee5751cdc7c086d7",
+    "results/di2017_final_audit/run_info.json": "7f35ea5ee341b632a7a16de8d830db49f54ca141bf6e0aaeb217535b441ca223",
+    "results/di2017_final_audit/feature_selection_audit.csv": "429a08d35be9d9c84df4a1e273223515d7ef71c4a2f50ff0d798ed950d45e8e6",
+    "src/models/di2017_baseline.py": "8c0356c66a15ff50c3912faa8abc2b5fc2543f4cd9e37ed14f48e1a8103a99fe",
+    "src/models/di2017_final_audit.py": "f51c0298dbd3eaa50c4afb2f425972b45333768cbed9d2b9d27e24ee4c6bf2aa",
+    "src/models/reproduce_di2017.py": "a3d0e443cb1339656becffa3b5afe9da0d4b6b39ea067e2584f32cb0017ac389",
+    "scripts/verify_reproduction.py": "0a39b4b77efcb8882c72e75590a7d29d4037416b9cbb2245b42ddfb6f1d2b686"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "status": "completed",
+  "review_date": "2026-10-03",
+  "source_commit": "8888c82bc4c3ad3ae88f12585ac61957496d3d92",
+  "script_path": "tools/review_di2017_baseline.py",
+  "script_sha256": "1e1bac0437adb1468d2227dd9b29d160d5512b13451860aef6638b927dc8aa07",
+  "hashes": {
+    "code_snapshot/review_di2017_baseline.py": "1e1bac0437adb1468d2227dd9b29d160d5512b13451860aef6638b927dc8aa07",
+    "metrics_recomputed.csv": "7614958c0354100fbe2656eea4f09e36114b812538d1094ab018cd3d6e5aafba",
+    "performance_comparison.csv": "456018033da6eae4922f69d47991798153318ad332ca244f95ba2d1cca0d39d3",
+    "README.md": "5829d66df6dfa47a3a45242eab2ab9e0b6fe68ca9a8d661a278a9b3de7681fbd",
+    "runtime.json": "52894e239720a4841ecfff2ef06ba5521c6ea12dd049661b8eace302567d678e",
+    "source_manifest.json": "af957292a93ccc9accfe1ec2e245cbfffdfc3b3bbadf822b6a0b282391448170",
+    "source_verifier_output.txt": "e35b10b1842b1d0d24326fa0df3e0b405fe43ce800a8fcaea64d57ac5e4389cf",
+    "split_diagnostics.csv": "3d143e6b42c5b6c6b2cca58cdd28b163fc0da0c3064c49cb9cbb40dacec4821a",
+    "verification.json": "6731a9471f4c5054eb76ac8f9878cea72d5fb03b001af05e93c5c73b816c93a4",
+    "wafer_overlap.csv": "315a9598ba0f5f4d7cae3a0db077717092dc11a69405f75f6bf840dc693c41ff"
+  }
+}

@@ -1,0 +1,15 @@
+
+==============================================================================
+REPRODUCTION VERIFICATION
+==============================================================================
+  [SKIP] Tables cmp2        grid json missing
+  [SKIP] Tables cmp1        grid json missing
+  [SKIP] Tables sim_mild    grid json missing
+  [SKIP] Tables sim_medium  grid json missing
+  [SKIP] E2 ope cmp2        json missing
+  [SKIP] E2 ope cmp1        json missing
+  [SKIP] E4 NU cmp2         json missing
+  [SKIP] ablation markers   stats json missing
+------------------------------------------------------------------------------
+  0 PASS / 0 FAIL / 8 SKIP
+  VERDICT: ALL CHECKS PASS

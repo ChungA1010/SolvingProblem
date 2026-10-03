@@ -1,0 +1,9 @@
+{
+  "review_date": "2026-10-03",
+  "python": "3.12.14",
+  "numpy": "2.5.3",
+  "pandas": "3.0.5",
+  "repeat_output_byte_identical": true,
+  "repeated_files": 6,
+  "model_refits": 0
+}
