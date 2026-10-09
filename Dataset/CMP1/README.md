@@ -30,7 +30,7 @@ The PHM-issued `CMP-data/test/` directory and `CMP-test-removalrate.csv` are int
 |---|---|
 | `WAFER_ID` | Wafer identifier (matches per-wafer trace files) |
 | `STAGE` | Polishing stage (`A` or `B`) |
-| `AVG_REMOVAL_RATE` | Measured removal rate (target, µm/min) |
+| `AVG_REMOVAL_RATE` | Measured removal rate (target; physical unit unverified) |
 
 **`CMP-data/training/CMP-training-NNN.csv`** — per-wafer process trace (one row per timestamp):
 
@@ -63,3 +63,4 @@ bash scripts/reproduce_cmp1.sh
   note         = {Reproducibility mirror: \url{https://doi.org/10.5281/zenodo.19803295}}
 }
 ```
+> **MRR unit warning:** The PHM challenge description checked for this project does not explicitly specify the physical unit of `AVG_REMOVAL_RATE`. Any µm/min notation elsewhere in this local README is unverified and must not be used for physical calculations. The raw label is passed to the processed `mrr` target without scaling (**raw label scale: VERIFIED, factor 1**), but **physical MRR unit: UNIT_UNVERIFIED**. In the wafer summary, **t_polish unit: seconds**; this does not establish the MRR unit. **target removal: NOT_AVAILABLE_IN_PHM_CMP1**; **polishing time numerical output: disabled**. See the [Issue #3 policy](../../docs/pressure_hybrid_policy.md).

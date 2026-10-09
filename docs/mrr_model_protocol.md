@@ -1,5 +1,9 @@
 # CMP MRR 사전 예측과 시간순 개발 프로토콜
 
+Issue #3의 pressure scenario와 simulator 설계는 [pressure hybrid policy](pressure_hybrid_policy.md)에 정리한다.
+
+Proposed Ridge의 target `mrr`는 원본 `AVG_REMOVAL_RATE`에서 전처리 target scaling 없이 전달된다(**raw label scale: VERIFIED, factor 1**). PHM 공식 자료에서 원래의 물리 단위는 확인되지 않았다(**physical MRR unit: UNIT_UNVERIFIED**). `t_polish`는 초 단위(**t_polish unit: seconds**)이나 그 값으로 MRR 단위를 역추정하지 않는다. PHM CMP1에 목표 제거량은 없다(**target removal: NOT_AVAILABLE_IN_PHM_CMP1**). 따라서 simulator의 **polishing time numerical output: disabled**이며 계산 조건은 [Issue #3 policy](pressure_hybrid_policy.md)를 따른다.
+
 ## 예측 시점과 데이터 출처
 
 **현재 웨이퍼를 투입하고 연마를 시작하기 전에 이용 가능한 정보만으로 MRR을 예측한다.**
