@@ -1,0 +1,4 @@
+# Optional adapter dependencies tested with Python 3.12. No torch requirement.
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.9.1

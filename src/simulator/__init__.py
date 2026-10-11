@@ -13,6 +13,7 @@ from .scenario_validation import (
 from .core import SimulationRequest, SimulatorCore
 from .history import HistoryError, HistoryState, MRRMeasurement, build_history_state
 from .result import PredictionResult, SimulatorError, SimulatorWarning
+from .ridge_adapter import Issue2RidgeAdapter, RidgeAdapterError, RidgeDependenciesUnavailable
 
 __all__ = [
     "BaseMRRPredictor",
@@ -23,4 +24,5 @@ __all__ = [
     "validate_pressure_scenario",
     "SimulationRequest", "SimulatorCore", "MRRMeasurement", "HistoryState",
     "HistoryError", "build_history_state", "PredictionResult", "SimulatorError", "SimulatorWarning",
+    "Issue2RidgeAdapter", "RidgeAdapterError", "RidgeDependenciesUnavailable",
 ]

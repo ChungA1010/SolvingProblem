@@ -16,8 +16,8 @@
 | CP06 | structured warning / error | 구현·테스트 완료 |
 | CP07 | polishing time 비활성 정책 | 구현·테스트 완료 |
 | CP08 | 전체 파이프라인 unit test | 구현·서비스용 history/state 연결 검증 완료 |
-| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 다음 작업 |
-| CP10 | 전체 코어 실행 방법·제한사항 정리 | 대기 |
+| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | adapter 구현·합성 fitted pipeline 연결 검증 완료 |
+| CP10 | 전체 코어 실행 방법·제한사항 정리 | 다음 작업 |
 
 ## CP01: Base MRR predictor interface
 
@@ -181,3 +181,9 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 최소 한 개의 유효 이력이 필요합니다. 빈 이력·잘못된 시각·중복 실행 ID·비유한 측정값은 예측기 호출 전에 구조화된 오류가 됩니다. ID는 stage까지 포함한 실행 고유값을 사용해야 합니다. timezone-aware 시각은 UTC로 정규화합니다. 실제 PHM에는 측정 완료 시각이 없으므로 예제·테스트의 시각이 원본 관측이라는 주장은 하지 않습니다. 기존 순번 기반 N=0 benchmark나 모델 결과를 변경하지 않았습니다.
 
 요청 API에는 `prev_mrr`, `state_ewm`, raw pressure, 외부 delta 입력이 없습니다. 전체 경로의 다섯 scenario·오류·단위 경고·미래 라벨 변경 불변·학습/파일 읽기 차단을 검증합니다. [검증 기록](../verification/simulator-core/cp08.json).
+
+## CP09: Issue #2 fitted Ridge adapter 및 이력 연결
+
+`Issue2RidgeAdapter(fitted_pipeline, model_version=..., provenance=...)`는 이미 학습된 pipeline을 명시적으로 주입받습니다. 기존 `train_mrr_chronological._fixed_regression`의 recipe OneHotEncoder(handle_unknown=ignore), numeric median imputer + StandardScaler, Ridge α=1.0과 세 입력의 이름·순서를 검사합니다. 미학습·변경된 pipeline은 거부하며 caller의 이후 변경이 예측기를 바꾸지 않도록 이미 학습된 객체를 복사합니다. ML 라이브러리는 adapter 생성/사용 시에만 불러옵니다.
+
+테스트에서는 **합성 데이터로 외부에서 미리 학습한 fixture**를 사용합니다. 원 pipeline과 adapter의 예측 일치, 전체 history 요청 연결, 모든 단계의 fit을 차단한 반복 요청을 확인합니다. PHM/development 전체 refit, fold 5 production 지정, 새 하이퍼파라미터 탐색은 수행하지 않았습니다. 실제 저장된 Issue #2 모델 파일은 없으므로 해당 파일의 배포 연결·실제 MRR 성능 검증은 이번 완료 범위에 포함되지 않습니다. 이슈 #4에서 요구한 adapter 구조와 연결 계약은 구현·검증했습니다. [검증 기록](../verification/simulator-core/cp09.json).
