@@ -12,8 +12,8 @@
 | CP02 | pressure scenario registry | 구현·정책 테스트 완료 |
 | CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 |
 | CP04 | correction activation gate | 구현·테스트 완료 |
-| CP05 | final_mrr 계산 | 다음 작업 |
-| CP06 | structured warning / error | 대기 |
+| CP05 | final_mrr 계산 | 구현·테스트 완료 |
+| CP06 | structured warning / error | 다음 작업 |
 | CP07 | polishing time 비활성 정책 | 대기 |
 | CP08 | 전체 파이프라인 unit test | 대기; 개별 checkpoint 테스트는 매 단계 수행 |
 | CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 대기 |
@@ -161,3 +161,7 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 ## CP04: correction activation gate
 
 `pressure_correction(recipe, pressure_scenario)`는 CP03 검증 뒤 현재 모든 항목에서 `0.0`을 반환합니다. `EXPLORATORY`나 `CHRONOLOGICALLY_SUPPORTED` 상태만으로 보정을 켜지 않습니다. registry에서 enable 또는 기본 delta가 임의 변경되면 `CORRECTION_NOT_APPROVED`로 중단합니다. 외부 CSV나 사용자 delta를 읽는 경로는 없습니다. [검증 기록](../verification/simulator-core/cp04.json).
+
+## CP05: final_mrr 계산
+
+`calculate_mrr(recipe, pressure_scenario, base_mrr)`는 CP04 gate에서만 보정값을 받습니다. 반환값은 `base_mrr`, `applied_correction`, `final_mrr`이며 현재 다섯 scenario 모두 `final_mrr == base_mrr`입니다. 비유한 값·boolean·문자열은 계산에 들어가지 못합니다. 모델 척도의 0 또는 음수를 물리 단위나 연마 시간으로 바꾸지 않습니다. [검증 기록](../verification/simulator-core/cp05.json).
