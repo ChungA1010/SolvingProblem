@@ -1,6 +1,6 @@
 # Issue #4: 시뮬레이터 코어 체크포인트
 
-친구와 코드·테스트를 하나씩 확인할 수 있도록 미완료 항목별로 진행합니다. 각 체크포인트를 구현하고 검증한 뒤 결과를 공유하고 멈춥니다. 현재 완료 범위는 **CP01 예측기 인터페이스, CP02 압력 시나리오 registry**입니다.
+친구와 코드·테스트를 하나씩 확인할 수 있도록 미완료 항목별로 진행합니다. 각 체크포인트를 구현하고 검증한 뒤 결과를 공유하고 멈춥니다. 현재 완료 범위는 **CP01 예측기 인터페이스, CP02 압력 시나리오 registry, CP03 입력 검증**입니다.
 
 작업 브랜치는 [`feat/4-simulator-core-codex`](https://github.com/ChungA1010/SolvingProblem/tree/feat/4-simulator-core-codex)입니다. 기존 `feat/4-simulator-core`에서 Issue #2·#3의 이력을 가져왔으며, 이후 체크포인트는 이 별도 브랜치에서 진행합니다. 체크포인트별 커밋 메시지에 해당 이슈 번호 `#4`를 포함합니다.
 
@@ -10,8 +10,8 @@
 |---|---|---|
 | CP01 | Base MRR predictor interface | 구현·계약 테스트 완료 |
 | CP02 | pressure scenario registry | 구현·정책 테스트 완료 |
-| CP03 | recipe / pressure scenario validation | 다음 작업 |
-| CP04 | correction activation gate | 대기 |
+| CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 |
+| CP04 | correction activation gate | 다음 작업 |
 | CP05 | final_mrr 계산 | 대기 |
 | CP06 | structured warning / error | 대기 |
 | CP07 | polishing time 비활성 정책 | 대기 |
@@ -105,4 +105,55 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 
 검증 결과: CP02 16개와 CP01 25개, **총 41개 통과**, 실패·오류·skip 0개입니다.
 
-이번 단계는 고정 메타데이터입니다. 요청 입력 검증(CP03), correction gate(CP04), 최종 MRR 계산(CP05), 실제 Ridge 연결(CP09)은 아직 구현하지 않았습니다. 다음은 **CP03 recipe / pressure scenario validation**입니다. 이슈 본문의 체크박스와 댓글은 이번 코드 커밋에서 수정하지 않았습니다.
+CP02는 고정 메타데이터 단계입니다. CP02 기록의 소스 hash는 커밋 `da1c0ff` 시점의 값이며 이후 변경에 맞춰 덮어쓰지 않습니다.
+
+## CP03: recipe / pressure scenario validation
+
+- 날짜: 2026-10-11.
+- 구현: [`src/simulator/scenario_validation.py`](../src/simulator/scenario_validation.py).
+- 호출: `validate_pressure_scenario(recipe, pressure_scenario) -> PressureScenario`.
+- 근거: [이슈 #4](https://github.com/ChungA1010/SolvingProblem/issues/4)의 scenario validation 및 [Issue #3 정책](pressure_hybrid_policy.md).
+- 지원된 정확한 문자열 조합만 통과하며 registry에 있던 동일한 메타데이터 항목을 반환합니다. 해당 항목의 경고·출처·보정 비활성 상태를 그대로 유지합니다.
+
+| 입력 예 | 결과 |
+|---|---|
+| A456 + Low / Normal | 등록된 항목 반환 |
+| B456 + Low / Normal / High | 등록된 항목 반환 |
+| A456 + High | UNSUPPORTED_PRESSURE_SCENARIO |
+| A123 / unknown recipe | UNSUPPORTED_PRESSURE_SCENARIO |
+| unknown / 빈 scenario | UNSUPPORTED_PRESSURE_SCENARIO |
+| 숫자 압력 270 / 문자열 숫자 "270" | UNSUPPORTED_PRESSURE_SCENARIO |
+| 누락값 None / boolean / list / dict | UNSUPPORTED_PRESSURE_SCENARIO |
+| "a456" / "high" / 이름 앞뒤 공백 | UNSUPPORTED_PRESSURE_SCENARIO |
+
+숫자 압력이 관측 범위의 끝점이나 내부 값이어도 허용하지 않습니다. 군집 사이 254.32·254.41·263이나 이상치 347.893도 이름으로 바꾸지 않습니다. 이름의 대소문자·공백을 자동 정리하거나 가까운 군집으로 변환하지 않습니다. 입력 타입을 먼저 확인하므로 list·dict 같은 잘못된 요청 값에서도 `TypeError: unhashable type` 대신 동일한 정책 오류를 받습니다.
+
+실패 시 `UnsupportedPressureScenarioError`를 발생시키며 `error.code == "UNSUPPORTED_PRESSURE_SCENARIO"`로 식별합니다. 이 예외는 `ValueError`의 하위 클래스입니다. 이는 CP03의 입력 검증 오류 계약이며, 전체 prediction 결과의 structured warning/error 응답으로 변환하는 것은 CP06에 남깁니다.
+
+### CP03 확인 방법
+
+```python
+from src.simulator import UnsupportedPressureScenarioError, validate_pressure_scenario
+
+high = validate_pressure_scenario("B456", "High")
+assert high.correction_status == "CHRONOLOGICALLY_SUPPORTED"
+assert high.correction_enabled is False
+
+try:
+    validate_pressure_scenario("A456", "High")
+except UnsupportedPressureScenarioError as error:
+    assert error.code == "UNSUPPORTED_PRESSURE_SCENARIO"
+else:
+    raise AssertionError("A456 High must be rejected")
+```
+
+```powershell
+python -m pip install -r requirements-simulator-dev.txt
+python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure_scenarios.py tests/test_simulator_scenario_validation.py -q
+```
+
+검증에는 다섯 정상 조합, 미지원 이름·조합, 잘못된 타입, 관측 범위 안팎의 숫자 압력, 자동 형변환 차단, 거부 이후 정책 불변을 포함합니다. 별도 Python 프로세스에서 파일 읽기와 학습 모듈 import를 차단한 상태로 정상·오류 요청도 실행합니다. 결과는 [`verification/simulator-core/cp03.json`](../verification/simulator-core/cp03.json)에 보존합니다.
+
+검증 결과: CP03 48개와 기존 CP01·CP02 41개, **총 89개 통과**, 실패·오류·skip 0개입니다.
+
+이번 단계는 recipe/scenario 값 두 개를 검증하는 함수입니다. history를 받는 전체 prediction 요청 API, correction gate(CP04), 최종 MRR 계산(CP05), 실제 Ridge 연결(CP09)은 아직 구현하지 않았습니다. 다음은 **CP04 correction activation gate**입니다. 이슈 본문의 체크박스와 댓글은 이번 코드 커밋에서 수정하지 않았습니다.
