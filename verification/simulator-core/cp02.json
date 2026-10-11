@@ -1,0 +1,79 @@
+{
+  "checkpoint": "CP02",
+  "issue": 4,
+  "date": "2026-10-11",
+  "status": "passed",
+  "scope": "Fixed pressure scenario registry metadata only",
+  "base_commit": "807d93ae0c2515ed41079f758ea8f19178078549",
+  "policy_source_commit": "b3476dc9edcc25619cfa5c357d2e5ecf79258bd7",
+  "policy_version": "issue3-pressure-scenarios-v1",
+  "branch": "feat/4-simulator-core-codex",
+  "python": "3.12.14",
+  "tests": 41,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 0.397,
+  "cp01_tests": 25,
+  "cp02_tests": 16,
+  "command": "python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure_scenarios.py -q",
+  "supported_scenarios": [
+    [
+      "A456",
+      "Low"
+    ],
+    [
+      "A456",
+      "Normal"
+    ],
+    [
+      "B456",
+      "Low"
+    ],
+    [
+      "B456",
+      "Normal"
+    ],
+    [
+      "B456",
+      "High"
+    ]
+  ],
+  "enabled_correction_count": 0,
+  "default_applied_correction": 0.0,
+  "observations_reanalyzed": false,
+  "model_refits": 0,
+  "request_validation_implemented": false,
+  "correction_gate_implemented": false,
+  "actual_ridge_adapter_connected": false,
+  "next_checkpoint": "CP03 recipe / pressure scenario validation",
+  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF",
+  "source_sha256": {
+    "src/simulator/__init__.py": "f2ea9137959307c2f39bfe5fb87402f9b1c838aa244c50ae9b2ad23d75c9eb02",
+    "src/simulator/predictor.py": "d58cf319c7ef620ccb1fdf6380e3d1e5c31117a063041e58bb15ab88daa7beac",
+    "src/simulator/pressure_scenarios.py": "0dfce5ae65e29f6b2b921869b788dd2c8eeaf6555cac5162e6e8948e9b8fafe8",
+    "tests/test_simulator_predictor.py": "f216f11b04fe2d604651ca6b7a082418a035f0b0e7f77b63fa3c3488349501b9",
+    "tests/test_simulator_pressure_scenarios.py": "6828842a5e3c2f9d054c890c9e479f6af65e195d7be48629f67359f938aaba98",
+    "requirements-simulator-dev.txt": "a5bfdd997c96776a63945ec8466c85686a28d45b7d107d140ea312b49c5ecee6",
+    "docs/simulator-core-checkpoints.md": "42830727902b5bd930475158cedb91dcd1ac9897225ffbb86a24be6bc0a9af6d",
+    "docs/pressure_hybrid_policy.md": "4295e16082df6b409d4f856e2b62c73f6a67732f7ba9aff7804fd6dc6c81711e"
+  },
+  "cp02_tests_run": [
+    "test_registry_contains_exactly_the_five_supported_combinations",
+    "test_metadata_matches_issue3_policy[A456-Low-bounds0-21-OBSERVED_LIMITED-EXPLORATORY]",
+    "test_metadata_matches_issue3_policy[A456-Normal-bounds1-777-OBSERVED_DENSE-NONE]",
+    "test_metadata_matches_issue3_policy[B456-Low-bounds2-31-OBSERVED_LIMITED-OBSERVATIONAL_ONLY]",
+    "test_metadata_matches_issue3_policy[B456-Normal-bounds3-729-OBSERVED_DENSE-NONE]",
+    "test_metadata_matches_issue3_policy[B456-High-bounds4-52-OBSERVED_LIMITED-CHRONOLOGICALLY_SUPPORTED]",
+    "test_all_scenarios_keep_numerical_correction_disabled",
+    "test_registry_preserves_limited_sample_and_outlier_warnings",
+    "test_registry_cannot_be_changed_through_the_exported_mapping",
+    "test_exported_record_cannot_be_mutated[correction_enabled-True]",
+    "test_exported_record_cannot_be_mutated[default_applied_correction-25.0]",
+    "test_exported_record_cannot_be_mutated[observed_p_main_range-new_value2]",
+    "test_exported_record_cannot_be_mutated[observed_wafer_count-10000]",
+    "test_exported_record_cannot_be_mutated[warning_metadata-new_value4]",
+    "test_every_record_identifies_the_policy_source_and_version",
+    "test_import_needs_no_dataset_results_or_training_modules"
+  ]
+}
