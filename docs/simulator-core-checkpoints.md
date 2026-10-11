@@ -13,8 +13,8 @@
 | CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 |
 | CP04 | correction activation gate | 구현·테스트 완료 |
 | CP05 | final_mrr 계산 | 구현·테스트 완료 |
-| CP06 | structured warning / error | 다음 작업 |
-| CP07 | polishing time 비활성 정책 | 대기 |
+| CP06 | structured warning / error | 구현·테스트 완료 |
+| CP07 | polishing time 비활성 정책 | 다음 작업 |
 | CP08 | 전체 파이프라인 unit test | 대기; 개별 checkpoint 테스트는 매 단계 수행 |
 | CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 대기 |
 | CP10 | 전체 코어 실행 방법·제한사항 정리 | 대기 |
@@ -165,3 +165,7 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 ## CP05: final_mrr 계산
 
 `calculate_mrr(recipe, pressure_scenario, base_mrr)`는 CP04 gate에서만 보정값을 받습니다. 반환값은 `base_mrr`, `applied_correction`, `final_mrr`이며 현재 다섯 scenario 모두 `final_mrr == base_mrr`입니다. 비유한 값·boolean·문자열은 계산에 들어가지 못합니다. 모델 척도의 0 또는 음수를 물리 단위나 연마 시간으로 바꾸지 않습니다. [검증 기록](../verification/simulator-core/cp05.json).
+
+## CP06: structured result / warning / error
+
+`PredictionResult.to_dict()`는 JSON으로 전달할 수 있는 결과를 반환합니다. 성공에는 policy/model 버전, base/final MRR, 보정 상태와 다섯 필수 경고 및 scenario별 제한이 포함됩니다. 오류에는 `status=ERROR`와 `error.code/message`를 반환하며 MRR을 만들지 않습니다. 입력 오류는 예측기 호출 전에 처리하고 모델 호출 실패도 명시적 오류로 반환합니다. `inference.predict_from_state`는 내부 단계이며 사용자용 history 요청 API는 CP08에서 연결합니다. [검증 기록](../verification/simulator-core/cp06.json).
