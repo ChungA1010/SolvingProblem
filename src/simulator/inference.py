@@ -4,9 +4,11 @@ from .correction import CorrectionActivationError, pressure_correction
 from .predictor import BaseMRRPredictor, _finite_number
 from .result import PredictionResult, failure, policy_warnings
 from .scenario_validation import UnsupportedPressureScenarioError, validate_pressure_scenario
+from .time_policy import polishing_time_policy
 
 
-def predict_from_state(predictor, recipe, pressure_scenario, prev_mrr, state_ewm) -> PredictionResult:
+def predict_from_state(predictor, recipe, pressure_scenario, prev_mrr, state_ewm,
+                       *, target_removal=None, target_removal_unit=None) -> PredictionResult:
     """Internal boundary, not a request API where users type their own state."""
     try:
         record = validate_pressure_scenario(recipe, pressure_scenario)
@@ -30,10 +32,12 @@ def predict_from_state(predictor, recipe, pressure_scenario, prev_mrr, state_ewm
         return failure(error.code, str(error), recipe, pressure_scenario)
     except Exception:
         return failure("PREDICTOR_ERROR", "predictor failed or returned an invalid finite scalar", recipe, pressure_scenario)
+    time = polishing_time_policy(target_removal, target_removal_unit)
     return PredictionResult(
         status="OK", recipe=record.recipe, pressure_scenario=record.pressure_scenario,
         base_mrr=calculation.base_mrr, support_level=record.support_level,
         correction_status=record.correction_status, correction_enabled=False,
         applied_correction=calculation.applied_correction, final_mrr=calculation.final_mrr,
-        warnings=policy_warnings(record), model_version=version,
+        recommended_polishing_time=time.recommended_polishing_time, time_status=time.time_status,
+        warnings=policy_warnings(record) + time.warnings, model_version=version,
     )

@@ -14,8 +14,8 @@
 | CP04 | correction activation gate | 구현·테스트 완료 |
 | CP05 | final_mrr 계산 | 구현·테스트 완료 |
 | CP06 | structured warning / error | 구현·테스트 완료 |
-| CP07 | polishing time 비활성 정책 | 다음 작업 |
-| CP08 | 전체 파이프라인 unit test | 대기; 개별 checkpoint 테스트는 매 단계 수행 |
+| CP07 | polishing time 비활성 정책 | 구현·테스트 완료 |
+| CP08 | 전체 파이프라인 unit test | 다음 작업; 서비스용 history/state 연결 포함 |
 | CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 대기 |
 | CP10 | 전체 코어 실행 방법·제한사항 정리 | 대기 |
 
@@ -169,3 +169,7 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 ## CP06: structured result / warning / error
 
 `PredictionResult.to_dict()`는 JSON으로 전달할 수 있는 결과를 반환합니다. 성공에는 policy/model 버전, base/final MRR, 보정 상태와 다섯 필수 경고 및 scenario별 제한이 포함됩니다. 오류에는 `status=ERROR`와 `error.code/message`를 반환하며 MRR을 만들지 않습니다. 입력 오류는 예측기 호출 전에 처리하고 모델 호출 실패도 명시적 오류로 반환합니다. `inference.predict_from_state`는 내부 단계이며 사용자용 history 요청 API는 CP08에서 연결합니다. [검증 기록](../verification/simulator-core/cp06.json).
+
+## CP07: polishing time 비활성 정책
+
+`polishing_time_policy`를 내부 inference에 연결했습니다. 목표 제거량과 단위 이름을 입력해도 `recommended_polishing_time=null`, `time_status=UNIT_UNVERIFIED`를 유지합니다. 목표 제거량은 모델 특징으로 사용하지 않으며, 제공된 경우 `TARGET_REMOVAL_NOT_USED` 경고를 남깁니다. 나눗셈·단위 추정·양수 MRR을 이용한 암묵적 시간 계산은 없습니다. [검증 기록](../verification/simulator-core/cp07.json).
