@@ -1,0 +1,2 @@
+# Preserve exact model bytes across Windows/Linux checkouts for SHA256 checks.
+/artifacts/education-ridge-v1/model.json text eol=lf

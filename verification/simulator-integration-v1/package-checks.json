@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "archive_filename": "CMP-Ridge-Unity-Demo-v1.zip",
+  "files": 165,
+  "bytes": 33069775,
+  "sha256": "c712988c70f57e44fdb73d031c9e4c6f3aab6dc630bbb599822904dc290c779b",
+  "artifact_digest_match": true,
+  "archive_crc_verified": true,
+  "raw_phm_table_included": false
+}

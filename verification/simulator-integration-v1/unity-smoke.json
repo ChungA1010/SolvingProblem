@@ -1,0 +1,18 @@
+{
+    "status": "PASS",
+    "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+    "history_origin": "synthetic demo history; real PHM fitted model",
+    "time_status": "UNIT_UNVERIFIED",
+    "artifact_usage": "EDUCATIONAL_DEVELOPMENT_ONLY",
+    "first_mrr": 72.99635621438893,
+    "after_measurement_mrr": 74.58501897244084,
+    "health": true,
+    "scenario_registry": true,
+    "first_prediction": true,
+    "correction_disabled": true,
+    "time_disabled": true,
+    "measurement_updates_prediction": true,
+    "unsupported_rejected": true,
+    "insufficient_history_rejected": true,
+    "error": ""
+}

@@ -1,0 +1,8 @@
+{
+  "ready": true,
+  "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+  "artifact_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "usage": "EDUCATIONAL_DEVELOPMENT_ONLY",
+  "policy_version": "issue3-pressure-scenarios-v1",
+  "independent_final_test": false
+}

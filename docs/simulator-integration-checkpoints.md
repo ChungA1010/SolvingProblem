@@ -6,7 +6,7 @@
 |---|---|---|
 | CP11 (#2, #4) | 고정 Ridge 교육용 export, 원 pipeline/portable/core 일치, 측정 주기·지연 replay | 완료 |
 | CP12 (#4) | artifact 체크섬을 확인하는 로컬 HTTP API, 입력·오류 계약과 실행 도구 | 완료 |
-| CP13 (#4) | CMP 전용 Unity 프로젝트·Windows 빌드·실제 HTTP 통합 시험 | 검증 후 별도 커밋 |
+| CP13 (#4) | CMP 전용 Unity 프로젝트·Windows 빌드·실제 HTTP 통합 시험 | 완료 |
 
 ## CP11: 교육용 모델과 실제 PHM replay
 
@@ -77,3 +77,50 @@ Invoke-RestMethod -Uri http://127.0.0.1:8765/api/v1/predictions -Method Post -Co
 이 예제의 history는 합성이지만 predictor는 실제 PHM 학습 Ridge입니다. 최초 예측 MRR은 약 `72.996356`이며 물리 단위는 미확정입니다. CP10의 테스트 stub 값 71과 구분합니다. 시간은 계속 null입니다.
 
 전체 Python 검증은 **234 passed, 0 failures/errors/skips**입니다. artifact를 포함한 CP11 검증 225개에 실제 HTTP endpoint 검증 9개를 추가했습니다. 전처리·학습 환경은 Python 3.12.14, 추론 API는 표준 라이브러리만 사용합니다.
+
+## CP13: CMP 전용 Unity 데모
+
+프로젝트는 `unity/CmpSimulatorDemo`, 검증한 Editor는 Unity **6000.3.21f1**입니다. 기존 게임 프로젝트나 이전 CMP 데모를 변경하지 않고 이 브랜치 안에 별도 프로젝트를 만들었습니다.
+
+학생 화면에서 다음을 사용할 수 있습니다.
+
+- A456/B456 recipe와 지원되는 관측 pressure scenario 선택.
+- 합성 초기 이력이라는 표시와 실제 PHM 학습 Ridge의 MRR·근거·경고 확인.
+- 측정한 MRR 추가 후 다음 웨이퍼 예측. prev/state는 직접 입력하지 않습니다.
+- 외부 요청 JSON 파일 불러오기. JSON은 그대로 API로 보내며 금지 필드를 조용히 제거하지 않습니다. 외부 요청 mode에서는 원 execution ID를 보존하며, 새 측정 추가는 합성 데모 mode에서만 지원합니다.
+- 보정 비활성, 독립 검증 부재, 단위 미확정과 시간 계산 비활성 표시.
+
+시나리오 변경은 장비 setpoint 조작이 아니며 correction=0이므로 MRR 변화 효과를 만들지 않습니다. 초기 이력은 60·80의 합성 예시입니다. 실제 모델의 첫 예측은 `72.99635621438893`, 측정 MRR 78을 추가한 다음 예측은 `74.58501897244084`였습니다. 이 두 수치를 PHM 정확도나 측정 실험 MAE로 해석하지 않습니다.
+
+### 빌드와 실행
+
+Unity에서 프로젝트를 열거나 PowerShell에서 다음 명령으로 Windows player를 생성합니다. 설치 경로는 본인의 Editor 위치로 변경하세요.
+
+```powershell
+New-Item -ItemType Directory -Path builds -Force | Out-Null
+& 'C:/Program Files/Unity/Hub/Editor/6000.3.21f1/Editor/Unity.exe' -batchmode -nographics -quit -projectPath "$PWD/unity/CmpSimulatorDemo" -executeMethod CmpSimulatorBuild.Build -logFile "$PWD/builds/unity-build.log"
+```
+
+Editor에서 테스트할 때는 API를 별도 실행한 뒤 `Assets/Scenes/CmpSimulator.unity`를 열어 Play합니다. 빌드된 player는 다음으로 실행합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/start-simulator-demo.ps1 -PythonExecutable python -Port 8765
+```
+
+이 실행 도구는 model SHA256이 맞는 API를 확인하고 Unity 창을 엽니다. API가 없으면 시작하고, 데모가 종료되면 이 도구가 시작한 API만 종료합니다. 모델 파일의 LF는 `.gitattributes`로 고정하여 Windows checkout에서도 checksum이 유지되게 했습니다.
+
+### 자동 검증과 공유
+
+Windows 빌드가 성공했고 Unity player에서 실제 HTTP health·5개 scenario·Ridge prediction·측정 후 예측 변화·unsupported scenario/empty history 오류를 검증했습니다. API는 **Python `-S`(site packages 비활성)**로 실행하여 제삼자 패키지 없이 연결됨을 확인했습니다. 이는 headless 통합 시험이며 수동 클릭·화면 렌더 검증은 포함하지 않습니다. [빌드 기록](../verification/simulator-integration-v1/unity-build.json), [Unity smoke 결과](../verification/simulator-integration-v1/unity-smoke.json), [API 모델 정보](../verification/simulator-integration-v1/api-health.json)를 보세요.
+
+별도 로컬 실행 ZIP도 만들 수 있습니다. Windows player, portable JSON model, 표준 라이브러리 API와 실행 도구를 포함하며 raw PHM 표는 포함하지 않습니다. ZIP과 Windows 빌드의 바이너리는 Git에 넣지 않고 source·집계·검증 기록을 공유합니다.
+
+```powershell
+python tools/package-simulator-demo.py --output builds/CMP-Ridge-Unity-Demo-v1.zip
+```
+
+이번 로컬 공유 ZIP은 `CMP-Ridge-Unity-Demo-v1.zip`(33,069,775 bytes)입니다. 새 폴더에 풀어 model checksum·archive CRC와 패키지 안의 Unity/표준 라이브러리 API 통합 시험을 다시 확인했습니다. [패키지 확인](../verification/simulator-integration-v1/package-checks.json), [압축 해제본 smoke 결과](../verification/simulator-integration-v1/package-unity-smoke.json)를 보세요. 빌드 파일은 실행에 필요하며 GitHub source만 받은 친구는 직접 빌드하거나 이 ZIP을 별도로 받아야 합니다.
+
+## 이후 필요한 데이터
+
+실제 완료 timestamp를 포함한 새 미래 평가 자료가 있어야 독립 최종 성능을 확인할 수 있습니다. 압력 setpoint·target removal·물리 MRR 단위와 별도의 correction 검증이 확보되기 전까지 현재 정책을 유지합니다. 이 작업으로 Issue #2의 모든 연구 비교나 Issue #3의 수치 보정을 완료했다고 표시하지 않습니다.
