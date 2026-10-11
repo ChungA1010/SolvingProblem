@@ -7,6 +7,11 @@
 | CP11 (#2, #4) | 고정 Ridge 교육용 export, 원 pipeline/portable/core 일치, 측정 주기·지연 replay | 완료 |
 | CP12 (#4) | artifact 체크섬을 확인하는 로컬 HTTP API, 입력·오류 계약과 실행 도구 | 완료 |
 | CP13 (#4) | CMP 전용 Unity 프로젝트·Windows 빌드·실제 HTTP 통합 시험 | 완료 |
+| CP14 (#2, #4) | 독립 자료 노출 감사·평가 절차·중복/시각/채점 검증 | 준비 완료, 실제 새 자료 대기 |
+
+CP14의 [독립 최종 검증 기록](independent-final-validation.md): fold 5와 기존 PHM
+test·validation 모두 이미 확인한 자료입니다. 새 독립 성능 점수는 아직 없으며,
+수집 이후 실제 timestamp를 사용한 고정 모델 평가 절차를 추가했습니다.
 
 ## CP11: 교육용 모델과 실제 PHM replay
 
@@ -107,7 +112,7 @@ Editor에서 테스트할 때는 API를 별도 실행한 뒤 `Assets/Scenes/CmpS
 powershell -ExecutionPolicy Bypass -File tools/start-simulator-demo.ps1 -PythonExecutable python -Port 8765
 ```
 
-이 실행 도구는 model SHA256이 맞는 API를 확인하고 Unity 창을 엽니다. API가 없으면 시작하고, 데모가 종료되면 이 도구가 시작한 API만 종료합니다. 모델 파일의 LF는 `.gitattributes`로 고정하여 Windows checkout에서도 checksum이 유지되게 했습니다.
+이 실행 도구는 model SHA256이 맞는 API를 확인하고 Unity 창을 엽니다. API가 없으면 시작하고, 데모가 종료되면 이 도구가 시작한 API만 종료합니다. CP14에서 `.gitattributes`의 model 설정을 `-text`로 수정하여 원래 고정 파일의 CRLF를 포함한 바이트를 그대로 보존했습니다. Git 정규화로 달라졌던 repository blob도 원래 파일 바이트로 맞춰 모든 checkout에서 기록된 checksum을 사용합니다. 학습 계수는 동일합니다.
 
 ### 자동 검증과 공유
 

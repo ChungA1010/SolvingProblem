@@ -1,0 +1,50 @@
+{
+  "status": "WAITING_FOR_UNSEEN_DATA",
+  "audited_at": "2026-10-11T10:56:45.527814+00:00",
+  "artifact_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+  "new_fit_count": 0,
+  "new_final_score_count": 0,
+  "independent_final_performance": null,
+  "candidates": [
+    {
+      "name": "preprocessed wafer_table / folds 1-5",
+      "rows": 1977,
+      "eligible_as_fresh_final": false,
+      "reason": "all folds, including fold 5, already used in model development"
+    },
+    {
+      "name": "PHM test",
+      "label_rows_previously_accessed": 424,
+      "eligible_as_fresh_final": false,
+      "reason": "already evaluated on 26 models during this project",
+      "previously_scored_rows": 121
+    },
+    {
+      "name": "PHM validation",
+      "label_rows_previously_accessed": 424,
+      "eligible_as_fresh_final": false,
+      "reason": "already evaluated on 26 models during this project",
+      "previously_scored_rows": 140
+    }
+  ],
+  "earlier_external_completed_at": "2026-09-16T12:01:39.368188+00:00",
+  "old_and_external_source_times_overlap": true,
+  "known_unique_wafer_ids": 2268,
+  "known_group_aliases": 681,
+  "source_hashes": {
+    "wafer_table.csv": "cf22df23300d170133ce252b7d936c57fae6a18b55a43c4bf56ba0c83a4bd9d5",
+    "prior/split_manifest.csv": "2568c8e9dec0ad44ad27de0b9f80a2e4f5a8990ce989f49100dc670b87fb3194",
+    "external/completion.json": "87cf691d9cf028cef1632e8aa6fea98ae53fc38e077c9fcb97a1816d1b2b39e4",
+    "external/protocol.json": "cf12ba8a47ffd58e8f67b64014e22ce91d3830db71d60e7043b69a0126b752d6",
+    "external/data_audit.json": "271a572a55d93d3f9f062723ddf067d4d1bd7426646de2a6e32096fadc93d0ac",
+    "external/evaluation_seal.json": "4ece0bea9d5b2ba7b359c3b2e1e7b68d99a3f0fe9f8bc445a510bd6cea81da81",
+    "external/external_manifest.csv": "7144a232f93fab51440b691ef6183bfd651352b26f2a7af6cbd914f7205441db"
+  },
+  "next_required": "new unused collection with observed start/completion timestamps and verified target-scale mapping",
+  "limits": [
+    "no exhaustive inventory of all possible private files or unseen remote data",
+    "hash registry cannot detect changed identity aliases; stable source IDs and collector evidence required",
+    "PHM source clock has no verified UTC mapping or measured completion timestamps"
+  ]
+}

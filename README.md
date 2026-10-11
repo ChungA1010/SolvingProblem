@@ -1,3 +1,7 @@
+독립 최종 검증: [노출 감사와 실행 절차](docs/independent-final-validation.md).
+현재 `WAITING_FOR_UNSEEN_DATA`이며 새 최종 MAE는 없습니다. 기존 PHM test·validation도
+이 프로젝트에서 이미 평가했습니다. 새 수집 자료가 들어오면 고정 모델로 한 번 채점합니다.
+
 \# Di et al. (2017) CMP MRR Baseline Reproduction
 
 

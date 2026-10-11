@@ -1,0 +1,51 @@
+{
+  "checkpoint": "CP14",
+  "recorded_at": "2026-10-11T11:05:37.509504+00:00",
+  "base_commit": "f6a178b3d16c5932bdf5a9d1d72405b1296313b4",
+  "status": "SOFTWARE_CHECKS_PASS_ACTUAL_FINAL_DATA_PENDING",
+  "test_counts": {
+    "tests": 267,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "new_validation_tests": 33,
+  "artifact_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "staged_artifact_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "previous_git_blob_sha256": "2e6551b33da937af6a467c5fb8df633ffae7ecf0536dbe4d405bf17c35f709d4",
+  "artifact_parameters_unchanged_from_base": true,
+  "staged_artifact_python_no_site_load": "PASS",
+  "junit_sha256": "1a107ea9c05e5276354a2cb07ce1215da54d089531b0636967976d48a26c11d6",
+  "sha256_utf8_lf": {
+    ".gitattributes": "2a7deec02578222f8591411a3b92f694e89e69b72a2b7eaf06f97d2895afe7a8",
+    "README.md": "613d26120d965f5f294e8474263583fd75341ee705779e1eb63035dafd3d7273",
+    "docs/simulator-integration-checkpoints.md": "8956055725774cb4c571432077d6515988111abf774754b806a5dcf0d4fd753b",
+    "docs/independent-final-validation.md": "6e66ea4880cbfccca7c2974d70c680170d66e58c0773e7364cd6811c926ae1c6",
+    "examples/independent-plan.template.json": "1b54cd75947c9420457c1bc3e4953e0aff3b6b0cf27e9b8a87a9d23a4cc7daa6",
+    "src/validation/__init__.py": "40d2a04e9c03e9c5b0b29b272ec3452f82a83cc0af2b10ee22e5021c216d9310",
+    "src/validation/independent.py": "ced7d4173e22cd11956b395c1152e5379448d8891abe524a1ec0f5707b9446a6",
+    "tests/test_independent_validation.py": "a4fd6038cad41c6c548a542b9f6e1dc474920b92e9291b8d3d054e0de301efe8",
+    "tests/test_independent_readiness_audit.py": "5dca0d238b7824dee61db437d17085ddfeabe9fdf717455edf20ccd6e61978a7",
+    "tools/audit-independent-readiness.py": "0ed3a53f0e453f1d9e8e4575661822919fe41feb290055d5f68af994cfb62a64",
+    "verification/independent-final-v1/readiness.json": "c20ba32a465459d97a9860750fd27c1620bb33020da8c81e2d8a1ab008b75afe",
+    "verification/independent-final-v1/known-data-registry.json": "39de65f136ea70a38097ac9b8c58880c56574bea5f3015521d3b47f5aceb772f",
+    "verification/independent-final-v1/candidate-freeze.json": "6bb5c3e778b00cd65d97395c00662fd10c3debc4942505bafadceeda475d4d4d"
+  },
+  "new_fit_count": 0,
+  "actual_new_final_score_count": 0,
+  "actual_independent_final_test_completed": false,
+  "production_model": false,
+  "new_data_availability": "USER_CONFIRMED_NO_NEW_DATA_2026-10-11",
+  "scope": "existing-source exposure audit and prospective evaluation software; synthetic tests are not model-performance validation",
+  "checks": [
+    "current/future labels excluded from current state",
+    "strict observed completion availability",
+    "known wafer/group and source alias duplicate rejection",
+    "frozen period and label deadline",
+    "missing labels and invalid timestamps rejected",
+    "sealed input changes and repeat scoring rejected",
+    "unavailable history coverage explicitly reported",
+    "no sklearn/pandas/numpy/training imports with Python -S",
+    "earlier exposure evidence hashes checked without external answer files"
+  ]
+}

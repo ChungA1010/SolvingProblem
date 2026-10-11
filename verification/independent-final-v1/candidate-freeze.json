@@ -1,0 +1,27 @@
+{
+  "frozen_at": "2026-10-11T10:56:45.527814+00:00",
+  "status": "CANDIDATE_FIXED_COHORT_NOT_YET_DECLARED",
+  "artifact_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+  "registry_sha256": "39de65f136ea70a38097ac9b8c58880c56574bea5f3015521d3b47f5aceb772f",
+  "primary_model": "Ridge",
+  "primary_metric": "MAE",
+  "models": [
+    "Ridge",
+    "Persistence",
+    "EWMA",
+    "Recipe Mean"
+  ],
+  "ridge_alpha": 1.0,
+  "ewma_alpha": 0.4,
+  "features": [
+    "recipe",
+    "prev_mrr",
+    "state_ewm"
+  ],
+  "fit_count": 0,
+  "measurement_policy": "observed completion strictly before observed start",
+  "target_scale": "PHM raw label scale, factor 1; new-data mapping evidence required",
+  "actual_final_test_completed": false,
+  "production_model": false
+}
