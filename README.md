@@ -334,5 +334,7 @@ results/di2017\_final\_audit/README.md
 
 ## Issue #4 simulator core
 
-`feat/4-simulator-core-codex` 브랜치에는 timestamp 기반 이력 상태 계산, predictor interface, pressure scenario 검증, 비활성 correction gate, 구조화된 결과·경고와 기존 Ridge용 adapter가 구현되어 있습니다. [실행 방법과 제한사항](docs/simulator-core-usage.md), [체크포인트별 기록](docs/simulator-core-checkpoints.md)을 확인하세요. 계약 데모는 `python -m src.simulator --stub --request examples/simulator_request.json`으로 실행합니다. 실제 fitted model artifact와 독립 final test는 제공되지 않았으며, 데모는 명시적 테스트 stub입니다.
+`feat/4-simulator-core-codex` 브랜치에는 timestamp 기반 이력 상태 계산, predictor interface, pressure scenario 검증, 비활성 correction gate, 구조화된 결과·경고와 기존 Ridge용 adapter가 구현되어 있습니다. [실행 방법과 제한사항](docs/simulator-core-usage.md), [체크포인트별 기록](docs/simulator-core-checkpoints.md)을 확인하세요. CP10 계약 데모는 `python -m src.simulator --stub --request examples/simulator_request.json`으로 실행하며 명시적 테스트 stub입니다.
+
+후속 작업에는 **실제 PHM 자료로 학습한 교육용 Ridge JSON 모델**, 원 pipeline과 core의 실제 데이터 예측 일치 검증, 1·5·10장 측정 주기와 추가 지연 민감도, 로컬 HTTP API가 있습니다. [CP11~CP13 결과·실행 방법](docs/simulator-integration-checkpoints.md)을 확인하세요. 모델은 개발 자료 기반 교육용이며 독립 final test와 production 승인은 없습니다. 기본 압력 보정은 0이고 권장 연마 시간은 null입니다.
 

@@ -5,7 +5,7 @@
 | 단계 | 결과 | 상태 |
 |---|---|---|
 | CP11 (#2, #4) | 고정 Ridge 교육용 export, 원 pipeline/portable/core 일치, 측정 주기·지연 replay | 완료 |
-| CP12 (#4) | artifact 체크섬을 확인하는 로컬 HTTP API, 입력·오류 계약과 실행 도구 | 검증 후 별도 커밋 |
+| CP12 (#4) | artifact 체크섬을 확인하는 로컬 HTTP API, 입력·오류 계약과 실행 도구 | 완료 |
 | CP13 (#4) | CMP 전용 Unity 프로젝트·Windows 빌드·실제 HTTP 통합 시험 | 검증 후 별도 커밋 |
 
 ## CP11: 교육용 모델과 실제 PHM replay
@@ -54,3 +54,26 @@ python -m src.models.export_simulator_ridge --wafer-table C:/path/to/wafer_table
 ## 완료 범위의 구분
 
 교육용 모델 저장은 독립 최종 모델 선정과 다릅니다. Issue #2의 동일 조건 Di2017 비교, 독립 미래 데이터 검증, `kp_model.py`/`fit_kp.py`의 동일 조건 비교는 여전히 남습니다. 압력 correction은 전부 0이며, 물리 단위와 목표 제거량이 검증되지 않아 polishing time은 null입니다. GitHub 이슈 본문·체크박스·댓글·close 상태는 이 작업에서 수정하지 않습니다.
+
+## CP12: 로컬 예측 API
+
+Python 3.10 이상에서 제삼자 패키지 없이 실행할 수 있습니다. Ridge 학습은 위의 offline export 명령에서만 실행되며 API import·startup·request에서 학습 모듈을 불러오거나 fit하지 않습니다. artifact는 실행자가 명시적으로 지정하고 SHA256을 확인하여 한 번 로드합니다.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools/start-simulator-api.ps1 -PythonExecutable python -Port 8765
+```
+
+- `GET /api/v1/health`: 모델 버전·artifact SHA256·교육용 상태·독립 시험 부재.
+- `GET /api/v1/scenarios`: 지원되는 다섯 recipe/scenario 조합.
+- `POST /api/v1/predictions`: [요청 예제](../examples/simulator_request.json)의 history 계약을 사용. `application/json` 필요.
+
+127.0.0.1에만 bind합니다. 최대 JSON 요청은 1 MiB입니다. 입력 JSON 오류는 HTTP 400, 지원하지 않는 scenario·부족한 history 등 domain 오류는 422입니다. 응답에는 기존 core의 오류/경고와 `EDUCATIONAL_DEVELOPMENT_MODEL` 경고가 있습니다. raw pressure·직접 입력한 prev/state·외부 delta를 거부합니다. 요청마다 history 원장을 제공하는 stateless API이며 서버가 측정값을 자동 생성하지 않습니다.
+
+```powershell
+$payload = Get-Content -LiteralPath examples/simulator_request.json -Raw -Encoding UTF8
+Invoke-RestMethod -Uri http://127.0.0.1:8765/api/v1/predictions -Method Post -ContentType 'application/json; charset=utf-8' -Body ([Text.Encoding]::UTF8.GetBytes($payload))
+```
+
+이 예제의 history는 합성이지만 predictor는 실제 PHM 학습 Ridge입니다. 최초 예측 MRR은 약 `72.996356`이며 물리 단위는 미확정입니다. CP10의 테스트 stub 값 71과 구분합니다. 시간은 계속 null입니다.
+
+전체 Python 검증은 **234 passed, 0 failures/errors/skips**입니다. artifact를 포함한 CP11 검증 225개에 실제 HTTP endpoint 검증 9개를 추가했습니다. 전처리·학습 환경은 Python 3.12.14, 추론 API는 표준 라이브러리만 사용합니다.

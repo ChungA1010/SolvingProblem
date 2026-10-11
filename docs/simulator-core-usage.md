@@ -18,7 +18,7 @@ python -m src.simulator --stub --request examples/simulator_request.json
 
 ```powershell
 python -m pip install -r requirements-simulator-dev.txt
-python -m pytest tests -q --ignore=tests/test_simulator_ridge_adapter.py --basetemp=.pytest_cache/simulator-tests
+python -m pytest tests -q --ignore=tests/test_simulator_ridge_adapter.py --ignore=tests/test_simulator_artifact.py --basetemp=.pytest_cache/simulator-tests
 ```
 
 Ridge adapter까지 포함한 전체 검사(Python 3.12에서 검증한 고정 버전):
@@ -30,7 +30,7 @@ python -m pytest tests -q --basetemp=.pytest_cache/simulator-tests
 
 adapter 테스트만 외부에서 합성 fixture를 먼저 fit합니다. core import, adapter 생성, prediction 요청에서는 fit을 호출하지 않으며 PHM/development 데이터를 재학습하지 않습니다. 전체 테스트에서 dependency 누락을 skip으로 숨기지 않습니다.
 
-최종 전체 검증 결과는 **197 passed, 0 failed / errors / skipped**입니다. [CP10 기록](../verification/simulator-core/cp10.json)에 Python 버전·테스트 파일과 소스 hash가 보존되어 있습니다.
+CP10 시점의 전체 검증 결과는 **197 passed, 0 failed / errors / skipped**입니다. [CP10 기록](../verification/simulator-core/cp10.json)에 당시 Python 버전·테스트 파일과 소스 hash가 보존되어 있습니다. 후속 교육용 artifact/API 검증은 **234 passed**이며 [CP11~CP13 문서](simulator-integration-checkpoints.md)를 확인하세요.
 
 ## 사용자 요청과 처리 순서
 
@@ -67,7 +67,7 @@ payload = result.to_dict()
 
 Issue #2의 fitted pipeline 형태를 검사합니다: 입력 순서 `recipe, prev_mrr, state_ewm`, 두 recipe의 OneHotEncoder(handle_unknown=ignore), median imputer + StandardScaler, scalar Ridge α=1.0. 다른 전처리·설정·미학습 pipeline은 거부합니다. 객체의 복사본을 보유하여 호출자가 원 모델을 바꿔도 예측기가 바뀌지 않게 합니다. artifact 파일을 자동 로드하거나 전체 개발 자료를 fit하는 기능은 없습니다. 형식 검사만으로 모델 데이터 출처·target 단위·배포 승인을 증명할 수 없으므로 provenance와 별도 검증이 필요합니다.
 
-현재 저장된 Issue #2 fitted artifact는 제공되지 않았습니다. 따라서 실제 PHM 모델의 배포 연결, 새로운 MAE 평가, 독립 final test 완료를 주장하지 않습니다. 합성 fitted Ridge fixture에서 원 pipeline 예측과 adapter·history 경로 예측의 일치만 검증했습니다.
+CP10 당시에는 저장된 Issue #2 fitted artifact가 없었으며 합성 fixture 일치만 검증했습니다. 이후 사용자 요청으로 별도 offline 학습한 **교육용 portable Ridge JSON artifact**와 실제 PHM replay 일치를 CP11에서 추가했습니다. 이 fitted pipeline을 자동 production 모델로 지정하지 않으며 독립 final test는 여전히 없습니다. [교육용 모델·API 사용법](simulator-integration-checkpoints.md)을 보세요.
 
 ## 고정 정책과 결과
 

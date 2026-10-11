@@ -1,6 +1,6 @@
 # Issue #4: 시뮬레이터 코어 체크포인트
 
-2026-10-11 기준 **CP01~CP10 코어 작업을 모두 완료**했습니다. 친구가 변경 내용을 따라갈 수 있도록 체크포인트별로 구현·검증·커밋했습니다. 현재 실행 방법은 [사용법](simulator-core-usage.md)을 보세요. 아래 표가 현재 상태이며 개별 절과 JSON hash는 해당 체크포인트 커밋 시점의 기록입니다. 실제 fitted PHM model artifact 배포 연결과 독립 final test는 완료 범위에 포함되지 않습니다.
+2026-10-11 기준 **CP01~CP10 코어 작업을 모두 완료**했습니다. 친구가 변경 내용을 따라갈 수 있도록 체크포인트별로 구현·검증·커밋했습니다. 현재 실행 방법은 [사용법](simulator-core-usage.md)을 보세요. 아래 표와 개별 JSON hash는 CP01~CP10 커밋 시점의 기록입니다. 이후 교육용 PHM Ridge 저장·실제 데이터 replay·Unity 연결은 [후속 CP11~CP13](simulator-integration-checkpoints.md)에 기록합니다. 독립 final test는 완료되지 않았습니다.
 
 작업 브랜치는 [`feat/4-simulator-core-codex`](https://github.com/ChungA1010/SolvingProblem/tree/feat/4-simulator-core-codex)입니다. 기존 `feat/4-simulator-core`에서 Issue #2·#3의 이력을 가져왔으며, 이후 체크포인트는 이 별도 브랜치에서 진행합니다. 체크포인트별 커밋 메시지에 해당 이슈 번호 `#4`를 포함합니다.
 

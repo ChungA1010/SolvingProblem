@@ -1,0 +1,27 @@
+{
+  "checkpoint": "cp12",
+  "date_utc": "2026-10-11T10:12:06.938921+00:00",
+  "scope": "Loopback HTTP API using explicit artifact SHA256; runtime no training; 234 complete tests",
+  "base_commit": "5c132518731837145f048e5a2efd4a2773af52b1",
+  "status": "PASS",
+  "test_counts": {
+    "tests": 234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sha256_utf8_lf": {
+    "src/simulator/server.py": "4c2f95d18b1a99ce3201a4f2f45ff0b76bae70ae1e2815a585ca8456c3371eda",
+    "tests/test_simulator_server.py": "5bc657d70645c8cecee0d7d00837cb5f972db51a35e1893c697e937eacdc8f4e",
+    "tools/start-simulator-api.ps1": "b5ba298e26c260a0308469df7078ae8f82ba36107d55f9ef37e46ab24164560a",
+    "docs/simulator-integration-checkpoints.md": "26a5fb5a6ca14ca2bb04094b91ed94bae2658ee23f694a6af0446e074930c208",
+    "docs/simulator-core-usage.md": "613967d2d132e11cbf72ca2a15189f6ca983e0c3c377f8814aeecc51180307f1",
+    "docs/simulator-core-checkpoints.md": "5e5157c325e2e0e405c408db4440990cfdc8a8519bb2854e4515b9dfaa228e75",
+    "README.md": "39d6badb89fbe66ed8e84a1a5e3d3129ab33f0a87a62ec5628242ca69d6504b8"
+  },
+  "independent_final_test": false,
+  "production_model": false,
+  "request_fit_calls": 0,
+  "numerical_pressure_correction": false,
+  "polishing_time_enabled": false
+}
