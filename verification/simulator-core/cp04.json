@@ -1,0 +1,42 @@
+{
+  "checkpoint": "CP04",
+  "issue": 4,
+  "date": "2026-10-11",
+  "status": "passed",
+  "scope": "Explicit fail-closed correction activation gate",
+  "base_commit": "cf0a1eeec85276fc733a8da9b8a09813c7a0bf70",
+  "branch": "feat/4-simulator-core-codex",
+  "python": "3.12.14",
+  "tests": 99,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "seconds": 0.765,
+  "test_files": [
+    "tests/test_simulator_correction.py",
+    "tests/test_simulator_predictor.py",
+    "tests/test_simulator_pressure_scenarios.py",
+    "tests/test_simulator_scenario_validation.py"
+  ],
+  "request_model_refits": 0,
+  "production_model_artifact_available": false,
+  "independent_final_test_available": false,
+  "numerical_pressure_corrections_enabled": false,
+  "numerical_polishing_time_enabled": false,
+  "source_hash_encoding": "UTF-8 bytes with CRLF normalized to LF",
+  "source_sha256": {
+    "docs/mrr_model_protocol.md": "accff59325ed7c485547bedfe03fa085f52ca406c5ad75e587db63bf2a220c15",
+    "docs/pressure_hybrid_policy.md": "4295e16082df6b409d4f856e2b62c73f6a67732f7ba9aff7804fd6dc6c81711e",
+    "docs/simulator-core-checkpoints.md": "e9e6372505ae02787b0e0477390f0faea722af9ffe954db0d385f683742f2125",
+    "requirements-simulator-dev.txt": "a5bfdd997c96776a63945ec8466c85686a28d45b7d107d140ea312b49c5ecee6",
+    "src/simulator/__init__.py": "9569a18a802dfad772a05a4cbbc9ed285c3660c7344989a0055b1fa1c21ba4a7",
+    "src/simulator/correction.py": "120660fb5b97eb264c072522c5c3adbe250eaaf7f303453b3e4be6616f96d12c",
+    "src/simulator/predictor.py": "d58cf319c7ef620ccb1fdf6380e3d1e5c31117a063041e58bb15ab88daa7beac",
+    "src/simulator/pressure_scenarios.py": "0dfce5ae65e29f6b2b921869b788dd2c8eeaf6555cac5162e6e8948e9b8fafe8",
+    "src/simulator/scenario_validation.py": "bd12b98123516293be3750ebcc1ab31f44fd41801ac55f02c37d9d2c6e9a4b8c",
+    "tests/test_simulator_correction.py": "dd18f03b6759d8f7e359751cac7f73e9185eaff5ebd4bd5685358c94e9123096",
+    "tests/test_simulator_predictor.py": "f216f11b04fe2d604651ca6b7a082418a035f0b0e7f77b63fa3c3488349501b9",
+    "tests/test_simulator_pressure_scenarios.py": "6828842a5e3c2f9d054c890c9e479f6af65e195d7be48629f67359f938aaba98",
+    "tests/test_simulator_scenario_validation.py": "e705e2289ee30cb466568aa2a7476cda932d804fef34f0b59a3c67b393797965"
+  }
+}

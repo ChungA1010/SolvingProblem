@@ -1,6 +1,6 @@
 # Issue #4: 시뮬레이터 코어 체크포인트
 
-친구와 코드·테스트를 하나씩 확인할 수 있도록 미완료 항목별로 진행합니다. 각 체크포인트를 구현하고 검증한 뒤 결과를 공유하고 멈춥니다. 현재 완료 범위는 **CP01 예측기 인터페이스, CP02 압력 시나리오 registry, CP03 입력 검증**입니다.
+친구와 코드·테스트를 확인할 수 있도록 체크포인트별로 구현·검증·커밋합니다. 2026-10-11의 전체 진행 요청에 따라 남은 CP04~CP10을 순서대로 완료합니다. 아래 표가 현재 진행 상태이며 개별 절의 기록은 해당 체크포인트 시점 기준입니다.
 
 작업 브랜치는 [`feat/4-simulator-core-codex`](https://github.com/ChungA1010/SolvingProblem/tree/feat/4-simulator-core-codex)입니다. 기존 `feat/4-simulator-core`에서 Issue #2·#3의 이력을 가져왔으며, 이후 체크포인트는 이 별도 브랜치에서 진행합니다. 체크포인트별 커밋 메시지에 해당 이슈 번호 `#4`를 포함합니다.
 
@@ -11,8 +11,8 @@
 | CP01 | Base MRR predictor interface | 구현·계약 테스트 완료 |
 | CP02 | pressure scenario registry | 구현·정책 테스트 완료 |
 | CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 |
-| CP04 | correction activation gate | 다음 작업 |
-| CP05 | final_mrr 계산 | 대기 |
+| CP04 | correction activation gate | 구현·테스트 완료 |
+| CP05 | final_mrr 계산 | 다음 작업 |
 | CP06 | structured warning / error | 대기 |
 | CP07 | polishing time 비활성 정책 | 대기 |
 | CP08 | 전체 파이프라인 unit test | 대기; 개별 checkpoint 테스트는 매 단계 수행 |
@@ -157,3 +157,7 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 검증 결과: CP03 48개와 기존 CP01·CP02 41개, **총 89개 통과**, 실패·오류·skip 0개입니다.
 
 이번 단계는 recipe/scenario 값 두 개를 검증하는 함수입니다. history를 받는 전체 prediction 요청 API, correction gate(CP04), 최종 MRR 계산(CP05), 실제 Ridge 연결(CP09)은 아직 구현하지 않았습니다. 다음은 **CP04 correction activation gate**입니다. 이슈 본문의 체크박스와 댓글은 이번 코드 커밋에서 수정하지 않았습니다.
+
+## CP04: correction activation gate
+
+`pressure_correction(recipe, pressure_scenario)`는 CP03 검증 뒤 현재 모든 항목에서 `0.0`을 반환합니다. `EXPLORATORY`나 `CHRONOLOGICALLY_SUPPORTED` 상태만으로 보정을 켜지 않습니다. registry에서 enable 또는 기본 delta가 임의 변경되면 `CORRECTION_NOT_APPROVED`로 중단합니다. 외부 CSV나 사용자 delta를 읽는 경로는 없습니다. [검증 기록](../verification/simulator-core/cp04.json).
