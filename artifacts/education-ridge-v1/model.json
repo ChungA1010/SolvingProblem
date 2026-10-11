@@ -1,0 +1,57 @@
+{
+  "schema": "cmp-frozen-ridge-v1",
+  "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+  "usage": "EDUCATIONAL_DEVELOPMENT_ONLY",
+  "features": [
+    "recipe",
+    "prev_mrr",
+    "state_ewm"
+  ],
+  "ridge_alpha": 1.0,
+  "ewma_alpha": 0.4,
+  "recipes": [
+    "A456",
+    "B456"
+  ],
+  "numeric_mean": [
+    75.62383961897355,
+    75.58535708761725
+  ],
+  "numeric_scale": [
+    8.832468311049805,
+    8.367275599426094
+  ],
+  "imputer_median": [
+    75.86715,
+    75.73045006797115
+  ],
+  "coefficients": [
+    -0.1571324847068096,
+    0.15713248470672406,
+    3.2532411190004122,
+    4.86414370417068
+  ],
+  "intercept": 75.63695489146832,
+  "provenance": {
+    "source_sha256": "cf22df23300d170133ce252b7d936c57fae6a18b55a43c4bf56ba0c83a4bd9d5",
+    "training_folds": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "evaluation_fold": 5,
+    "training_rows": 1286,
+    "training_rows_by_recipe": {
+      "B456": 657,
+      "A456": 629
+    },
+    "measurement_assumption": "N0_ORDINAL_NOT_OBSERVED_TIMESTAMPS",
+    "independent_final_test": false,
+    "production_model": false,
+    "python": "3.12.14",
+    "sklearn": "1.9.1",
+    "training_start_source_t": 481634409.667,
+    "training_end_source_t": 486064293.0
+  }
+}

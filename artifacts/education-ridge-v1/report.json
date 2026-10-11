@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "usage": "EDUCATIONAL_DEVELOPMENT_ONLY",
+  "model_version": "EDU_RIDGE_ALPHA1_TRAIN_F1_F4_v1",
+  "model_sha256": "2cd0fb5dd200b93f775de59e68cfa7b65d9b3fdad1fb4c9ffb319242946154f1",
+  "source_sha256": "cf22df23300d170133ce252b7d936c57fae6a18b55a43c4bf56ba0c83a4bd9d5",
+  "source_rows": 1977,
+  "fit_count": 4,
+  "training_rows_by_evaluation_fold": {
+    "2": 327,
+    "3": 641,
+    "4": 954,
+    "5": 1286
+  },
+  "training_folds_for_export": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "export_evaluation_fold": 5,
+  "independent_final_test": false,
+  "production_model": false,
+  "hyperparameter_search": false,
+  "source_measurement_timestamps_available": false,
+  "replay_clock": "synthetic ordinal UTC; not PHM real timestamps",
+  "cadence": "every kth observed same-recipe wafer, across fold boundaries",
+  "delay": "additional observed same-recipe wafers before release; distinct from cadence",
+  "sensitivity_refits": 0,
+  "sensitivity_model": "each fold's frozen N0 Ridge",
+  "max_pipeline_portable_gap": 1.4210854715202004e-14,
+  "max_pipeline_core_gap": 1.4210854715202004e-14,
+  "max_N0_history_reference_gap": 0.0,
+  "reference_mae": [
+    {
+      "model": "EWMA",
+      "mae": 2.74692573220574,
+      "rows": 1286
+    },
+    {
+      "model": "Persistence",
+      "mae": 2.980179121306376,
+      "rows": 1286
+    },
+    {
+      "model": "Recipe Mean",
+      "mae": 7.167236725106057,
+      "rows": 1286
+    },
+    {
+      "model": "Ridge",
+      "mae": 2.6900060767984573,
+      "rows": 1286
+    }
+  ],
+  "evaluated_prediction_rows": 46296
+}

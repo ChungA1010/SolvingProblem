@@ -1,0 +1,29 @@
+{
+  "checkpoint": "cp11",
+  "date_utc": "2026-10-11T10:10:51.543472+00:00",
+  "scope": "Explicit offline educational Ridge export and PHM replay parity; no production selection",
+  "base_commit": "64d3f23b241ba5d570b89079754ce31ea1c25d43",
+  "status": "PASS",
+  "test_counts": {
+    "tests": 225,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sha256_utf8_lf": {
+    ".gitignore": "1b4d0f6047f9d3b1d0932cb4dad50eb3d3f602a63d5d55a4bea50987019194ac",
+    "src/models/export_simulator_ridge.py": "b4ce88130618e9512e6e98c3d816341ec2c87a3ad6e5e1148e2a9337efca4d9c",
+    "src/simulator/artifact.py": "656d12599de29c6cedcb6b3d33bdfe9571b8d00544dc296fdf7564cc824cfa58",
+    "tests/test_simulator_artifact.py": "2d2ce948876e05c51086f0a0b350203eefcc9246bd7977aa49e42125f8312c3a",
+    "artifacts/education-ridge-v1/fold_summary.csv": "62f73bd78959876582a319a243995554ec140006e1bd578e624d63debdb2c3be",
+    "artifacts/education-ridge-v1/measurement_summary.csv": "7edc8f0f290baea897a2526313c6991a206494a4dbeed0b137fbd3b0abdb4832",
+    "artifacts/education-ridge-v1/model.json": "2e6551b33da937af6a467c5fb8df633ffae7ecf0536dbe4d405bf17c35f709d4",
+    "artifacts/education-ridge-v1/report.json": "30231ae15668584b13bda58d0eeedf5ee7bfd574e48ba034a3b06b6732626665",
+    "docs/simulator-integration-checkpoints.md": "4ecefee14bf842f4cc3638886b5137eeafe7fb9cb494e3962eca583ef761afd3"
+  },
+  "independent_final_test": false,
+  "production_model": false,
+  "request_fit_calls": 0,
+  "numerical_pressure_correction": false,
+  "polishing_time_enabled": false
+}

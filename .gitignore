@@ -24,3 +24,13 @@ Thumbs.db
 /results/*
 !/results/di2017_final_audit/
 !/results/di2017_final_audit/**
+
+# Local per-wafer replay evidence; publish aggregates and model parameters only.
+/artifacts/education-ridge-v1/predictions.csv
+/unity/**/Library/
+/unity/**/Temp/
+/unity/**/Logs/
+/unity/**/obj/
+/unity/**/UserSettings/
+/unity/**/Packages/packages-lock.json
+/builds/
