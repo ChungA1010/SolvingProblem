@@ -10,6 +10,9 @@ from .scenario_validation import (
     UnsupportedPressureScenarioError,
     validate_pressure_scenario,
 )
+from .core import SimulationRequest, SimulatorCore
+from .history import HistoryError, HistoryState, MRRMeasurement, build_history_state
+from .result import PredictionResult, SimulatorError, SimulatorWarning
 
 __all__ = [
     "BaseMRRPredictor",
@@ -18,4 +21,6 @@ __all__ = [
     "PressureScenario",
     "UnsupportedPressureScenarioError",
     "validate_pressure_scenario",
+    "SimulationRequest", "SimulatorCore", "MRRMeasurement", "HistoryState",
+    "HistoryError", "build_history_state", "PredictionResult", "SimulatorError", "SimulatorWarning",
 ]

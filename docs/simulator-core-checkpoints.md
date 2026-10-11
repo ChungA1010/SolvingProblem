@@ -15,8 +15,8 @@
 | CP05 | final_mrr 계산 | 구현·테스트 완료 |
 | CP06 | structured warning / error | 구현·테스트 완료 |
 | CP07 | polishing time 비활성 정책 | 구현·테스트 완료 |
-| CP08 | 전체 파이프라인 unit test | 다음 작업; 서비스용 history/state 연결 포함 |
-| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 대기 |
+| CP08 | 전체 파이프라인 unit test | 구현·서비스용 history/state 연결 검증 완료 |
+| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | 다음 작업 |
 | CP10 | 전체 코어 실행 방법·제한사항 정리 | 대기 |
 
 ## CP01: Base MRR predictor interface
@@ -173,3 +173,11 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 ## CP07: polishing time 비활성 정책
 
 `polishing_time_policy`를 내부 inference에 연결했습니다. 목표 제거량과 단위 이름을 입력해도 `recommended_polishing_time=null`, `time_status=UNIT_UNVERIFIED`를 유지합니다. 목표 제거량은 모델 특징으로 사용하지 않으며, 제공된 경우 `TARGET_REMOVAL_NOT_USED` 경고를 남깁니다. 나눗셈·단위 추정·양수 MRR을 이용한 암묵적 시간 계산은 없습니다. [검증 기록](../verification/simulator-core/cp07.json).
+
+## CP08: history부터 결과까지 연결 및 전체 테스트
+
+`SimulatorCore.predict(SimulationRequest)`는 사용자가 제공한 timestamp 기반 측정 이력에서 상태를 내부 계산합니다. 현재 투입보다 **엄격히 이전**에 같은 recipe의 측정이 완료된 값만 사용하고 현재 실행 ID·다른 recipe·미래 완료 라벨은 제외합니다. 완료 시각 순으로 EWMA α=0.4, adjust=False를 계산하며 첫 측정값으로 초기화합니다. 완료 시각 동률은 과거 투입 시각으로 정렬하고 두 시각 모두 같으면 임의 순서를 정하지 않고 오류로 반환합니다.
+
+최소 한 개의 유효 이력이 필요합니다. 빈 이력·잘못된 시각·중복 실행 ID·비유한 측정값은 예측기 호출 전에 구조화된 오류가 됩니다. ID는 stage까지 포함한 실행 고유값을 사용해야 합니다. timezone-aware 시각은 UTC로 정규화합니다. 실제 PHM에는 측정 완료 시각이 없으므로 예제·테스트의 시각이 원본 관측이라는 주장은 하지 않습니다. 기존 순번 기반 N=0 benchmark나 모델 결과를 변경하지 않았습니다.
+
+요청 API에는 `prev_mrr`, `state_ewm`, raw pressure, 외부 delta 입력이 없습니다. 전체 경로의 다섯 scenario·오류·단위 경고·미래 라벨 변경 불변·학습/파일 읽기 차단을 검증합니다. [검증 기록](../verification/simulator-core/cp08.json).
