@@ -1,23 +1,23 @@
 # Issue #4: 시뮬레이터 코어 체크포인트
 
-친구와 코드·테스트를 확인할 수 있도록 체크포인트별로 구현·검증·커밋합니다. 2026-10-11의 전체 진행 요청에 따라 남은 CP04~CP10을 순서대로 완료합니다. 아래 표가 현재 진행 상태이며 개별 절의 기록은 해당 체크포인트 시점 기준입니다.
+2026-10-11 기준 **CP01~CP10 코어 작업을 모두 완료**했습니다. 친구가 변경 내용을 따라갈 수 있도록 체크포인트별로 구현·검증·커밋했습니다. 현재 실행 방법은 [사용법](simulator-core-usage.md)을 보세요. 아래 표가 현재 상태이며 개별 절과 JSON hash는 해당 체크포인트 커밋 시점의 기록입니다. 실제 fitted PHM model artifact 배포 연결과 독립 final test는 완료 범위에 포함되지 않습니다.
 
 작업 브랜치는 [`feat/4-simulator-core-codex`](https://github.com/ChungA1010/SolvingProblem/tree/feat/4-simulator-core-codex)입니다. 기존 `feat/4-simulator-core`에서 Issue #2·#3의 이력을 가져왔으며, 이후 체크포인트는 이 별도 브랜치에서 진행합니다. 체크포인트별 커밋 메시지에 해당 이슈 번호 `#4`를 포함합니다.
 
-기준: [이슈 #4](https://github.com/ChungA1010/SolvingProblem/issues/4), [Issue #2 프로토콜](mrr_model_protocol.md), [pressure 정책](pressure_hybrid_policy.md). 시작 커밋은 `b3476dc9edcc25619cfa5c357d2e5ecf79258bd7`입니다. 이슈에 체크된 history/state 항목은 기존 학습용 코드에서 확인했습니다. 실제 측정 완료 timestamp를 받는 서비스용 state builder와의 연결은 아직 검증하지 않았습니다.
+기준: [이슈 #4](https://github.com/ChungA1010/SolvingProblem/issues/4), [Issue #2 프로토콜](mrr_model_protocol.md), [pressure 정책](pressure_hybrid_policy.md). 시작 커밋은 `b3476dc9edcc25619cfa5c357d2e5ecf79258bd7`입니다. 기존 학습용 이력 코드와 별도로 실제 완료 timestamp를 검사하는 서비스용 state builder를 CP08에서 구현하고 전체 요청과의 연결을 검증했습니다. PHM 원자료의 실제 완료 시각은 제공되지 않아 기존 N=0 benchmark 가정은 그대로 남습니다.
 
-| 순서 | 체크포인트 | 현재 상태 |
-|---|---|---|
-| CP01 | Base MRR predictor interface | 구현·계약 테스트 완료 |
-| CP02 | pressure scenario registry | 구현·정책 테스트 완료 |
-| CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 |
-| CP04 | correction activation gate | 구현·테스트 완료 |
-| CP05 | final_mrr 계산 | 구현·테스트 완료 |
-| CP06 | structured warning / error | 구현·테스트 완료 |
-| CP07 | polishing time 비활성 정책 | 구현·테스트 완료 |
-| CP08 | 전체 파이프라인 unit test | 구현·서비스용 history/state 연결 검증 완료 |
-| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | adapter 구현·합성 fitted pipeline 연결 검증 완료 |
-| CP10 | 전체 코어 실행 방법·제한사항 정리 | 다음 작업 |
+| 순서 | 체크포인트 | 현재 상태 | 단계 시점 누적 테스트 통과 |
+|---|---|---|---:|
+| CP01 | Base MRR predictor interface | 구현·계약 테스트 완료 | 25 |
+| CP02 | pressure scenario registry | 구현·정책 테스트 완료 | 41 |
+| CP03 | recipe / pressure scenario validation | 구현·입력 검증 테스트 완료 | 89 |
+| CP04 | correction activation gate | 구현·테스트 완료 | 99 |
+| CP05 | final_mrr 계산 | 구현·테스트 완료 | 112 |
+| CP06 | structured warning / error | 구현·테스트 완료 | 131 |
+| CP07 | polishing time 비활성 정책 | 구현·테스트 완료 | 139 |
+| CP08 | 전체 파이프라인 unit test | 구현·서비스용 history/state 연결 검증 완료 | 172 |
+| CP09 | 기존 Issue #2 Ridge adapter 및 history 연결 검토 | adapter 구현·합성 fitted pipeline 연결 검증 완료 | 186 |
+| CP10 | 전체 코어 실행 방법·제한사항 정리 | 문서·JSON 계약 데모·CLI 검증 완료 | 197 |
 
 ## CP01: Base MRR predictor interface
 
@@ -187,3 +187,27 @@ python -m pytest tests/test_simulator_predictor.py tests/test_simulator_pressure
 `Issue2RidgeAdapter(fitted_pipeline, model_version=..., provenance=...)`는 이미 학습된 pipeline을 명시적으로 주입받습니다. 기존 `train_mrr_chronological._fixed_regression`의 recipe OneHotEncoder(handle_unknown=ignore), numeric median imputer + StandardScaler, Ridge α=1.0과 세 입력의 이름·순서를 검사합니다. 미학습·변경된 pipeline은 거부하며 caller의 이후 변경이 예측기를 바꾸지 않도록 이미 학습된 객체를 복사합니다. ML 라이브러리는 adapter 생성/사용 시에만 불러옵니다.
 
 테스트에서는 **합성 데이터로 외부에서 미리 학습한 fixture**를 사용합니다. 원 pipeline과 adapter의 예측 일치, 전체 history 요청 연결, 모든 단계의 fit을 차단한 반복 요청을 확인합니다. PHM/development 전체 refit, fold 5 production 지정, 새 하이퍼파라미터 탐색은 수행하지 않았습니다. 실제 저장된 Issue #2 모델 파일은 없으므로 해당 파일의 배포 연결·실제 MRR 성능 검증은 이번 완료 범위에 포함되지 않습니다. 이슈 #4에서 요구한 adapter 구조와 연결 계약은 구현·검증했습니다. [검증 기록](../verification/simulator-core/cp09.json).
+
+## CP10: 전체 사용법 및 제한사항
+
+[사용법](simulator-core-usage.md)에 표준 라이브러리 계약 데모, 최소/전체 테스트 명령, JSON·Python 요청 계약, fitted Ridge 주입 방법, 오류 코드와 남은 데이터·단위 제한을 정리했습니다. `python -m src.simulator --stub --request examples/simulator_request.json`은 [입력](../examples/simulator_request.json)으로 [출력](../examples/simulator_output.json)을 재현합니다. JSON 경계에서 raw pressure·직접 state·외부 delta·잘못된 시각을 거부합니다. 테스트 stub는 명시적 flag와 버전·경고로 표시하며 실제 Ridge나 연구 성능으로 표시하지 않습니다. [최종 검증 기록](../verification/simulator-core/cp10.json).
+
+### 이슈 #4 완료 조건 대응
+
+최종 검증은 **197개 통과, 실패·오류·skip 0개**입니다. JSON 데모 입력·출력 재현과 fitted adapter 검사를 포함합니다. 처음 CLI 검증에서 기본 임시 폴더 권한 오류가 있어 workspace `.pytest_cache/cp10/tmp`로 임시 경로를 제한한 뒤 전체 검사를 다시 수행했습니다.
+
+| 요구사항 | 구현 / 검증 |
+|---|---|
+| 입력·출력 계약 | SimulationRequest / PredictionResult / JSON CLI |
+| 측정 완료된 same-recipe history | history.py, strict before-start, 현재·다른 recipe·미래 제외 |
+| prev_mrr / EWMA α=0.4 | 첫 측정 seed, adjust=False, 시각 정렬·중복/모호성 오류 |
+| Base predictor / 기존 Ridge adapter | 명시적 주입, fitted 전처리 유지, 외부 객체 변경 격리 |
+| categorical scenario / validation | 다섯 조합만 허용, numeric 입력·보간·외삽·자동 fallback 없음 |
+| correction activation gate | 기본 보정 0, enable/default 변경 시 미승인 오류 |
+| final MRR / 경고 / 버전 | base+gate 결과, 구조화된 code/message, model/policy 추적 |
+| polishing time 비활성 | target 입력과 무관하게 null / UNIT_UNVERIFIED |
+| import/request에서 재학습 없음 | fresh subprocess의 ML import 차단, real fixture의 모든 fit 차단 |
+| 기존 연구 코드·결과 보존 | 기존 모델·전처리·결과 파일을 변경하지 않음 |
+| 실행 방법·한계 | usage 문서·명시적 stub 데모·개별 및 전체 테스트 기록 |
+
+이슈 본문의 체크박스·댓글과 close 상태는 변경하지 않았습니다. 이 문서의 완료는 코어 및 adapter 구조에 대한 것이며 실제 모델 배포나 독립 성능 검증을 뜻하지 않습니다.

@@ -332,3 +332,7 @@ results/di2017\_final\_audit/README.md
 
 최종적으로 교육용 CMP 시뮬레이터의 MRR 예측 모델로 연결하는 것을 목표로 합니다.
 
+## Issue #4 simulator core
+
+`feat/4-simulator-core-codex` 브랜치에는 timestamp 기반 이력 상태 계산, predictor interface, pressure scenario 검증, 비활성 correction gate, 구조화된 결과·경고와 기존 Ridge용 adapter가 구현되어 있습니다. [실행 방법과 제한사항](docs/simulator-core-usage.md), [체크포인트별 기록](docs/simulator-core-checkpoints.md)을 확인하세요. 계약 데모는 `python -m src.simulator --stub --request examples/simulator_request.json`으로 실행합니다. 실제 fitted model artifact와 독립 final test는 제공되지 않았으며, 데모는 명시적 테스트 stub입니다.
+

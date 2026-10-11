@@ -1,0 +1,56 @@
+{
+  "status": "OK",
+  "recipe": "B456",
+  "pressure_scenario": "High",
+  "base_mrr": 71.0,
+  "support_level": "OBSERVED_LIMITED",
+  "correction_status": "CHRONOLOGICALLY_SUPPORTED",
+  "correction_enabled": false,
+  "applied_correction": 0.0,
+  "final_mrr": 71.0,
+  "recommended_polishing_time": null,
+  "time_status": "UNIT_UNVERIFIED",
+  "warnings": [
+    {
+      "code": "PRESSURE_OBSERVATION_NOT_SETPOINT",
+      "message": "pressure scenario는 연마 중 센서 관측 조건이며 투입 전 장비 setpoint가 아닙니다."
+    },
+    {
+      "code": "CORRECTION_DISABLED",
+      "message": "경험적 수치 보정은 현재 비활성이며 압력 효과가 0으로 입증된 뜻이 아닙니다."
+    },
+    {
+      "code": "N0_MEASUREMENT_COMPLETE_ASSUMPTION",
+      "message": "모델 개발 기준은 이전 같은 recipe의 측정 완료를 가정한 N=0입니다. 실제 요청에서는 완료 시각을 검사합니다."
+    },
+    {
+      "code": "NO_INDEPENDENT_FINAL_TEST",
+      "message": "현재 근거는 development 자료이며 독립 final test가 없습니다."
+    },
+    {
+      "code": "MRR_UNIT_UNVERIFIED",
+      "message": "물리 MRR 단위가 미확정이므로 연마 시간 숫자를 출력하지 않습니다."
+    },
+    {
+      "code": "SCENARIO_EVIDENCE_LIMIT",
+      "message": "fold 2~5 평가 표본은 42장이며 최종 보정 estimator는 미선정입니다."
+    },
+    {
+      "code": "SCENARIO_EVIDENCE_LIMIT",
+      "message": "p_main=347.893 이상치 1장은 High 군집과 보정 calibration에서 제외합니다."
+    },
+    {
+      "code": "TARGET_REMOVAL_NOT_USED",
+      "message": "목표 제거량 입력은 현재 MRR 특징이나 연마 시간 계산에 사용하지 않습니다. 물리 MRR 단위 검증이 필요합니다."
+    },
+    {
+      "code": "TEST_STUB_ONLY",
+      "message": "계약 확인용 결정론적 stub입니다. 실제 Ridge 예측이나 MRR 성능 평가가 아닙니다."
+    }
+  ],
+  "error": null,
+  "model_version": "TEST_STUB_ONLY_v1",
+  "policy_version": "issue3-pressure-scenarios-v1",
+  "history_used": 2,
+  "latest_measurement_completed_at": "2026-10-11T00:00:03+00:00"
+}

@@ -1,0 +1,24 @@
+{
+  "wafer_id": "current:B",
+  "recipe": "B456",
+  "pressure_scenario": "High",
+  "wafer_start_at": "2026-10-11T09:00:10+09:00",
+  "history": [
+    {
+      "wafer_id": "past1:B",
+      "recipe": "B456",
+      "wafer_started_at": "2026-10-11T09:00:00+09:00",
+      "measurement_completed_at": "2026-10-11T09:00:01+09:00",
+      "mrr": 60
+    },
+    {
+      "wafer_id": "past2:B",
+      "recipe": "B456",
+      "wafer_started_at": "2026-10-11T09:00:02+09:00",
+      "measurement_completed_at": "2026-10-11T09:00:03+09:00",
+      "mrr": 80
+    }
+  ],
+  "target_removal": 100,
+  "target_removal_unit": "nm"
+}
