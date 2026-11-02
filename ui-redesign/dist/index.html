@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="CMP 입문 체험과 학습 실험실. 압력·회전·Slurry C를 조합하는 교육용 미션과 실험 비교로 이해를 넓혀 보세요.">
+  <meta name="color-scheme" content="light">
+  <title>CMP Lab — 모드 선택</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='14' fill='%230d6efd'/%3E%3Ccircle cx='24' cy='24' r='15' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='24' cy='24' r='7' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./engine.js" defer></script>
+  <script src="./view-model.js" defer></script>
+  <script src="./counter.js" defer></script>
+  <script src="./learning-model.js" defer></script>
+  <script src="./mission-model.js" defer></script>
+  <script src="./polish.js" defer></script>
+  <script src="./scene-model.js" defer></script>
+  <script src="./scene-parts.js" defer></script>
+  <script src="./cmp-scene.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <a href="#main" class="fixed left-4 top-3 z-50 -translate-y-24 rounded-[5px] bg-brand px-4 py-2 text-paper focus:translate-y-0">본문으로 바로가기</a>
+  <svg aria-hidden="true" class="absolute size-0 overflow-hidden" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6m-5 0v7L4.5 19a1.3 1.3 0 0 0 1.2 2h12.6a1.3 1.3 0 0 0 1.2-2L14 10V3M8 14h8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5c-3-2-6-2-9-1v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-3-1-6-1-9 1v15"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v.01"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 11a9 9 0 1 1 2.5 7M3 4v7h7"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9m4 0h3M4 17h3m4 0h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m3 8 9-5 9 5-9 5-9-5Zm0 5 9 5 9-5M3 18l9 5 9-5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v6c0 4-4 7-8 9-4-2-8-5-8-9V6l8-3Z"/><path d="m8 12 3 3 5-6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="3"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2"/></symbol>
+    <symbol id="i-warning" viewBox="0 0 24 24"><path d="m10.3 4-8 14a2 2 0 0 0 1.7 3h16a2 2 0 0 0 1.7-3l-8-14a2 2 0 0 0-3.4 0Z M12 9v4m0 3v.01"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M6 12h12m-6-6v12"/></symbol>
+  </svg>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="주 탐색">
+      <a href="#home" class="flex items-center gap-2.5 px-1" aria-label="CMP Lab 모드 선택 홈">
+        <span class="logo-mark"><svg class="size-6" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.3"/><ellipse cx="16" cy="16" rx="5" ry="11" stroke="currentColor" stroke-width="1.3" transform="rotate(40 16 16)"/><circle cx="16" cy="16" r="2.8" fill="currentColor"/></svg></span>
+        <div><span class="text-[19px] font-bold tracking-[-.06em]">CMP<span class="font-normal"> lab</span><span class="ml-0.5 text-brand">.</span></span></div>
+      </a>
+      <nav class="mt-10 space-y-1" aria-label="페이지 선택">
+        <button class="nav-item" data-page="home" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>모드 선택</button>
+        <button class="nav-item" data-page="intro"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>입문 체험</button>
+        <button class="nav-item" data-page="lab"><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg>학습 실험실</button>
+        <button class="nav-item" data-page="history"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>실험 기록<span id="nav-count" class="ml-auto rounded-md bg-paper px-1.5 py-0.5 text-[13px]">0</span></button>
+        <button class="nav-item" data-page="guide"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>학습 가이드</button>
+      </nav>
+      <p class="sidebar-source">데이터 출처 · PHM 2016 CMP</p>
+    </aside>
+    <div class="main-shell">
+      <header class="topbar"><span id="breadcrumb" class="text-[13px] text-muted">모드 선택</span><a class="text-button" href="#home">모드 선택으로</a></header>
+      <nav class="mobile-nav hidden gap-1 border-b border-line bg-panel p-2" aria-label="모바일 페이지 선택"><button class="nav-item" data-page="intro">입문</button><button class="nav-item" data-page="lab">실험실</button><button class="nav-item" data-page="history">기록</button><button class="nav-item" data-page="guide">가이드</button></nav>
+      <main id="main" class="workspace px-8 py-8" tabindex="-1">
+        <div class="heading-row mb-7 flex items-center justify-between gap-5">
+          <div><h1 id="page-title" class="hero-heading">어떻게 시작할까요?</h1><p id="page-subtitle" class="mt-2.5 text-xs leading-6 text-muted">처음 만나는 CMP부터, 조건을 비교하는 실험까지. 나에게 맞는 방식으로 시작하세요.</p></div>
+
+        </div>
+
+        <section id="page-home" aria-label="모드 선택">
+          <div class="mode-grid bento-grid">
+            <article class="card mode-card mode-intro">
+              <div class="mode-topline"><span class="badge badge-amber">처음 만나는 CMP</span><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></div>
+              <h2>입문 체험</h2><p class="mode-description">압력·회전·유량을 조합해,<br>목표에 가까워지는 과정을 보세요.</p>
+              <div class="mode-visual intro-visual" aria-hidden="true"><span class="visual-wafer"></span><span class="visual-slider"><i></i></span><span class="visual-target">목표 MRR <b data-counter="72.30">72.30</b></span></div>
+              <p class="mode-audience">CMP를 처음 접하는 학생·일반인을 위한 체험</p><ul class="mode-features"><li>5번의 기회 안에 목표 오차 줄이기</li><li>시도별 비교와 3D 자동 연마 시연</li></ul>
+              <button type="button" class="primary-button" data-page="intro-tour">입문 체험 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </article>
+            <article class="card mode-card mode-lab">
+              <div class="mode-topline"><span class="badge badge-neutral">조건을 비교하며 배우기</span><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg></div>
+              <h2>학습 실험실</h2><p class="mode-description">한 조건씩 바꾸고,<br>결과가 달라진 이유를 찾으세요.</p>
+              <div class="mode-visual lab-visual" aria-hidden="true"><svg viewBox="0 0 320 100"><path d="M0 25H320M0 60H320M0 95H320" stroke="#dce6f4" stroke-dasharray="3 5"/><path d="M12 80Q100 68 160 47T308 14" fill="none" stroke="#0d6efd" stroke-width="3"/><circle cx="160" cy="47" r="6" fill="#fff" stroke="#0d6efd" stroke-width="3"/></svg><span>기준 실험 <b>→</b> 변경 실험</span></div>
+              <p class="mode-audience">반도체 공정을 배우는 학부생·취업 준비생을 위한 실험</p><ul class="mode-features"><li>조건 설정·기록 비교·결과 해설</li><li>변수의 영향을 확인하는 학습 과제 3개</li></ul>
+              <button type="button" class="primary-button" data-page="lab">학습 실험실 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </article>
+          </div>
+          <p class="mode-footnote">두 모드의 실행 기록은 함께 저장됩니다. 언제든 모드를 전환할 수 있습니다.</p>
+          <div class="info-note mt-5"><svg class="icon size-4" aria-hidden="true"><use href="#i-info"/></svg><p>수식 기반 교육용 데모입니다. 목표 달성은 학습 미션의 판정이며 실제 공정 품질을 뜻하지 않습니다. 3D의 제거·변형은 이해를 돕는 표현입니다.</p></div>
+        </section>
+
+        <section id="page-intro-tour" aria-label="입문 체험 진행 안내" hidden>
+          <div class="tour-card" data-tour-step="0">
+            <div class="tour-topline"><span class="tour-eyebrow">첫 실험 가이드</span><button id="tour-skip" class="text-button" type="button">안내 건너뛰기<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+            <ol class="tour-stepper" aria-label="체험 안내 단계">
+              <li><button type="button" data-tour-step="0" aria-current="step" aria-controls="tour-panel-0"><span class="tour-step-number"><span>01</span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>조건 선택</span></button></li>
+              <li><button type="button" data-tour-step="1" aria-controls="tour-panel-1"><span class="tour-step-number"><span>02</span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>시뮬레이터</span></button></li>
+              <li><button type="button" data-tour-step="2" aria-controls="tour-panel-2"><span class="tour-step-number"><span>03</span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg></span><span>결과 확인</span></button></li>
+            </ol>
+            <div class="tour-body">
+              <section id="tour-panel-0" class="tour-panel bento-grid" aria-labelledby="tour-title-0">
+                <div class="tour-copy bento-tile"><span class="tour-section-label">01 / 조건 선택</span><h2 id="tour-title-0" tabindex="-1">내가 바꾸는 조건,<br>달라지는 연마 결과</h2><p>압력·Wafer 회전·Stage 회전·Slurry C 유량을 조합해보세요. 한 번에 하나씩 바꾸면 무엇이 영향을 주는지 알기 쉬워요.</p><div class="tour-takeaway"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg><span>조건을 고르는 동안에는 기회를 사용하지 않아요.</span></div></div>
+                <div class="bento-tile tour-preview tour-preview-controls" aria-hidden="true"><div class="tour-preview-heading"><span>실험 조건</span><span>화면 예시</span></div><div class="tour-demo-field"><span>Main outer 압력 <b data-counter="269.765" data-counter-digits="3">269.765</b></span><div class="tour-demo-track"><i></i></div></div><div class="tour-demo-field"><span>Wafer 회전 <b><span data-counter="100" data-counter-digits="0">100</span><small>%</small></b></span><div class="tour-demo-track"><i></i></div></div><div class="tour-demo-field"><span>Stage 회전 <b><span data-counter="100" data-counter-digits="0">100</span><small>%</small></b></span><div class="tour-demo-track"><i></i></div></div><div class="tour-demo-field"><span>Slurry C 유량 <b><span data-counter="100" data-counter-digits="0">100</span><small>%</small></b></span><div class="tour-demo-track"><i></i></div></div><span class="tour-demo-chip"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>네 조건을 정했다면 다음으로</span></div>
+              </section>
+              <section id="tour-panel-1" class="tour-panel bento-grid" aria-labelledby="tour-title-1" hidden>
+                <div class="tour-copy bento-tile"><span class="tour-section-label">02 / 시뮬레이터</span><h2 id="tour-title-1" tabindex="-1">연마는 장비가,<br>관찰은 내가</h2><p>선택한 조건을 확인하고 연마를 시작하세요. 3D 장비에서 웨이퍼와 패드가 접촉하고 회전하는 과정을 볼 수 있어요.</p><div class="tour-takeaway"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span><strong>연마 시작</strong>을 누를 때만 기회 1회를 사용해요.</span></div></div>
+                <figure class="bento-tile tour-preview tour-preview-machine" aria-labelledby="tour-equipment-caption">
+                  <div class="tour-preview-heading"><span>자동 연마 <b class="tour-3d-badge">3D</b></span><span>4초 · 동작 개념도</span></div>
+                  <div class="tour-equipment-frame">
+                    <video id="tour-equipment-video" class="tour-equipment-video" muted playsinline preload="none" poster="./media/cmp-tour-poster.webp" aria-label="Blender로 제작한 CMP 장비 개념 시연. 헤드와 웨이퍼가 패드로 내려와 회전하고, 슬러리가 공급된 뒤 다시 분리됩니다.">
+                      <source src="./media/cmp-tour-motion.webm" type="video/webm">
+                      <source src="./media/cmp-tour-motion.mp4" type="video/mp4">
+                    </video>
+                    <svg class="tour-part-leaders" viewBox="0 0 1000 780" fill="none" aria-hidden="true"><g stroke="#7a8fa6" stroke-width="1.6"><path d="M795 200H748L603 343"/><path d="M170 333H235L340 370"/><path d="M866 584L819 540L756 492"/></g><g fill="#ffffff" stroke="#7a8fa6" stroke-width="1.6"><circle cx="603" cy="343" r="4"/><circle cx="340" cy="370" r="4"/><circle cx="756" cy="492" r="4"/></g></svg>
+                    <span class="tour-part-label tour-part-head">연마 헤드</span>
+                    <span class="tour-part-label tour-part-slurry">Slurry C</span>
+                    <span class="tour-part-label tour-part-pad">연마 패드</span>
+                    <button id="tour-media-toggle" class="tour-media-toggle" type="button" aria-label="개념도 동작 재생">동작 보기</button>
+                  </div>
+                  <figcaption id="tour-equipment-caption">
+                    <ol class="tour-motion-phases" aria-label="장비 동작 순서"><li data-motion-phase="0"><span>01</span>접근</li><li data-motion-phase="1"><span>02</span>연마 · 공급</li><li data-motion-phase="2"><span>03</span>분리</li></ol>
+                    <p>동작과 간격은 이해를 돕기 위한 설명용 표현입니다.</p>
+                  </figcaption>
+                </figure>
+              </section>
+              <section id="tour-panel-2" class="tour-panel bento-grid" aria-labelledby="tour-title-2" hidden>
+                <div class="tour-copy bento-tile"><span class="tour-section-label">03 / 결과 확인</span><h2 id="tour-title-2" tabindex="-1">오차를 읽고,<br>다음 조건을 찾아요</h2><p>계산된 MRR과 목표의 차이를 확인하세요. 시도 기록을 비교하며 <strong>5번의 기회 안에 72.30 ± 0.20</strong>에 도전해보세요.</p><div class="tour-takeaway"><svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg><span>다시 보기는 기회를 사용하지 않아요. 다음 시도에서는 조건을 조절해보세요.</span></div></div>
+                <div class="bento-tile tour-preview tour-preview-result" aria-hidden="true"><div class="tour-preview-heading"><span>목표에 가까워지는 과정</span><span>결과 예시</span></div><div class="tour-demo-result"><span>목표 MRR</span><strong><span data-counter="72.30">72.30</span> <small>± <span data-counter="0.20">0.20</span></small></strong></div><svg class="tour-error-plot" viewBox="0 0 320 118"><path d="M20 20H300M20 60H300M20 100H300" stroke="#dde6f2" stroke-dasharray="3 5"/><path class="tour-error-line" d="M30 24L160 62L290 100" fill="none" stroke="#0d6efd" stroke-width="3" stroke-linecap="round" pathLength="1"/><g fill="white" stroke="#0d6efd" stroke-width="3"><circle cx="30" cy="24" r="5"/><circle cx="160" cy="62" r="5"/><circle cx="290" cy="100" r="5"/></g></svg><div class="tour-error-labels"><span>1차 오차<b data-counter="1.80">1.80</b></span><span>2차 오차<b data-counter="0.90">0.90</b></span><span>3차 오차<b data-counter="0.01">0.01</b></span></div><span class="tour-demo-chip tour-success"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>오차가 줄어든 이유를 생각해보세요</span></div>
+              </section>
+            </div>
+            <div class="tour-footer"><button id="tour-prev" type="button" class="quiet-button" disabled>← 이전</button><p id="tour-position" role="status" aria-live="polite" aria-atomic="true">1 / 3 · 조건 선택</p><button id="tour-next" class="primary-button" type="button"><span>다음 · 시뮬레이터</span><svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+          </div>
+          <p class="tour-disclaimer"><svg class="icon size-4" aria-hidden="true"><use href="#i-info"/></svg>가정 기반 교육용 체험입니다. 안내의 그림과 수치는 예시이며 실제 공정 예측이 아닙니다.</p>
+        </section>
+
+        <section id="page-intro" aria-label="입문 체험" data-step="setup" hidden>
+          <div class="mission-flow-header">
+            <ol class="mission-steps" aria-label="입문 체험 진행 단계"><li data-mission-step="setup" aria-current="step"><span>01</span>조건 선택</li><li data-mission-step="simulator"><span>02</span>시뮬레이터</li><li data-mission-step="result"><span>03</span>결과 확인</li></ol>
+            <div class="mission-session"><p>목표 MRR <strong id="mission-target"><span data-counter="72.30">72.30</span> <small>± <span data-counter="0.20">0.20</span></small></strong></p><span id="mission-attempts" class="badge badge-neutral">남은 기회 <span id="mission-remaining">5</span> / 5</span><div id="mission-chances" class="mission-chances" role="img" aria-label="남은 기회 5회"></div></div>
+          </div>
+          <section id="mission-step-setup" data-mission-panel="setup" aria-labelledby="mission-controls-heading">
+            <div class="card mission-control-card">
+              <div class="card-heading"><h2 id="mission-controls-heading" class="card-label">실험 조건 선택</h2><span class="badge badge-neutral">A456 · 기준 MRR <span data-counter="74.10">74.10</span></span></div>
+              <p class="learning-copy">네 변수를 조합하세요. 다음 화면에서 장비를 확인하고 연마를 시작합니다.</p>
+              <p id="mission-previous" class="mission-previous" hidden></p>
+              <form id="mission-form" novalidate><div class="mission-input-grid bento-grid"><div class="mission-parameter bento-tile"><label class="field-label" for="mission-pressure">Main outer 압력<span>데이터 기준값</span></label>
+<div class="pressure-well"><input id="mission-pressure" class="pressure-readout" type="number" step="0.001" value="269.765" inputmode="decimal" aria-describedby="mission-range mission-error"></div>
+<input id="mission-slider" class="parameter-range" type="range" min="250.817" max="270.011" step="0.001" value="269.765" aria-label="입문 Main outer 압력 슬라이더" aria-describedby="mission-range">
+<p id="mission-range" class="mission-range"><span>250.817</span><span>270.011</span></p><p class="parameter-hint">실제 접촉압력으로 환산하지 않습니다.</p></div><div class="mission-parameter bento-tile"><label class="field-label" for="mission-wafer_rotation_pct">Wafer 회전<span>기준 대비 %</span></label><div class="relative-input"><input id="mission-wafer_rotation_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="mission-wafer_rotation_pct-hint mission-error"><span>%</span></div>
+<input id="mission-wafer_rotation_pct-slider" class="parameter-range" type="range" min="50" max="150" step="1" value="100" aria-label="입문 Wafer 회전 슬라이더" aria-describedby="mission-wafer_rotation_pct-hint"><div class="mission-range"><span>50%</span><span>100% 기준</span><span>150%</span></div><p id="mission-wafer_rotation_pct-hint" class="parameter-hint">웨이퍼의 교육용 회전 비율 · 실제 단위 아님</p></div><div class="mission-parameter bento-tile"><label class="field-label" for="mission-stage_rotation_pct">Stage 회전<span>기준 대비 %</span></label><div class="relative-input"><input id="mission-stage_rotation_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="mission-stage_rotation_pct-hint mission-error"><span>%</span></div>
+<input id="mission-stage_rotation_pct-slider" class="parameter-range" type="range" min="50" max="150" step="1" value="100" aria-label="입문 Stage 회전 슬라이더" aria-describedby="mission-stage_rotation_pct-hint"><div class="mission-range"><span>50%</span><span>100% 기준</span><span>150%</span></div><p id="mission-stage_rotation_pct-hint" class="parameter-hint">패드의 교육용 회전 비율 · 실제 단위 아님</p></div><div class="mission-parameter bento-tile"><label class="field-label" for="mission-slurry_c_pct">Slurry C 유량<span>기준 대비 %</span></label><div class="relative-input"><input id="mission-slurry_c_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="mission-slurry_c_pct-hint mission-error"><span>%</span></div>
+<input id="mission-slurry_c_pct-slider" class="parameter-range" type="range" min="50" max="150" step="1" value="100" aria-label="입문 Slurry C 유량 슬라이더" aria-describedby="mission-slurry_c_pct-hint"><div class="mission-range"><span>50%</span><span>100% 기준</span><span>150%</span></div><p id="mission-slurry_c_pct-hint" class="parameter-hint">슬러리의 교육용 공급 비율 · 실제 단위 아님</p></div></div>
+                <p id="mission-error" class="interlock-warning" role="alert" hidden></p>
+                <div class="mission-step-actions"><button id="mission-reset" class="text-button" type="button">새 도전 시작</button><div><p>다음 화면으로 이동해도 기회는 줄지 않습니다.</p><button id="mission-run" class="primary-button" type="submit">다음 · 시뮬레이터 →</button></div></div>
+              </form><details class="disclosure mt-4"><summary>계산식과 고정 조건</summary><div class="disclosure-body learning-copy"><p>A456 · 기준 MRR 74.10 · 기준 압력 269.765 · 측정 후 1장 · Head 회전은 고정합니다.</p><p class="education-formula">MRR = 74.10 × (P / 269.765)<sup>0.682</sup> × w<sup>0.25</sup> × s<sup>0.40</sup> × 2q / (1 + q)</p><p>w = Wafer 회전 / 100, s = Stage 회전 / 100, q = Slurry C / 100입니다. 회전 지수·유량 함수·50–150% 범위는 교육용으로 정했으며 데이터로 추정하지 않았습니다. 100%는 실제 recipe 설정값이 아닙니다. 회전축 기하·상대속도·변수 상호작용·품질·결함·균일도는 계산하지 않습니다.</p></div></details>
+            </div>
+          </section>
+          <section id="mission-step-simulator" data-mission-panel="simulator" aria-label="연마 시뮬레이터" hidden>
+            <div class="mission-simulation-toolbar"><div><p id="mission-simulation-status" class="card-label" role="status">선택한 조건을 장비에 적용할 준비가 됐습니다.</p><p id="mission-simulation-note" class="learning-copy">연마 시작을 누르면 기회를 1회 사용합니다.</p></div><div class="mission-simulation-actions"><button id="mission-edit" type="button" class="quiet-button">← 조건 수정</button><button id="mission-start" type="button" class="primary-button">연마 시작 · 1회 사용</button><button id="mission-show-result" type="button" class="primary-button" disabled>결과 확인 →</button></div></div>
+            <div id="intro-scene-slot" class="mission-scene-slot"></div>
+            <details class="disclosure mt-4"><summary>선택한 연마 조건</summary><div id="mission-selected-conditions" class="mission-condition-chips disclosure-body" aria-label="이번 연마 조건"></div></details>
+          </section>
+          <section id="mission-step-result" data-mission-panel="result" aria-label="실험 결과 확인" hidden>
+              <section id="mission-result-card" class="mission-result-card bento-grid" aria-labelledby="mission-result-heading" data-outcome="idle">
+                <div class="mission-result-main bento-tile">
+                <div class="card-heading"><h2 id="mission-result-heading" class="card-label">이번 실행 결과</h2><span id="mission-outcome" class="badge badge-neutral">실행 전</span></div>
+                <div class="mission-value"><strong id="mission-value">—</strong><span>계산 MRR</span></div>
+                <div class="mission-meter" aria-hidden="true"><span id="mission-target-band"></span><i id="mission-marker" hidden></i></div><div class="mission-meter-labels"><span>≤ 67.30</span><span>목표 주변 확대</span><span>≥ 77.30</span></div>
+                <div class="mission-error-stats"><div><span>이번 절대오차</span><strong id="mission-error-value">—</strong></div><div><span>도전 최소 오차</span><strong id="mission-best-error">—</strong></div></div>
+                <p id="mission-improvement" class="mission-improvement" data-trend="same"></p>
+                <p id="mission-feedback" class="learning-copy" role="status">네 입력을 정하고 연마 실행을 눌러보세요.</p><p id="mission-result-status" class="learning-copy"></p><p id="mission-factors" class="mission-factors"></p>
+                <button id="mission-continue" type="button" class="primary-button w-full mt-4">조건 조절 · 다음 시도 →</button><button id="mission-watch-again" type="button" class="quiet-button w-full mt-3">연마 다시 보기</button>
+                <button id="mission-retry" type="button" class="primary-button w-full mt-4" hidden>다시 도전 · 기회 5회</button>
+                </div><div class="mission-result-log bento-tile">
+                <div class="mission-log-heading"><h3 class="card-label">이번 도전 기록</h3><span>절대오차 = |MRR − 72.30|</span></div>
+                <div id="mission-trials" class="mission-trials" role="region" tabindex="0" aria-label="이번 도전의 시도별 기록, 가로 스크롤 가능"></div>
+                <div id="mission-next" hidden><p class="learning-copy">같은 MRR을 만드는 조건 조합은 여러 개입니다. 목표 달성은 실제 공정의 최적 조건이나 품질을 뜻하지 않습니다.</p><button id="mission-to-lab" type="button" class="text-button mt-3">이 결과로 학습 실험실에서 비교 →</button><button type="button" class="text-button mt-3" data-task-start="pressure">압력과 MRR 과제 이어가기 →</button></div>
+                <p class="mission-precision">표시된 소수 둘째 자리로 판정합니다. 실행 기록은 공통 실험 기록에 저장됩니다.</p>
+                </div>
+              </section>
+          </section>
+          <p class="mission-assumption-footnote"><strong>가정 기반 교육용 계산</strong> · 회전·유량의 100%는 가상 기준이며 실제 공정 예측이 아닙니다. 성공은 표시된 MRR이 72.10–72.50에 들어왔다는 뜻입니다.</p>
+          <p class="mode-footnote">새로고침하면 도전 진행은 초기화되며 저장된 실행 기록은 남습니다.</p>
+        </section>
+
+        <section id="page-lab" aria-label="실험 워크스페이스" class="soft-enter" hidden>
+          <div class="lab-notice"><p class="flex items-center gap-2"><svg class="icon size-4" aria-hidden="true"><use href="#i-info"/></svg>수식 기반 교육용 데모</p><button class="text-button" data-page="guide">계산 범위 안내<svg class="icon size-3" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+          <section id="learning-panel" class="card learning-panel" aria-labelledby="learning-heading">
+            <div class="card-heading"><h2 id="learning-heading" class="card-label">학습 실험</h2><button id="task-exit" class="text-button" type="button" hidden>자유 실험으로 전환</button></div>
+            <div id="task-picker" class="task-picker" role="group" aria-label="실험 과제 선택"></div>
+            <div id="task-workspace" hidden>
+              <p id="task-goal" class="learning-copy"></p>
+              <p id="task-step" class="task-step" role="status"></p>
+              <p id="task-lock-note" class="learning-copy"></p>
+              <div class="task-prediction"><label for="task-prediction"><span id="task-question"></span><small>예상은 선택 사항입니다.</small></label><select id="task-prediction" class="field"><option value="">예상 선택</option><option value="increase">높아진다 / 늘어난다</option><option value="decrease">낮아진다 / 줄어든다</option><option value="same">변화 없다</option></select><button id="task-apply" type="button" class="quiet-button" disabled>변경 조건 적용</button></div>
+              <div id="task-feedback" class="learning-feedback" role="status" hidden></div>
+              <details id="task-reflection" class="disclosure" hidden><summary id="task-reflection-question">확인 질문</summary><p id="task-reflection-answer" class="disclosure-body learning-copy"></p></details>
+            </div>
+          </section>
+          <div class="panel-grid">
+            <section id="control-panel" class="control-card card p-5" data-interlocked="false" aria-labelledby="controls-heading">
+              <div class="card-heading mb-6"><h2 id="controls-heading" class="card-label"><svg class="icon size-4 text-brand" aria-hidden="true"><use href="#i-sliders"/></svg>실험 조건</h2><span id="interlock-state" class="instrument-state">준비됨</span></div>
+              <form id="experiment-form" novalidate>
+                <fieldset><legend class="field-label">레시피<span class="text-[13px] font-normal text-muted">공정 선택</span></legend><div class="segment" aria-label="레시피 선택"><button type="button" data-recipe="A456" aria-pressed="true">A456</button><button type="button" data-recipe="B456" aria-pressed="false">B456</button><button type="button" data-recipe="A123" aria-pressed="false">A123</button></div></fieldset>
+                <div class="mt-3 flex items-center justify-between text-[13px]"><span id="stage-label" class="text-muted">Stage A · 1차 공정</span><span id="control-status" class="text-brand">압력 조절 지원</span></div>
+                <div class="mt-5"><label class="field-label" for="recent-mrr">기준 MRR<span class="text-[13px] font-normal text-muted">최근 측정값</span></label><input id="recent-mrr" class="field tabular-nums tracking-tight" type="number" min="0.000001" step="any" value="74.1" inputmode="decimal" required aria-describedby="input-error mrr-unit"><p id="mrr-unit" class="mt-1.5 text-right font-mono text-[13px] text-muted">데이터 기준값</p></div>
+                <div class="mt-5 border-t border-line pt-5" id="pressure-control">
+                  <label class="field-label" for="pressure">Main outer 압력 <span class="font-mono text-[13px] font-normal">p_main</span></label>
+                  <div class="pressure-well"><div class="flex items-center gap-2"><input id="pressure" class="pressure-readout" type="number" step="0.001" value="269.765" inputmode="decimal" aria-describedby="pressure-range-label input-error pressure-unit"><div class="flex shrink-0 gap-1"><button type="button" class="nudge-button" data-nudge="-1" aria-label="Main outer 압력 0.001 감소"><svg class="icon size-3" aria-hidden="true"><use href="#i-minus"/></svg></button><button type="button" class="nudge-button" data-nudge="1" aria-label="Main outer 압력 0.001 증가"><svg class="icon size-3" aria-hidden="true"><use href="#i-plus"/></svg></button></div></div><div class="mt-1 flex justify-between gap-2 font-mono text-[13px] text-muted"><span class="num">조절 간격 0.001</span><span id="pressure-unit">데이터 기준값</span></div></div>
+                  <input id="pressure-slider" type="range" min="250.817" max="270.011" step="0.001" value="269.765" class="parameter-range mt-5" aria-label="Main outer 압력 슬라이더" aria-describedby="pressure-range-label"><div class="scale-ticks" aria-hidden="true"></div><div class="num mt-1.5 flex justify-between font-mono text-[13px] text-muted"><span id="pressure-min">250.817</span><span id="pressure-max">270.011</span></div><p id="pressure-range-label" class="num mt-2 text-[13px] leading-4 text-muted">일반 운전 범위 268.810–270.011</p>
+                </div>
+                <p id="state-only-note" class="info-note mt-5" hidden>A123은 상태 참조만 지원합니다. 압력 조절은 비활성화됩니다.</p>
+                <div class="educational-switch"><label><input id="educational-mode" type="checkbox">교육용 다변수 모델</label><p id="educational-note" class="parameter-hint"></p></div><div id="educational-controls" class="educational-parameters" hidden><div class="educational-parameter"><label for="lab-wafer_rotation_pct" class="field-label">Wafer 회전<span>기준 대비 %</span></label><div class="relative-input"><input id="lab-wafer_rotation_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="educational-note input-error"><span>%</span></div></div><div class="educational-parameter"><label for="lab-stage_rotation_pct" class="field-label">Stage 회전<span>기준 대비 %</span></label><div class="relative-input"><input id="lab-stage_rotation_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="educational-note input-error"><span>%</span></div></div><div class="educational-parameter"><label for="lab-slurry_c_pct" class="field-label">Slurry C 유량<span>기준 대비 %</span></label><div class="relative-input"><input id="lab-slurry_c_pct" class="field tabular-nums tracking-tight" type="number" min="50" max="150" step="1" value="100" inputmode="decimal" aria-describedby="educational-note input-error"><span>%</span></div></div><p class="parameter-hint">가정 기반 계산 · 실제 공정 예측 아님</p></div><details id="measurement-settings" class="disclosure mt-5"><summary>측정 정보<span id="measurement-summary" class="text-muted">1장 경과</span></summary><div class="disclosure-body"><label class="field-label" for="scenario">최근 측정 후 경과 웨이퍼 수</label><select id="scenario" class="field"><option value="continuous">1장</option><option value="measure5">5장</option><option value="measure10">10장</option><option value="restart" hidden>1장 · 이전 재시작 기록</option></select><p id="scenario-note" class="mt-2 text-[12px] text-muted">근거 등급에만 반영하며 MRR·시간은 바뀌지 않습니다.</p><p id="legacy-scenario-note" class="mt-2 text-[12px] text-muted" hidden>이전 기록의 재시작 조건을 유지합니다. 정지 효과는 계산하지 않습니다.</p></div></details>
+                <div class="mt-4"><span id="input-evidence" class="badge badge-green"><svg class="icon size-3" aria-hidden="true"><use href="#i-check"/></svg>일반 운전 범위</span></div>
+                <div id="input-error" role="alert" class="interlock-warning" hidden><svg class="icon mt-0.5 size-4" aria-hidden="true"><use href="#i-warning"/></svg><div><strong>입력 확인</strong><span id="input-error-message"></span></div></div>
+                <button id="run-button" type="submit" class="primary-button mt-5 w-full" aria-label="계산 실행" aria-describedby="input-error"><svg class="icon size-4" aria-hidden="true"><use id="run-icon" href="#i-flask"/></svg><span id="run-label">계산 실행</span><svg id="run-arrow" class="icon ml-auto size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+                <button id="reset-button" class="mt-3 flex w-full items-center justify-center gap-1.5 rounded-md py-1.5 text-[13px] text-muted hover:text-ink" type="button"><svg class="icon size-3" aria-hidden="true"><use href="#i-reset"/></svg>기본 조건으로 초기화</button>
+              </form>
+            </section>
+
+            <section class="result-column" aria-label="계산 결과">
+              <div class="result-stack bento-grid">
+                <div class="mrr-card card flex flex-col">
+                  <div class="card-heading"><h2 class="card-label">계산 결과</h2></div>
+                  <div class="mt-4 flex flex-wrap items-center gap-2"><span id="result-recipe" class="badge badge-neutral">A456 · Stage A</span><span id="result-status" class="text-[13px] text-muted" aria-live="polite">기본 조건 미리보기 · 실행 전</span></div>
+                  <p class="mt-5 text-xs font-semibold text-muted">평균 제거율 <span class="ml-1 text-[13px] font-normal">MRR</span></p>
+                  <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1"><strong id="result-mrr" class="metric-value">74.10</strong><span class="font-mono text-[13px] text-muted">데이터 기준값</span></div>
+                  <div class="baseline-strip"><div><p class="text-[13px] font-semibold text-muted">기준 MRR</p><p id="baseline-value" class="num mt-1 text-sm font-medium text-ink">74.10</p></div><span id="result-change" class="num px-2 py-1.5 text-[12px] font-semibold"><span id="result-delta">0.00</span> (<span id="result-percent">0.00</span>%)</span></div>
+                </div>
+                <div class="curve-card"><div class="flex flex-wrap items-center justify-between gap-1"><h3 class="text-[13px] font-semibold text-muted">Main outer 압력에 따른 MRR</h3></div><svg id="curve-chart" viewBox="0 0 360 110" role="img" aria-label="수식 기반 압력 민감도 곡선. 실측 데이터나 AI 예측이 아닙니다."><defs><linearGradient id="curve-fill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#0d6efd" stop-opacity=".08"/><stop offset="1" stop-color="#0d6efd" stop-opacity="0"/></linearGradient></defs><path d="M8 20h344M8 52h344M8 84h344M8 15v72M94 15v72M180 15v72M266 15v72M352 15v72" fill="none" stroke="#e6edf7" stroke-dasharray="2 4"/><path id="curve-area" fill="url(#curve-fill)"/><path id="curve-line" fill="none" stroke="#0d6efd" stroke-width="2" stroke-linecap="round"/><path id="curve-marker-line" fill="none" stroke="#a6c6fb" stroke-dasharray="3 4"/><circle id="curve-marker" r="4.5" fill="#0d6efd" stroke="#ffffff" stroke-width="2"/><text id="curve-min" x="8" y="105" fill="#64748b" font-size="13">250.817</text><text id="curve-max" x="352" y="105" text-anchor="end" fill="#64748b" font-size="13">270.011</text></svg><p class="text-[13px] text-muted">다른 입력은 실행값으로 고정 · 실측 곡선 아님</p></div>
+              </div>
+              <div class="sub-metrics">
+                <section class="mini-card duration-card"><h3 class="flex items-center gap-2 text-[13px] font-semibold text-muted"><svg class="icon size-3.5" aria-hidden="true"><use href="#i-clock"/></svg>환산 연마시간</h3><p class="mt-3 flex items-baseline gap-1.5"><strong id="result-time" class="metric-value text-[29px]">114.70</strong><span class="text-xs text-muted">s</span></p><p class="mt-3 text-[13px] leading-5 text-muted">환산 연마시간 · 동일 제거량 가정</p></section>
+                <section class="mini-card confidence-card"><h3 class="text-[13px] font-semibold text-muted"><svg class="icon size-3.5" aria-hidden="true"><use href="#i-shield"/></svg>입력 근거 상태</h3><div class="mt-2 flex flex-wrap items-center gap-2"><strong id="result-grade" class="grade grade-large" data-grade="A">A</strong><span id="result-evidence" class="badge badge-green text-[13px]">일반 운전 범위</span></div><p class="mt-2 text-[13px] leading-5 text-muted">범위·측정 최신성 기준 · 정확도 등급 아님</p></section>
+              </div>
+              <details class="disclosure result-details"><summary>계산 상세<span class="text-muted">전체 정밀도</span></summary><dl class="disclosure-body detail-values"><div><dt>MRR</dt><dd id="detail-mrr"></dd></div><div><dt>기준 MRR</dt><dd id="detail-baseline"></dd></div><div><dt>환산 시간 (s)</dt><dd id="detail-time"></dd></div></dl></details>
+              <div id="result-warning" class="result-note"><svg class="icon mt-0.5 size-3.5 shrink-0 text-muted" aria-hidden="true"><use href="#i-info"/></svg><p></p></div>
+              <section class="result-explanation" aria-labelledby="explanation-heading"><div class="card-heading"><h3 id="explanation-heading" class="card-label">표시된 결과 해설</h3><button id="pin-baseline" type="button" class="text-button" disabled>비교 기준으로 지정</button></div><p id="result-explanation" class="learning-copy"></p><p id="pin-note" class="learning-copy">계산 실행 후 비교 기준을 지정할 수 있습니다.</p></section>
+            </section>
+
+
+          </div>
+
+          <section id="comparison-panel" class="card comparison-panel mt-5" aria-labelledby="comparison-heading" tabindex="-1">
+            <div class="card-heading"><div><h2 id="comparison-heading" class="card-label">두 실험 비교</h2><p class="learning-copy">같은 레시피·계산 모델 · 선택한 결과 기준</p></div><button id="comparison-clear" type="button" class="text-button" hidden>비교 해제</button></div>
+            <p id="comparison-status" class="info-note mt-4" role="status">계산 결과를 비교 기준으로 지정한 뒤 조건을 바꿔 실행하거나, 실험 기록에서 두 개를 선택하세요.</p>
+            <div id="comparison-content" hidden><div id="comparison-table" class="comparison-scroll" tabindex="0" role="region" aria-label="두 실험 비교표, 가로 스크롤 가능"></div><div class="comparison-explanation"><h3 class="card-label">무엇이 달라졌나요?</h3><p id="comparison-explanation" class="learning-copy"></p></div><p class="learning-copy comparison-limit">MRR이 높아도 최적 조건이라는 뜻은 아닙니다. 결함·균일도·손상은 계산하지 않습니다. 단면의 강조 표현은 실제 제거량과 다릅니다.</p></div>
+          </section>
+          <div id="lab-scene-slot"></div>
+          <details id="wafer-explanation" class="disclosure card wafer-explanation mt-5">
+            <summary>웨이퍼 · 연마 시연<span class="text-muted">3D 장비 · 접촉면</span></summary>
+            <div id="polish-panel" class="polish-panel" hidden>
+              <div class="polish-toolbar"><div><p id="polish-status" class="polish-status" role="status" aria-live="polite">계산 후 연마 시연을 볼 수 있습니다.</p><p id="polish-conditions" class="polish-conditions"></p></div><div class="polish-actions"><button id="polish-stop" type="button" class="quiet-button" hidden>시연 중지</button><button id="polish-replay" type="button" class="quiet-button" disabled>다시 보기</button></div></div>
+              <div class="polish-progress-row"><progress id="polish-progress" max="100" value="0" aria-label="6초 시연 재생 진행 · 실제 연마 완료율 아님"></progress></div>
+            </div>
+            <p id="wafer-disclaimer" class="wafer-disclaimer">EBARA F-REX300X의 연마부 1개를 참고한 재구성입니다. 치수·동작은 가정이며, 단면에서만 눌림과 막 두께를 확대합니다. 실제 제거량·변형량을 나타내지 않습니다. 다변수 모델의 회전·슬러리·막 변화도 입력에 따른 설명용 표현이며 실제 속도·유량·두께가 아닙니다.</p>
+            <section id="cmp-scene" class="cmp-scene" aria-label="입체 CMP 장비" data-renderer="pending">
+              <div class="scene-toolbar"><div class="scene-title"><span class="scene-live-dot" aria-hidden="true"></span><h3>입체 장비 보기</h3><span class="scene-phase">장비 구조</span></div><div class="scene-view-buttons" role="group" aria-label="3D 시점 선택"><button type="button" data-scene-view="perspective" aria-pressed="true">사선</button><button type="button" data-scene-view="front" aria-pressed="false">정면</button><button type="button" data-scene-view="top" aria-pressed="false">위</button></div></div>
+              <div class="scene-viewport">
+                <canvas id="cmp-canvas" tabindex="0" role="img" aria-label="회전 가능한 CMP 연마부. 마우스를 올리거나 부품을 누르면 역할을 확인할 수 있습니다. 헤드는 웨이퍼 뒷면을 누르고 앞면은 아래 패드와 접촉합니다." aria-describedby="scene-help scene-scale-note scene-part-title scene-part-description"></canvas>
+                <div class="scene-labels" aria-hidden="true"><span data-scene-label="head">가압 헤드</span><span data-scene-label="wafer">웨이퍼 뒷면 ↑</span><span data-scene-label="front">앞면 · 연마층 ↓</span><span data-scene-label="pad">연마 패드</span><span data-scene-label="slurry">슬러리 공급</span><span data-scene-label="conditioner">컨디셔너 · 대기</span></div>
+                <aside id="scene-part-tip" class="scene-part-tip" aria-label="부품 역할 설명" hidden><div class="scene-part-tip-heading"><span>부품 안내</span><button id="scene-part-close" type="button" aria-label="부품 설명 닫기">×</button></div><h4 id="scene-part-title"></h4><p id="scene-part-description" role="status" aria-live="polite"></p></aside>
+                <p id="scene-fallback" class="scene-fallback" role="status">입체 장비를 준비하고 있습니다.</p>
+                <div class="scene-zoom" role="group" aria-label="3D 확대 및 축소"><button id="scene-zoom-in" type="button" aria-label="장비 확대">+</button><button id="scene-zoom-out" type="button" aria-label="장비 축소">−</button></div>
+              </div>
+              <div class="scene-footer"><div><div class="scene-options"><label class="scene-transparent"><input id="scene-cutaway" type="checkbox">접촉부 단면 · 변형 확대</label><label class="scene-transparent"><input id="scene-transparent" type="checkbox">헤드 투명하게 보기</label></div><p id="scene-scale-note" class="mt-2 text-xs text-muted" aria-live="polite">일반: 변형 축소 · 연마면은 아래쪽</p></div><label class="scene-part-picker"><span class="sr-only">설명을 확인할 부품 선택</span><select id="scene-part-select" aria-describedby="scene-part-title scene-part-description"><option value="">부품 역할 보기</option></select></label><p id="scene-help">부품에 마우스 올리기 · 눌러 설명 고정<span>드래그로 회전 · 휠로 확대</span><span>키보드: 방향키 · + / − · Home · Esc로 설명 닫기</span></p></div>
+            </section>
+            <details id="surface-detail" class="disclosure surface-detail"><summary>표면·단면 확대<span class="text-muted">압력 구역 · 표면층 비교</span></summary>
+            <div class="wafer-content">
+              <figure class="wafer-graphic wafer-surface">
+                <svg id="wafer-diagram" viewBox="0 0 440 430" role="img" aria-labelledby="wafer-title wafer-desc">
+                  <title id="wafer-title">웨이퍼 앞면을 따로 펼쳐 본 설명도</title>
+                  <desc id="wafer-desc">장비에서 아래쪽 패드와 접촉하는 앞면을 따로 펼친 도식입니다. 위에서 바라본 장비의 뒷면이 아닙니다. 칩 패턴과 반사색은 설명용이며 실제 표면 측정값이나 제거 분포가 아닙니다. 압력 구역은 가정한 네 반경 구역입니다.</desc>
+                  <defs>
+                    <path id="wafer-face" d="M212 366.806 A165 165 0 1 1 228 366.806 Q224 357 220 357 Q216 357 212 366.806Z"/>
+                    <clipPath id="wafer-face-clip"><use href="#wafer-face"/></clipPath>
+                    <linearGradient id="wafer-edge" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c7d5e1"/><stop offset=".22" stop-color="#edf4f8"/><stop offset=".45" stop-color="#576f87"/><stop offset=".67" stop-color="#182635"/><stop offset=".84" stop-color="#bac9d5"/><stop offset="1" stop-color="#304457"/></linearGradient>
+                    <linearGradient id="wafer-silicon" x1=".1" y1=".05" x2=".9" y2=".95">
+                      <stop stop-color="#101e30"/><stop offset=".18" stop-color="#263b53"/><stop offset=".36" stop-color="#405d6a"/><stop offset=".48" stop-color="#728582"/><stop offset=".57" stop-color="#8b7e92"/><stop offset=".69" stop-color="#3c536d"/><stop offset=".88" stop-color="#17283f"/><stop offset="1" stop-color="#0d1c2d"/>
+                    </linearGradient>
+                    <linearGradient id="wafer-spectrum" x1="0" y1=".85" x2="1" y2=".1">
+                      <stop stop-color="#32bece" stop-opacity="0"/><stop offset=".25" stop-color="#83bbc7" stop-opacity=".05"/><stop offset=".38" stop-color="#499ac7" stop-opacity=".27"/><stop offset=".46" stop-color="#7386dc" stop-opacity=".28"/><stop offset=".53" stop-color="#c78da8" stop-opacity=".28"/><stop offset=".59" stop-color="#c4b17a" stop-opacity=".25"/><stop offset=".66" stop-color="#8cc3b0" stop-opacity=".20"/><stop offset=".81" stop-color="#83bbc7" stop-opacity=".04"/><stop offset="1" stop-color="#32bece" stop-opacity="0"/>
+                    </linearGradient>
+                    <linearGradient id="wafer-light" x1="0" y1="0" x2="1" y2=".8"><stop stop-color="#eaf9ff" stop-opacity=".32"/><stop offset=".32" stop-color="#eef7ff" stop-opacity=".05"/><stop offset=".6" stop-color="#effaff" stop-opacity=".12"/><stop offset="1" stop-color="#effaff" stop-opacity="0"/></linearGradient>
+                    <radialGradient id="wafer-vignette"><stop offset=".55" stop-color="#03101b" stop-opacity="0"/><stop offset="1" stop-color="#03101b" stop-opacity=".32"/></radialGradient>
+                    <pattern id="wafer-dies" width="22" height="25" patternUnits="userSpaceOnUse" x="0" y="2">
+                      <rect x=".8" y=".8" width="20.4" height="23.4" rx=".3" fill="#102133" fill-opacity=".17" stroke="#adc6ce" stroke-opacity=".40" stroke-width=".55"/>
+                      <path d="M0 0H22V25" fill="none" stroke="#071422" stroke-width="1.15"/>
+                      <rect x="3" y="3" width="9.5" height="12" fill="#0b192d" fill-opacity=".25" stroke="#bed2d6" stroke-opacity=".22" stroke-width=".3"/>
+                      <rect x="14" y="3" width="4" height="6" fill="#b6ccd1" fill-opacity=".12"/>
+                      <path d="M14 11h4m-4 2h4m-4 2h4M3 18h15M3 20h15M6 3v12M9 3v12M3 7h9M3 11h9" stroke="#b9d5df" stroke-opacity=".28" stroke-width=".3"/>
+                      <path d="M3 22h2m2 0h2m2 0h2m2 0h2" stroke="#e2c9a4" stroke-opacity=".4" stroke-width=".7"/>
+                    </pattern>
+                    <filter id="wafer-shadow" x="-.3" y="-1" width="1.6" height="3"><feGaussianBlur stdDeviation="10"/></filter>
+                    <linearGradient id="polish-film-gradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e2eaff"/><stop offset=".5" stop-color="#a6b8d0"/><stop offset="1" stop-color="#e9eff9"/></linearGradient>
+                    <linearGradient id="polish-sweep-gradient"><stop stop-color="#d5f8ff" stop-opacity="0"/><stop offset=".5" stop-color="#d5f8ff" stop-opacity=".75"/><stop offset="1" stop-color="#d5f8ff" stop-opacity="0"/></linearGradient>
+                  </defs>
+                  <ellipse cx="220" cy="382" rx="139" ry="15" fill="#21394f" opacity=".16" filter="url(#wafer-shadow)"/>
+                  <g id="wafer-rotor">
+                  <use href="#wafer-face" transform="translate(0 3.5)" fill="#152738" stroke="#1e3446" stroke-width="3"/>
+                  <use href="#wafer-face" fill="url(#wafer-edge)" stroke="url(#wafer-edge)" stroke-width="4"/>
+                  <g clip-path="url(#wafer-face-clip)">
+                    <use href="#wafer-face" fill="url(#wafer-silicon)"/>
+                    <circle cx="220" cy="202" r="159" fill="url(#wafer-dies)"/>
+                    <use href="#wafer-face" fill="url(#wafer-spectrum)"/>
+                    <use href="#wafer-face" fill="url(#wafer-light)"/>
+                    <use href="#wafer-face" fill="url(#wafer-vignette)"/>
+                    <circle cx="220" cy="202" r="160" fill="none" stroke="#dae7eb" stroke-opacity=".35" stroke-width=".7"/>
+                    <g id="polish-film" opacity="0">
+                      <circle cx="220" cy="202" r="163" fill="url(#polish-film-gradient)"/>
+                      <g fill="none" stroke="#f7fbff" stroke-width=".8" opacity=".55"><path d="M40 122Q160 95 388 140M40 149Q192 120 388 165M40 181Q180 151 388 197M40 214Q204 182 388 231M40 247Q200 218 388 266M40 281Q201 251 388 300"/></g>
+                    </g>
+                  </g>
+                  <use href="#wafer-face" fill="none" stroke="url(#wafer-edge)" stroke-width="1.3"/>
+                  </g>
+                  <g clip-path="url(#wafer-face-clip)">
+                    <g id="polish-contact" opacity="0" aria-hidden="true">
+                      <rect id="polish-sweep" x="165" y="30" width="110" height="345" fill="url(#polish-sweep-gradient)" transform="rotate(-24 220 202)"/>
+                      <g id="polish-flow" fill="none" stroke="#c7f7ff" stroke-linecap="round">
+                        <path d="M83 178A141 141 0 0 1 339 126" stroke-width="3" opacity=".6"/>
+                        <path d="M355 223A139 139 0 0 1 105 294" stroke-width="2" opacity=".6"/>
+                        <path d="M130 135A111 111 0 0 1 307 274" stroke-width="1.2" opacity=".8"/>
+                      </g>
+                    </g>
+                    <g id="wafer-zone-overlay" aria-hidden="true">
+                      <circle cx="220" cy="202" r="164" fill="#081522" fill-opacity=".20"/>
+                      <path id="wafer-main" d="M343.75 202a123.75 123.75 0 1 0-247.5 0a123.75 123.75 0 1 0 247.5 0M302.5 202a82.5 82.5 0 1 0-165 0a82.5 82.5 0 1 0 165 0" fill="#91bbfa" fill-rule="evenodd" fill-opacity=".36"/>
+                      <g fill="none" stroke="#f1f8ff" stroke-opacity=".8" stroke-width="1" stroke-dasharray="4 4"><circle cx="220" cy="202" r="41.25"/><circle cx="220" cy="202" r="82.5"/><circle cx="220" cy="202" r="123.75"/><circle cx="220" cy="202" r="163"/></g>
+                      <g fill="#ffffff" font-size="12" text-anchor="middle" font-weight="600" stroke="#12253a" stroke-width="3" paint-order="stroke">
+                        <text x="220" y="206">Center</text><text x="220" y="143">Ripple</text><text x="220" y="99">Main outer</text><text x="220" y="58">Edge</text>
+                      </g>
+                    </g>
+                  </g>
+                </svg>
+              </figure>
+              <div class="wafer-info">
+                <section id="pad-stage" class="pad-stage" aria-labelledby="pad-stage-title" hidden>
+                  <div class="pad-stage-heading"><h3 id="pad-stage-title">패드 접촉 단면 · 변형 확대</h3><span id="pad-pressure-level" class="pad-pressure-level">압력 표현</span></div>
+                  <ol class="pad-phases" aria-label="연마 시연 단계"><li data-pad-phase="approach">01 접근</li><li data-pad-phase="contact">02 접촉 연마</li><li data-pad-phase="release">03 분리</li></ol>
+                  <svg id="pad-diagram" viewBox="0 0 420 272" role="img" aria-labelledby="pad-title pad-desc">
+                    <title id="pad-title">웨이퍼와 연마 패드의 접촉 확대도</title>
+                    <desc id="pad-desc">위쪽 가압 헤드와 웨이퍼가 아래쪽 연마 패드에 접근하고, 접촉 중 표면층이 얇아진 뒤 분리됩니다. 압력이 높을수록 눌림과 표면층 감소를 크게 표현합니다. 치수와 변형은 설명용으로 과장되어 있습니다.</desc>
+                    <defs>
+                      <linearGradient id="pad-rubber" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#d1ad73"/><stop offset=".2" stop-color="#b58c54"/><stop offset="1" stop-color="#80613b"/></linearGradient>
+                      <linearGradient id="pad-metal"><stop stop-color="#8c9dab"/><stop offset=".35" stop-color="#eef3f7"/><stop offset=".6" stop-color="#cbd5df"/><stop offset="1" stop-color="#718697"/></linearGradient>
+                      <linearGradient id="pad-layer"><stop stop-color="#77e2e0"/><stop offset=".5" stop-color="#36b8bd"/><stop offset="1" stop-color="#208a9a"/></linearGradient>
+                      <pattern id="pad-grooves" width="26" height="10" patternUnits="userSpaceOnUse"><path d="M3 0v10M5 0v10" stroke="#4a3d2a" stroke-opacity=".42" stroke-width="1"/><path d="M13 3h1m5 4h1" stroke="#f2dba9" stroke-opacity=".55" stroke-width="1.5"/></pattern>
+                      <clipPath id="pad-material-clip"><rect id="pad-clip-rect" x="26" y="190" width="368" height="32" rx="5"/></clipPath>
+                    </defs>
+                    <path d="M22 252H398" stroke="#e0e7ef"/>
+                    <rect x="38" y="222" width="344" height="16" rx="5" fill="url(#pad-metal)" stroke="#9babb8"/>
+                    <path d="M72 238v9h276v-9" fill="#dbe3ea"/>
+                    <rect id="pad-material" x="26" y="190" width="368" height="32" rx="5" fill="url(#pad-rubber)" stroke="#94713e" stroke-width=".8"/>
+                    <g clip-path="url(#pad-material-clip)"><rect x="20" y="182" width="380" height="45" fill="url(#pad-grooves)"/></g>
+                    <path id="pad-surface-line" d="M32 190H388" stroke="#ecd1a0" stroke-width="2"/>
+                    <g id="pad-carrier" transform="translate(0 146)">
+                      <rect id="pad-film-section" x="60" y="-24" width="300" height="24" rx="1" fill="url(#pad-layer)"/>
+                      <g id="pad-wafer-stack" transform="translate(0 -24)">
+                        <rect x="60" y="-16" width="300" height="16" rx="2" fill="#233b53"/>
+                        <path d="M62-12H358M62-4H358" stroke="#647e98" stroke-width="1"/>
+                        <rect x="84" y="-27" width="252" height="11" rx="3" fill="#93a4b4"/>
+                        <path d="M106-66h208l22 12v27H84v-27Z" fill="url(#pad-metal)" stroke="#899eaf"/>
+                        <path d="M109-59h202M98-36h224" stroke="#f4f8fb" stroke-width="1.4"/>
+                        <rect x="191" y="-88" width="38" height="22" rx="4" fill="#d1dbe5" stroke="#9aaebf"/>
+                        <g id="pad-force" fill="#0d6efd" opacity=".45"><path d="M145-102v23h-6l10 12 10-12h-6v-23ZM267-102v23h-6l10 12 10-12h-6v-23Z"/></g>
+                        <text x="210" y="-41" text-anchor="middle" fill="#334b60" font-size="11" font-weight="600">가압 헤드</text>
+                      </g>
+                    </g>
+                    <g id="pad-contact-light" opacity="0" aria-hidden="true"><path id="pad-contact-line" d="M57 190H363" stroke="#9df4ec" stroke-width="4" stroke-linecap="round"/><path id="pad-slurry-flow" d="M46 190q-12 3-17 10m345-10q12 3 17 10" fill="none" stroke="#68c9da" stroke-width="2" stroke-linecap="round"/></g>
+                  </svg>
+                  <div class="pad-legend"><span><i class="pad-swatch-wafer"></i>웨이퍼 · 뒷면 위</span><span><i class="pad-swatch-film"></i>앞면 연마층</span><span><i class="pad-swatch-rubber"></i>패드</span></div>
+                  <div class="pad-layer-comparison" aria-label="설명용 표면층 비교"><div><span>시작 표면층</span><div class="pad-layer-track"><i class="pad-layer-reference"></i></div></div><div><span>남은 표면층</span><div class="pad-layer-track"><i id="pad-layer-remaining"></i></div></div></div>
+                </section>
+                <div class="wafer-view-heading"><h3>웨이퍼 앞면 · 펼침도</h3><p>실제 장비에서는 이 면이 아래쪽 패드와 접촉합니다.</p></div>
+                <label class="wafer-zone-toggle" for="wafer-zones"><span>압력 구역 보기</span><input id="wafer-zones" type="checkbox" aria-controls="wafer-zone-overlay wafer-zone-details"><span class="wafer-switch" aria-hidden="true"></span></label>
+                <div id="wafer-zone-details" hidden>
+                <dl id="wafer-zone-legend" class="wafer-zone-legend">
+                  <div><dt>Center</dt><dd>중심</dd></div>
+                  <div><dt>Ripple</dt><dd>내측</dd></div>
+                  <div class="wafer-zone-active"><dt>Main outer 압력</dt><dd id="zone-value" class="tabular-nums">269.765</dd></div>
+                  <div><dt>Edge</dt><dd>가장자리</dd></div>
+                </dl>
+                <p class="wafer-assumption">구역은 동일 반경 간격을 가정합니다. Main outer 색은 입력 압력의 상대 크기를 나타냅니다.</p>
+                </div>
+              </div>
+            </div>
+            </details>
+          </details>
+          <section class="card mt-5 overflow-hidden" aria-labelledby="recent-heading"><div class="card-heading px-5 py-4"><div><h2 id="recent-heading" class="card-label">최근 실험<span id="recent-count" class="badge badge-neutral">0</span></h2></div><button class="text-button" data-page="history">전체 기록<svg class="icon size-3" aria-hidden="true"><use href="#i-arrow"/></svg></button></div><div id="recent-table" class="overflow-x-auto" tabindex="0" role="region" aria-label="최근 실험 표, 가로 스크롤 가능"></div><div class="log-meta"><span>이 브라우저에만 저장됩니다.</span></div></section>
+        </section>
+
+        <section id="page-history" aria-label="실험 기록" hidden>
+          <div class="history-toolbar"><p class="text-[13px] text-muted">최근 20건 · 이 브라우저에만 저장됩니다.</p><form id="log-search-form" class="log-search" role="search"><label class="sr-only" for="log-search">실험 기록 검색</label><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input id="log-search" type="search" placeholder="레시피 · Stage · 날짜 검색" autocomplete="off" aria-describedby="history-filter-note"><button type="submit" aria-label="기록 검색 실행"><svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button></form></div>
+          <p id="history-filter-note" class="info-note mb-4" role="status" hidden></p>
+          <section class="card history-comparison" aria-label="기록 비교 선택"><div><h2 class="card-label">비교할 실험 선택 <span id="selection-count" class="badge badge-neutral">0 / 2</span></h2><p class="learning-copy">첫 번째 선택이 기준 실험입니다. 검색을 바꿔도 선택은 유지됩니다.</p></div><div id="selection-chips" class="selection-chips"></div><div class="selection-actions"><button id="compare-selected" type="button" class="primary-button" disabled>선택한 실험 비교</button><button id="selection-clear" type="button" class="text-button" disabled>선택 해제</button></div><p id="selection-message" class="learning-copy" role="status"></p></section>
+          <div class="card overflow-hidden"><div class="card-heading p-5"><div><h2 class="card-label">전체 실험 기록</h2></div><span id="history-count" class="badge badge-neutral">0건</span></div><div id="history-table" class="overflow-x-auto" tabindex="0" role="region" aria-label="전체 실험 표, 가로 스크롤 가능"></div><div class="log-meta"><span>이 브라우저에만 저장됩니다.</span></div></div>
+        </section>
+
+        <section id="page-guide" aria-label="학습 가이드" hidden>
+          <section id="guide-tasks" tabindex="-1" aria-labelledby="guide-tasks-heading"><h2 id="guide-tasks-heading" class="card-label">직접 해보는 과제 3개</h2><p class="learning-copy">목표 확인 → 예상 → 기준·변경 실험 → 비교·해석. 과제 시작만으로 기록이 저장되지는 않습니다.</p><div id="guide-task-cards" class="guide-task-cards"></div></section>
+          <div class="guide-grid grid grid-cols-2 gap-4">
+            <article class="guide-step card"><span class="step-number shrink-0">01</span><div><strong>레시피에서 시작하세요</strong><p>A456와 B456에서는 Main outer 압력(p_main)을 조절할 수 있습니다. A123은 최근 MRR을 참조하는 상태 전용 레시피입니다. Stage A 다음에 B가 진행되지만 두 MRR을 합치거나 평균하지 않습니다.</p></div></article>
+            <article class="guide-step card"><span class="step-number shrink-0">02</span><div><strong>작게 바꾸고, 차이를 확인하세요</strong><p>A456의 Main outer 압력을 260으로 바꿔 실행해 보세요. 계산 결과는 72.26, 시간은 117.62 s입니다. 이는 산술 관계의 시연이며 실측 결과나 AI의 정확도를 의미하지 않습니다.</p></div></article>
+            <article class="guide-step card"><span class="step-number shrink-0">03</span><div><strong>결과만큼 근거도 중요합니다</strong><p>일반 운전 범위와 관측 범위를 구분합니다. 측정 정보에서 경과 웨이퍼 수를 늘리면 근거 등급이 낮아집니다. MRR과 시간은 바뀌지 않습니다. A/B/C는 예측 신뢰구간이 아닙니다.</p></div></article>
+            <article class="guide-step card"><span class="step-number shrink-0">04</span><div><strong>앞면과 접촉 방향을 확인하세요</strong><p>6초 시연은 접근·접촉 연마·분리를 설명합니다. 헤드는 매끈한 웨이퍼 뒷면을 누르고, 앞면의 연마층이 아래 패드와 접촉합니다. 일반 보기의 변형은 작게 표시하며, ‘접촉부 단면’에서만 눌림·막 두께를 확대합니다. 두 보기의 계산 결과와 재생 시점은 같습니다. 표면 펼침도는 아래로 향한 앞면을 따로 보여줍니다.</p><p class="mt-2">장비는 <a class="text-blue underline" href="https://www.ebara.co.jp/jihou/archive/year/detail/__icsFiles/afieldfile/2021/09/22/237_10.pdf" target="_blank" rel="noopener noreferrer">EBARA F-REX300X 공개 기술자료</a>의 테이블별 헤드·컨디셔너 구성을 참고한 연마부 1개입니다. 전체 4개 연마부와 세정·이송계는 생략했습니다. 부품 비율·회전·변형은 가정이며 업체 CAD나 PHM 데이터 장비의 복제가 아닙니다. 컨디셔너는 대기 위치로만 표시합니다.</p></div></article>
+          </div>
+          <article class="card mt-5 p-6"><h2 class="card-label">계산과 단위</h2><div class="mt-4 overflow-x-auto rounded-[5px] bg-ground-tint p-4 font-mono text-[13px] leading-7 text-muted">MRR_demo = recent_mrr × (p_main / p_ref)<sup>0.682</sup><br>A123: MRR_demo = recent_mrr<br>time_s = anchor_time_s × anchor_mrr / MRR_demo</div><p class="mt-4 text-xs leading-6 text-muted">압력과 MRR은 데이터 기준값으로 표시합니다. 시간은 동일 목표 제거량 가정의 비율 환산이며 최적 recipe가 아닙니다. Main outer 압력(p_main)은 MAIN_OUTER_AIR_BAG_PRESSURE의 대리 변수이며, 실제 접촉 압력으로 환산하지 않습니다. AI 예측이나 실제 장비 제어가 아니며, 관측 관계는 인과관계를 보장하지 않습니다. 정지·소모품·측정 지연에 따른 MRR 변화는 계산하지 않습니다.</p></article>
+          <article class="card mt-5 p-6"><h2 class="card-label">교육용 다변수 모델 · 가정 기반 계산</h2><p class="learning-copy">입문 체험은 다변수 모델을 사용합니다. 학습 실험실에서는 ‘교육용 다변수 모델’을 선택하면 같은 조건을 조절할 수 있습니다. 위 압력 모델에 아래 배율을 곱합니다.</p><p class="education-formula">MRR_edu = MRR_demo × w<sup>0.25</sup> × s<sup>0.40</sup> × 2q / (1 + q)<br>w = Wafer 회전 / 100 · s = Stage 회전 / 100 · q = Slurry C 유량 / 100</p><p class="learning-copy">100%는 가상 기준이며 실제 RPM·mL/min을 뜻하지 않습니다. 회전 지수, 포화형 유량 함수와 50–150% 입력 범위는 학습을 위해 정한 가정입니다. 실측 계수·상대속도·변수 상호작용을 추정한 물리 모델이 아닙니다. 근거 등급은 압력·측정 최신성만 반영합니다. 세 가지 과제는 기존 압력 모델을 유지하며, 기록 비교는 같은 레시피·계산 모델 사이에서 가능합니다.</p></article>
+          <p class="learning-copy mt-5">과제 진행과 비교 선택은 현재 탭에서 유지됩니다. 실행한 실험은 기존과 같이 이 브라우저에 최근 20건까지 저장됩니다.</p>
+        </section>
+
+      </main>
+    </div>
+  </div>
+  <div id="toast" role="status" aria-live="polite" class="toast" hidden></div>
+  <noscript><p class="fixed bottom-0 left-0 z-50 w-full bg-ground-tint p-4 text-center text-sm">대화형 시안을 사용하려면 JavaScript를 켜 주세요. 표시된 기본 수치는 계산 데모입니다.</p></noscript>
+</body>
+</html>

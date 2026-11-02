@@ -1,0 +1,13 @@
+node_modules/
+*.log
+*.zip
+evidence/
+.superdesign/
+.sites-runtime/
+.env
+.env.*
+!.env.example
+# Local publication notes contain workstation-specific paths.
+DEPLOYMENT.md
+# Earlier design notes are not part of the current web application.
+dist/design-notes.html

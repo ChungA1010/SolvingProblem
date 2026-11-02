@@ -1,0 +1,35 @@
+{
+  "authoring": "Blender 4.5.15 LTS",
+  "source": "model-source/cmp-polishing-cell.blend",
+  "asset": "dist/models/cmp-polishing-cell.glb",
+  "roles": [
+    "CmpStatic",
+    "CmpPadRotor",
+    "CmpPadSurface",
+    "CmpHeadAssembly",
+    "CmpHeadCover",
+    "CmpRetainer",
+    "CmpWafer",
+    "CmpFilm",
+    "CmpSpindle",
+    "CmpBellows"
+  ],
+  "scope": "Single polishing module reconstruction referencing EBARA F-REX300X public architecture; display units, no measured equipment dimensions.",
+  "reference": "https://www.ebara.co.jp/jihou/archive/year/detail/__icsFiles/afieldfile/2021/09/22/237_10.pdf",
+  "surface_orientation": "Plain backside up; device/frontside and polishing film down against pad.",
+  "glb_bytes": 5558872,
+  "picking_attribute": "_CMP_PART",
+  "semantic_part_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ]
+}
