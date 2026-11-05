@@ -216,6 +216,7 @@
     window.scrollTo({ top: 0, behavior: 'auto' });
     $('main').scrollTo({ top: 0, behavior: 'auto' });
     counters.refresh();
+    document.dispatchEvent(new CustomEvent('cmp:navigate',{detail:{page}}));
   }
   document.querySelectorAll('[data-page]').forEach(button => button.addEventListener('click', () => { location.hash = button.dataset.page; navigate(button.dataset.page); }));
   window.addEventListener('hashchange', () => { if(location.hash!=='#main')navigate(location.hash.slice(1)); });
@@ -588,6 +589,7 @@
   }
   function startTask(id) {
     if (!learning.tasks[id]) return;
+    $('learning-panel').hidden=false;
     resetPolish(); activeTask = id; taskBase = null; comparisonBase = null; comparisonNext = null; lastRun = null;
     $('task-prediction').value = ''; $('task-reflection').open = false;
     setInputs(learning.taskInput(id)); lastInput = structuredClone(input); result = engine.calculate(input);
@@ -635,6 +637,7 @@
     }).join('')}</tbody></table>`;
   }
   function renderHistory() {
+    document.dispatchEvent(new CustomEvent('cmp:history'));
     const remaining = selectedIds.filter(id=>history.some(row=>row.id===id));
     if(remaining.length!==selectedIds.length) $('selection-message').textContent='최근 20건 범위를 벗어난 기록은 비교 선택에서 해제했습니다.';
     selectedIds = remaining;
@@ -692,6 +695,19 @@
       clearToast(); startPolish();
       if (!storageAvailable) toast('저장 권한이 없어 이 탭에서만 기록을 유지합니다.');
     } catch (error) { drawInput(); $('input-error').hidden = false; $('input-error-message').textContent = error.message; }
+  });
+  // Read-only history snapshots and explicit replay: neither path appends a record.
+  window.CMPWorkbench = Object.freeze({
+    records:()=>structuredClone(history),
+    replay(id,play=true){
+      const row=history.find(item=>item.id===id);if(!row)return false;
+      exitTask();setInputs(row.input);lastInput=structuredClone(row.input);result=engine.calculate(row.input);
+      lastRun=structuredClone(row);hasPresentedPolish=true;
+      renderResult('저장된 실험 재생 · 새 기록을 만들지 않습니다.');drawInput();
+      startPolish(lastInput,result,play);return true;
+    },
+    stop:()=>polishPlayer.cancel(),
+    openTasks:()=>{ $('learning-panel').hidden=false; $('learning-panel').scrollIntoView({block:'start'}); }
   });
   setInputs(input); renderResult('기본 조건 미리보기 · 실행 전'); renderMission(); renderHistory(); navigate(location.hash.slice(1));
 })();
