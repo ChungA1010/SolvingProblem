@@ -6,6 +6,15 @@
   const counters=CMPCounter.attachDocument(document,format),count=(id,n,d=0)=>counters.set($(id),n,{digits:d});
   let best=[0,0,0,0,0],state=game.create(),view='brief',input=game.settings(),scene=null,sceneTried=false,busy=false,activeProfile=null,readyNotice='',stale=false;
   let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,asked=[],accepted=false;
+  let speechText='',speechLast=false,lastPresentation=null;
+  const shop=CMPShop.create({onChange:frame=>{
+    $('customer-stage').dataset.phase=frame.phase;
+    if(!frame.visible)return;
+    speechLast=frame.last;
+    $('shop-dialogue').textContent=frame.lines[frame.index];
+    $('dialogue-position').textContent=`${frame.index+1} / ${frame.lines.length}`;
+    $('dialogue-next').textContent=frame.phase!=='talking'?'대화 바로 보기 →':frame.last?'다시 듣기 ↺':'계속 듣기 →';
+  }});
   try{
     const saved=JSON.parse(localStorage.getItem(saveKey)||'null');
     if([game.version,game.legacyVersion].includes(saved?.version)){
@@ -42,9 +51,29 @@
     $('customer-goal-note').textContent='규격 3장 이상 + 추가 목표 달성 시 고객 배지 · 대금·별점에는 영향 없음';
     $('order-thread').textContent=c.returning?`${c.profile.name}의 두 번째 의뢰`:`${c.profile.name}의 첫 의뢰`;
     const host=$('customer-questions');host.replaceChildren();
-    for(const q of story.questionList){const b=document.createElement('button');b.type='button';b.className='customer-question';b.textContent=q.label;b.dataset.question=q.id;b.setAttribute('aria-controls','customer-answer');b.setAttribute('aria-pressed',String(asked.at(-1)===q.id));b.dataset.read=String(asked.includes(q.id));b.addEventListener('click',()=>{if(stale)return;asked=story.ask(asked.filter(id=>id!==q.id),q.id);save();renderDialogue();$('customer-questions').querySelector(`[data-question="${q.id}"]`).focus({preventScroll:true});});host.append(b);}
+    for(const q of story.questionList){const b=document.createElement('button');b.type='button';b.className='customer-question';b.textContent=q.label;b.dataset.question=q.id;b.setAttribute('aria-controls','shop-dialogue');b.setAttribute('aria-pressed',String(asked.at(-1)===q.id));b.dataset.read=String(asked.includes(q.id));b.addEventListener('click',()=>{if(stale)return;asked=story.ask(asked.filter(id=>id!==q.id),q.id);save();renderDialogue();speechText=story.answer(state.order,q.id);shop.say(speechText);$('customer-questions').querySelector(`[data-question="${q.id}"]`).focus({preventScroll:true});});host.append(b);}
     const key=asked.at(-1);$('customer-answer').hidden=!key;$('customer-question-echo').textContent=story.questionList.find(q=>q.id===key)?.label||'';$('customer-answer-text').textContent=key?story.answer(state.order,key):'';
     $('customer-talk-note').textContent=`확인한 질문 ${asked.length} / 3 · 대화는 무료 · 행동 소모 없음`;
+  }
+  function renderShop(){
+    const visible=view==='brief'||view==='settled',delivered=view==='settled',c=story.contract(state.order),o=c.order;
+    document.body.dataset.place=visible?'counter':'workbench';
+    $('customer-stage').hidden=!visible;$('shop-brief-dialogue').hidden=delivered;$('shop-reaction').hidden=!delivered;
+    if(lastPresentation!==view){$('inspection-records').open=!delivered;lastPresentation=view;}
+    if(!visible){shop.leave();return;}
+    const feedback=delivered?story.reaction(state):null;
+    $('customer-stage').dataset.delivered=String(delivered);$('customer-stage').dataset.mood=feedback?.mood||'neutral';
+    $('shop-figure').src=`./media/customer-${c.profile.id}-figure.svg`;
+    $('shop-speaker-name').textContent=c.profile.name;$('shop-speaker-role').textContent=c.profile.role;
+    $('shop-visit-label').textContent=delivered?'납품 확인':c.returning?'다시 온 손님':'첫 방문';
+    $('shop-arrival').textContent=delivered?'가공한 웨이퍼를 건넵니다.':`딩동! ${c.profile.name}님이 찾아왔어요.`;
+    $('character-emotion').textContent=feedback?.mood==='retry'?'…':feedback?.mood==='accepted'?'✓':'✦';
+    $('accept-order').hidden=delivered;$('retry-order').hidden=!delivered;
+    $('counter-action-note').textContent=delivered?`납품 완료 · 규격 안 ${game.summary(state).good} / 6장`:'대화와 주문서 확인은 행동을 쓰지 않아요.';
+    $('slip-spec').replaceChildren(document.createTextNode(`${o.target} nm `));const unit=document.createElement('small');unit.textContent=`±${o.tolerance}% · 6장`;$('slip-spec').append(unit);
+    $('slip-client').textContent=`${c.profile.name}의 ${c.returning?'후속':'첫'} 의뢰 · ${delivered?'납품 완료':'주문 확인'}`;
+    speechText=delivered?feedback.message:asked.length?story.answer(state.order,asked.at(-1)):c.opening;
+    shop.enter({id:`${runId}:${view}`,text:speechText,delivery:delivered,mood:feedback?.mood,reduced:motion.matches||document.hidden});
   }
   function renderCustomerContext(){
     const c=story.contract(state.order),o=c.order;$('active-customer').hidden=view==='brief';
@@ -92,9 +121,9 @@
   function render(){
     const o=game.orders[state.order],resultView=view==='result',inspection=['inspection','settled'].includes(view);
     $('order-eyebrow').textContent=`ORDER ${String(state.order+1).padStart(2,'0')} / 05 · ${o.title}`;
-    const titles={brief:'잘 깎는 것보다,\n딱 맞게 깎는 것.',setup:`${state.rows.length+1}번 웨이퍼, 시간을 정하세요.`,playing:'장비가 연마하고 있어요.',result:'측정할지 결정하세요.',inspection:'결과를 확인하고 납품하세요.',settled:'주문을 마쳤습니다.'};
+    const titles={brief:'어서오세요, 반도체 공방입니다.',setup:`${state.rows.length+1}번 웨이퍼, 시간을 정하세요.`,playing:'장비가 연마하고 있어요.',result:'측정할지 결정하세요.',inspection:'검사 후, 손님에게 가져가요.',settled:'손님, 주문하신 웨이퍼 나왔어요.'};
     $('game-title').textContent=titles[view];$('game-title').style.whiteSpace='pre-line';
-    $('game-subtitle').textContent=view==='brief'?'가상의 주문을 맡고, 측정과 시간을 판단해 납품하세요.':`${story.contract(state.order).profile.role} · 목표 ${o.target} nm · 허용 오차 ±${o.tolerance}%`;
+    $('game-subtitle').textContent=view==='brief'?'손님의 이야기를 듣고, 딱 맞는 한 장을 만들어봐요.':`${story.contract(state.order).profile.role} · 목표 ${o.target} nm · 허용 오차 ±${o.tolerance}%`;
     count('wafer-count',state.rows.length);count('wallet',state.wallet);
     const budget=game.actions(state);count('action-count',budget.remaining);$('action-limit').textContent=budget.limit===null?' 이전 규칙':' / 2회';
     $('action-budget-note').textContent=budget.limit===null?'저장된 도전은 이전 규칙으로 유지합니다. 새 주문·재도전부터 측정·정비 공통 2회 제한을 적용합니다.':budget.remaining===0?'추가 행동을 모두 사용했습니다. 가공과 무료 필수 검사는 계속할 수 있습니다.':`추가 행동 ${budget.remaining}회 남음 · 측정은 5 P + 1회, 정비는 30 P + 1회 · 가공·필수 검사는 소모 없음`;
@@ -102,8 +131,9 @@
     renderCustomerContext();
     $('brief-screen').hidden=view!=='brief';$('work-screen').hidden=!['setup','playing'].includes(view);$('result-screen').hidden=!resultView;$('inspection-screen').hidden=!inspection;
     document.querySelectorAll('[data-game-step]').forEach(el=>{if(el.dataset.gameStep===({playing:'setup',settled:'inspection'}[view]||view))el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
+    $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
+    $('customer-goal').textContent=story.goalLabel(state.order);$('customer-goal-note').textContent='규격 3장 이상 + 추가 목표 달성 시 고객 배지 · 대금·별점에는 영향 없음';$('order-thread').textContent=`${story.contract(state.order).profile.name}의 의뢰`;
     if(view==='brief'){
-      $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
       renderDialogue();$('order-picker').replaceChildren();game.orders.forEach((order,i)=>{const c=story.contract(i),b=document.createElement('button');b.type='button';b.disabled=!story.unlocked(best,i);const small=document.createElement('small'),strong=document.createElement('strong'),stars=document.createElement('span'),who=document.createElement('small');small.textContent=`ORDER ${String(i+1).padStart(2,'0')}`;strong.textContent=order.title;who.textContent=`${c.profile.name} · ${c.returning?'후속 의뢰':c.profile.focus}`;stars.textContent=b.disabled?'이전 주문 별 1개 필요':best[i]?'★'.repeat(best[i])+'☆'.repeat(3-best[i]):'의뢰 가능';b.append(small,strong,who,stars);if(i===state.order)b.setAttribute('aria-current','true');b.addEventListener('click',()=>newOrder(i));$('order-picker').append(b);});
     }
     if(['setup','playing'].includes(view)){
@@ -143,13 +173,16 @@
       if(!done)$('settlement-note').textContent='모든 장의 판정이 공개되면 납품할 수 있습니다. 연출을 건너뛰어도 결과는 같습니다.';
       renderCustomerResult();if(done)renderComparison();else scheduleInspection();
     }
-    counters.refresh();
+    renderShop();counters.refresh();
   }
   function unavailable(){const host=$('cmp-scene');host.dataset.renderer='unavailable';$('scene-fallback').hidden=false;$('scene-fallback').textContent='3D를 사용할 수 없어 정지 개념도로 표시합니다. 게임은 계속 진행할 수 있습니다.';$('cmp-canvas').hidden=true;$('game-surface').hidden=false;$('game-surface').open=true;host.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);}
   function ensureScene(){if(sceneTried){scene?.resize();return;}sceneTried=true;try{scene=CMPScene.create({host:$('cmp-scene'),canvas:$('cmp-canvas'),fallback:$('scene-fallback'),detail:$('game-surface'),onUnavailable:unavailable});if(!scene)unavailable();}catch{unavailable();}}
   const player=CMPPolish.createPlayer({requestFrame:cb=>requestAnimationFrame(cb),cancelFrame:id=>cancelAnimationFrame(id),now:()=>performance.now(),onFrame:frame=>{scene?.setFrame(frame);$('game-progress').value=frame?frame.progress*100:0;},onState:status=>{scene?.setState(status);if(['completed','reduced','stopped'].includes(status)&&busy){busy=false;setView('result');}}});
   function playback(){const row=state.rows.at(-1);busy=true;setView('playing');const calc=engine.calculate(row.input);activeProfile=CMPPolish.profile(row.input,calc,engine.recipes.A456);player.start(activeProfile,{reducedMotion:motion.matches});}
-  function newOrder(index){if(stale||!story.unlocked(best,index))return;clearTimeout(inspectionTimer);inspectionTimer=null;player.reset();state=game.create(index);runId=crypto.randomUUID();asked=[];accepted=false;input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;save();setView('brief');}
+  function newOrder(index){if(stale||!story.unlocked(best,index))return;clearTimeout(inspectionTimer);inspectionTimer=null;player.reset();state=game.create(index);runId=crypto.randomUUID();asked=[];accepted=false;$('conversation-options').open=false;$('commission-board').open=false;input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;save();setView('brief');}
+  $('dialogue-next').addEventListener('click',()=>{if(stale)return;if(speechLast&&$('customer-stage').dataset.phase==='talking')shop.say(speechText);else shop.next();});
+  $('open-order-slip').addEventListener('click',()=>$('order-dialog').showModal());
+  ['close-order-slip','order-dialog-done'].forEach(id=>$(id).addEventListener('click',()=>$('order-dialog').close()));
   $('accept-order').addEventListener('click',()=>{if(stale)return;accepted=true;save();setView('setup');});
   $('game-form').addEventListener('submit',event=>{event.preventDefault();if(busy||state.phase!=='setup'||!validate())return;try{dispatch({type:'run',duration:Number($('duration').value),input:readSettings()});playback();}catch(e){$('game-error').hidden=false;$('game-error').textContent=e.message;}});
   $('duration').addEventListener('input',()=>{if(Number.isFinite(Number($('duration').value)))$('duration-slider').value=$('duration').value;validate();});
@@ -167,7 +200,7 @@
   $('export-order').addEventListener('click',()=>{if(!['inspection','settled'].includes(state.phase)||state.inspected!==6)return;const header=['model','order','wafer','duration_s','removed_nm_game','error_pct','quality','measured','pressure','wafer_pct','stage_pct','slurry_c_pct'];const rows=game.visibleRows(state).map(r=>[state.version,state.order+1,r.number,r.duration,r.removed,r.error,r.quality,r.measured,r.input.pressure,r.input.wafer_rotation_pct,r.input.stage_rotation_pct,r.input.slurry_c_pct]);const blob=new Blob(['\ufeff'+[header,...rows].map(r=>r.join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`CMP-game-order-${state.order+1}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
   $('open-help').addEventListener('click',()=>$('game-help').showModal());['close-help','help-done'].forEach(id=>$(id).addEventListener('click',()=>$('game-help').close()));
   document.querySelectorAll('[data-scene-view]').forEach(b=>b.addEventListener('click',()=>scene?.setView(b.dataset.sceneView)));$('scene-cutaway').addEventListener('change',()=>scene?.setCutaway($('scene-cutaway').checked));$('scene-transparent').addEventListener('change',()=>scene?.setTransparent($('scene-transparent').checked));$('scene-zoom-in').addEventListener('click',()=>scene?.zoom(.85));$('scene-zoom-out').addEventListener('click',()=>scene?.zoom(1.15));
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&busy)player.cancel();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches&&busy)player.start(activeProfile,{reducedMotion:true});if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted&&view==='inspection')scheduleInspection();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)shop.ready();if(document.hidden&&busy)player.cancel();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches)shop.ready();if(motion.matches&&busy)player.start(activeProfile,{reducedMotion:true});if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{shop.destroy();clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted){shop.ready();if(view==='inspection')scheduleInspection();}});
   // A second tab must never silently overwrite a more recent campaign.
   window.addEventListener('storage',e=>{if(e.key===saveKey){stale=true;clearTimeout(inspectionTimer);inspectionTimer=null;if(busy)player.cancel();notice('다른 탭에서 게임이 변경되었습니다. 이 탭을 새로고침해 최신 진행을 불러오세요.');document.querySelectorAll('#factory-main button,#factory-main input').forEach(el=>el.disabled=true);}});
   if(state.phase==='settled'&&!completed.some(e=>e.id===runId)){completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);save();}
