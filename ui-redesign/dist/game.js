@@ -1,17 +1,17 @@
 (function(){
   'use strict';
-  const game=window.CMPFactory,engine=window.CMPDemo,$=id=>document.getElementById(id);
+  const game=window.CMPFactory,story=window.CMPCustomers,engine=window.CMPDemo,$=id=>document.getElementById(id);
   const saveKey='cmp-factory-campaign-v1',motion=matchMedia('(prefers-reduced-motion: reduce)');
   const format=(n,d=2)=>Number.isFinite(n)?n.toFixed(d):'—';
   const counters=CMPCounter.attachDocument(document,format),count=(id,n,d=0)=>counters.set($(id),n,{digits:d});
   let best=[0,0,0,0,0],state=game.create(),view='brief',input=game.settings(),scene=null,sceneTried=false,busy=false,activeProfile=null,readyNotice='',stale=false;
-  let completed=[],runId=crypto.randomUUID(),inspectionTimer=null;
+  let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,asked=[],accepted=false;
   try{
     const saved=JSON.parse(localStorage.getItem(saveKey)||'null');
     if([game.version,game.legacyVersion].includes(saved?.version)){
       if(Array.isArray(saved.best)&&saved.best.length===5&&saved.best.every(n=>Number.isInteger(n)&&n>=0&&n<=3))best=saved.best;
       const restored=game.restore(saved.session);
-      if(restored){state=restored;view=state.phase;input=state.rows.at(-1)?.input||game.settings();}
+      if(restored){state=restored;accepted=saved.orderAccepted!==false||state.events.length>0;view=accepted?state.phase:'brief';input=state.rows.at(-1)?.input||game.settings();asked=story.restoreDialogue(saved.dialogue,state.order);}
       else readyNotice='저장된 진행을 불러오지 못했습니다.';
       if(typeof saved.runId==='string'&&/^[\w-]{1,100}$/.test(saved.runId))runId=saved.runId;
       completed=game.restoreArchive(saved.completed);
@@ -19,7 +19,7 @@
   }catch{readyNotice='저장된 진행을 불러오지 못했습니다. 새 주문으로 시작합니다.';}
   if(readyNotice)notice('저장된 진행을 불러오지 못했습니다. 새 주문으로 시작합니다.');
   function notice(message){$('save-warning').hidden=false;$('save-warning').textContent=message;}
-  function save(){try{localStorage.setItem(saveKey,JSON.stringify({version:game.version,best,runId,completed,session:JSON.parse(game.serialize(state))}));}catch{notice('브라우저 저장을 사용할 수 없습니다. 현재 탭에서는 진행되지만 닫으면 사라집니다.');}}
+  function save(){try{localStorage.setItem(saveKey,JSON.stringify({version:game.version,best,runId,completed,orderAccepted:accepted,dialogue:story.serializeDialogue(asked,state.order),session:JSON.parse(game.serialize(state))}));}catch{notice('브라우저 저장을 사용할 수 없습니다. 현재 탭에서는 진행되지만 닫으면 사라집니다.');}}
   function dispatch(event){if(stale)throw new Error('다른 탭의 최신 진행을 불러오려면 새로고침해주세요.');state=game.transition(state,event);if(event.type==='ship'){best[state.order]=Math.max(best[state.order],game.summary(state).stars);completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);}save();}
   function setView(next,focus=true){view=next;render();if(focus){$('game-title').focus({preventScroll:true});scrollTo({top:0,behavior:'auto'});}}
   function readSettings(){input=game.settings(Object.fromEntries(['pressure','wafer_rotation_pct','stage_rotation_pct','slurry_c_pct'].map(key=>[key,$('g-'+key).value===''?NaN:Number($('g-'+key).value)])));return input;}
@@ -34,6 +34,36 @@
     $('time-hint').textContent=`현재 예상 ${game.recommendation(state,input)}초`;
   }
   function qualityText(q){return {good:'규격 안',under:'덜 깎음',over:'너무 깎음'}[q]||'미측정';}
+  function customerIdentity(prefix,profile){$(prefix+'-portrait').src=`./media/customer-${profile.id}.svg`;$(prefix+'-name').textContent=profile.name;$(prefix+'-role').textContent=profile.role;}
+  function renderDialogue(){
+    const c=story.contract(state.order);customerIdentity('customer',c.profile);
+    $('customer-visit').textContent=c.returning?'다시 찾아온 고객':'새로운 고객';$('customer-focus').textContent=c.profile.focus;
+    $('customer-opening').textContent=c.opening;$('customer-goal').textContent=story.goalLabel(state.order);
+    $('customer-goal-note').textContent='규격 3장 이상 + 추가 목표 달성 시 고객 배지 · 대금·별점에는 영향 없음';
+    $('order-thread').textContent=c.returning?`${c.profile.name}의 두 번째 의뢰`:`${c.profile.name}의 첫 의뢰`;
+    const host=$('customer-questions');host.replaceChildren();
+    for(const q of story.questionList){const b=document.createElement('button');b.type='button';b.className='customer-question';b.textContent=q.label;b.dataset.question=q.id;b.setAttribute('aria-controls','customer-answer');b.setAttribute('aria-pressed',String(asked.at(-1)===q.id));b.dataset.read=String(asked.includes(q.id));b.addEventListener('click',()=>{if(stale)return;asked=story.ask(asked.filter(id=>id!==q.id),q.id);save();renderDialogue();$('customer-questions').querySelector(`[data-question="${q.id}"]`).focus({preventScroll:true});});host.append(b);}
+    const key=asked.at(-1);$('customer-answer').hidden=!key;$('customer-question-echo').textContent=story.questionList.find(q=>q.id===key)?.label||'';$('customer-answer-text').textContent=key?story.answer(state.order,key):'';
+    $('customer-talk-note').textContent=`확인한 질문 ${asked.length} / 3 · 대화는 무료 · 행동 소모 없음`;
+  }
+  function renderCustomerContext(){
+    const c=story.contract(state.order),o=c.order;$('active-customer').hidden=view==='brief';
+    $('active-customer-summary').textContent=`${c.profile.name} · ${c.profile.focus} · 주문서 다시 보기`;
+    $('active-customer-spec').textContent=`${o.target} nm ±${o.tolerance}% · 6장 중 3장 이상 규격 충족 후 납품하면 다음 의뢰 해제`;
+    $('active-customer-goal').textContent=`고객 추가 목표: ${story.goalLabel(state.order)}. ${c.metric==='time'?'입력한 연마 시간만 합산하며 실제 플레이·3D 재생 시간은 제외합니다.':'추가 목표 달성 여부는 대금·별점·해제 조건에 영향을 주지 않습니다.'}`;
+  }
+  function renderCustomerResult(){
+    const settled=state.phase==='settled',c=story.contract(state.order),feedback=story.reaction(state);
+    $('customer-response').hidden=!settled;$('customer-response-pending').hidden=settled||state.inspected!==6;
+    if(!feedback)return;
+    customerIdentity('response',c.profile);$('customer-response').dataset.mood=feedback.mood;
+    $('customer-response-title').textContent=feedback.title;$('customer-response-text').textContent=feedback.message;
+    $('customer-badge').textContent=feedback.achieved?`달성 배지 · ${feedback.badge}`:'추가 목표 미달성';$('customer-badge').dataset.achieved=String(feedback.achieved);
+    $('customer-objective-result').textContent=`추가 목표: ${story.goalLabel(state.order)} · 대금·별점·해제 조건에는 영향 없음`;
+    const next=story.nextOrder(best,state.order);$('followup-card').hidden=next===null;
+    if(next!==null){const n=story.contract(next);$('followup-portrait').src=`./media/customer-${n.profile.id}.svg`;$('followup-title').textContent=`${n.profile.name}의 ${n.returning?'후속':'새로운'} 의뢰가 열려 있어요`;$('followup-description').textContent=`ORDER ${String(next+1).padStart(2,'0')} · ${n.order.title} · ${story.goalLabel(next)}`;$('next-order').textContent=`${n.profile.name}의 의뢰 보기 →`;}
+    $('followup-status').textContent=next!==null?(feedback.qualityMet?'규격 3장 이상 납품 완료 · 다음 의뢰로 진행할 수 있습니다.':'이번에는 기준에 못 미쳤지만 이전 납품으로 열린 의뢰는 유지됩니다.'):state.order===4&&feedback.qualityMet?'마지막 의뢰까지 완료했습니다. 같은 주문에 다시 도전해 이전 결과와 비교할 수 있어요.':'규격 안 3장 이상을 맞춰 납품하면 다음 의뢰가 열립니다.';
+  }
   function renderLog(){
     const rows=game.visibleRows(state);$('wafer-log').replaceChildren();
     for(let i=0;i<6;i++){const row=rows[i],box=document.createElement('div');const label=document.createElement('span'),value=document.createElement('b'),note=document.createElement('small');label.textContent=`WAFER ${String(i+1).padStart(2,'0')}`;value.textContent=row?.removed!=null?format(row.removed,1)+' nm':row?'?':'대기';note.textContent=row?row.measured?qualityText(row.quality):'검사 때 공개':'미가공';box.append(label,value,note);$('wafer-log').append(box);}
@@ -64,16 +94,17 @@
     $('order-eyebrow').textContent=`ORDER ${String(state.order+1).padStart(2,'0')} / 05 · ${o.title}`;
     const titles={brief:'잘 깎는 것보다,\n딱 맞게 깎는 것.',setup:`${state.rows.length+1}번 웨이퍼, 시간을 정하세요.`,playing:'장비가 연마하고 있어요.',result:'측정할지 결정하세요.',inspection:'결과를 확인하고 납품하세요.',settled:'주문을 마쳤습니다.'};
     $('game-title').textContent=titles[view];$('game-title').style.whiteSpace='pre-line';
-    $('game-subtitle').textContent=view==='brief'?'가상의 주문을 맡고, 측정과 시간을 판단해 납품하세요.':`${o.client} · 목표 ${o.target} nm · 허용 오차 ±${o.tolerance}%`;
+    $('game-subtitle').textContent=view==='brief'?'가상의 주문을 맡고, 측정과 시간을 판단해 납품하세요.':`${story.contract(state.order).profile.role} · 목표 ${o.target} nm · 허용 오차 ±${o.tolerance}%`;
     count('wafer-count',state.rows.length);count('wallet',state.wallet);
     const budget=game.actions(state);count('action-count',budget.remaining);$('action-limit').textContent=budget.limit===null?' 이전 규칙':' / 2회';
     $('action-budget-note').textContent=budget.limit===null?'저장된 도전은 이전 규칙으로 유지합니다. 새 주문·재도전부터 측정·정비 공통 2회 제한을 적용합니다.':budget.remaining===0?'추가 행동을 모두 사용했습니다. 가공과 무료 필수 검사는 계속할 수 있습니다.':`추가 행동 ${budget.remaining}회 남음 · 측정은 5 P + 1회, 정비는 30 P + 1회 · 가공·필수 검사는 소모 없음`;
     $('action-budget-note').dataset.exhausted=String(budget.remaining===0);
+    renderCustomerContext();
     $('brief-screen').hidden=view!=='brief';$('work-screen').hidden=!['setup','playing'].includes(view);$('result-screen').hidden=!resultView;$('inspection-screen').hidden=!inspection;
     document.querySelectorAll('[data-game-step]').forEach(el=>{if(el.dataset.gameStep===({playing:'setup',settled:'inspection'}[view]||view))el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
     if(view==='brief'){
-      $('client').textContent=o.client;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
-      $('order-picker').replaceChildren();game.orders.forEach((order,i)=>{const b=document.createElement('button');b.type='button';b.disabled=i>0&&best[i-1]<1;const small=document.createElement('small'),strong=document.createElement('strong'),stars=document.createElement('span');small.textContent=`ORDER ${String(i+1).padStart(2,'0')}`;strong.textContent=order.title;stars.textContent=b.disabled?'이전 주문 별 1개 필요':'★'.repeat(best[i])+'☆'.repeat(3-best[i]);b.append(small,strong,stars);if(i===state.order)b.setAttribute('aria-current','true');b.addEventListener('click',()=>newOrder(i));$('order-picker').append(b);});
+      $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
+      renderDialogue();$('order-picker').replaceChildren();game.orders.forEach((order,i)=>{const c=story.contract(i),b=document.createElement('button');b.type='button';b.disabled=!story.unlocked(best,i);const small=document.createElement('small'),strong=document.createElement('strong'),stars=document.createElement('span'),who=document.createElement('small');small.textContent=`ORDER ${String(i+1).padStart(2,'0')}`;strong.textContent=order.title;who.textContent=`${c.profile.name} · ${c.returning?'후속 의뢰':c.profile.focus}`;stars.textContent=b.disabled?'이전 주문 별 1개 필요':best[i]?'★'.repeat(best[i])+'☆'.repeat(3-best[i]):'의뢰 가능';b.append(small,strong,who,stars);if(i===state.order)b.setAttribute('aria-current','true');b.addEventListener('click',()=>newOrder(i));$('order-picker').append(b);});
     }
     if(['setup','playing'].includes(view)){
       renderClues();
@@ -110,7 +141,7 @@
       $('ship').hidden=settled;$('ship').disabled=!done||stale;$('export-order').disabled=!done;$('next-order').hidden=!settled||state.order===4||best[state.order]<1;$('retry-order').hidden=!settled;
       $('settlement-note').textContent=settled?`정산 완료 · 시작 자금 100 + 납품 ${s.revenue} − 비용 ${s.spent} = ${state.wallet} P. ${s.stars?'다음 주문은 새 자금 100 P로 시작합니다.':'같은 주문에서 3장 이상 규격을 맞추면 다음 주문이 열립니다.'}`:'측정하지 않은 웨이퍼도 최종 검사에서 공개했습니다. 납품 버튼을 누르면 대금이 한 번 지급됩니다.';
       if(!done)$('settlement-note').textContent='모든 장의 판정이 공개되면 납품할 수 있습니다. 연출을 건너뛰어도 결과는 같습니다.';
-      if(done)renderComparison();else scheduleInspection();
+      renderCustomerResult();if(done)renderComparison();else scheduleInspection();
     }
     counters.refresh();
   }
@@ -118,8 +149,8 @@
   function ensureScene(){if(sceneTried){scene?.resize();return;}sceneTried=true;try{scene=CMPScene.create({host:$('cmp-scene'),canvas:$('cmp-canvas'),fallback:$('scene-fallback'),detail:$('game-surface'),onUnavailable:unavailable});if(!scene)unavailable();}catch{unavailable();}}
   const player=CMPPolish.createPlayer({requestFrame:cb=>requestAnimationFrame(cb),cancelFrame:id=>cancelAnimationFrame(id),now:()=>performance.now(),onFrame:frame=>{scene?.setFrame(frame);$('game-progress').value=frame?frame.progress*100:0;},onState:status=>{scene?.setState(status);if(['completed','reduced','stopped'].includes(status)&&busy){busy=false;setView('result');}}});
   function playback(){const row=state.rows.at(-1);busy=true;setView('playing');const calc=engine.calculate(row.input);activeProfile=CMPPolish.profile(row.input,calc,engine.recipes.A456);player.start(activeProfile,{reducedMotion:motion.matches});}
-  function newOrder(index){if(stale)return;clearTimeout(inspectionTimer);inspectionTimer=null;player.reset();state=game.create(index);runId=crypto.randomUUID();input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;save();setView('brief');}
-  $('accept-order').addEventListener('click',()=>setView('setup'));
+  function newOrder(index){if(stale||!story.unlocked(best,index))return;clearTimeout(inspectionTimer);inspectionTimer=null;player.reset();state=game.create(index);runId=crypto.randomUUID();asked=[];accepted=false;input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;save();setView('brief');}
+  $('accept-order').addEventListener('click',()=>{if(stale)return;accepted=true;save();setView('setup');});
   $('game-form').addEventListener('submit',event=>{event.preventDefault();if(busy||state.phase!=='setup'||!validate())return;try{dispatch({type:'run',duration:Number($('duration').value),input:readSettings()});playback();}catch(e){$('game-error').hidden=false;$('game-error').textContent=e.message;}});
   $('duration').addEventListener('input',()=>{if(Number.isFinite(Number($('duration').value)))$('duration-slider').value=$('duration').value;validate();});
   $('duration-slider').addEventListener('input',()=>{$('duration').value=$('duration-slider').value;validate();});
