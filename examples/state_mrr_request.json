@@ -1,0 +1,21 @@
+{
+  "wafer_id": "example-next-wafer",
+  "recipe": "A456",
+  "wafer_start_at": "2026-10-31T12:00:00+09:00",
+  "history": [
+    {
+      "wafer_id": "example-prior-1",
+      "recipe": "A456",
+      "wafer_started_at": "2026-10-31T09:00:00+09:00",
+      "measurement_completed_at": "2026-10-31T09:30:00+09:00",
+      "mrr": 100.0
+    },
+    {
+      "wafer_id": "example-prior-2",
+      "recipe": "A456",
+      "wafer_started_at": "2026-10-31T10:00:00+09:00",
+      "measurement_completed_at": "2026-10-31T10:30:00+09:00",
+      "mrr": 110.0
+    }
+  ]
+}

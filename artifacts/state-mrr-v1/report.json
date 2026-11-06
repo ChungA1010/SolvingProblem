@@ -1,0 +1,124 @@
+{
+  "benchmark": "folds 2..5 chronological development; no final test",
+  "n0_is_assumed": true,
+  "measurement_completion_times_in_phm": false,
+  "hyperparameter_search": false,
+  "protocol_checks": {
+    "future_fold_invariance": "pass",
+    "train_only_calibration": "pass",
+    "evaluation_counter_does_not_refit_calibration": "pass",
+    "prestart_gap_timestamp_guard": "pass",
+    "N0_online_state_update": "pass",
+    "N1_delayed_state_update": "pass"
+  },
+  "portable_predictions_match_sklearn": true,
+  "fold_counts": [
+    {
+      "fold": 2,
+      "train_A456_B456": 327,
+      "evaluation_A456_B456": 314
+    },
+    {
+      "fold": 3,
+      "train_A456_B456": 641,
+      "evaluation_A456_B456": 313
+    },
+    {
+      "fold": 4,
+      "train_A456_B456": 954,
+      "evaluation_A456_B456": 332
+    },
+    {
+      "fold": 5,
+      "train_A456_B456": 1286,
+      "evaluation_A456_B456": 327
+    }
+  ],
+  "metrics": [
+    {
+      "model": "EWMA",
+      "recipe": "A456+B456",
+      "n": 1286,
+      "weighted_mae": 2.74692573220574,
+      "unweighted_mae": 2.7443448897969294,
+      "fold_mae": {
+        "2": 2.633950367254694,
+        "3": 2.633787294640209,
+        "4": 2.811550532294443,
+        "5": 2.898091364998372
+      }
+    },
+    {
+      "model": "EWMA",
+      "recipe": "A456",
+      "n": 625,
+      "weighted_mae": 2.3911134226249295,
+      "unweighted_mae": 2.3838120463827455,
+      "fold_mae": {
+        "2": 2.2861145754898224,
+        "3": 2.417027156362204,
+        "4": 2.213271513325307,
+        "5": 2.6188349403536493
+      }
+    },
+    {
+      "model": "EWMA",
+      "recipe": "B456",
+      "n": 661,
+      "weighted_mae": 3.083359459116492,
+      "unweighted_mae": 3.0752018562898416,
+      "fold_mae": {
+        "2": 2.9817861590195647,
+        "3": 2.841064176868551,
+        "4": 3.281167396646561,
+        "5": 3.19678969262469
+      }
+    },
+    {
+      "model": "Ridge",
+      "recipe": "A456+B456",
+      "n": 1286,
+      "weighted_mae": 2.6900060767984573,
+      "unweighted_mae": 2.6879298630756634,
+      "fold_mae": {
+        "2": 2.570118464387344,
+        "3": 2.6276069687601336,
+        "4": 2.7467182919053132,
+        "5": 2.8072757272498623
+      }
+    },
+    {
+      "model": "Ridge",
+      "recipe": "A456",
+      "n": 625,
+      "weighted_mae": 2.366587198909001,
+      "unweighted_mae": 2.3584058954552836,
+      "fold_mae": {
+        "2": 2.2447173843069272,
+        "3": 2.3503530705664377,
+        "4": 2.201005576908686,
+        "5": 2.6375475500390824
+      }
+    },
+    {
+      "model": "Ridge",
+      "recipe": "B456",
+      "n": 661,
+      "weighted_mae": 2.995810613380773,
+      "unweighted_mae": 2.988036102571804,
+      "fold_mae": {
+        "2": 2.8955195444677604,
+        "3": 2.8927310089078544,
+        "4": 3.1750734337843856,
+        "5": 2.988820423127215
+      }
+    }
+  ],
+  "artifact_training_folds": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "artifact_training_rows": 1286
+}

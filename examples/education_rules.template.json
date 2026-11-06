@@ -1,0 +1,7 @@
+{
+  "ruleset_version": "classroom-rules-draft",
+  "source_status": "CLASSROOM_ASSUMPTION_NOT_PHM_CALIBRATED",
+  "reference_index": 100,
+  "pressure_effect": {"Low": null, "Normal": 0, "High": null},
+  "slurry_effect": {"Low": null, "Normal": 0, "High": null}
+}

@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "model_version": "state-ridge-alpha1-f1-f4-v1",
+  "usage": "EDUCATIONAL_DEVELOPMENT_ONLY",
+  "features": [
+    "recipe",
+    "prev_mrr",
+    "state_ewm"
+  ],
+  "recipes": [
+    "A456",
+    "B456"
+  ],
+  "ridge_alpha": 1.0,
+  "ewma_alpha": 0.4,
+  "numeric_mean": [
+    75.62383961897355,
+    75.58535708761725
+  ],
+  "numeric_scale": [
+    8.832468311049805,
+    8.367275599426094
+  ],
+  "coefficients": [
+    -0.1571324847068477,
+    0.1571324847066859,
+    3.2532411190003665,
+    4.864143704170725
+  ],
+  "intercept": 75.63695489146836,
+  "training_folds": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "measurement_delay": 0,
+  "physical_mrr_unit": "UNIT_UNVERIFIED",
+  "raw_label_scale_factor": 1,
+  "independent_final_test": false,
+  "training_rows": 1286,
+  "training_support": {
+    "A456": {
+      "prev_mrr": [
+        53.42655,
+        88.70205
+      ],
+      "state_ewm": [
+        54.242563160207766,
+        85.55483473750964
+      ]
+    },
+    "B456": {
+      "prev_mrr": [
+        54.3072,
+        99.8547
+      ],
+      "state_ewm": [
+        57.376999372930314,
+        95.31387209716446
+      ]
+    }
+  },
+  "source_sha256": "cf22df23300d170133ce252b7d936c57fae6a18b55a43c4bf56ba0c83a4bd9d5",
+  "sklearn_version": "1.9.1"
+}
