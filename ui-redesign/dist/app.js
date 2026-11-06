@@ -198,13 +198,13 @@
     toastTimer = setTimeout(() => { $('toast').hidden = true; }, 3800);
   }
   function navigate(page) {
-    const pages = ['home', 'intro-tour', 'intro', 'lab', 'history', 'guide'];
+    const pages = ['home', 'intro-tour', 'intro', 'lab', 'prediction', 'history', 'guide'];
     if (!pages.includes(page)) page = 'home';
     if (page === 'intro-tour' && currentPage !== page) tourStep = 0;
     if (page !== currentPage && polishPlayer.getState() === 'running') polishPlayer.cancel();
     currentPage = page;
     $('main').dataset.page=page;
-    const copy = { home: ['모드 선택','어떻게 시작할까요?','처음 만나는 CMP부터, 조건을 비교하는 실험까지. 나에게 맞는 방식으로 시작하세요.'], 'intro-tour':['입문 체험 · 시작 안내','첫 실험, 세 단계면 충분해요.','조건을 선택하고, 연마를 관찰하고, 결과를 비교해보세요.'], intro: ['입문 체험','조건을 조합하는 첫 CMP','웨이퍼를 다듬는 과정을 보고, 목표 제거율에 도전하세요.'], lab: ['학습 실험실', 'CMP 학습 실험실', '기준 조건을 설정하고, 변수 변화에 따른 계산 결과를 비교하세요.'], history: ['실험 기록', '실험 기록', '두 모드에서 실행한 조건과 결과를 확인하고, 학습 실험실에서 비교하세요.'], guide: ['학습 가이드', '실험 및 해석 가이드', '조작 가능한 변수와 계산 결과의 해석 범위를 확인하세요.'] }[page];
+    const copy = { home: ['모드 선택','어떻게 시작할까요?','처음 만나는 CMP부터, 조건을 비교하는 실험까지. 나에게 맞는 방식으로 시작하세요.'], 'intro-tour':['입문 체험 · 시작 안내','첫 실험, 세 단계면 충분해요.','조건을 선택하고, 연마를 관찰하고, 결과를 비교해보세요.'], intro: ['입문 체험','조건을 조합하는 첫 CMP','웨이퍼를 다듬는 과정을 보고, 목표 제거율에 도전하세요.'], lab: ['학습 실험실', 'CMP 학습 실험실', '기준 조건을 설정하고, 변수 변화에 따른 계산 결과를 비교하세요.'], prediction: ['데이터 기반 MRR', '다음 웨이퍼의 MRR 예측', '측정 완료 이력에서 최근 상태를 계산하고, 저장된 Ridge 모델로 예측합니다.'], history: ['실험 기록', '실험 기록', '두 모드에서 실행한 조건과 결과를 확인하고, 학습 실험실에서 비교하세요.'], guide: ['학습 가이드', '실험 및 해석 가이드', '조작 가능한 변수와 계산 결과의 해석 범위를 확인하세요.'] }[page];
     pages.forEach(name => { $('page-' + name).hidden = name !== page; });
     document.querySelectorAll('.nav-item').forEach(button => { button.removeAttribute('aria-current'); if (button.dataset.page === (page==='intro-tour'?'intro':page)) button.setAttribute('aria-current', 'page'); });
     $('breadcrumb').textContent = copy[0]; $('page-title').textContent = copy[1]; $('page-subtitle').textContent = copy[2];
