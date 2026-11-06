@@ -20,6 +20,8 @@
   <script src="./cmp-scene.js" defer></script>
   <script src="./app.js" defer></script>
   <script src="./mrr-state.js" defer></script>
+  <script src="./workbench.js" defer></script>
+  <link rel="stylesheet" href="./workbench.css">
 </head>
 <body>
   <a href="#main" class="fixed left-4 top-3 z-50 -translate-y-24 rounded-[5px] bg-brand px-4 py-2 text-paper focus:translate-y-0">본문으로 바로가기</a>
@@ -50,7 +52,7 @@
       </a>
       <nav class="mt-10 space-y-1" aria-label="페이지 선택">
         <button class="nav-item" data-page="home" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>모드 선택</button>
-        <button class="nav-item" data-page="intro"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>입문 체험</button>
+        <a class="nav-item" href="./game.html"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>교육용 · 팩토리 게임</a>
         <button class="nav-item" data-page="lab"><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg>학습 실험실</button>
         <button class="nav-item" data-page="prediction"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>데이터 기반 MRR</button>
         <button class="nav-item" data-page="history"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>실험 기록<span id="nav-count" class="ml-auto rounded-md bg-paper px-1.5 py-0.5 text-[13px]">0</span></button>
@@ -60,7 +62,7 @@
     </aside>
     <div class="main-shell">
       <header class="topbar"><span id="breadcrumb" class="text-[13px] text-muted">모드 선택</span><a class="text-button" href="#home">모드 선택으로</a></header>
-      <nav class="mobile-nav hidden gap-1 border-b border-line bg-panel p-2" aria-label="모바일 페이지 선택"><button class="nav-item" data-page="intro">입문</button><button class="nav-item" data-page="lab">실험실</button><button class="nav-item" data-page="prediction">MRR 예측</button><button class="nav-item" data-page="history">기록</button><button class="nav-item" data-page="guide">가이드</button></nav>
+      <nav class="mobile-nav hidden gap-1 border-b border-line bg-panel p-2" aria-label="모바일 페이지 선택"><a class="nav-item" href="./game.html">게임</a><button class="nav-item" data-page="lab">실험실</button><button class="nav-item" data-page="prediction">MRR 예측</button><button class="nav-item" data-page="history">기록</button><button class="nav-item" data-page="guide">가이드</button></nav>
       <main id="main" class="workspace px-8 py-8" tabindex="-1">
         <div class="heading-row mb-7 flex items-center justify-between gap-5">
           <div><h1 id="page-title" class="hero-heading">어떻게 시작할까요?</h1><p id="page-subtitle" class="mt-2.5 text-xs leading-6 text-muted">처음 만나는 CMP부터, 조건을 비교하는 실험까지. 나에게 맞는 방식으로 시작하세요.</p></div>
@@ -71,20 +73,20 @@
           <div class="mode-grid bento-grid">
             <article class="card mode-card mode-intro">
               <div class="mode-topline"><span class="badge badge-amber">처음 만나는 CMP</span><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></div>
-              <h2>입문 체험</h2><p class="mode-description">압력·회전·유량을 조합해,<br>목표에 가까워지는 과정을 보세요.</p>
-              <div class="mode-visual intro-visual" aria-hidden="true"><span class="visual-wafer"></span><span class="visual-slider"><i></i></span><span class="visual-target">목표 MRR <b data-counter="72.30">72.30</b></span></div>
-              <p class="mode-audience">CMP를 처음 접하는 학생·일반인을 위한 체험</p><ul class="mode-features"><li>5번의 기회 안에 목표 오차 줄이기</li><li>시도별 비교와 3D 자동 연마 시연</li></ul>
-              <button type="button" class="primary-button" data-page="intro-tour">입문 체험 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+              <h2>CMP 팩토리</h2><p class="mode-description">기계는 연마하고,<br>당신은 측정과 납품을 판단합니다.</p>
+              <div class="mode-visual intro-visual" aria-hidden="true"><span class="visual-wafer"></span><span class="visual-slider"><i></i></span><span class="visual-target">주문 목표 <b data-counter="150" data-counter-digits="0">150</b> nm</span></div>
+              <p class="mode-audience">CMP를 처음 접하는 학생·일반인을 위한 체험</p><ul class="mode-features"><li>주문 5개 · 6장의 웨이퍼 가공과 납품</li><li>측정비와 품질을 판단하는 운영 게임</li></ul>
+              <a class="primary-button" href="./game.html">교육용 게임 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></a>
             </article>
             <article class="card mode-card mode-lab">
-              <div class="mode-topline"><span class="badge badge-neutral">조건을 비교하며 배우기</span><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg></div>
+              <div class="mode-topline"><span class="badge badge-neutral">전문가용 · 학습 실험실</span><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg></div>
               <h2>학습 실험실</h2><p class="mode-description">한 조건씩 바꾸고,<br>결과가 달라진 이유를 찾으세요.</p>
               <div class="mode-visual lab-visual" aria-hidden="true"><svg viewBox="0 0 320 100"><path d="M0 25H320M0 60H320M0 95H320" stroke="#dce6f4" stroke-dasharray="3 5"/><path d="M12 80Q100 68 160 47T308 14" fill="none" stroke="#0d6efd" stroke-width="3"/><circle cx="160" cy="47" r="6" fill="#fff" stroke="#0d6efd" stroke-width="3"/></svg><span>기준 실험 <b>→</b> 변경 실험</span></div>
-              <p class="mode-audience">반도체 공정을 배우는 학부생·취업 준비생을 위한 실험</p><ul class="mode-features"><li>조건 설정·기록 비교·결과 해설</li><li>변수의 영향을 확인하는 학습 과제 3개</li></ul>
+              <p class="mode-audience">반도체 공정을 배우는 학부생·취업 준비생을 위한 실험</p><ul class="mode-features"><li>조건 실험·기록 리플레이·계산 근거</li><li>변수의 영향을 확인하는 학습 과제 3개</li></ul>
               <button type="button" class="primary-button" data-page="lab">학습 실험실 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
             </article>
           </div>
-          <p class="mode-footnote">두 모드의 실행 기록은 함께 저장됩니다. 언제든 모드를 전환할 수 있습니다.</p>
+          <p class="mode-footnote">게임 진행과 실험 기록은 각각 저장됩니다. <a href="#intro-tour">기존 5회 MRR 도전 →</a></p>
           <div class="mrr-notice"><div><strong>우리 모델로 다음 웨이퍼의 MRR을 예측해보세요</strong><p>공정 조건 체험과 구분되는, 측정 이력 기반 Ridge 예측입니다.</p></div><button type="button" class="primary-button" data-page="prediction">데이터 기반 예측 열기</button></div>
           <div class="info-note mt-5"><svg class="icon size-4" aria-hidden="true"><use href="#i-info"/></svg><p>수식 기반 교육용 데모입니다. 목표 달성은 학습 미션의 판정이며 실제 공정 품질을 뜻하지 않습니다. 3D의 제거·변형은 이해를 돕는 표현입니다.</p></div>
         </section>

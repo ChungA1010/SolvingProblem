@@ -1,0 +1,208 @@
+(function(){
+  'use strict';
+  const game=window.CMPFactory,story=window.CMPCustomers,engine=window.CMPDemo,$=id=>document.getElementById(id);
+  const saveKey='cmp-factory-campaign-v1',motion=matchMedia('(prefers-reduced-motion: reduce)');
+  const format=(n,d=2)=>Number.isFinite(n)?n.toFixed(d):'—';
+  const counters=CMPCounter.attachDocument(document,format),count=(id,n,d=0)=>counters.set($(id),n,{digits:d});
+  let best=[0,0,0,0,0],state=game.create(),view='brief',input=game.settings(),scene=null,sceneTried=false,busy=false,activeProfile=null,readyNotice='',stale=false;
+  let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,asked=[],accepted=false;
+  let speechText='',speechLast=false,lastPresentation=null;
+  const shop=CMPShop.create({onChange:frame=>{
+    $('customer-stage').dataset.phase=frame.phase;
+    if(!frame.visible)return;
+    speechLast=frame.last;
+    $('shop-dialogue').textContent=frame.lines[frame.index];
+    $('dialogue-position').textContent=`${frame.index+1} / ${frame.lines.length}`;
+    $('dialogue-next').textContent=frame.phase!=='talking'?'대화 바로 보기 →':frame.last?'다시 듣기 ↺':'계속 듣기 →';
+  }});
+  try{
+    const saved=JSON.parse(localStorage.getItem(saveKey)||'null');
+    if([game.version,game.legacyVersion].includes(saved?.version)){
+      if(Array.isArray(saved.best)&&saved.best.length===5&&saved.best.every(n=>Number.isInteger(n)&&n>=0&&n<=3))best=saved.best;
+      const restored=game.restore(saved.session);
+      if(restored){state=restored;accepted=saved.orderAccepted!==false||state.events.length>0;view=accepted?state.phase:'brief';input=state.rows.at(-1)?.input||game.settings();asked=story.restoreDialogue(saved.dialogue,state.order);}
+      else readyNotice='저장된 진행을 불러오지 못했습니다.';
+      if(typeof saved.runId==='string'&&/^[\w-]{1,100}$/.test(saved.runId))runId=saved.runId;
+      completed=game.restoreArchive(saved.completed);
+    }
+  }catch{readyNotice='저장된 진행을 불러오지 못했습니다. 새 주문으로 시작합니다.';}
+  if(readyNotice)notice('저장된 진행을 불러오지 못했습니다. 새 주문으로 시작합니다.');
+  function notice(message){$('save-warning').hidden=false;$('save-warning').textContent=message;}
+  function save(){try{localStorage.setItem(saveKey,JSON.stringify({version:game.version,best,runId,completed,orderAccepted:accepted,dialogue:story.serializeDialogue(asked,state.order),session:JSON.parse(game.serialize(state))}));}catch{notice('브라우저 저장을 사용할 수 없습니다. 현재 탭에서는 진행되지만 닫으면 사라집니다.');}}
+  function dispatch(event){if(stale)throw new Error('다른 탭의 최신 진행을 불러오려면 새로고침해주세요.');state=game.transition(state,event);if(event.type==='ship'){best[state.order]=Math.max(best[state.order],game.summary(state).stars);completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);}save();}
+  function setView(next,focus=true){view=next;render();if(focus){$('game-title').focus({preventScroll:true});scrollTo({top:0,behavior:'auto'});}}
+  function readSettings(){input=game.settings(Object.fromEntries(['pressure','wafer_rotation_pct','stage_rotation_pct','slurry_c_pct'].map(key=>[key,$('g-'+key).value===''?NaN:Number($('g-'+key).value)])));return input;}
+  function fillSettings(){for(const k of ['pressure','wafer_rotation_pct','stage_rotation_pct','slurry_c_pct'])$('g-'+k).value=input[k];}
+  function validate(){
+    try{readSettings();game.estimate(state,input);const n=Number($('duration').value);if(!$('duration').value||!Number.isInteger(n)||n<30||n>240)throw new Error('연마 시간은 30–240초의 정수로 입력하세요.');$('game-error').hidden=true;$('process').disabled=busy;return true;}
+    catch(error){$('game-error').hidden=false;$('game-error').textContent='⚠ '+error.message;$('process').disabled=true;return false;}
+  }
+  function updateEstimate(){
+    if(!validate())return;
+    count('known-rate',game.estimate(state,input),2);
+    $('time-hint').textContent=`현재 예상 ${game.recommendation(state,input)}초`;
+  }
+  function qualityText(q){return {good:'규격 안',under:'덜 깎음',over:'너무 깎음'}[q]||'미측정';}
+  function customerIdentity(prefix,profile){$(prefix+'-portrait').src=`./media/customer-${profile.id}.svg`;$(prefix+'-name').textContent=profile.name;$(prefix+'-role').textContent=profile.role;}
+  function renderDialogue(){
+    const c=story.contract(state.order);customerIdentity('customer',c.profile);
+    $('customer-visit').textContent=c.returning?'다시 찾아온 고객':'새로운 고객';$('customer-focus').textContent=c.profile.focus;
+    $('customer-opening').textContent=c.opening;$('customer-goal').textContent=story.goalLabel(state.order);
+    $('customer-goal-note').textContent='규격 3장 이상 + 추가 목표 달성 시 고객 배지 · 대금·별점에는 영향 없음';
+    $('order-thread').textContent=c.returning?`${c.profile.name}의 두 번째 의뢰`:`${c.profile.name}의 첫 의뢰`;
+    const host=$('customer-questions');host.replaceChildren();
+    for(const q of story.questionList){const b=document.createElement('button');b.type='button';b.className='customer-question';b.textContent=q.label;b.dataset.question=q.id;b.setAttribute('aria-controls','shop-dialogue');b.setAttribute('aria-pressed',String(asked.at(-1)===q.id));b.dataset.read=String(asked.includes(q.id));b.addEventListener('click',()=>{if(stale)return;asked=story.ask(asked.filter(id=>id!==q.id),q.id);save();renderDialogue();speechText=story.answer(state.order,q.id);shop.say(speechText);$('customer-questions').querySelector(`[data-question="${q.id}"]`).focus({preventScroll:true});});host.append(b);}
+    const key=asked.at(-1);$('customer-answer').hidden=!key;$('customer-question-echo').textContent=story.questionList.find(q=>q.id===key)?.label||'';$('customer-answer-text').textContent=key?story.answer(state.order,key):'';
+    $('customer-talk-note').textContent=`확인한 질문 ${asked.length} / 3 · 대화는 무료 · 행동 소모 없음`;
+  }
+  function renderShop(){
+    const visible=view==='brief'||view==='settled',delivered=view==='settled',c=story.contract(state.order),o=c.order;
+    document.body.dataset.place=visible?'counter':'workbench';
+    $('customer-stage').hidden=!visible;$('shop-brief-dialogue').hidden=delivered;$('shop-reaction').hidden=!delivered;
+    if(lastPresentation!==view){$('inspection-records').open=!delivered;lastPresentation=view;}
+    if(!visible){shop.leave();return;}
+    const feedback=delivered?story.reaction(state):null;
+    $('customer-stage').dataset.delivered=String(delivered);$('customer-stage').dataset.mood=feedback?.mood||'neutral';
+    $('shop-figure').src=`./media/customer-${c.profile.id}-figure.svg`;
+    $('shop-speaker-name').textContent=c.profile.name;$('shop-speaker-role').textContent=c.profile.role;
+    $('shop-visit-label').textContent=delivered?'납품 확인':c.returning?'다시 온 손님':'첫 방문';
+    $('shop-arrival').textContent=delivered?'가공한 웨이퍼를 건넵니다.':`딩동! ${c.profile.name}님이 찾아왔어요.`;
+    $('character-emotion').textContent=feedback?.mood==='retry'?'…':feedback?.mood==='accepted'?'✓':'✦';
+    $('accept-order').hidden=delivered;$('retry-order').hidden=!delivered;
+    $('counter-action-note').textContent=delivered?`납품 완료 · 규격 안 ${game.summary(state).good} / 6장`:'대화와 주문서 확인은 행동을 쓰지 않아요.';
+    $('slip-spec').replaceChildren(document.createTextNode(`${o.target} nm `));const unit=document.createElement('small');unit.textContent=`±${o.tolerance}% · 6장`;$('slip-spec').append(unit);
+    $('slip-client').textContent=`${c.profile.name}의 ${c.returning?'후속':'첫'} 의뢰 · ${delivered?'납품 완료':'주문 확인'}`;
+    speechText=delivered?feedback.message:asked.length?story.answer(state.order,asked.at(-1)):c.opening;
+    shop.enter({id:`${runId}:${view}`,text:speechText,delivery:delivered,mood:feedback?.mood,reduced:motion.matches||document.hidden});
+  }
+  function renderCustomerContext(){
+    const c=story.contract(state.order),o=c.order;$('active-customer').hidden=view==='brief';
+    $('active-customer-summary').textContent=`${c.profile.name} · ${c.profile.focus} · 주문서 다시 보기`;
+    $('active-customer-spec').textContent=`${o.target} nm ±${o.tolerance}% · 6장 중 3장 이상 규격 충족 후 납품하면 다음 의뢰 해제`;
+    $('active-customer-goal').textContent=`고객 추가 목표: ${story.goalLabel(state.order)}. ${c.metric==='time'?'입력한 연마 시간만 합산하며 실제 플레이·3D 재생 시간은 제외합니다.':'추가 목표 달성 여부는 대금·별점·해제 조건에 영향을 주지 않습니다.'}`;
+  }
+  function renderCustomerResult(){
+    const settled=state.phase==='settled',c=story.contract(state.order),feedback=story.reaction(state);
+    $('customer-response').hidden=!settled;$('customer-response-pending').hidden=settled||state.inspected!==6;
+    if(!feedback)return;
+    customerIdentity('response',c.profile);$('customer-response').dataset.mood=feedback.mood;
+    $('customer-response-title').textContent=feedback.title;$('customer-response-text').textContent=feedback.message;
+    $('customer-badge').textContent=feedback.achieved?`달성 배지 · ${feedback.badge}`:'추가 목표 미달성';$('customer-badge').dataset.achieved=String(feedback.achieved);
+    $('customer-objective-result').textContent=`추가 목표: ${story.goalLabel(state.order)} · 대금·별점·해제 조건에는 영향 없음`;
+    const next=story.nextOrder(best,state.order);$('followup-card').hidden=next===null;
+    if(next!==null){const n=story.contract(next);$('followup-portrait').src=`./media/customer-${n.profile.id}.svg`;$('followup-title').textContent=`${n.profile.name}의 ${n.returning?'후속':'새로운'} 의뢰가 열려 있어요`;$('followup-description').textContent=`ORDER ${String(next+1).padStart(2,'0')} · ${n.order.title} · ${story.goalLabel(next)}`;$('next-order').textContent=`${n.profile.name}의 의뢰 보기 →`;}
+    $('followup-status').textContent=next!==null?(feedback.qualityMet?'규격 3장 이상 납품 완료 · 다음 의뢰로 진행할 수 있습니다.':'이번에는 기준에 못 미쳤지만 이전 납품으로 열린 의뢰는 유지됩니다.'):state.order===4&&feedback.qualityMet?'마지막 의뢰까지 완료했습니다. 같은 주문에 다시 도전해 이전 결과와 비교할 수 있어요.':'규격 안 3장 이상을 맞춰 납품하면 다음 의뢰가 열립니다.';
+  }
+  function renderLog(){
+    const rows=game.visibleRows(state);$('wafer-log').replaceChildren();
+    for(let i=0;i<6;i++){const row=rows[i],box=document.createElement('div');const label=document.createElement('span'),value=document.createElement('b'),note=document.createElement('small');label.textContent=`WAFER ${String(i+1).padStart(2,'0')}`;value.textContent=row?.removed!=null?format(row.removed,1)+' nm':row?'?':'대기';note.textContent=row?row.measured?qualityText(row.quality):'검사 때 공개':'미가공';box.append(label,value,note);$('wafer-log').append(box);}
+  }
+  function renderClues(){
+    $('equipment-brief').hidden=busy;$('brief-wafer').textContent=`다음 가공 · W${String(state.rows.length+1).padStart(2,'0')}`;
+    $('equipment-clues').replaceChildren();for(const clue of game.clues(state)){const card=document.createElement('article'),h=document.createElement('h3'),p=document.createElement('p');card.dataset.kind=clue.kind;h.textContent=clue.title;p.textContent=clue.detail;card.append(h,p);$('equipment-clues').append(card);}
+  }
+  function renderComparison(){
+    const prior=game.previousAttempt(completed,state,runId),comparison=game.comparison(state,prior);
+    $('attempt-comparison-table').replaceChildren();$('attempt-comparison-feedback').hidden=!comparison;
+    $('attempt-comparison-note').textContent=comparison?'동일한 초기 상태·변동 순서에서 설정과 행동을 바꾼 결과입니다.':completed.some(e=>e.id!==runId&&e.session.order===state.order)?'같은 주문의 기록은 있지만 규칙 버전이 달라 비교하지 않습니다. 이번 규칙으로 다시 도전하면 비교가 표시됩니다.':'이 규칙으로 완료한 같은 주문의 이전 기록이 없습니다. 납품 후 다시 도전하면 비교할 수 있습니다.';
+    if(!comparison)return;
+    const {before,after,delta}=comparison,table=document.createElement('table'),thead=document.createElement('thead'),tbody=document.createElement('tbody');
+    const header=document.createElement('tr');for(const label of ['지표','직전 도전','이번 도전','변화']){const th=document.createElement('th');th.scope='col';th.textContent=label;header.append(th);}thead.append(header);
+    const fields=[['good','규격 안','장',0],['mae','평균 절대 목표 오차','%',2],['profit','납품 대금 − 비용',' P',0],['measures','측정 사용','회',0],['services','정비 사용','회',0]];
+    for(const [key,label,unit,digits]of fields){const tr=document.createElement('tr'),th=document.createElement('th');th.scope='row';th.textContent=label;tr.append(th);for(const val of [before[key],after[key],delta[key]]){const td=document.createElement('td');const isDelta=tr.children.length===3;td.textContent=(isDelta&&val>0?'+':'')+format(val,digits)+(key==='mae'&&isDelta?'%p':unit);tr.append(td);}tbody.append(tr);}table.append(thead,tbody);$('attempt-comparison-table').append(table);
+    const change=delta.mae<-.005?`평균 절대 목표 오차를 ${format(-delta.mae)}%p 줄였습니다.`:delta.mae>.005?`평균 절대 목표 오차가 ${format(delta.mae)}%p 커졌습니다.`:'평균 절대 목표 오차가 직전과 같습니다.';
+    $('attempt-comparison-feedback').textContent=`${change} 규격 안 장수와 비용도 함께 비교해보세요. 두 도전에서 바꾼 변수·측정·정비의 영향을 한 가지 원인으로 단정하지 않습니다.`;
+  }
+  function finishInspection(){clearTimeout(inspectionTimer);inspectionTimer=null;if(stale||state.phase!=='inspection'||state.inspected===6)return;dispatch({type:'inspect',count:6-state.inspected});render();}
+  function scheduleInspection(){
+    if(stale||view!=='inspection'||state.inspected===6||inspectionTimer!==null)return;
+    inspectionTimer=setTimeout(()=>{inspectionTimer=null;if(stale||view!=='inspection')return;try{dispatch({type:'inspect',count:motion.matches||document.hidden?6-state.inspected:1});render();}catch(error){notice(error.message);}},motion.matches?0:650);
+  }
+  function render(){
+    const o=game.orders[state.order],resultView=view==='result',inspection=['inspection','settled'].includes(view);
+    $('order-eyebrow').textContent=`ORDER ${String(state.order+1).padStart(2,'0')} / 05 · ${o.title}`;
+    const titles={brief:'어서오세요, 반도체 공방입니다.',setup:`${state.rows.length+1}번 웨이퍼, 시간을 정하세요.`,playing:'장비가 연마하고 있어요.',result:'측정할지 결정하세요.',inspection:'검사 후, 손님에게 가져가요.',settled:'손님, 주문하신 웨이퍼 나왔어요.'};
+    $('game-title').textContent=titles[view];$('game-title').style.whiteSpace='pre-line';
+    $('game-subtitle').textContent=view==='brief'?'손님의 이야기를 듣고, 딱 맞는 한 장을 만들어봐요.':`${story.contract(state.order).profile.role} · 목표 ${o.target} nm · 허용 오차 ±${o.tolerance}%`;
+    count('wafer-count',state.rows.length);count('wallet',state.wallet);
+    const budget=game.actions(state);count('action-count',budget.remaining);$('action-limit').textContent=budget.limit===null?' 이전 규칙':' / 2회';
+    $('action-budget-note').textContent=budget.limit===null?'저장된 도전은 이전 규칙으로 유지합니다. 새 주문·재도전부터 측정·정비 공통 2회 제한을 적용합니다.':budget.remaining===0?'추가 행동을 모두 사용했습니다. 가공과 무료 필수 검사는 계속할 수 있습니다.':`추가 행동 ${budget.remaining}회 남음 · 측정은 5 P + 1회, 정비는 30 P + 1회 · 가공·필수 검사는 소모 없음`;
+    $('action-budget-note').dataset.exhausted=String(budget.remaining===0);
+    renderCustomerContext();
+    $('brief-screen').hidden=view!=='brief';$('work-screen').hidden=!['setup','playing'].includes(view);$('result-screen').hidden=!resultView;$('inspection-screen').hidden=!inspection;
+    document.querySelectorAll('[data-game-step]').forEach(el=>{if(el.dataset.gameStep===({playing:'setup',settled:'inspection'}[view]||view))el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
+    $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
+    $('customer-goal').textContent=story.goalLabel(state.order);$('customer-goal-note').textContent='규격 3장 이상 + 추가 목표 달성 시 고객 배지 · 대금·별점에는 영향 없음';$('order-thread').textContent=`${story.contract(state.order).profile.name}의 의뢰`;
+    if(view==='brief'){
+      renderDialogue();$('order-picker').replaceChildren();game.orders.forEach((order,i)=>{const c=story.contract(i),b=document.createElement('button');b.type='button';b.disabled=!story.unlocked(best,i);const small=document.createElement('small'),strong=document.createElement('strong'),stars=document.createElement('span'),who=document.createElement('small');small.textContent=`ORDER ${String(i+1).padStart(2,'0')}`;strong.textContent=order.title;who.textContent=`${c.profile.name} · ${c.returning?'후속 의뢰':c.profile.focus}`;stars.textContent=b.disabled?'이전 주문 별 1개 필요':best[i]?'★'.repeat(best[i])+'☆'.repeat(3-best[i]):'의뢰 가능';b.append(small,strong,who,stars);if(i===state.order)b.setAttribute('aria-current','true');b.addEventListener('click',()=>newOrder(i));$('order-picker').append(b);});
+    }
+    if(['setup','playing'].includes(view)){
+      renderClues();
+      $('game-form').hidden=busy;$('animation-status').hidden=!busy;$('machine-state').textContent=busy?'POLISHING · 설명용 재생':'READY';
+      counters.set($('wear-value'),state.wear,{digits:0,suffix:'%'});$('wear-value').setAttribute('aria-label',`컨디셔너 사용량 ${format(state.wear,0)}%`);$('wear-meter').value=state.wear;
+      counters.set($('pad-value'),state.pad,{digits:0,suffix:'%'});$('pad-meter').value=state.pad;
+      $('work-target').textContent=`${o.target} nm ±${o.tolerance}%`;
+      $('measurement-age').textContent=state.lastMeasured?`${state.lastMeasured}번 웨이퍼 측정 기준 · ${state.rows.length-state.lastMeasured}장 추가 가공`:'측정 전 · 초기 가정값';
+      $('shift-note').textContent=state.servicedSinceMeasure?'교체 후 제거율이 달라졌을 수 있어요. 측정값 갱신을 고려하세요.':state.order===2&&state.rows.length===0?'재시작 직후입니다. 첫 웨이퍼는 제거율이 낮아지는 게임 규칙이 적용됩니다.':`현재 주문: ${o.lesson}`;
+      $('service').disabled=busy||state.order===0||state.wallet<o.serviceCost||state.wear===0||budget.remaining===0;$('service').textContent=state.order===0?'컨디셔너 교체 · 다음 주문에서 열림':budget.remaining===0?'정비 불가 · 추가 행동 소진':'컨디셔너 교체 · 30 P + 행동 1회';
+      $('use-recommendation').disabled=busy;$('process').textContent=`${state.rows.length+1}번 웨이퍼 연마 →`;
+      ensureScene();updateEstimate();
+    }
+    if(resultView){
+      const row=game.visibleRows(state).at(-1),measured=row.measured;
+      $('result-heading').textContent=`${row.number}번 웨이퍼, 연마 완료.`;$('result-subtitle').textContent=`설정 시간 ${row.duration}초 · 목표 ${o.target} nm`;
+      $('hidden-measurement').hidden=measured;$('revealed-measurement').hidden=!measured;
+      $('measure').disabled=measured||state.wallet<o.measureCost||budget.remaining===0;$('measure').textContent=measured?'측정 완료 · 5 P 사용':budget.remaining===0?'측정 불가 · 추가 행동 소진':state.wallet<o.measureCost?'측정 자금 부족':'측정하기 · 5 P + 행동 1회';
+      $('advance').textContent=state.rows.length===o.count?'최종 검사로 이동 →':measured?'측정값으로 다음 장 준비 →':'측정 없이 다음 장 →';
+      $('measurement-feedback').textContent=measured?`${qualityText(row.quality)}입니다. 제거율 ${format(row.rate)} nm/min을 다음 예상값에 반영했습니다.`:budget.remaining===0?'추가 행동이 남지 않았습니다. 지금까지의 단서와 측정값으로 진행하세요. 최종 검사는 모든 장에 무료로 진행됩니다.':state.wallet<o.measureCost?'운영 자금이 부족합니다. 측정 없이 진행한 뒤 납품 검사에서 결과를 확인하세요.':state.rows.length===6?'마지막 장입니다. 무료 최종 검사로 바로 이동할 수 있으며, 지금 측정해도 추가 보상은 없습니다.':'측정하면 추가 행동 1회와 5 P를 씁니다. 이후 측정·정비에 남길 기회도 고려해보세요.';
+      if(measured){count('measured-removal',row.removed,2);$('quality-badge').textContent=qualityText(row.quality);$('quality-badge').dataset.quality=row.quality;$('measured-error').textContent=`목표 대비 ${row.error>=0?'+':''}${format(row.error)}%`;
+        const start=50-o.tolerance*2,end=50+o.tolerance*2;$('result-needle').style.left=`${Math.min(100,Math.max(0,50+row.error*2))}%`;$('result-needle').parentElement.style.background=`linear-gradient(to right,#efdbbc ${start}%,#9ccab0 ${start}%,#9ccab0 ${end}%,#efc7c2 ${end}%)`;}
+      renderLog();
+    }
+    if(inspection){
+      const s=game.summary(state),settled=state.phase==='settled',done=state.inspected===6;count('good-count',done?s.good:null);count('revenue',done?s.revenue:null);count('spent',s.spent);$('stars').textContent=done?'★'.repeat(s.stars)+'☆'.repeat(3-s.stars):'검사 중';$('stars').setAttribute('aria-label',done?`별 ${s.stars}개 / 3개`:'검사 중');
+      $('inspection-heading').textContent=settled?'납품을 마쳤습니다.':done?'여섯 장, 검사 완료.':'한 장씩, 납품 규격 확인 중';
+      $('inspection-progress').textContent=done?'6 / 6장 검사 완료 · 필수 검사는 행동·비용 소모 없음':`${state.inspected} / 6장 공개 · 검사에는 행동·비용이 들지 않습니다.`;$('reveal-all').hidden=done;
+      ['inspection-totals','inspection-detail-table','inspection-debrief','attempt-comparison'].forEach(id=>$(id).hidden=!done);
+      $('inspection-cards').replaceChildren();game.visibleRows(state).forEach(row=>{const card=document.createElement('article'),name=document.createElement('span'),stamp=document.createElement('strong'),error=document.createElement('small');const revealed=row.number<=state.inspected;card.className='inspection-tile';card.dataset.revealed=String(revealed);card.dataset.quality=revealed?row.quality:'pending';name.textContent=`WAFER ${String(row.number).padStart(2,'0')}`;stamp.textContent=revealed?qualityText(row.quality):'검사 대기';error.textContent=revealed?`${row.error>=0?'+':''}${format(row.error)}% · ${format(row.removed,1)} nm`:'—';if(revealed&&row.number===state.inspected&&!done)card.classList.add('stamp-arrive');card.append(name,stamp,error);$('inspection-cards').append(card);});
+      $('inspection-rows').replaceChildren();if(done)game.visibleRows(state).forEach(row=>{const tr=document.createElement('tr');for(const val of [`W${String(row.number).padStart(2,'0')}`,`${row.duration} s`,`${format(row.removed)} nm`,`${row.error>=0?'+':''}${format(row.error)}%`,qualityText(row.quality),row.measured?'측정함 · 5 P':'생략']){const td=document.createElement('td');td.textContent=val;tr.append(td);}$('inspection-rows').append(tr);});
+      const measured=state.rows.filter(r=>r.measured).length;
+      $('debrief').textContent=`6장 중 ${s.good}장이 규격 안에 들어왔고 ${measured}장을 미리 측정했습니다. ${s.good>=5?'측정한 제거율과 시간을 잘 연결했어요.':state.rows.some(r=>r.quality==='under')?'덜 깎인 장은 연마 시간을 늘리거나, 최신 측정값으로 예상 시간을 다시 계산해보세요.':'너무 깎인 장은 연마 시간을 줄여보세요.'} ${o.lesson} 측정은 판단에 도움을 주지만 이후 마모 변화까지 보장하지는 않습니다.`;
+      $('ship').hidden=settled;$('ship').disabled=!done||stale;$('export-order').disabled=!done;$('next-order').hidden=!settled||state.order===4||best[state.order]<1;$('retry-order').hidden=!settled;
+      $('settlement-note').textContent=settled?`정산 완료 · 시작 자금 100 + 납품 ${s.revenue} − 비용 ${s.spent} = ${state.wallet} P. ${s.stars?'다음 주문은 새 자금 100 P로 시작합니다.':'같은 주문에서 3장 이상 규격을 맞추면 다음 주문이 열립니다.'}`:'측정하지 않은 웨이퍼도 최종 검사에서 공개했습니다. 납품 버튼을 누르면 대금이 한 번 지급됩니다.';
+      if(!done)$('settlement-note').textContent='모든 장의 판정이 공개되면 납품할 수 있습니다. 연출을 건너뛰어도 결과는 같습니다.';
+      renderCustomerResult();if(done)renderComparison();else scheduleInspection();
+    }
+    renderShop();counters.refresh();
+  }
+  function unavailable(){const host=$('cmp-scene');host.dataset.renderer='unavailable';$('scene-fallback').hidden=false;$('scene-fallback').textContent='3D를 사용할 수 없어 정지 개념도로 표시합니다. 게임은 계속 진행할 수 있습니다.';$('cmp-canvas').hidden=true;$('game-surface').hidden=false;$('game-surface').open=true;host.querySelectorAll('button,input,select').forEach(el=>el.disabled=true);}
+  function ensureScene(){if(sceneTried){scene?.resize();return;}sceneTried=true;try{scene=CMPScene.create({host:$('cmp-scene'),canvas:$('cmp-canvas'),fallback:$('scene-fallback'),detail:$('game-surface'),onUnavailable:unavailable});if(!scene)unavailable();}catch{unavailable();}}
+  const player=CMPPolish.createPlayer({requestFrame:cb=>requestAnimationFrame(cb),cancelFrame:id=>cancelAnimationFrame(id),now:()=>performance.now(),onFrame:frame=>{scene?.setFrame(frame);$('game-progress').value=frame?frame.progress*100:0;},onState:status=>{scene?.setState(status);if(['completed','reduced','stopped'].includes(status)&&busy){busy=false;setView('result');}}});
+  function playback(){const row=state.rows.at(-1);busy=true;setView('playing');const calc=engine.calculate(row.input);activeProfile=CMPPolish.profile(row.input,calc,engine.recipes.A456);player.start(activeProfile,{reducedMotion:motion.matches});}
+  function newOrder(index){if(stale||!story.unlocked(best,index))return;clearTimeout(inspectionTimer);inspectionTimer=null;player.reset();state=game.create(index);runId=crypto.randomUUID();asked=[];accepted=false;$('conversation-options').open=false;$('commission-board').open=false;input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;save();setView('brief');}
+  $('dialogue-next').addEventListener('click',()=>{if(stale)return;if(speechLast&&$('customer-stage').dataset.phase==='talking')shop.say(speechText);else shop.next();});
+  $('open-order-slip').addEventListener('click',()=>$('order-dialog').showModal());
+  ['close-order-slip','order-dialog-done'].forEach(id=>$(id).addEventListener('click',()=>$('order-dialog').close()));
+  $('accept-order').addEventListener('click',()=>{if(stale)return;accepted=true;save();setView('setup');});
+  $('game-form').addEventListener('submit',event=>{event.preventDefault();if(busy||state.phase!=='setup'||!validate())return;try{dispatch({type:'run',duration:Number($('duration').value),input:readSettings()});playback();}catch(e){$('game-error').hidden=false;$('game-error').textContent=e.message;}});
+  $('duration').addEventListener('input',()=>{if(Number.isFinite(Number($('duration').value)))$('duration-slider').value=$('duration').value;validate();});
+  $('duration-slider').addEventListener('input',()=>{$('duration').value=$('duration-slider').value;validate();});
+  ['pressure','wafer_rotation_pct','stage_rotation_pct','slurry_c_pct'].forEach(k=>$('g-'+k).addEventListener('input',updateEstimate));
+  $('use-recommendation').addEventListener('click',()=>{try{readSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;updateEstimate();}catch{validate();}});
+  $('service').addEventListener('click',()=>{if(busy)return;try{dispatch({type:'service'});render();}catch(e){notice(e.message);}});
+  $('measure').addEventListener('click',()=>{try{dispatch({type:'measure'});render();$('advance').focus();}catch(e){notice(e.message);}});
+  $('advance').addEventListener('click',()=>{dispatch({type:'advance'});if(state.phase==='setup'){$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;player.reset();}setView(state.phase);});
+  $('skip-animation').addEventListener('click',()=>player.cancel());$('replay-game').addEventListener('click',playback);
+  $('ship').addEventListener('click',()=>{if(stale||state.phase!=='inspection'||state.inspected!==6)return;dispatch({type:'ship'});setView('settled');});
+  $('reveal-all').addEventListener('click',finishInspection);
+  $('next-order').addEventListener('click',()=>{if(state.phase==='settled'&&best[state.order]>=1&&state.order<4)newOrder(state.order+1);});
+  $('retry-order').addEventListener('click',()=>{if(state.phase==='settled')newOrder(state.order);});
+  $('export-order').addEventListener('click',()=>{if(!['inspection','settled'].includes(state.phase)||state.inspected!==6)return;const header=['model','order','wafer','duration_s','removed_nm_game','error_pct','quality','measured','pressure','wafer_pct','stage_pct','slurry_c_pct'];const rows=game.visibleRows(state).map(r=>[state.version,state.order+1,r.number,r.duration,r.removed,r.error,r.quality,r.measured,r.input.pressure,r.input.wafer_rotation_pct,r.input.stage_rotation_pct,r.input.slurry_c_pct]);const blob=new Blob(['\ufeff'+[header,...rows].map(r=>r.join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`CMP-game-order-${state.order+1}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+  $('open-help').addEventListener('click',()=>$('game-help').showModal());['close-help','help-done'].forEach(id=>$(id).addEventListener('click',()=>$('game-help').close()));
+  document.querySelectorAll('[data-scene-view]').forEach(b=>b.addEventListener('click',()=>scene?.setView(b.dataset.sceneView)));$('scene-cutaway').addEventListener('change',()=>scene?.setCutaway($('scene-cutaway').checked));$('scene-transparent').addEventListener('change',()=>scene?.setTransparent($('scene-transparent').checked));$('scene-zoom-in').addEventListener('click',()=>scene?.zoom(.85));$('scene-zoom-out').addEventListener('click',()=>scene?.zoom(1.15));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)shop.ready();if(document.hidden&&busy)player.cancel();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches)shop.ready();if(motion.matches&&busy)player.start(activeProfile,{reducedMotion:true});if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{shop.destroy();clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted){shop.ready();if(view==='inspection')scheduleInspection();}});
+  // A second tab must never silently overwrite a more recent campaign.
+  window.addEventListener('storage',e=>{if(e.key===saveKey){stale=true;clearTimeout(inspectionTimer);inspectionTimer=null;if(busy)player.cancel();notice('다른 탭에서 게임이 변경되었습니다. 이 탭을 새로고침해 최신 진행을 불러오세요.');document.querySelectorAll('#factory-main button,#factory-main input').forEach(el=>el.disabled=true);}});
+  if(state.phase==='settled'&&!completed.some(e=>e.id===runId)){completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);save();}
+  fillSettings();$('duration').value=game.recommendation(state,input);$('duration-slider').value=$('duration').value;render();
+})();
