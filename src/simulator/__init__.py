@@ -1,4 +1,8 @@
-"""Schemas and errors for the pre-polish CMP simulator.
+"""Inference contracts, schemas and errors for the Issue #4 simulator core.
 
-The package initializer deliberately has no imports or runtime side effects.
+Only the pure-Python predictor interface is re-exported here; it has no
+external dependencies, reads no files and fits no estimator.
 """
+from .predictor import BaseMRRPredictor
+
+__all__ = ["BaseMRRPredictor"]

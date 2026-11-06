@@ -1,0 +1,2 @@
+# Simulator checkpoint tests; the interface itself has no external dependencies.
+pytest==9.1.1
