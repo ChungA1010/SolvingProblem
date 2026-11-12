@@ -11,3 +11,6 @@ evidence/
 DEPLOYMENT.md
 # Earlier design notes are not part of the current web application.
 dist/design-notes.html
+
+# Issue #6: PHM replay data stays local until the data publication decision.
+dist/lab-sim/data/

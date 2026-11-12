@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "model_version": "state-kalman-v2",
+  "step_mode": "position",
+  "pad_step": 5.925925925999991,
+  "rest_gap_s": 500.0,
+  "fitted_on": "PHM 2016 CMP training partition, chronological folds 1-4 (A456, B456)",
+  "interval_level": 0.9,
+  "z90": 1.6448536269514722,
+  "recipes": {
+    "A456": {
+      "q": 3.0646635975668812,
+      "r": 3.8581828815774766,
+      "alpha": 1.0,
+      "p_ref": 269.7795911941517,
+      "rest_offset": 0.35782347460074376,
+      "pad_offset": 1.0533065348837243
+    },
+    "B456": {
+      "q": 4.956028866610515,
+      "r": 6.239270681761417,
+      "alpha": 0.0,
+      "p_ref": 257.84,
+      "rest_offset": 2.316807688737816,
+      "pad_offset": 1.3013068055987127
+    }
+  },
+  "notes": [
+    "Educational development model; no independent final validation.",
+    "MRR stays on the raw PHM label scale; physical unit unverified.",
+    "Pre-start accuracy equals Ridge v1 within noise (runs/lab_sim_state_model_v2/REPORT.md).",
+    "Pressure correction alpha: A456=1.0 (preston_prior), B456=0.0 (likelihood)"
+  ],
+  "recipe_meta": {
+    "A456": {
+      "mrr_ref": 73.524,
+      "t_ref": 116.0,
+      "target_removal": 8528.8,
+      "spec_pct": 5.0,
+      "p_ref": 269.78
+    },
+    "B456": {
+      "mrr_ref": 79.978,
+      "t_ref": 121.0,
+      "target_removal": 9677.4,
+      "spec_pct": 5.0,
+      "p_ref": 257.84
+    }
+  }
+}

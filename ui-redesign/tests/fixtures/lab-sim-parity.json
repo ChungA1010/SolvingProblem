@@ -1,0 +1,4407 @@
+{
+ "params": {
+  "schema_version": 1,
+  "model_version": "state-kalman-v2",
+  "step_mode": "position",
+  "pad_step": 5.925925925999991,
+  "rest_gap_s": 500.0,
+  "fitted_on": "PHM 2016 CMP training partition, chronological folds 1-4 (A456, B456)",
+  "interval_level": 0.9,
+  "z90": 1.6448536269514722,
+  "recipes": {
+   "A456": {
+    "q": 3.0646635975668812,
+    "r": 3.8581828815774766,
+    "alpha": 1.0,
+    "p_ref": 269.7795911941517,
+    "rest_offset": 0.35782347460074376,
+    "pad_offset": 1.0533065348837243
+   },
+   "B456": {
+    "q": 4.956028866610515,
+    "r": 6.239270681761417,
+    "alpha": 0.0,
+    "p_ref": 257.84,
+    "rest_offset": 2.316807688737816,
+    "pad_offset": 1.3013068055987127
+   }
+  },
+  "notes": [
+   "Educational development model; no independent final validation.",
+   "MRR stays on the raw PHM label scale; physical unit unverified.",
+   "Pre-start accuracy equals Ridge v1 within noise (runs/lab_sim_state_model_v2/REPORT.md).",
+   "Pressure correction alpha: A456=1.0 (preston_prior), B456=0.0 (likelihood)"
+  ]
+ },
+ "steps": [
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 0,
+    "clock": 2.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.3627548248606,
+   "mrr": 82.01981155767263,
+   "pre": null,
+   "inproc": null,
+   "measure": true,
+   "delay": 1,
+   "applied_at": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 0,
+    "clock": 4.0,
+    "after_rest": false,
+    "after_pad_change": true
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.9843993595751,
+   "mrr": 71.31608173499521,
+   "pre": null,
+   "inproc": null,
+   "measure": true,
+   "delay": 0,
+   "applied_at": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 1,
+    "clock": 7.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.8819263600697,
+   "mrr": 78.10949285156177,
+   "pre": {
+    "mrr": 82.01981155767263,
+    "sd": 4.175472455918413,
+    "low": 75.15177054431925,
+    "high": 88.887852571026,
+    "level": 82.01981155767263,
+    "level_sd": 3.345937768155877,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 82.01981155767263,
+    "sd": 4.175472455918413,
+    "low": 75.15177054431925,
+    "high": 88.887852571026,
+    "level": 82.01981155767263,
+    "level_sd": 3.345937768155877,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 3
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 2,
+    "clock": 8.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.9474896945049,
+   "mrr": 80.13793581390374,
+   "pre": {
+    "mrr": 82.01981155767263,
+    "sd": 4.731870570582406,
+    "low": 74.23657708738523,
+    "high": 89.80304602796002,
+    "level": 82.01981155767263,
+    "level_sd": 4.018871535018562,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 82.01981155767263,
+    "sd": 4.731870570582406,
+    "low": 74.23657708738523,
+    "high": 89.80304602796002,
+    "level": 82.01981155767263,
+    "level_sd": 4.018871535018562,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 3
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 3,
+    "clock": 9.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.3953461240832,
+   "mrr": 83.45315992762525,
+   "pre": {
+    "mrr": 79.87974736618878,
+    "sd": 3.8566536435284395,
+    "low": 73.53611663273541,
+    "high": 86.22337809964215,
+    "level": 79.87974736618878,
+    "level_sd": 2.938453103995327,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.87974736618878,
+    "sd": 3.8566536435284395,
+    "low": 73.53611663273541,
+    "high": 86.22337809964215,
+    "level": 79.87974736618878,
+    "level_sd": 2.938453103995327,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 4,
+    "clock": 10.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 246.5172632280778,
+   "observed": 246.9077353613595,
+   "mrr": 78.6117068064526,
+   "pre": {
+    "mrr": 79.87974736618878,
+    "sd": 4.453067054598629,
+    "low": 72.55510387037411,
+    "high": 87.20439086200345,
+    "level": 79.87974736618878,
+    "level_sd": 3.6865343496284266,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.87974736618878,
+    "sd": 4.453067054598629,
+    "low": 72.55510387037411,
+    "high": 87.20439086200345,
+    "level": 79.87974736618878,
+    "level_sd": 3.6865343496284266,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 5
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 1,
+    "clock": 13.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.9371548192953,
+   "mrr": 75.92481343952458,
+   "pre": {
+    "mrr": 70.20947437932173,
+    "sd": 3.2825566260239767,
+    "low": 64.81014920733261,
+    "high": 75.60879955131085,
+    "level": 70.20947437932173,
+    "level_sd": 2.6300180838687095,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.25047992482526,
+    "sd": 3.283787454417322,
+    "low": 64.84913022028918,
+    "high": 75.65182962936133,
+    "level": 70.20947437932173,
+    "level_sd": 2.6300180838687095,
+    "steps": 1.0,
+    "pressure_factor": 1.0005840457554487,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 8
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 5,
+    "clock": 14.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.9446802766842,
+   "mrr": 75.83917092815203,
+   "pre": {
+    "mrr": 79.01068439658852,
+    "sd": 3.9333750984196216,
+    "low": 72.5408580997924,
+    "high": 85.48051069338463,
+    "level": 79.01068439658852,
+    "level_sd": 3.0384484499668822,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.01068439658852,
+    "sd": 3.9333750984196216,
+    "low": 72.5408580997924,
+    "high": 85.48051069338463,
+    "level": 79.01068439658852,
+    "level_sd": 3.0384484499668822,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 6,
+    "clock": 17.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.683111953903,
+   "mrr": 76.79349019189034,
+   "pre": {
+    "mrr": 79.01068439658852,
+    "sd": 4.519675710875514,
+    "low": 71.57647941091045,
+    "high": 86.44488938226658,
+    "level": 79.01068439658852,
+    "level_sd": 3.7667224280157234,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.01068439658852,
+    "sd": 4.519675710875514,
+    "low": 71.57647941091045,
+    "high": 86.44488938226658,
+    "level": 79.01068439658852,
+    "level_sd": 3.7667224280157234,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 7,
+    "clock": 18.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.69043711924184,
+   "mrr": 78.37605591269627,
+   "pre": {
+    "mrr": 79.01068439658852,
+    "sd": 5.0382037868756955,
+    "low": 70.72357662442539,
+    "high": 87.29779216875164,
+    "level": 79.01068439658852,
+    "level_sd": 4.375411605360938,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.01068439658852,
+    "sd": 5.0382037868756955,
+    "low": 70.72357662442539,
+    "high": 87.29779216875164,
+    "level": 79.01068439658852,
+    "level_sd": 4.375411605360938,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 2,
+    "clock": 20.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 268.9634806568841,
+   "mrr": 72.5572131349455,
+   "pre": {
+    "mrr": 73.8514398406816,
+    "sd": 3.0655674833527575,
+    "low": 68.80903004702432,
+    "high": 78.89384963433889,
+    "level": 73.8514398406816,
+    "level_sd": 2.353618727281945,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.62803176900509,
+    "sd": 3.0601044860697786,
+    "low": 68.59460780624275,
+    "high": 78.66145573176743,
+    "level": 73.8514398406816,
+    "level_sd": 2.353618727281945,
+    "steps": 1.0,
+    "pressure_factor": 0.9969748989030075,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 12
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 3,
+    "clock": 23.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 268.58390994873866,
+   "mrr": 70.19792066012218,
+   "pre": {
+    "mrr": 73.8514398406816,
+    "sd": 3.530207868179527,
+    "low": 68.0447646248139,
+    "high": 79.65811505654932,
+    "level": 73.8514398406816,
+    "level_sd": 2.9332890602494603,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.52412530523662,
+    "sd": 3.5194130133866417,
+    "low": 67.73520604542739,
+    "high": 79.31304456504586,
+    "level": 73.8514398406816,
+    "level_sd": 2.9332890602494603,
+    "steps": 2.0,
+    "pressure_factor": 0.9955679329184225,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 11
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 8,
+    "clock": 25.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.5099261095469,
+   "mrr": 76.67163739033971,
+   "pre": {
+    "mrr": 79.01068439658852,
+    "sd": 5.508132738478541,
+    "low": 69.95061228397194,
+    "high": 88.0707565092051,
+    "level": 79.01068439658852,
+    "level_sd": 4.909201114533575,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 79.01068439658852,
+    "sd": 5.508132738478541,
+    "low": 69.95061228397194,
+    "high": 88.0707565092051,
+    "level": 79.01068439658852,
+    "level_sd": 4.909201114533575,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 12
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 4,
+    "clock": 27.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 278.1461908946708,
+   "observed": 278.60602648752376,
+   "mrr": 80.92031012663207,
+   "pre": {
+    "mrr": 73.77011017438318,
+    "sd": 3.1567071829044253,
+    "low": 68.57778891535906,
+    "high": 78.96243143340729,
+    "level": 71.55111526488258,
+    "level_sd": 2.3968250186031193,
+    "steps": 1.0,
+    "pressure_factor": 1.031012722880501,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.8920680636419,
+    "sd": 3.159906333676544,
+    "low": 68.69448466986711,
+    "high": 79.08965145741669,
+    "level": 71.55111526488258,
+    "level_sd": 2.3968250186031193,
+    "steps": 1.0,
+    "pressure_factor": 1.0327172090902161,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 15
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 9,
+    "clock": 28.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.31404066319425,
+   "mrr": 75.2809827297595,
+   "pre": {
+    "mrr": 77.15265832923059,
+    "sd": 4.01888978352306,
+    "low": 70.54217289248447,
+    "high": 83.76314376597671,
+    "level": 77.15265832923059,
+    "level_sd": 3.14836535528274,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.15265832923059,
+    "sd": 4.01888978352306,
+    "low": 70.54217289248447,
+    "high": 83.76314376597671,
+    "level": 77.15265832923059,
+    "level_sd": 3.14836535528274,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 15
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 5,
+    "clock": 29.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.8624325903911,
+   "mrr": 76.31723030017918,
+   "pre": {
+    "mrr": 71.55111526488258,
+    "sd": 3.559159542496824,
+    "low": 65.69681878250773,
+    "high": 77.40541174725743,
+    "level": 71.55111526488258,
+    "level_sd": 2.968069030088203,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.57308651283648,
+    "sd": 3.5599196222433758,
+    "low": 65.71753981053375,
+    "high": 77.42863321513921,
+    "level": 71.55111526488258,
+    "level_sd": 2.968069030088203,
+    "steps": 2.0,
+    "pressure_factor": 1.0003070706567265,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 17
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 6,
+    "clock": 31.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 261.8369799870782,
+   "observed": 261.6767364782617,
+   "mrr": 78.44419006572038,
+   "pre": {
+    "mrr": 73.49754894152167,
+    "sd": 3.4238719335082037,
+    "low": 67.86578077347335,
+    "high": 79.12931710957,
+    "level": 75.72703713659698,
+    "level_sd": 2.889479616060753,
+    "steps": 2.0,
+    "pressure_factor": 0.9705588878242557,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.45256864449723,
+    "sd": 3.422466302770593,
+    "low": 67.82311253326583,
+    "high": 79.08202475572864,
+    "level": 75.72703713659698,
+    "level_sd": 2.889479616060753,
+    "steps": 2.0,
+    "pressure_factor": 0.969964908464634,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 10,
+    "clock": 33.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.05700643655734,
+   "mrr": 66.56042166971793,
+   "pre": {
+    "mrr": 76.0040058980431,
+    "sd": 3.876126548420644,
+    "low": 69.62834508635052,
+    "high": 82.37966670973569,
+    "level": 76.0040058980431,
+    "level_sd": 2.963964631639507,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 76.0040058980431,
+    "sd": 3.876126548420644,
+    "low": 69.62834508635052,
+    "high": 82.37966670973569,
+    "level": 76.0040058980431,
+    "level_sd": 2.963964631639507,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 11,
+    "clock": 35.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.53607332918705,
+   "mrr": 79.20212740531072,
+   "pre": {
+    "mrr": 76.0040058980431,
+    "sd": 4.46994249246921,
+    "low": 68.65160477704062,
+    "high": 83.35640701904559,
+    "level": 76.0040058980431,
+    "level_sd": 3.706901024335615,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 76.0040058980431,
+    "sd": 4.46994249246921,
+    "low": 68.65160477704062,
+    "high": 83.35640701904559,
+    "level": 76.0040058980431,
+    "level_sd": 3.706901024335615,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 18
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 7,
+    "clock": 37.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 264.061858324465,
+   "observed": 264.19373839462486,
+   "mrr": 76.06377483049177,
+   "pre": {
+    "mrr": 74.4428020752799,
+    "sd": 3.444734859395768,
+    "low": 68.7767174479166,
+    "high": 80.1088867026432,
+    "level": 76.05471247778264,
+    "level_sd": 2.8911183218270984,
+    "steps": 2.0,
+    "pressure_factor": 0.9788059102455536,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 74.47998094701427,
+    "sd": 3.4458959813597647,
+    "low": 68.81198644397716,
+    "high": 80.14797545005138,
+    "level": 76.05471247778264,
+    "level_sd": 2.8911183218270984,
+    "steps": 2.0,
+    "pressure_factor": 0.9792947540071447,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 19
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 8,
+    "clock": 40.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.3225863620988,
+   "mrr": 78.67053408684447,
+   "pre": {
+    "mrr": 77.14650343813683,
+    "sd": 3.1046294807555803,
+    "low": 72.03984237637555,
+    "high": 82.25316449989812,
+    "level": 77.14650343813683,
+    "level_sd": 2.404275635445983,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.01581777473599,
+    "sd": 3.101476487675948,
+    "low": 71.91434292507749,
+    "high": 82.1172926243945,
+    "level": 77.14650343813683,
+    "level_sd": 2.404275635445983,
+    "steps": 1.0,
+    "pressure_factor": 0.9983060066551734,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 21
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 12,
+    "clock": 42.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.0350280326477,
+   "mrr": 69.13847771731817,
+   "pre": {
+    "mrr": 78.20345070953154,
+    "sd": 3.9352553353263264,
+    "low": 71.7305316982399,
+    "high": 84.67636972082317,
+    "level": 78.20345070953154,
+    "level_sd": 3.040882087890436,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.20345070953154,
+    "sd": 3.9352553353263264,
+    "low": 71.7305316982399,
+    "high": 84.67636972082317,
+    "level": 78.20345070953154,
+    "level_sd": 3.040882087890436,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 23
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 13,
+    "clock": 44.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.4306733085096,
+   "mrr": 69.37685526705975,
+   "pre": {
+    "mrr": 78.20345070953154,
+    "sd": 4.5213121348591745,
+    "low": 70.76655404592871,
+    "high": 85.64034737313436,
+    "level": 78.20345070953154,
+    "level_sd": 3.7686858106060543,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.20345070953154,
+    "sd": 4.5213121348591745,
+    "low": 70.76655404592871,
+    "high": 85.64034737313436,
+    "level": 78.20345070953154,
+    "level_sd": 3.7686858106060543,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 9,
+    "clock": 45.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.0205717048298,
+   "mrr": 74.22821385082088,
+   "pre": {
+    "mrr": 78.13920511822481,
+    "sd": 3.0399646542026475,
+    "low": 73.13890823095531,
+    "high": 83.13950200549431,
+    "level": 78.13920511822481,
+    "level_sd": 2.320172885201434,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.2090029315806,
+    "sd": 3.0415467250127106,
+    "low": 73.20610376940107,
+    "high": 83.21190209376013,
+    "level": 78.13920511822481,
+    "level_sd": 2.320172885201434,
+    "steps": 1.0,
+    "pressure_factor": 1.000893249595388,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 23
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 10,
+    "clock": 48.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.7963117541891,
+   "mrr": 71.61584449004623,
+   "pre": {
+    "mrr": 75.82069691617333,
+    "sd": 3.027860701060862,
+    "low": 70.84030926012954,
+    "high": 80.80108457221712,
+    "level": 75.82069691617333,
+    "level_sd": 2.304291115169977,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 75.82539617644449,
+    "sd": 3.027969390210322,
+    "low": 70.844829742659,
+    "high": 80.80596261022997,
+    "level": 75.82069691617333,
+    "level_sd": 2.304291115169977,
+    "steps": 1.0,
+    "pressure_factor": 1.0000619785950575,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 25
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 14,
+    "clock": 50.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.2383252302501,
+   "mrr": 71.63199288017675,
+   "pre": {
+    "mrr": 72.79067735456856,
+    "sd": 4.4583461745704716,
+    "low": 65.45735047912109,
+    "high": 80.12400423001603,
+    "level": 72.79067735456856,
+    "level_sd": 3.692909412718614,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.79067735456856,
+    "sd": 4.4583461745704716,
+    "low": 65.45735047912109,
+    "high": 80.12400423001603,
+    "level": 72.79067735456856,
+    "level_sd": 3.692909412718614,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 25
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 15,
+    "clock": 52.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.45830779877974,
+   "mrr": 71.61645883440164,
+   "pre": {
+    "mrr": 71.99569969729238,
+    "sd": 3.9339656825369653,
+    "low": 65.52490197606883,
+    "high": 78.46649741851593,
+    "level": 71.99569969729238,
+    "level_sd": 3.0392129424601224,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.99569969729238,
+    "sd": 3.9339656825369653,
+    "low": 65.52490197606883,
+    "high": 78.46649741851593,
+    "level": 71.99569969729238,
+    "level_sd": 3.0392129424601224,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 16,
+    "clock": 53.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 264.34952774496696,
+   "observed": 263.35182393289847,
+   "mrr": 73.63431954762534,
+   "pre": {
+    "mrr": 71.99569969729238,
+    "sd": 4.5201896926997485,
+    "low": 64.56064928674654,
+    "high": 79.43075010783822,
+    "level": 71.99569969729238,
+    "level_sd": 3.767339137405555,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.99569969729238,
+    "sd": 4.5201896926997485,
+    "low": 64.56064928674654,
+    "high": 79.43075010783822,
+    "level": 71.99569969729238,
+    "level_sd": 3.767339137405555,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 27
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 11,
+    "clock": 56.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.7781073302184,
+   "mrr": 75.27698203726963,
+   "pre": {
+    "mrr": 73.38269247786106,
+    "sd": 3.026088834973626,
+    "low": 68.40521928217733,
+    "high": 78.36016567354478,
+    "level": 73.38269247786106,
+    "level_sd": 2.3019623705817955,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.38228885233026,
+    "sd": 3.0260792033556068,
+    "low": 68.40483149924837,
+    "high": 78.35974620541215,
+    "level": 73.38269247786106,
+    "level_sd": 2.3019623705817955,
+    "steps": 1.0,
+    "pressure_factor": 0.999994499717615,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 29
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 12,
+    "clock": 58.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.2021147818851,
+   "mrr": 75.63531506424397,
+   "pre": {
+    "mrr": 73.38269247786106,
+    "sd": 3.4959801536506063,
+    "low": 67.63231684237849,
+    "high": 79.13306811334363,
+    "level": 73.38269247786106,
+    "level_sd": 2.8920052477721128,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.22561323481305,
+    "sd": 3.4908608913754513,
+    "low": 67.48365803645109,
+    "high": 78.96756843317502,
+    "level": 73.38269247786106,
+    "level_sd": 2.8920052477721128,
+    "steps": 2.0,
+    "pressure_factor": 0.9978594510811197,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 13,
+    "clock": 61.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 268.95733686596765,
+   "mrr": 72.0315221227585,
+   "pre": {
+    "mrr": 74.47910089926374,
+    "sd": 3.4957330999989327,
+    "low": 68.72913163087618,
+    "high": 80.2290701676513,
+    "level": 74.47910089926374,
+    "level_sd": 2.8917065938387787,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 74.25209794917919,
+    "sd": 3.488445948217964,
+    "low": 68.5141149788287,
+    "high": 79.99008091952967,
+    "level": 74.47910089926374,
+    "level_sd": 2.8917065938387787,
+    "steps": 2.0,
+    "pressure_factor": 0.9969521255312738,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 30
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 14,
+    "clock": 63.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.86745898231226,
+   "mrr": 74.94697917870047,
+   "pre": {
+    "mrr": 72.95790773365952,
+    "sd": 3.0941805902900903,
+    "low": 67.86843356727802,
+    "high": 78.04738190004103,
+    "level": 72.95790773365952,
+    "level_sd": 2.3907677937747227,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.98167027979211,
+    "sd": 3.0947822878262174,
+    "low": 67.89120640903599,
+    "high": 78.07213415054824,
+    "level": 72.95790773365952,
+    "level_sd": 2.3907677937747227,
+    "steps": 1.0,
+    "pressure_factor": 1.0003257021325136,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 31
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 15,
+    "clock": 65.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.9332451768785,
+   "mrr": 73.04069816999291,
+   "pre": {
+    "mrr": 74.13114766704378,
+    "sd": 3.03732359146544,
+    "low": 69.13519494139658,
+    "high": 79.12710039269098,
+    "level": 74.13114766704378,
+    "level_sd": 2.316711401468694,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 74.17336934153268,
+    "sd": 3.038330150477506,
+    "low": 69.17576097364373,
+    "high": 79.17097770942162,
+    "level": 74.13114766704378,
+    "level_sd": 2.316711401468694,
+    "steps": 1.0,
+    "pressure_factor": 1.000569553768121,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 16,
+    "clock": 67.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 283.15325930884,
+   "observed": 282.8162470254489,
+   "mrr": 75.38846454704557,
+   "pre": {
+    "mrr": 77.80601929640477,
+    "sd": 3.625836788057534,
+    "low": 71.84204850483425,
+    "high": 83.76999008797529,
+    "level": 74.13114766704378,
+    "level_sd": 2.9037588252576905,
+    "steps": 2.0,
+    "pressure_factor": 1.049572571651885,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.71341367255053,
+    "sd": 3.6227882892693226,
+    "low": 71.75445721526856,
+    "high": 83.6723701298325,
+    "level": 74.13114766704378,
+    "level_sd": 2.9037588252576905,
+    "steps": 2.0,
+    "pressure_factor": 1.0483233582406726,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 17,
+    "clock": 68.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.94120887290944,
+   "mrr": 74.31142219891305,
+   "pre": {
+    "mrr": 73.13394095922203,
+    "sd": 3.9407245353807125,
+    "low": 66.65202591438441,
+    "high": 79.61585600405965,
+    "level": 73.13394095922203,
+    "level_sd": 3.0479565584158372,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.13394095922203,
+    "sd": 3.9407245353807125,
+    "low": 66.65202591438441,
+    "high": 79.61585600405965,
+    "level": 73.13394095922203,
+    "level_sd": 3.0479565584158372,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 36
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 17,
+    "clock": 71.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.6411650472543,
+   "mrr": 69.90286339016437,
+   "pre": {
+    "mrr": 74.13114766704378,
+    "sd": 3.918502493862455,
+    "low": 67.68578462779573,
+    "high": 80.57651070629183,
+    "level": 74.13114766704378,
+    "level_sd": 3.390645795837248,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 74.09311036002877,
+    "sd": 3.9169971845461777,
+    "low": 67.65022333426928,
+    "high": 80.53599738578826,
+    "level": 74.13114766704378,
+    "level_sd": 3.390645795837248,
+    "steps": 3.0,
+    "pressure_factor": 0.9994868917019086,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 36
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 18,
+    "clock": 72.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.39064102267054,
+   "mrr": 70.33044659250864,
+   "pre": {
+    "mrr": 74.13114766704378,
+    "sd": 4.291774154353088,
+    "low": 67.07180738319951,
+    "high": 81.19048795088804,
+    "level": 74.13114766704378,
+    "level_sd": 3.815906512271453,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 74.29905445669138,
+    "sd": 4.299460660034265,
+    "low": 67.22707099609885,
+    "high": 81.37103791728391,
+    "level": 74.13114766704378,
+    "level_sd": 3.815906512271453,
+    "steps": 4.0,
+    "pressure_factor": 1.002264996495154,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 37
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 19,
+    "clock": 75.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.6050631130665,
+   "mrr": 66.14962951740296,
+   "pre": {
+    "mrr": 70.9929878892786,
+    "sd": 3.588657658297988,
+    "low": 65.09017132413997,
+    "high": 76.89580445441722,
+    "level": 70.9929878892786,
+    "level_sd": 3.0033782490527767,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.94706050873815,
+    "sd": 3.587031727164707,
+    "low": 65.04691836232128,
+    "high": 76.84720265515502,
+    "level": 70.9929878892786,
+    "level_sd": 3.0033782490527767,
+    "steps": 2.0,
+    "pressure_factor": 0.999353071593323,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 37
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 20,
+    "clock": 78.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.6057710168468,
+   "mrr": 67.75450252048002,
+   "pre": {
+    "mrr": 67.98629580638129,
+    "sd": 3.028998716384189,
+    "low": 63.0040362817054,
+    "high": 72.96855533105717,
+    "level": 67.98629580638129,
+    "level_sd": 2.305786274197933,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.94249193693713,
+    "sd": 3.027867954278029,
+    "low": 62.96209235041278,
+    "high": 72.92289152346149,
+    "level": 67.98629580638129,
+    "level_sd": 2.305786274197933,
+    "steps": 1.0,
+    "pressure_factor": 0.9993556956012295,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 40
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 18,
+    "clock": 80.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.30896661500054,
+   "mrr": 69.12300560127011,
+   "pre": {
+    "mrr": 76.15514871137292,
+    "sd": 3.8636503981367474,
+    "low": 69.80000934072518,
+    "high": 82.51028808202065,
+    "level": 73.8383410226351,
+    "level_sd": 2.947630186651784,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "inproc": {
+    "mrr": 76.15514871137292,
+    "sd": 3.8636503981367474,
+    "low": 69.80000934072518,
+    "high": 82.51028808202065,
+    "level": 73.8383410226351,
+    "level_sd": 2.947630186651784,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 40
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 21,
+    "clock": 83.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.3851674716022,
+   "mrr": 62.62245749578514,
+   "pre": {
+    "mrr": 67.98629580638129,
+    "sd": 3.4984992241565447,
+    "low": 62.23177666864049,
+    "high": 73.74081494412209,
+    "level": 67.98629580638129,
+    "level_sd": 2.895049902824901,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 68.13890515592415,
+    "sd": 3.5038787435252945,
+    "low": 62.3755374962384,
+    "high": 73.90227281560989,
+    "level": 67.98629580638129,
+    "level_sd": 2.895049902824901,
+    "steps": 2.0,
+    "pressure_factor": 1.002244707521314,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 40
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 22,
+    "clock": 85.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.59106124895686,
+   "mrr": 64.94999683741953,
+   "pre": {
+    "mrr": 65.10649478153353,
+    "sd": 3.024932895216881,
+    "low": 60.130922937551226,
+    "high": 70.08206662551584,
+    "level": 64.74867130693278,
+    "level_sd": 2.3004425963252597,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.35782347460074376
+   },
+   "inproc": {
+    "mrr": 65.06124649792949,
+    "sd": 3.0237104925458618,
+    "low": 60.087685327414206,
+    "high": 70.03480766844477,
+    "level": 64.74867130693278,
+    "level_sd": 2.3004425963252597,
+    "steps": 1.0,
+    "pressure_factor": 0.9993011704689732,
+    "offset": 0.35782347460074376
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 41
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 19,
+    "clock": 88.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 282.08178426763885,
+   "observed": 282.7392996285423,
+   "mrr": 74.65860674433712,
+   "pre": {
+    "mrr": 69.7453758757342,
+    "sd": 3.850556306390568,
+    "low": 63.411774369386805,
+    "high": 76.07897738208159,
+    "level": 69.7453758757342,
+    "level_sd": 2.930445902405086,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.7453758757342,
+    "sd": 3.850556306390568,
+    "low": 63.411774369386805,
+    "high": 76.07897738208159,
+    "level": 69.7453758757342,
+    "level_sd": 2.930445902405086,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 20,
+    "clock": 90.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.39076348659563,
+   "mrr": 69.81482809643299,
+   "pre": {
+    "mrr": 69.7453758757342,
+    "sd": 4.447787397717509,
+    "low": 62.4294166426895,
+    "high": 77.06133510877889,
+    "level": 69.7453758757342,
+    "level_sd": 3.6801551670457147,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.7453758757342,
+    "sd": 4.447787397717509,
+    "low": 62.4294166426895,
+    "high": 77.06133510877889,
+    "level": 69.7453758757342,
+    "level_sd": 3.6801551670457147,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 21,
+    "clock": 93.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.0274299923394,
+   "mrr": 70.11558388668362,
+   "pre": {
+    "mrr": 69.7453758757342,
+    "sd": 4.973815597899183,
+    "low": 61.564177249741924,
+    "high": 77.92657450172648,
+    "level": 69.7453758757342,
+    "level_sd": 4.301112753711973,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.7453758757342,
+    "sd": 4.973815597899183,
+    "low": 61.564177249741924,
+    "high": 77.92657450172648,
+    "level": 69.7453758757342,
+    "level_sd": 4.301112753711973,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 46
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 22,
+    "clock": 96.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.2581465523163,
+   "mrr": 73.25070025184301,
+   "pre": {
+    "mrr": 69.7453758757342,
+    "sd": 5.449299998028712,
+    "low": 60.78207500963002,
+    "high": 78.70867674183837,
+    "level": 69.7453758757342,
+    "level_sd": 4.843098159933815,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.7453758757342,
+    "sd": 5.449299998028712,
+    "low": 60.78207500963002,
+    "high": 78.70867674183837,
+    "level": 69.7453758757342,
+    "level_sd": 4.843098159933815,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 46
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 23,
+    "clock": 99.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 256.8470564671894,
+   "mrr": 71.91890225473583,
+   "pre": {
+    "mrr": 69.7453758757342,
+    "sd": 5.886501451212446,
+    "low": 60.0629426136523,
+    "high": 79.4278091378161,
+    "level": 69.7453758757342,
+    "level_sd": 5.330255965088808,
+    "steps": 5.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.7453758757342,
+    "sd": 5.886501451212446,
+    "low": 60.0629426136523,
+    "high": 79.4278091378161,
+    "level": 69.7453758757342,
+    "level_sd": 5.330255965088808,
+    "steps": 5.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 24,
+    "clock": 100.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 260.40830039129077,
+   "observed": 260.3190767952827,
+   "mrr": 74.48672084507297,
+   "pre": {
+    "mrr": 71.98070461561394,
+    "sd": 4.465002186297917,
+    "low": 64.63642957513557,
+    "high": 79.32497965609232,
+    "level": 71.98070461561394,
+    "level_sd": 3.700942291077201,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.98070461561394,
+    "sd": 4.465002186297917,
+    "low": 64.63642957513557,
+    "high": 79.32497965609232,
+    "level": 71.98070461561394,
+    "level_sd": 3.700942291077201,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 49
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 25,
+    "clock": 102.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.3940799520311,
+   "mrr": 69.10190468538224,
+   "pre": {
+    "mrr": 71.98070461561394,
+    "sd": 4.989215708932186,
+    "low": 63.774175061133576,
+    "high": 80.18723417009431,
+    "level": 71.98070461561394,
+    "level_sd": 4.318912213566545,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.98070461561394,
+    "sd": 4.989215708932186,
+    "low": 63.774175061133576,
+    "high": 80.18723417009431,
+    "level": 71.98070461561394,
+    "level_sd": 4.318912213566545,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 48
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 26,
+    "clock": 103.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.6737757482101,
+   "mrr": 74.99218452520581,
+   "pre": {
+    "mrr": 69.82347847343097,
+    "sd": 3.9838036384935682,
+    "low": 63.27070460959235,
+    "high": 76.37625233726959,
+    "level": 69.82347847343097,
+    "level_sd": 3.1034530362667283,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.82347847343097,
+    "sd": 3.9838036384935682,
+    "low": 63.27070460959235,
+    "high": 76.37625233726959,
+    "level": 69.82347847343097,
+    "level_sd": 3.1034530362667283,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 50
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 27,
+    "clock": 106.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.20850455979195,
+   "mrr": 68.28575722438846,
+   "pre": {
+    "mrr": 69.82347847343097,
+    "sd": 4.56363016651055,
+    "low": 62.31697484198094,
+    "high": 77.329982104881,
+    "level": 69.82347847343097,
+    "level_sd": 3.819351988875036,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.82347847343097,
+    "sd": 4.56363016651055,
+    "low": 62.31697484198094,
+    "high": 77.329982104881,
+    "level": 69.82347847343097,
+    "level_sd": 3.819351988875036,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 23,
+    "clock": 107.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 276.22144063207355,
+   "observed": 276.07154759746277,
+   "mrr": 70.29007237992528,
+   "pre": {
+    "mrr": 66.22886776508895,
+    "sd": 3.0679082330389127,
+    "low": 61.18260778082061,
+    "high": 71.27512774935728,
+    "level": 64.68432294767553,
+    "level_sd": 2.30170613744311,
+    "steps": 1.0,
+    "pressure_factor": 1.0238781940820938,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 66.19292831757383,
+    "sd": 3.0669259656658787,
+    "low": 61.148284019356666,
+    "high": 71.237572615791,
+    "level": 64.68432294767553,
+    "level_sd": 2.30170613744311,
+    "steps": 1.0,
+    "pressure_factor": 1.023322581131732,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 53
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 28,
+    "clock": 109.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.911617535466,
+   "mrr": 65.67527856583698,
+   "pre": {
+    "mrr": 72.96020272570019,
+    "sd": 4.4651701520332825,
+    "low": 65.61565140617279,
+    "high": 80.30475404522758,
+    "level": 72.96020272570019,
+    "level_sd": 3.7011449316187965,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.96020272570019,
+    "sd": 4.4651701520332825,
+    "low": 65.61565140617279,
+    "high": 80.30475404522758,
+    "level": 72.96020272570019,
+    "level_sd": 3.7011449316187965,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 53
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 29,
+    "clock": 111.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 259.0980712529676,
+   "mrr": 72.81130185078727,
+   "pre": {
+    "mrr": 72.96020272570019,
+    "sd": 4.989366027184159,
+    "low": 64.75342591969786,
+    "high": 81.16697953170251,
+    "level": 72.96020272570019,
+    "level_sd": 4.319085860625836,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.96020272570019,
+    "sd": 4.989366027184159,
+    "low": 64.75342591969786,
+    "high": 81.16697953170251,
+    "level": 72.96020272570019,
+    "level_sd": 4.319085860625836,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 54
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 30,
+    "clock": 113.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.2882929027001,
+   "mrr": 69.48361453952326,
+   "pre": {
+    "mrr": 67.95500553094168,
+    "sd": 4.520851298376604,
+    "low": 60.518866875898645,
+    "high": 75.3911441859847,
+    "level": 67.95500553094168,
+    "level_sd": 3.768132930281521,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.95500553094168,
+    "sd": 4.520851298376604,
+    "low": 60.518866875898645,
+    "high": 75.3911441859847,
+    "level": 67.95500553094168,
+    "level_sd": 3.768132930281521,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 31,
+    "clock": 115.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.68564890217243,
+   "mrr": 69.64032686127585,
+   "pre": {
+    "mrr": 70.85421523663787,
+    "sd": 4.458270297250805,
+    "low": 63.52101316827486,
+    "high": 78.18741730500088,
+    "level": 70.85421523663787,
+    "level_sd": 3.6928178077976392,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.85421523663787,
+    "sd": 4.458270297250805,
+    "low": 63.52101316827486,
+    "high": 78.18741730500088,
+    "level": 70.85421523663787,
+    "level_sd": 3.6928178077976392,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 56
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 32,
+    "clock": 117.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 256.2394844411979,
+   "observed": 255.96198253728534,
+   "mrr": 65.7382351952038,
+   "pre": {
+    "mrr": 70.85421523663787,
+    "sd": 4.983192040244816,
+    "low": 62.657593735445474,
+    "high": 79.05083673783027,
+    "level": 70.85421523663787,
+    "level_sd": 4.311952252541518,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.85421523663787,
+    "sd": 4.983192040244816,
+    "low": 62.657593735445474,
+    "high": 79.05083673783027,
+    "level": 70.85421523663787,
+    "level_sd": 4.311952252541518,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 56
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 24,
+    "clock": 120.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 285.7251816216239,
+   "observed": 285.5269789772371,
+   "mrr": 66.67499260139455,
+   "pre": {
+    "mrr": 71.00862713280512,
+    "sd": 3.1198381634292276,
+    "low": 65.87695001418693,
+    "high": 76.1403042514233,
+    "level": 67.045817559457,
+    "level_sd": 2.2886120044333276,
+    "steps": 1.0,
+    "pressure_factor": 1.059105992254235,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.95936966941977,
+    "sd": 3.118532015647788,
+    "low": 65.82984097271722,
+    "high": 76.08889836612232,
+    "level": 67.045817559457,
+    "level_sd": 2.2886120044333276,
+    "steps": 1.0,
+    "pressure_factor": 1.0583713086426634,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 58
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 25,
+    "clock": 121.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 255.91096411623818,
+   "observed": 257.063031163186,
+   "mrr": 53.76173546325791,
+   "pre": {
+    "mrr": 63.59917640787796,
+    "sd": 3.3658467307934465,
+    "low": 58.062851204969604,
+    "high": 69.13550161078632,
+    "level": 67.045817559457,
+    "level_sd": 2.881390029899322,
+    "steps": 2.0,
+    "pressure_factor": 0.948592749301289,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 63.88548893694669,
+    "sd": 3.3758465012487164,
+    "low": 58.3327155753363,
+    "high": 69.43826229855708,
+    "level": 67.045817559457,
+    "level_sd": 2.881390029899322,
+    "steps": 2.0,
+    "pressure_factor": 0.9528631503418137,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 58
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 33,
+    "clock": 124.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 262.25780577684316,
+   "observed": 262.3794505876474,
+   "mrr": 70.1474231269963,
+   "pre": {
+    "mrr": 67.46501439735997,
+    "sd": 3.862533171415474,
+    "low": 61.11171270113685,
+    "high": 73.81831609358308,
+    "level": 67.46501439735997,
+    "level_sd": 2.9461656128811664,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.46501439735997,
+    "sd": 3.862533171415474,
+    "low": 61.11171270113685,
+    "high": 73.81831609358308,
+    "level": 67.46501439735997,
+    "level_sd": 2.9461656128811664,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 61
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 34,
+    "clock": 125.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 254.54929799163355,
+   "observed": 254.69185103835966,
+   "mrr": 70.11325455280164,
+   "pre": {
+    "mrr": 67.46501439735997,
+    "sd": 4.458160087625319,
+    "low": 60.131993607699165,
+    "high": 74.79803518702076,
+    "level": 67.46501439735997,
+    "level_sd": 3.6926847530129043,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.46501439735997,
+    "sd": 4.458160087625319,
+    "low": 60.131993607699165,
+    "high": 74.79803518702076,
+    "level": 67.46501439735997,
+    "level_sd": 3.6926847530129043,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 61
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 26,
+    "clock": 127.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 269.695633456721,
+   "observed": 270.33979240413186,
+   "mrr": 64.26681311564727,
+   "pre": {
+    "mrr": 60.462481235208976,
+    "sd": 3.0407618060372976,
+    "low": 55.460873149853015,
+    "high": 65.46408932056494,
+    "level": 60.1233686719046,
+    "level_sd": 2.321939848628805,
+    "steps": 1.0,
+    "pressure_factor": 0.9996887913683201,
+    "offset": 0.35782347460074376
+   },
+   "inproc": {
+    "mrr": 60.60603918822929,
+    "sd": 3.044996132752962,
+    "low": 55.59746625521737,
+    "high": 65.61461212124121,
+    "level": 60.1233686719046,
+    "level_sd": 2.321939848628805,
+    "steps": 1.0,
+    "pressure_factor": 1.002076514414973,
+    "offset": 0.35782347460074376
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 61
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 27,
+    "clock": 130.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.16029391859263,
+   "mrr": 59.870198035417374,
+   "pre": {
+    "mrr": 62.256424549223645,
+    "sd": 3.0275848288468903,
+    "low": 57.276490662591584,
+    "high": 67.2363584358557,
+    "level": 62.256424549223645,
+    "level_sd": 2.3039286044247067,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.344278453720015,
+    "sd": 3.030059670751699,
+    "low": 57.3602738144047,
+    "high": 67.32828309303534,
+    "level": 62.256424549223645,
+    "level_sd": 2.3039286044247067,
+    "steps": 1.0,
+    "pressure_factor": 1.0014111620629114,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 63
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 35,
+    "clock": 133.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.8132532775993,
+   "mrr": 65.91565168024569,
+   "pre": {
+    "mrr": 71.9723298130406,
+    "sd": 3.8482139461711835,
+    "low": 65.6425811463957,
+    "high": 78.3020784796855,
+    "level": 69.65552212430279,
+    "level_sd": 2.9273673998569048,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "inproc": {
+    "mrr": 71.9723298130406,
+    "sd": 3.8482139461711835,
+    "low": 65.6425811463957,
+    "high": 78.3020784796855,
+    "level": 69.65552212430279,
+    "level_sd": 2.9273673998569048,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 28,
+    "clock": 135.0,
+    "after_rest": false,
+    "after_pad_change": true
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.5721103693036,
+   "mrr": 62.39830042846994,
+   "pre": {
+    "mrr": 61.87733900371329,
+    "sd": 3.025463593787518,
+    "low": 56.900894238262254,
+    "high": 66.85378376916432,
+    "level": 60.824032468829564,
+    "level_sd": 2.3011403859295956,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 1.0533065348837243
+   },
+   "inproc": {
+    "mrr": 61.83056074160917,
+    "sd": 3.0241177559238515,
+    "low": 56.85632968244948,
+    "high": 66.80479180076887,
+    "level": 60.824032468829564,
+    "level_sd": 2.3011403859295956,
+    "steps": 1.0,
+    "pressure_factor": 0.9992309246821461,
+    "offset": 1.0533065348837243
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 36,
+    "clock": 138.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.0988518484544,
+   "mrr": 66.51261557623964,
+   "pre": {
+    "mrr": 69.65552212430279,
+    "sd": 4.445759714842549,
+    "low": 62.34289813278928,
+    "high": 76.9681461158163,
+    "level": 69.65552212430279,
+    "level_sd": 3.677704278535115,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.65552212430279,
+    "sd": 4.445759714842549,
+    "low": 62.34289813278928,
+    "high": 76.9681461158163,
+    "level": 69.65552212430279,
+    "level_sd": 3.677704278535115,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 65
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 37,
+    "clock": 139.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.07484330822217,
+   "mrr": 71.30153065755238,
+   "pre": {
+    "mrr": 67.50475640625875,
+    "sd": 3.9325539923952406,
+    "low": 61.03628070868495,
+    "high": 73.97323210383256,
+    "level": 67.50475640625875,
+    "level_sd": 3.0373854252205676,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.50475640625875,
+    "sd": 3.9325539923952406,
+    "low": 61.03628070868495,
+    "high": 73.97323210383256,
+    "level": 67.50475640625875,
+    "level_sd": 3.0373854252205676,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 68
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 29,
+    "clock": 141.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 258.4287057492741,
+   "observed": 257.82273318510374,
+   "mrr": 57.238073465607265,
+   "pre": {
+    "mrr": 58.26488178662568,
+    "sd": 3.3954987943611403,
+    "low": 52.67978327941141,
+    "high": 63.84998029383995,
+    "level": 60.824032468829564,
+    "level_sd": 2.8913510117803214,
+    "steps": 2.0,
+    "pressure_factor": 0.957925336773497,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 58.128260277358905,
+    "sd": 3.3902033440517325,
+    "low": 52.5518720107924,
+    "high": 63.70464854392541,
+    "level": 60.824032468829564,
+    "level_sd": 2.8913510117803214,
+    "steps": 2.0,
+    "pressure_factor": 0.9556791603244629,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 69
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 38,
+    "clock": 142.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 263.5953722480853,
+   "observed": 263.58834262241135,
+   "mrr": 72.18862165240778,
+   "pre": {
+    "mrr": 67.50475640625875,
+    "sd": 4.5189611383275095,
+    "low": 60.07172678782799,
+    "high": 74.9377860246895,
+    "level": 67.50475640625875,
+    "level_sd": 3.765864985358987,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.50475640625875,
+    "sd": 4.5189611383275095,
+    "low": 60.07172678782799,
+    "high": 74.9377860246895,
+    "level": 67.50475640625875,
+    "level_sd": 3.765864985358987,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 70
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 30,
+    "clock": 143.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.0997795824849,
+   "mrr": 58.368364648117435,
+   "pre": {
+    "mrr": 60.824032468829564,
+    "sd": 3.909316711711581,
+    "low": 54.39377869666877,
+    "high": 67.25428624099035,
+    "level": 60.824032468829564,
+    "level_sd": 3.3800257796191393,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 60.89622158010339,
+    "sd": 3.9127856826005467,
+    "low": 54.460261858594095,
+    "high": 67.33218130161269,
+    "level": 60.824032468829564,
+    "level_sd": 3.3800257796191393,
+    "steps": 3.0,
+    "pressure_factor": 1.0011868517811742,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 71
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 31,
+    "clock": 144.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.6050181299871,
+   "mrr": 60.454825641369446,
+   "pre": {
+    "mrr": 60.20524228905646,
+    "sd": 3.576842556733568,
+    "low": 54.321859836578874,
+    "high": 66.08862474153405,
+    "level": 60.20524228905646,
+    "level_sd": 2.989250707800009,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 60.16628376895993,
+    "sd": 3.5752261501738345,
+    "low": 54.28556006867475,
+    "high": 66.0470074692451,
+    "level": 60.20524228905646,
+    "level_sd": 2.989250707800009,
+    "steps": 2.0,
+    "pressure_factor": 0.9993529048532106,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 71
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 39,
+    "clock": 147.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.58401056667816,
+   "mrr": 73.4685320526131,
+   "pre": {
+    "mrr": 71.17691141834096,
+    "sd": 3.8503195987082,
+    "low": 64.84369926148344,
+    "high": 77.51012357519849,
+    "level": 71.17691141834096,
+    "level_sd": 2.9301348655710466,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.17691141834096,
+    "sd": 3.8503195987082,
+    "low": 64.84369926148344,
+    "high": 77.51012357519849,
+    "level": 71.17691141834096,
+    "level_sd": 2.9301348655710466,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 73
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 40,
+    "clock": 149.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.10580886639696,
+   "mrr": 67.61210993033589,
+   "pre": {
+    "mrr": 71.17691141834096,
+    "sd": 4.447582475773438,
+    "low": 63.861289251899215,
+    "high": 78.4925335847827,
+    "level": 71.17691141834096,
+    "level_sd": 3.67990749843601,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.17691141834096,
+    "sd": 4.447582475773438,
+    "low": 63.861289251899215,
+    "high": 78.4925335847827,
+    "level": 71.17691141834096,
+    "level_sd": 3.67990749843601,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 32,
+    "clock": 150.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.698325843807,
+   "mrr": 59.6323628972966,
+   "pre": {
+    "mrr": 59.892738619441566,
+    "sd": 3.028708322362146,
+    "low": 54.91095675042608,
+    "high": 64.87452048845705,
+    "level": 59.892738619441566,
+    "level_sd": 2.305404784494091,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 59.87469720880162,
+    "sd": 3.028179748441465,
+    "low": 54.89378476651668,
+    "high": 64.85560965108657,
+    "level": 59.892738619441566,
+    "level_sd": 2.305404784494091,
+    "steps": 1.0,
+    "pressure_factor": 0.9996987713192649,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 33,
+    "clock": 153.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.79347145503385,
+   "mrr": 54.81221286920901,
+   "pre": {
+    "mrr": 59.892738619441566,
+    "sd": 3.4982478041889205,
+    "low": 54.1386330307464,
+    "high": 65.64684420813674,
+    "level": 59.892738619441566,
+    "level_sd": 2.8947460714085316,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 59.89582012324734,
+    "sd": 3.4983710472381624,
+    "low": 54.14151181777563,
+    "high": 65.65012842871906,
+    "level": 59.892738619441566,
+    "level_sd": 2.8947460714085316,
+    "steps": 2.0,
+    "pressure_factor": 1.0000514503740654,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 75
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 34,
+    "clock": 156.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.4321125304056,
+   "mrr": 56.608519908906125,
+   "pre": {
+    "mrr": 59.892738619441566,
+    "sd": 3.911828382876668,
+    "low": 53.458353515855165,
+    "high": 66.32712372302797,
+    "level": 59.892738619441566,
+    "level_sd": 3.3829304479255864,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 59.81559620592001,
+    "sd": 3.90806086949368,
+    "low": 53.387408110386204,
+    "high": 66.24378430145381,
+    "level": 59.892738619441566,
+    "level_sd": 3.3829304479255864,
+    "steps": 3.0,
+    "pressure_factor": 0.998711990546772,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 75
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 41,
+    "clock": 157.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.41088404895766,
+   "mrr": 70.92913407454644,
+   "pre": {
+    "mrr": 74.82088247057828,
+    "sd": 4.44575345890032,
+    "low": 67.50826876917404,
+    "high": 82.13349617198253,
+    "level": 72.50407478184047,
+    "level_sd": 3.6776967160932053,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "inproc": {
+    "mrr": 74.82088247057828,
+    "sd": 4.44575345890032,
+    "low": 67.50826876917404,
+    "high": 82.13349617198253,
+    "level": 72.50407478184047,
+    "level_sd": 3.6776967160932053,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 77
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 35,
+    "clock": 158.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.0432401831186,
+   "mrr": 64.7518243495361,
+   "pre": {
+    "mrr": 56.57259642054258,
+    "sd": 3.037800264813988,
+    "low": 51.57585963700915,
+    "high": 61.56933320407601,
+    "level": 56.57259642054258,
+    "level_sd": 2.317336308636806,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.62788343385404,
+    "sd": 3.0395281886613885,
+    "low": 51.628304468513115,
+    "high": 61.62746239919496,
+    "level": 56.57259642054258,
+    "level_sd": 2.317336308636806,
+    "steps": 1.0,
+    "pressure_factor": 1.0009772755151711,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 77
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 42,
+    "clock": 160.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.48325694885256,
+   "mrr": 72.4791759276497,
+   "pre": {
+    "mrr": 69.84086223040617,
+    "sd": 3.9325532876231666,
+    "low": 63.37238769207927,
+    "high": 76.30933676873308,
+    "level": 69.84086223040617,
+    "level_sd": 3.0373845127402554,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.84086223040617,
+    "sd": 3.9325532876231666,
+    "low": 63.37238769207927,
+    "high": 76.30933676873308,
+    "level": 69.84086223040617,
+    "level_sd": 3.0373845127402554,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 79
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 43,
+    "clock": 162.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.2500106202766,
+   "mrr": 75.4613836765717,
+   "pre": {
+    "mrr": 69.84086223040617,
+    "sd": 4.518960525010845,
+    "low": 62.40783362079156,
+    "high": 77.2738908400208,
+    "level": 69.84086223040617,
+    "level_sd": 3.7658642493914827,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 69.84086223040617,
+    "sd": 4.518960525010845,
+    "low": 62.40783362079156,
+    "high": 77.2738908400208,
+    "level": 69.84086223040617,
+    "level_sd": 3.7658642493914827,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 80
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 44,
+    "clock": 165.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.2359065591625,
+   "mrr": 72.04950728154627,
+   "pre": {
+    "mrr": 71.41476082724921,
+    "sd": 4.457958618554257,
+    "low": 64.08207142472067,
+    "high": 78.74745022977775,
+    "level": 71.41476082724921,
+    "level_sd": 3.6924415178822754,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 71.41476082724921,
+    "sd": 4.457958618554257,
+    "low": 64.08207142472067,
+    "high": 78.74745022977775,
+    "level": 71.41476082724921,
+    "level_sd": 3.6924415178822754,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 81
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 36,
+    "clock": 167.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 268.8774537508445,
+   "mrr": 57.01576751744231,
+   "pre": {
+    "mrr": 61.29928246017169,
+    "sd": 3.0274460886853216,
+    "low": 56.31957678079759,
+    "high": 66.27898813954579,
+    "level": 61.29928246017169,
+    "level_sd": 2.3037462834085214,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 61.094298911525904,
+    "sd": 3.0215880784520452,
+    "low": 56.12422880153073,
+    "high": 66.06436902152107,
+    "level": 61.29928246017169,
+    "level_sd": 2.3037462834085214,
+    "steps": 1.0,
+    "pressure_factor": 0.9966560204227681,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 81
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 37,
+    "clock": 170.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 273.36203072645384,
+   "observed": 273.14994769284107,
+   "mrr": 62.22153766879117,
+   "pre": {
+    "mrr": 60.076816091633056,
+    "sd": 3.0508182373728494,
+    "low": 55.058666648720624,
+    "high": 65.09496553454548,
+    "level": 58.93636863881567,
+    "level_sd": 2.3037832647409964,
+    "steps": 1.0,
+    "pressure_factor": 1.0132791347056493,
+    "offset": 0.35782347460074376
+   },
+   "inproc": {
+    "mrr": 60.03048418121792,
+    "sd": 3.049432684935573,
+    "low": 55.01461376925728,
+    "high": 65.04635459317856,
+    "level": 58.93636863881567,
+    "level_sd": 2.3037832647409964,
+    "steps": 1.0,
+    "pressure_factor": 1.0124930002442767,
+    "offset": 0.35782347460074376
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 82
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 38,
+    "clock": 172.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.8406335632478,
+   "mrr": 64.36020216413716,
+   "pre": {
+    "mrr": 60.20253317563237,
+    "sd": 3.0207450049522615,
+    "low": 55.2338497981411,
+    "high": 65.17121655312364,
+    "level": 60.20253317563237,
+    "level_sd": 2.294933006291592,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 60.43930956832951,
+    "sd": 3.027607937477429,
+    "low": 55.4593376713827,
+    "high": 65.41928146527633,
+    "level": 60.20253317563237,
+    "level_sd": 2.294933006291592,
+    "steps": 1.0,
+    "pressure_factor": 1.003932997171504,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 85
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 45,
+    "clock": 174.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.6127141059432,
+   "mrr": 77.77711913756484,
+   "pre": {
+    "mrr": 72.77311900226879,
+    "sd": 3.8482067151800625,
+    "low": 66.44338222954585,
+    "high": 79.10285577499172,
+    "level": 72.77311900226879,
+    "level_sd": 2.927357894244486,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.77311900226879,
+    "sd": 3.8482067151800625,
+    "low": 66.44338222954585,
+    "high": 79.10285577499172,
+    "level": 72.77311900226879,
+    "level_sd": 2.927357894244486,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 85
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 46,
+    "clock": 176.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.1067955261946,
+   "mrr": 72.47503431736203,
+   "pre": {
+    "mrr": 72.77311900226879,
+    "sd": 4.445753455756115,
+    "low": 65.4605053060363,
+    "high": 80.08573269850127,
+    "level": 72.77311900226879,
+    "level_sd": 3.677696712292359,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 72.77311900226879,
+    "sd": 4.445753455756115,
+    "low": 65.4605053060363,
+    "high": 80.08573269850127,
+    "level": 72.77311900226879,
+    "level_sd": 3.677696712292359,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 86
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 39,
+    "clock": 179.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.15930194563356,
+   "mrr": 59.91015448970145,
+   "pre": {
+    "mrr": 62.46420937971801,
+    "sd": 3.023182334249573,
+    "low": 57.49151695229198,
+    "high": 67.43690180714404,
+    "level": 62.46420937971801,
+    "level_sd": 2.298140236047666,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.32058888817556,
+    "sd": 3.0191675447564084,
+    "low": 57.354500201808804,
+    "high": 67.28667757454231,
+    "level": 62.46420937971801,
+    "level_sd": 2.298140236047666,
+    "steps": 1.0,
+    "pressure_factor": 0.9977007554731161,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 47,
+    "clock": 182.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 264.661007352076,
+   "observed": 264.8691054422737,
+   "mrr": 76.17225874372441,
+   "pre": {
+    "mrr": 73.82091327995903,
+    "sd": 3.8477653969934953,
+    "low": 67.4919024110559,
+    "high": 80.14992414886215,
+    "level": 73.82091327995903,
+    "level_sd": 2.926777727901299,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 73.82091327995903,
+    "sd": 3.8477653969934953,
+    "low": 67.4919024110559,
+    "high": 80.14992414886215,
+    "level": 73.82091327995903,
+    "level_sd": 2.926777727901299,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 88
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 40,
+    "clock": 183.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.42000622315663,
+   "mrr": 62.008620251977405,
+   "pre": {
+    "mrr": 62.46420937971801,
+    "sd": 3.493464616063197,
+    "low": 56.71797143535983,
+    "high": 68.21044732407618,
+    "level": 62.46420937971801,
+    "level_sd": 2.8889638526828443,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.612489752909376,
+    "sd": 3.499138010177087,
+    "low": 56.85691990566583,
+    "high": 68.36805960015292,
+    "level": 62.46420937971801,
+    "level_sd": 2.8889638526828443,
+    "steps": 2.0,
+    "pressure_factor": 1.0023738453534243,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 90
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 41,
+    "clock": 184.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.18423046345885,
+   "mrr": 54.74447841116737,
+   "pre": {
+    "mrr": 62.46420937971801,
+    "sd": 3.9075514867052568,
+    "low": 56.03685914431125,
+    "high": 68.89155961512476,
+    "level": 62.46420937971801,
+    "level_sd": 3.377983975639166,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.32636078570892,
+    "sd": 3.9011089003246258,
+    "low": 55.90960766187729,
+    "high": 68.74311390954055,
+    "level": 62.46420937971801,
+    "level_sd": 3.377983975639166,
+    "steps": 3.0,
+    "pressure_factor": 0.9977931587483785,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 48,
+    "clock": 187.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.86210110200733,
+   "observed": 258.3712509441093,
+   "mrr": 67.94890615587514,
+   "pre": {
+    "mrr": 75.18135128144522,
+    "sd": 3.847753579229491,
+    "low": 68.85235985103408,
+    "high": 81.51034271185635,
+    "level": 75.18135128144522,
+    "level_sd": 2.926762191349332,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 75.18135128144522,
+    "sd": 3.847753579229491,
+    "low": 68.85235985103408,
+    "high": 81.51034271185635,
+    "level": 75.18135128144522,
+    "level_sd": 2.926762191349332,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 92
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 42,
+    "clock": 190.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.16609532989816,
+   "mrr": 52.97017414710646,
+   "pre": {
+    "mrr": 62.05160399272623,
+    "sd": 3.552104203237795,
+    "low": 56.20891251072097,
+    "high": 67.89429547473148,
+    "level": 62.05160399272623,
+    "level_sd": 2.9596049380081344,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.140503236241024,
+    "sd": 3.5556378396845343,
+    "low": 56.29199943951002,
+    "high": 67.98900703297203,
+    "level": 62.05160399272623,
+    "level_sd": 2.9596049380081344,
+    "steps": 2.0,
+    "pressure_factor": 1.001432666326002,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 92
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 43,
+    "clock": 192.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 273.0182285837821,
+   "observed": 273.7051115671168,
+   "mrr": 54.48000468266086,
+   "pre": {
+    "mrr": 62.79651817948084,
+    "sd": 3.995960267983127,
+    "low": 56.223748439534816,
+    "high": 69.36928791942687,
+    "level": 62.05160399272623,
+    "level_sd": 3.4385934605080917,
+    "steps": 3.0,
+    "pressure_factor": 1.012004753121965,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 62.95450711660749,
+    "sd": 4.003586823818153,
+    "low": 56.36919280863508,
+    "high": 69.5398214245799,
+    "level": 62.05160399272623,
+    "level_sd": 3.4385934605080917,
+    "steps": 3.0,
+    "pressure_factor": 1.014550842617817,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 92
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 49,
+    "clock": 193.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.10797274626077,
+   "mrr": 65.36930740237516,
+   "pre": {
+    "mrr": 70.99683253616361,
+    "sd": 3.847751480424531,
+    "low": 64.66784455797942,
+    "high": 77.3258205143478,
+    "level": 70.99683253616361,
+    "level_sd": 2.9267594320934123,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.99683253616361,
+    "sd": 3.847751480424531,
+    "low": 64.66784455797942,
+    "high": 77.3258205143478,
+    "level": 70.99683253616361,
+    "level_sd": 2.9267594320934123,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 95
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 44,
+    "clock": 196.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.43459419548003,
+   "mrr": 55.74849631304452,
+   "pre": {
+    "mrr": 54.48508491324644,
+    "sd": 3.0315103593503707,
+    "low": 49.498694103528024,
+    "high": 59.471475722964854,
+    "level": 54.48508491324644,
+    "level_sd": 2.309084705521029,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 54.415408809564035,
+    "sd": 3.0292617696613333,
+    "low": 49.43271660075116,
+    "high": 59.39810101837691,
+    "level": 54.48508491324644,
+    "level_sd": 2.309084705521029,
+    "steps": 1.0,
+    "pressure_factor": 0.9987211894081959,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 96
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 50,
+    "clock": 199.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.4223545550387,
+   "mrr": 68.39671610573808,
+   "pre": {
+    "mrr": 70.99683253616361,
+    "sd": 4.445359414234094,
+    "low": 63.684866980557786,
+    "high": 78.30879809176943,
+    "level": 70.99683253616361,
+    "level_sd": 3.6772203686967506,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 70.99683253616361,
+    "sd": 4.445359414234094,
+    "low": 63.684866980557786,
+    "high": 78.30879809176943,
+    "level": 70.99683253616361,
+    "level_sd": 3.6772203686967506,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 45,
+    "clock": 202.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.92992933078057,
+   "mrr": 56.3441103451284,
+   "pre": {
+    "mrr": 54.48508491324644,
+    "sd": 3.5006740288715106,
+    "low": 48.72698854008231,
+    "high": 60.24318128641057,
+    "level": 54.48508491324644,
+    "level_sd": 2.8976776519892646,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 54.51544742548714,
+    "sd": 3.502010767880811,
+    "low": 48.755152312315275,
+    "high": 60.275742538659,
+    "level": 54.48508491324644,
+    "level_sd": 2.8976776519892646,
+    "steps": 2.0,
+    "pressure_factor": 1.0005572628231936,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 97
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 51,
+    "clock": 205.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.9273193957813,
+   "mrr": 67.93864410156155,
+   "pre": {
+    "mrr": 67.74088447279561,
+    "sd": 4.445359091599096,
+    "low": 60.428919447877135,
+    "high": 75.05284949771409,
+    "level": 67.74088447279561,
+    "level_sd": 3.677219978666129,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.74088447279561,
+    "sd": 4.445359091599096,
+    "low": 60.428919447877135,
+    "high": 75.05284949771409,
+    "level": 67.74088447279561,
+    "level_sd": 3.677219978666129,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 46,
+    "clock": 208.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.2636907238339,
+   "mrr": 56.985874228933895,
+   "pre": {
+    "mrr": 55.869270683185626,
+    "sd": 3.025779591394946,
+    "low": 50.892306147923904,
+    "high": 60.84623521844735,
+    "level": 55.869270683185626,
+    "level_sd": 2.3015558333711326,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 55.76243167844778,
+    "sd": 3.022433118201687,
+    "low": 50.79097160175549,
+    "high": 60.73389175514008,
+    "level": 55.869270683185626,
+    "level_sd": 2.3015558333711326,
+    "steps": 1.0,
+    "pressure_factor": 0.9980876964486669,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 98
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 47,
+    "clock": 211.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.6355631571042,
+   "mrr": 56.051417463713726,
+   "pre": {
+    "mrr": 56.577350008542595,
+    "sd": 3.026563362145799,
+    "low": 51.599096285118634,
+    "high": 61.555603731966556,
+    "level": 56.577350008542595,
+    "level_sd": 2.302586133786488,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.54714488951557,
+    "sd": 3.0256282340564993,
+    "low": 51.57042931492096,
+    "high": 61.523860464110186,
+    "level": 56.577350008542595,
+    "level_sd": 2.302586133786488,
+    "steps": 1.0,
+    "pressure_factor": 0.9994661270097934,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 101
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 52,
+    "clock": 214.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.0224196812804,
+   "mrr": 71.82357905182074,
+   "pre": {
+    "mrr": 67.74088447279561,
+    "sd": 4.971644227001089,
+    "low": 59.56325743410052,
+    "high": 75.9185115114907,
+    "level": 67.74088447279561,
+    "level_sd": 4.298601590995825,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.74088447279561,
+    "sd": 4.971644227001089,
+    "low": 59.56325743410052,
+    "high": 75.9185115114907,
+    "level": 67.74088447279561,
+    "level_sd": 4.298601590995825,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 53,
+    "clock": 215.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.6758996284647,
+   "mrr": 73.87028112299063,
+   "pre": {
+    "mrr": 67.74088447279561,
+    "sd": 5.447318164609423,
+    "low": 58.78084343257917,
+    "high": 76.70092551301207,
+    "level": 67.74088447279561,
+    "level_sd": 4.840868156097867,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.74088447279561,
+    "sd": 5.447318164609423,
+    "low": 58.78084343257917,
+    "high": 76.70092551301207,
+    "level": 67.74088447279561,
+    "level_sd": 4.840868156097867,
+    "steps": 4.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 48,
+    "clock": 218.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.3680186671071,
+   "mrr": 64.21250999731053,
+   "pre": {
+    "mrr": 56.29039641472197,
+    "sd": 3.026113413265223,
+    "low": 51.31288279134617,
+    "high": 61.26791003809777,
+    "level": 56.29039641472197,
+    "level_sd": 2.301994680351417,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.413173736636345,
+    "sd": 3.0299346727696097,
+    "low": 51.42937470070523,
+    "high": 61.39697277256746,
+    "level": 56.29039641472197,
+    "level_sd": 2.301994680351417,
+    "steps": 1.0,
+    "pressure_factor": 1.002181141539843,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 54,
+    "clock": 220.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 247.39968395474037,
+   "observed": 246.503027688264,
+   "mrr": 67.67498080833006,
+   "pre": {
+    "mrr": 67.74088447279561,
+    "sd": 5.884666859992525,
+    "low": 58.06146884473578,
+    "high": 77.42030010085546,
+    "level": 67.74088447279561,
+    "level_sd": 5.3282298534628625,
+    "steps": 5.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.74088447279561,
+    "sd": 5.884666859992525,
+    "low": 58.06146884473578,
+    "high": 77.42030010085546,
+    "level": 67.74088447279561,
+    "level_sd": 5.3282298534628625,
+    "steps": 5.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 104
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 55,
+    "clock": 223.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.30090564600937,
+   "mrr": 74.112712326262,
+   "pre": {
+    "mrr": 67.74088447279561,
+    "sd": 6.291687605063112,
+    "low": 57.39197929596193,
+    "high": 78.0897896496293,
+    "level": 67.74088447279561,
+    "level_sd": 5.774604942153479,
+    "steps": 6.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.74088447279561,
+    "sd": 6.291687605063112,
+    "low": 57.39197929596193,
+    "high": 78.0897896496293,
+    "level": 67.74088447279561,
+    "level_sd": 5.774604942153479,
+    "steps": 6.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 106
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 49,
+    "clock": 226.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 273.107353627563,
+   "observed": 272.4411468584774,
+   "mrr": 57.70889575026046,
+   "pre": {
+    "mrr": 56.98474495947875,
+    "sd": 3.5255689655978557,
+    "low": 51.18570005934757,
+    "high": 62.78378985960994,
+    "level": 56.29039641472197,
+    "level_sd": 2.8920309655902896,
+    "steps": 2.0,
+    "pressure_factor": 1.0123351155611189,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.845738732358306,
+    "sd": 3.5196405835238447,
+    "low": 51.056445152983514,
+    "high": 62.6350323117331,
+    "level": 56.29039641472197,
+    "level_sd": 2.8920309655902896,
+    "steps": 2.0,
+    "pressure_factor": 1.0098656672009347,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 107
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 56,
+    "clock": 227.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.57413090226316,
+   "mrr": 79.29668267693494,
+   "pre": {
+    "mrr": 67.68685487894061,
+    "sd": 4.61155614347806,
+    "low": 60.101520030450374,
+    "high": 75.27218972743084,
+    "level": 67.68685487894061,
+    "level_sd": 3.876490601393072,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 67.68685487894061,
+    "sd": 4.61155614347806,
+    "low": 60.101520030450374,
+    "high": 75.27218972743084,
+    "level": 67.68685487894061,
+    "level_sd": 3.876490601393072,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 106
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 57,
+    "clock": 230.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.8703391856036,
+   "mrr": 81.08773303279372,
+   "pre": {
+    "mrr": 76.12805931765963,
+    "sd": 3.8532568750832237,
+    "low": 69.7900157711033,
+    "high": 82.46610286421597,
+    "level": 76.12805931765963,
+    "level_sd": 2.933993500949638,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 76.12805931765963,
+    "sd": 3.8532568750832237,
+    "low": 69.7900157711033,
+    "high": 82.46610286421597,
+    "level": 76.12805931765963,
+    "level_sd": 2.933993500949638,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 50,
+    "clock": 233.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.1731817182451,
+   "mrr": 61.313215659420656,
+   "pre": {
+    "mrr": 56.87891835416512,
+    "sd": 3.0867057626817744,
+    "low": 51.80173918508599,
+    "high": 61.95609752324425,
+    "level": 56.87891835416512,
+    "level_sd": 2.3810857993351267,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.75106615112556,
+    "sd": 3.082578959268233,
+    "low": 51.680674969608916,
+    "high": 61.82145733264221,
+    "level": 56.87891835416512,
+    "level_sd": 2.3810857993351267,
+    "steps": 1.0,
+    "pressure_factor": 0.9977522040372943,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 109
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 58,
+    "clock": 235.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.358590895611,
+   "mrr": 80.10667218922187,
+   "pre": {
+    "mrr": 76.12805931765963,
+    "sd": 4.450125550137506,
+    "low": 68.80825416612655,
+    "high": 83.44786446919272,
+    "level": 76.12805931765963,
+    "level_sd": 3.6829806855623373,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 76.12805931765963,
+    "sd": 4.450125550137506,
+    "low": 68.80825416612655,
+    "high": 83.44786446919272,
+    "level": 76.12805931765963,
+    "level_sd": 3.6829806855623373,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 111
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 51,
+    "clock": 237.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 269.80963533121934,
+   "mrr": 64.37937224362251,
+   "pre": {
+    "mrr": 59.59481900931704,
+    "sd": 3.0372425045342215,
+    "low": 54.59899965980276,
+    "high": 64.59063835883133,
+    "level": 59.59481900931704,
+    "level_sd": 2.316605091458584,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 59.60145581569262,
+    "sd": 3.0374392865023294,
+    "low": 54.60531278864437,
+    "high": 64.59759884274087,
+    "level": 59.59481900931704,
+    "level_sd": 2.316605091458584,
+    "steps": 1.0,
+    "pressure_factor": 1.0001113654926033,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 1
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 52,
+    "clock": 239.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 269.7795911941517,
+   "observed": 270.3492250031233,
+   "mrr": 57.78710018191254,
+   "pre": {
+    "mrr": 59.59481900931704,
+    "sd": 3.505639118465589,
+    "low": 53.828555790525954,
+    "high": 65.36108222810813,
+    "level": 59.59481900931704,
+    "level_sd": 2.9036740084483856,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 59.7206521889026,
+    "sd": 3.5107190619870225,
+    "low": 53.946033206585575,
+    "high": 65.49527117121963,
+    "level": 59.59481900931704,
+    "level_sd": 2.9036740084483856,
+    "steps": 2.0,
+    "pressure_factor": 1.002111478508994,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 113
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 59,
+    "clock": 242.0,
+    "after_rest": true,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.10199179217256,
+   "mrr": 79.99302467750925,
+   "pre": {
+    "mrr": 81.16998956216557,
+    "sd": 3.9330450764914,
+    "low": 74.70070610313506,
+    "high": 87.63927302119608,
+    "level": 78.85318187342776,
+    "level_sd": 3.0380212132162314,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "inproc": {
+    "mrr": 81.16998956216557,
+    "sd": 3.9330450764914,
+    "low": 74.70070610313506,
+    "high": 87.63927302119608,
+    "level": 78.85318187342776,
+    "level_sd": 3.0380212132162314,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 2.316807688737816
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 113
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 60,
+    "clock": 244.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.60058506101683,
+   "observed": 259.21305239420354,
+   "mrr": 81.6702603530413,
+   "pre": {
+    "mrr": 78.85318187342776,
+    "sd": 4.519388502919809,
+    "low": 71.41944930279733,
+    "high": 86.28691444405818,
+    "level": 78.85318187342776,
+    "level_sd": 3.7663778034820585,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.85318187342776,
+    "sd": 4.519388502919809,
+    "low": 71.41944930279733,
+    "high": 86.28691444405818,
+    "level": 78.85318187342776,
+    "level_sd": 3.7663778034820585,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2,
+   "applied_at": 115
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 61,
+    "clock": 245.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.84905498030867,
+   "mrr": 77.74865915693674,
+   "pre": {
+    "mrr": 78.1509391270687,
+    "sd": 4.458029218044907,
+    "low": 70.8181335987119,
+    "high": 85.4837446554255,
+    "level": 78.1509391270687,
+    "level_sd": 3.6925267537528645,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.1509391270687,
+    "sd": 4.458029218044907,
+    "low": 70.8181335987119,
+    "high": 85.4837446554255,
+    "level": 78.1509391270687,
+    "level_sd": 3.6925267537528645,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 115
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 62,
+    "clock": 248.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.1042205147633,
+   "mrr": 76.23429978421223,
+   "pre": {
+    "mrr": 78.1509391270687,
+    "sd": 4.9829763571135475,
+    "low": 69.95467239305704,
+    "high": 86.34720586108035,
+    "level": 78.1509391270687,
+    "level_sd": 4.31170299229796,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 78.1509391270687,
+    "sd": 4.9829763571135475,
+    "low": 69.95467239305704,
+    "high": 86.34720586108035,
+    "level": 78.1509391270687,
+    "level_sd": 4.31170299229796,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 0,
+   "applied_at": 115
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 63,
+    "clock": 251.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.20700557851995,
+   "mrr": 77.20780081417492,
+   "pre": {
+    "mrr": 77.30671056110656,
+    "sd": 3.8478323914436596,
+    "low": 70.97758949613909,
+    "high": 83.63583162607402,
+    "level": 77.30671056110656,
+    "level_sd": 2.9268658033605877,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.30671056110656,
+    "sd": 3.8478323914436596,
+    "low": 70.97758949613909,
+    "high": 83.63583162607402,
+    "level": 77.30671056110656,
+    "level_sd": 2.9268658033605877,
+    "steps": 1.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 0
+  },
+  {
+   "ctx": {
+    "recipe": "A456",
+    "position": 53,
+    "clock": 252.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 259.14214028216696,
+   "observed": 259.66313608921615,
+   "mrr": 63.02784792723999,
+   "pre": {
+    "mrr": 55.971763310745764,
+    "sd": 3.0201299508624415,
+    "low": 51.004091607204906,
+    "high": 60.93943501428662,
+    "level": 58.26933206597403,
+    "level_sd": 2.388294178383671,
+    "steps": 1.0,
+    "pressure_factor": 0.9605698456844006,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 56.08429249633594,
+    "sd": 3.0236349547620756,
+    "low": 51.11085557441829,
+    "high": 61.057729418253594,
+    "level": 58.26933206597403,
+    "level_sd": 2.388294178383671,
+    "steps": 1.0,
+    "pressure_factor": 0.9625010362712906,
+    "offset": 0.0
+   },
+   "measure": false,
+   "delay": 2
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 64,
+    "clock": 255.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 257.84453888918733,
+   "mrr": 76.71258482088336,
+   "pre": {
+    "mrr": 77.30671056110656,
+    "sd": 4.4454294482370935,
+    "low": 69.99462980981689,
+    "high": 84.61879131239623,
+    "level": 77.30671056110656,
+    "level_sd": 3.6773050318802945,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.30671056110656,
+    "sd": 4.4454294482370935,
+    "low": 69.99462980981689,
+    "high": 84.61879131239623,
+    "level": 77.30671056110656,
+    "level_sd": 3.6773050318802945,
+    "steps": 2.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 1,
+   "applied_at": 119
+  },
+  {
+   "ctx": {
+    "recipe": "B456",
+    "position": 65,
+    "clock": 256.0,
+    "after_rest": false,
+    "after_pad_change": false
+   },
+   "planned": 257.84,
+   "observed": 258.5855058222164,
+   "mrr": 76.69273294702131,
+   "pre": {
+    "mrr": 77.30671056110656,
+    "sd": 4.9717071359709095,
+    "low": 69.12898004636429,
+    "high": 85.48444107584882,
+    "level": 77.30671056110656,
+    "level_sd": 4.298674349622527,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "inproc": {
+    "mrr": 77.30671056110656,
+    "sd": 4.9717071359709095,
+    "low": 69.12898004636429,
+    "high": 85.48444107584882,
+    "level": 77.30671056110656,
+    "level_sd": 4.298674349622527,
+    "steps": 3.0,
+    "pressure_factor": 1.0,
+    "offset": 0.0
+   },
+   "measure": true,
+   "delay": 2
+  }
+ ],
+ "note": "Synthetic values only. Measurements are applied at the end of step index `applied_at`, in due order."
+}
