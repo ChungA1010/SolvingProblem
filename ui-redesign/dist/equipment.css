@@ -1,0 +1,25 @@
+/* Equipment additions keep the compact workshop layout and existing palette. */
+.factory .upgrade-equipment-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.factory .upgrade-card{padding:13px}
+.factory .upgrade-card h3{font-size:16px}
+.factory .upgrade-card-heading{gap:6px}
+.factory .upgrade-card .upgrade-description{font-size:11px;min-height:55px;margin:9px 0}
+.factory .upgrade-card .upgrade-effect{padding:9px;font-size:11px}
+.equipment-illustration{height:140px;border-radius:8px;background:linear-gradient(145deg,#edf0e2,#e0e7d5)}
+.equipment-illustration svg{width:100%;height:100%;display:block}
+.equipment-disclaimer{font-size:11px;color:#6b795f;margin:10px 0}
+.equipment-reference{font-size:10px;line-height:1.65;margin:8px 0;color:#6d7e62}
+.equipment-reference a{text-decoration:underline;text-underline-offset:3px}
+.equipment-pending{margin-top:8px;font-size:10px;color:#8e6a39}
+.equipment-environment{grid-column:1/-1;border-top:1px dashed #bfc9b2;padding-top:12px}
+.equipment-environment>summary{font-size:12px;cursor:pointer;color:#687d5b}
+.equipment-environment>.upgrade-card{margin-top:12px;max-width:420px}
+.equipment-environment .upgrade-description{min-height:0!important}
+.factory .environment-summary{display:none}
+.factory .equipment-applied{font-size:9px;color:#dbe6b9;padding-top:9px;line-height:1.6}
+.factory .endpoint-control{margin-top:9px;padding:9px;border:1px solid #b7c69d66;border-radius:7px;background:#334f3e30}
+.factory .endpoint-control label{display:flex;gap:7px;align-items:center;font-size:11px;color:#f1f2db;cursor:pointer}
+.factory .endpoint-control input{accent-color:#c6dca5;width:16px;height:16px;margin:0}
+.factory .endpoint-control small{display:block;font-size:9px;color:#d0ddb7;line-height:1.6;margin-top:5px}
+.factory .endpoint-live{padding:8px;border:1px solid #c2d89566;border-radius:6px;font-size:11px;color:#e2efbe;line-height:1.6;margin-top:12px}
+@media(max-width:760px){.factory .upgrade-equipment-list{grid-template-columns:1fr}.factory .upgrade-card[data-equipment]:not([data-equipment=environment]){display:grid;grid-template-columns:95px minmax(0,1fr);gap:8px 12px}.equipment-illustration{grid-row:1/6;min-height:170px;height:100%}.factory .upgrade-card-heading{margin-top:0}.factory .upgrade-card .upgrade-description{min-height:0;margin:0}.factory .upgrade-card .game-primary{margin-top:0;min-height:42px}.factory .upgrade-card .upgrade-effect{margin:0}.equipment-pending,.upgrade-price-note{grid-column:2}.factory .upgrade-item-detail{font-size:10px}}

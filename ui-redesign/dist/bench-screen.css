@@ -1,0 +1,230 @@
+/* The focused bench reserves just two edges for controls. The canvas, hit
+   targets and labels always share the exact same middle rectangle. */
+.factory #first-order-guide[popover]:not(:popover-open) { display: none; }
+.factory #first-order-guide:popover-open {
+  position: fixed; inset: max(56px, env(safe-area-inset-top)) 12px auto auto;
+  width: min(360px, calc(100vw - 24px)); max-height: 72dvh; overflow: auto;
+  margin: 0; padding: 14px; flex-wrap: wrap; gap: 8px;
+  box-shadow: 0 5px 20px #26382c30;
+}
+.factory #first-order-guide:popover-open .guide-progress { display: none; }
+.factory #first-order-guide:popover-open .guide-copy { flex: 1 1 100%; }
+.factory #process-cost { margin-left: 6px; font-size: 11px; color: inherit; }
+.factory #process-cost:empty { display: none; }
+
+.factory .condition-title { margin: 0; padding: 12px 15px 4px; font-size: 14px; font-weight: 700; }
+.factory .dial-value { position: relative; }
+.factory .dial-unit { display: none; }
+
+.factory .wafer-inspector {
+  position: fixed; z-index: 65; pointer-events: none; width: max-content;
+  max-width: calc(100vw - 16px); min-width: 160px; margin: 0; padding: 10px 13px;
+  color: #304539; background: #fffcf2; border: 1px solid #85947c; border-radius: 10px;
+  box-shadow: 0 3px 0 #52634926, 0 5px 14px #273d2a1c;
+  font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums;
+}
+.wafer-inspector > strong { display: block; margin-bottom: 5px; font-size: 14px; }
+.wafer-inspector dl { margin: 0; }
+.wafer-inspector dl > div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+.wafer-inspector dt { color: #596950; }
+.wafer-inspector dd { margin: 0; font-weight: 650; }
+.factory #bench-pad-info { display: none; }
+.factory #cmp-scene[data-active-part=pad] #bench-pad-info {
+  display: block; border-top: 1px solid #cccfbf; margin-top: 6px; padding-top: 6px;
+  color: #3c573e; font-size: 12px; font-weight: 650;
+}
+.factory:has(#wafer-inspector:not([hidden])) #scene-part-tip,
+.factory[data-carrying] .wafer-inspector { visibility: hidden; }
+
+body.factory[data-bench-focus=true] #work-screen:has(#cmp-scene[data-renderer=webgl]) {
+  --rail: #f6f2e6;
+  --rail-line: #b6b5a3;
+  --text: #354a3d;
+  height: 100vh; height: 100dvh; width: 100%; overflow: hidden;
+  & .workshop-room {
+    display: grid; grid-template-rows: auto minmax(0,1fr); height: 100%;
+    min-height: 0; padding: 0; border: 0; border-radius: 0; box-shadow: none;
+  }
+  & .bench-toolbar {
+    position: relative; inset: auto; z-index: 12; display: flex; flex-wrap: nowrap;
+    padding: max(3px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 3px max(12px, env(safe-area-inset-left));
+    min-height: 44px; gap: 10px; background: var(--rail); border-bottom: 1px solid var(--rail-line);
+  }
+  & .bench-toolbar > div:first-child { flex: 1; min-width: 0; }
+  & #bench-title { font-size: clamp(12px,1.3vw,15px); margin: 0; }
+  & .bench-menu { align-items: center; flex-shrink: 0; }
+  & .bench-status { gap: 12px; white-space: nowrap; }
+  & .bench-menu .scene-settings { width: 36px; height: 36px; min-height: 36px; }
+  & .workshop-grid {
+    display: grid; grid-template-columns: minmax(0,1fr); grid-template-rows: minmax(0,1fr) auto;
+    grid-template-areas: 'machine' 'controls'; align-items: stretch; min-height: 0; padding: 0; gap: 0;
+  }
+  & .workshop-machine-column, & .machine-card, & #cmp-scene, & .scene-viewport {
+    display: block; height: 100%; min-height: 0; max-height: none; border: 0; padding: 0; margin: 0; border-radius: 0;
+  }
+  & .machine-card { overflow: hidden; }
+  & .monitor-caption, & .machine-wear, & .wafer-route, & #equipment-brief { display: none; }
+  & .scene-toolbar { inset: 8px 10px auto auto; width: auto; }
+  & .scene-tools { left: 10px; bottom: 8px; }
+  & .scene-zoom { right: 10px; bottom: 8px; }
+  & :is(#game-form, #animation-status, #wafer-feed, #result-screen):not([hidden]) {
+    grid-area: controls; display: flex; align-items: center; justify-content: center; flex-wrap: wrap;
+    min-width: 0; align-self: stretch; gap: 5px 12px; margin: 0;
+    padding: 5px max(10px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    max-height: 38dvh; overflow: auto; background: var(--rail);
+    color: var(--text); border: 0; border-top: 1px solid var(--rail-line); border-radius: 0; box-shadow: none;
+  }
+  & #game-form:not([hidden]) {
+    display: grid; grid-template-columns: auto minmax(350px, 620px) auto auto;
+    grid-template-areas: "time variables target start" "time variables forecast start";
+    column-gap: clamp(12px, 2.2vw, 34px); row-gap: 0; justify-content: center;
+    align-items: center; padding-block: 8px max(8px, env(safe-area-inset-bottom));
+  }
+  & #game-form > .console-monitor, & #game-form .console-launch { display: contents; }
+  & #game-form .console-monitor > :not(.time-control-group):not(.workshop-target):not(.workshop-estimate),
+  & #game-form .workshop-section-heading :is(button,b), & .condition-title, & .workshop-variable > small,
+  & #game-form .dock-summary, & #shift-note { display: none; }
+
+  & .time-control-group { grid-area: time; }
+  & #game-form .workshop-section-heading { margin: 0 0 4px; }
+  & #game-form label[for=duration], & .workshop-variable label {
+    display: block; color: #3f5145; font-size: 13px; line-height: 1.3; font-weight: 700;
+  }
+  & #condition-drawer { display: block; grid-area: variables; background: transparent; }
+  & #condition-drawer fieldset { min-width: 0; margin: 0; padding: 0; background: none; border: 0; box-shadow: none; }
+  & .workshop-variable-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: clamp(6px,1vw,14px); }
+  & .workshop-variable { min-width: 0; padding: 0; border: 0; }
+  & .dial-value { margin-top: 4px; }
+  & .workshop-variable input[type=number] {
+    display: block; appearance: textfield; width: 100%; min-height: 38px; padding: 2px 8px;
+    color: #263e31; background: #fffdf5; border: 1px solid #99a58e; border-radius: 7px;
+    box-shadow: inset 0 1px 2px #384d3510; font: inherit; font-size: 20px; font-weight: 670;
+    line-height: 1.2; font-variant-numeric: tabular-nums; letter-spacing: -.035em;
+  }
+  & .dial-value:has(.dial-unit) input { padding-right: 23px; }
+  & .dial-unit { display: block; position: absolute; right: 8px; top: 50%; translate: 0 -50%; font-size: 12px; color: #5c6959; pointer-events: none; }
+  & .workshop-variable input[type=number]::-webkit-inner-spin-button { appearance: none; }
+  & .workshop-variable input[type=range] { display: block; width: 100%; height: 20px; margin: 0; accent-color: #537459; cursor: pointer; }
+  & .workshop-variable input:focus-visible { outline: 2px solid #5b7c5b; outline-offset: 1px; }
+  & #game-form .workshop-target, & #game-form .workshop-estimate {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 8px;
+    min-width: 0; padding: 0; margin: 0; border: 0; background: none; border-radius: 0; box-shadow: none;
+    color: #304638; font-size: 12px; white-space: nowrap;
+  }
+  & #game-form .workshop-target { grid-area: target; align-self: end; }
+  & #game-form .workshop-estimate { grid-area: forecast; align-self: start; }
+  & #game-form .workshop-target > span, & #expected-removal-label { color: #495d4f; font-size: 12px; font-weight: 650; }
+  & #work-target { font-size: 15px; font-variant-numeric: tabular-nums; color: #344a3c; }
+  & .workshop-estimate > :not(.estimate-pair),
+  & .estimate-pair > :not(:last-child) { display: none; }
+  & .estimate-pair { display: contents; }
+  & .estimate-pair > div:last-child { display: flex; align-items: baseline; width: 100%; gap: 3px; }
+  & #expected-removal-label { margin: 0 auto 0 0; }
+  & #expected-removal { margin: 0; font-size: 19px; color: #314e37; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  & .estimate-pair small { display: inline; margin: 0; font-size: 11px; color: #52604e; }
+  & .workshop-time { gap: 2px; padding: 1px; border: 1px solid #b8bba7; border-radius: 9px; background: #fffdf3; box-shadow: none; }
+  & .workshop-time > button {
+    width: 38px; height: 38px; min-height: 0; padding: 0; font-size: 18px;
+    color: #3e5944; background: #ecefdf; border: 0; border-radius: 7px; box-shadow: none;
+  }
+  & .workshop-time > div { gap: 1px; align-items: baseline; }
+  & .workshop-time input {
+    width: 3.4ch; min-width: 0; min-height: 34px; padding: 0; border: 0;
+    font-size: 20px !important; color: var(--text); letter-spacing: -.03em;
+  }
+  & .workshop-time > div > span { color: #576956; padding-right: 4px; }
+  & #process {
+    grid-area: start; width: auto; min-width: 0; min-height: 40px; margin: 0; padding: 6px 14px;
+    font-size: 14px; border-radius: 10px; box-shadow: 0 2px 0 #956840;
+  }
+  & #game-error:not([hidden]) { grid-column: 1 / -1; max-width: none; padding: 2px 5px; text-align: center; }
+
+  & #animation-status :is(.playback-monitor,.playback-deck,.playback-meter) { display: contents; }
+  & .playback-monitor > :not(#animation-copy):not(#endpoint-live),
+  & .playback-deck .workshop-phases, & .playback-meter span { display: none; }
+  & #animation-copy { margin: 0; font-size: 14px; color: var(--text); }
+  & #endpoint-live { margin: 0; color: var(--text); font-size: 11px; }
+  & #game-progress { width: clamp(48px,14vw,155px); height: 6px; accent-color: #53775e; }
+  & #skip-animation { min-height: 38px; padding: 5px 12px; }
+
+  & #wafer-feed h3, & #result-subtitle, & #result-heading, & .result-notes { display: none; }
+  &:has(#cmp-scene[data-transfer-ready=true]) #wafer-feed:has(.bench-lot[hidden]):has(.transfer-help[hidden]) { display: none; }
+  & .bench-lot { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; margin: 0; gap: 12px; }
+  & .bench-lot p, & .transfer-help { margin: 0; font-size: 12px; }
+  & .bench-lot button { min-height: 40px; padding: 5px 12px; }
+  & #result-screen :is(.result-game-grid, .measurement-card, .result-actions) { display: contents; }
+  & #result-action-note, & .measurement-card .game-hint:empty { display: none; }
+  & .measurement-card .game-hint { margin: 0; padding: 0; border: 0; background: none; font-size: 12px !important; }
+  & .metrology-status:not([hidden]), & #revealed-measurement:not([hidden]) {
+    display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0; padding: 0;
+    border: 0; background: none; color: var(--text);
+  }
+  & .metrology-status :is(.scan-indicator,p), & #revealed-measurement .tolerance-meter { display: none; }
+  & .metrology-status progress { width: 60px; margin: 0; }
+  & .metrology-status button, & #replay-game { min-height: 36px; margin: 0; }
+  & .measured-number { margin: 0; }
+  & .measured-number strong { font-size: 20px; }
+  & #measured-error { margin: 0; font-size: 12px; }
+  /* When a camera angle puts a drop target out of frame, keep the existing
+     accessible transfer shelf reachable under the canvas. */
+  & :is(.feed-fallback,.wafer-sorting .station-surface) { min-height: 0; padding: 4px; }
+  & .wafer-sorting { margin: 0; }
+  @media (max-width: 939px) {
+    & #game-form:not([hidden]) {
+      grid-template-columns: auto auto 1fr auto; grid-template-areas: "variables variables variables variables" "time target forecast start";
+      gap: 4px 12px;
+    }
+    & .time-control-group { display: flex; align-items: center; gap: 6px; }
+    & #game-form .workshop-section-heading { margin: 0; }
+    & #game-form .workshop-target, & #game-form .workshop-estimate { align-self: center; }
+  }
+  @media (max-width: 700px) {
+    & .bench-status { display: none; }
+    & .bench-toolbar { gap: 4px; padding-inline: max(7px, env(safe-area-inset-left)) max(7px, env(safe-area-inset-right)); }
+    &[data-mode=setup] .bench-toolbar {
+      display: grid; grid-template-columns: minmax(0,1fr) auto; grid-template-rows: auto auto;
+      column-gap: 4px; row-gap: 0;
+    }
+    &[data-mode=setup] .bench-status { display: flex; grid-column: 1; font-size: 10px; }
+    &[data-mode=setup] .bench-status > span:not(:first-child) { display: none; }
+    &[data-mode=setup] .bench-menu { grid-column: 2; grid-row: 1 / 3; }
+    & .bench-menu { gap: 4px; }
+    & .bench-menu button { min-height: 36px; padding: 5px 8px; }
+    & .bench-menu .scene-settings { padding: 0; }
+    & :is(#game-form, #animation-status, #wafer-feed, #result-screen):not([hidden]) { gap: 3px 6px; }
+    & #game-form:not([hidden]) {
+      grid-template-columns: 1fr 1fr; grid-template-areas: "variables variables" "target forecast" "time start";
+      gap: 4px 10px; max-height: max(45dvh, 174px); padding-block: 6px max(6px, env(safe-area-inset-bottom));
+    }
+    & .workshop-variable-grid { gap: 5px; }
+    & .workshop-variable label { font-size: clamp(11px, 3.1vw, 14px); }
+    & .workshop-variable input[type=number] { min-height: 38px; padding-left: 5px; padding-right: 3px; font-size: clamp(16px, 4.7vw, 20px); }
+    & .dial-value:has(.dial-unit) input { padding-right: 19px; }
+    & .dial-unit { right: 5px; }
+    & .workshop-variable input[type=range] { height: 22px; }
+    & #game-form .workshop-target, & #game-form .workshop-estimate { justify-content: start; gap: 4px; }
+    & #expected-removal-label { margin-right: 1px; }
+    & #work-target { font-size: 13px; }
+    & #expected-removal { font-size: 16px; }
+    & #game-form .workshop-target > span, & #expected-removal-label { font-size: 11px; }
+    & .time-control-group { grid-column: 1 / -1; justify-self: start; }
+    & #game-form label[for=duration] { font-size: 12px; }
+    & #process { justify-self: end; }
+
+    & .workshop-time > button { width: 36px; height: 42px; }
+    & #process { min-height: 44px; padding-inline: 8px; font-size: 13px; }
+    & .scene-tools summary span { display: none; }
+    & .scene-view-buttons button { min-height: 32px; padding: 4px 8px; }
+    & #animation-copy { font-size: 12px; }
+    & .measurement-card .game-hint { font-size: 11px !important; }
+  }
+  @media (max-width: 365px) {
+    & .workshop-variable-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 2px 9px; }
+    & .workshop-variable { display: grid; grid-template-columns: minmax(0,1fr) 76px; align-items: center; gap: 0 2px; }
+    & .workshop-variable label { font-size: 12px; white-space: normal; word-break: keep-all; }
+    & .dial-value { margin: 0; }
+    & .workshop-variable input[type=range] { grid-column: 1 / -1; }
+    & .time-control-group { gap: 3px; }
+    & .workshop-time > button { width: 32px; }
+  }
+}

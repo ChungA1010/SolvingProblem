@@ -1,0 +1,47 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const g=require('../dist/game-model.js');
+const send=(s,type,fields={})=>g.transition(s,{type,...fields});
+const store=s=>send(send(s,'run',{duration:130}),'advance',{keepOpen:true});
+test('a middle wafer can be measured, restored, returned, and discarded without shifting its neighbours',()=>{
+  let s=store(store(store(g.create())));
+  const original=s.rows[1].removed;
+  s=send(s,'measure',{wafer:2});
+  assert.equal(s.recalled,2);
+  assert.equal(s.wallet,65);
+  assert.equal(g.visibleRows(s)[1].removed,original);
+  assert.deepEqual(g.storedRows(s).map(r=>r.slot),[0,2]);
+  assert.throws(()=>send(s,'rackReturn',{wafer:1}));
+  assert.throws(()=>send(s,'finishLot'));
+  assert.deepEqual(g.restore(g.serialize(s)),s);
+  s=send(s,'rackReturn',{wafer:2});
+  const saved=g.serialize(s);
+  for(let i=0;i<65;i++)s=send(send(s,'rackReview',{wafer:2}),'rackReturn',{wafer:2});
+  assert.equal(g.serialize(s),saved);
+  s=send(s,'rackDiscard',{wafer:2});
+  assert.equal(g.freeSlot(s),1);
+  assert.throws(()=>send(s,'rackDiscard',{wafer:2}));
+  s=store(s);
+  assert.deepEqual(g.storedRows(s).map(r=>[r.number,r.slot]),[[1,0],[3,2],[4,1]]);
+  assert.equal(g.actions(s).used,1);
+});
+test('the sixth wafer can be retrieved before locking the shipment',()=>{
+  let s=g.create();for(let i=0;i<6;i++)s=store(s);
+  assert.equal(s.phase,'setup');
+  assert.throws(()=>send(s,'run',{duration:130}));
+  s=send(s,'rackDiscard',{wafer:6});s=send(s,'finishLot');
+  assert.throws(()=>send(s,'rackDiscard',{wafer:2}));
+  s=send(send(s,'inspect',{count:5}),'ship');
+  assert.equal(g.summary(s).total,5);
+  assert.deepEqual(g.restore(g.serialize(s)),s);
+});
+test('a historical scan cannot clear a maintenance reset or replace a newer calibration',()=>{
+  let s=store(g.create(1));
+  s=send(s,'service');s=send(s,'measure',{wafer:1});
+  assert.equal(s.lastMeasured,null);
+  assert.ok(s.servicedSinceMeasure);
+  let t=store(store(g.create()));
+  t=send(send(t,'measure',{wafer:2}),'rackReturn',{wafer:2});
+  t=send(t,'measure',{wafer:1});
+  assert.equal(t.lastMeasured,2);
+});

@@ -1,0 +1,31 @@
+/* Keep decisions and measurements visible; open supporting explanations on demand. */
+.factory #game-subtitle,.factory .scene-title,.factory .bench-brand{display:none}
+.factory #customer-talk-note:empty,.factory #counter-action-note:empty,.factory #followup-status:empty,.factory #shift-note:empty,.factory #measurement-feedback:empty,.factory #settlement-note:empty{display:none}
+.factory .workshop[data-mode=setup] #bench-target{display:none}
+.factory .workshop[data-mode=setup] .workshop-target{display:flex}
+.factory .workshop-panel-heading{justify-content:flex-end}
+.factory .scene-toolbar{justify-content:flex-end}
+.factory .console-launch{gap:12px}
+.factory .bench-equipment{margin:12px 0 0;padding:12px;border:0;border-radius:6px;font-size:11px}
+.factory .copy-details{font-size:12px;line-height:1.75;color:#64705a}
+.factory .copy-details summary,.factory .upgrade-item-detail summary{cursor:pointer;width:fit-content;color:#4b6350}
+.factory .copy-details p{margin-top:10px;max-width:65ch}
+.factory .inspection-card>.copy-details{padding-block:14px;border-top:1px solid #d4d8c5}
+.factory details.attempt-comparison>summary{cursor:pointer;font-size:13px;font-weight:650;color:#4b6350}
+.factory .upgrade-item-detail{font-size:11px;margin:0 0 14px;color:#718068}
+.factory .upgrade-item-detail[open] .upgrade-steps{margin-top:10px}
+.factory .upgrade-heading{padding-block:20px}
+.factory .upgrade-body{padding-top:18px;padding-bottom:12px}
+.factory .decor-boundary{margin:16px 0}
+.factory .decor-object{gap:6px}
+.factory .decor-object h3{margin-bottom:12px}
+.factory .decor-object .decor-cost-note:empty{display:none}
+.factory .upgrade-footer{padding-top:8px}
+.factory .upgrade-feedback:empty{display:none}
+.factory .upgrade-footer>button{margin-top:18px}
+.factory .upgrade-view-room{margin-top:14px}
+.factory .legacy-finishes{margin-top:16px;padding-top:12px}
+
+@media(max-width:760px){.factory .decor-object{min-height:146px;grid-template-rows:auto auto auto auto}.factory .decor-object h3{margin-bottom:8px}.factory .decor-illustration{height:118px;min-height:118px;grid-row:1/5}.factory .decor-illustration svg{min-height:0}.factory .upgrade-body{padding-inline:16px}.factory .upgrade-footer{padding-inline:16px}.factory .decor-boundary{font-size:11px;line-height:1.7}}
+
+.factory #customer-response-pending:empty{display:none}

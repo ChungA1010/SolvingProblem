@@ -1,0 +1,119 @@
+/* The counter is a single stage. Artwork and props share the same desk plane. */
+.shop-game[data-place=counter] { overflow: hidden; }
+.shop-game[data-place=counter] .factory-main { max-width: none; margin: 0; padding: 0; }
+.shop-game[data-place=counter] .factory-heading { display: none; }
+.shop-game[data-place=counter] #save-warning:not([hidden]) {
+  position: fixed; z-index: 16; inset: 12px 78px auto 12px;
+  margin: 0; background: #fff1cf; color: #694324;
+}
+.shop-game[data-place=counter] .customer-stage {
+  --desk-line: 76%;
+  position: relative; width: 100%; height: 100vh; height: 100dvh;
+  min-height: 0; margin: 0; padding: 0; overflow: hidden;
+  border: 0; border-radius: 0; box-shadow: none;
+}
+.customer-stage .shop-room { inset: 0; height: auto; }
+.customer-stage .shop-room img { object-fit: cover; object-position: center; }
+.customer-stage .counter-foreground {
+  top: var(--desk-line); bottom: auto; left: 50%;
+  width: max(103%, 150dvh); transform: translate(-50%, -38%);
+}
+.customer-stage .shop-character {
+  top: auto; bottom: 6%; left: clamp(3%, 12vw, 15%); height: 84%; width: auto;
+  max-width: 44%; aspect-ratio: 2/3;
+}
+.shop-game .customer-stage .shop-conversation {
+  position: absolute; right: 5%; top: 47%; translate: 0 -50%;
+  width: min(46%, 740px); margin: 0; max-width: none; min-height: 0;
+  max-height: 62%; padding: 4px 6px 8px 12px; overflow-y: auto;
+  overscroll-behavior: contain; scrollbar-width: thin;
+}
+.customer-stage .shop-counter {
+  position: absolute; bottom: max(4%, env(safe-area-inset-bottom)); left: 0;
+  width: 100%; margin: 0; padding: 0;
+}
+.customer-stage .counter-top { min-height: 0; }
+.shop-game .scene-settings {
+  display: grid; place-items: center; width: 46px; height: 46px;
+  flex: none; padding: 0; color: #3e4a39; background: #fff9e8;
+  border: 1.5px solid #626751; border-radius: 50%; box-shadow: 0 3px 0 #42483542;
+}
+.shop-game > .scene-settings {
+  position: fixed; top: max(14px, env(safe-area-inset-top)); right: max(16px, env(safe-area-inset-right)); z-index: 20;
+}
+.shop-game .scene-settings:hover { background: #fffef5; }
+.shop-game .bench-menu .scene-settings { width: 40px; height: 40px; min-height: 40px; margin: 0; }
+.shop-game[data-place=workbench]:not([data-at-workbench=true]) .factory-heading { padding-right: 56px; }
+.shop-game .counter-settings {
+  width: min(390px, calc(100% - 24px)); max-height: calc(100dvh - 32px);
+  margin: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) auto auto;
+  padding: 20px; border: 2px solid #5b604b; border-radius: 18px;
+  background: #fffaf0; color: #354a3a; box-shadow: 3px 5px 0 #41493640;
+  overscroll-behavior: contain;
+}
+.settings-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.settings-heading h2 { margin: 0; font-size: 22px; }
+.settings-heading p, #fullscreen-notice { margin: 4px 0 0; color: #626e59; font-size: 12px; }
+.settings-heading button { width: 42px; height: 42px; font-size: 26px; border-radius: 50%; }
+.settings-actions { display: grid; gap: 5px; margin: 16px 0; }
+.settings-actions :is(button,a) {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 44px; padding: 9px 14px; text-align: left;
+  background: #f5f2e5; border: 1px solid #d9d7c4; border-radius: 9px;
+  color: #394b3d; font-size: 14px; font-weight: 650; text-decoration: none;
+}
+.settings-actions :is(button,a)::after {
+  content: ''; width: 7px; height: 7px; margin-right: 2px;
+  border: solid #78846e; border-width: 1.5px 1.5px 0 0; transform: rotate(45deg);
+}
+.settings-actions :is(button,a):hover, .settings-heading button:hover { background: #e9eddd; }
+.settings-records > *, .settings-records .commission-board, .settings-records .inspection-records {
+  margin: 0; padding: 0; border: 0; background: none;
+}
+.settings-records summary { cursor: pointer; min-height: 44px; padding: 12px 2px; font-size: 13px; font-weight: 650; }
+.settings-records > details, .settings-records .commission-board, .settings-records .inspection-records { border-top: 1px solid #dbdecd; }
+.settings-records .counter-history-pop { position: static; padding: 8px; border: 0; box-shadow: none; }
+.settings-records > details p { font-size: 12px; line-height: 1.65; margin: 4px 0 10px; }
+.settings-records > details a { font-size: 13px; text-decoration: underline; }
+.settings-records .order-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-records #inspection-screen { overflow-x: auto; }
+
+@media (max-aspect-ratio: 1/1) {
+  .shop-game[data-place=counter] .customer-stage { --desk-line: 52%; background: #c19c73; }
+  .customer-stage .shop-room { bottom: 42%; }
+  .customer-stage .shop-room img { object-position: 58% center; }
+  .customer-stage .counter-foreground { width: max(175%, 185dvh); }
+  .customer-stage .shop-character {
+    top: 3%; bottom: auto; left: 10%; height: 59%; width: auto; max-width: none;
+  }
+  .shop-game .customer-stage .shop-conversation {
+    top: auto; bottom: max(92px, calc(80px + env(safe-area-inset-bottom)));
+    left: 3%; right: 3%; translate: none; width: auto;
+    max-height: 46%; padding: 3px 4px 6px;
+  }
+  .shop-game .shop-bubble::before { display: none; }
+  .customer-stage .shop-counter { bottom: max(12px, env(safe-area-inset-bottom)); }
+  .customer-stage .counter-top { padding: 0 4%; gap: 12px; flex-wrap: nowrap; }
+  .customer-stage .counter-slip { flex: 1; min-width: 0; padding: 7px 10px; }
+  .customer-stage .counter-slip strong { font-size: 18px; line-height: 1.15; }
+  .customer-stage .counter-slip small { display: block; font-size: 10px; }
+  .customer-stage .counter-slip > span:last-child { display: none; }
+  .customer-stage .counter-accept { width: auto; min-width: 0; padding: 0; border: 0; background: none; }
+  .customer-stage .counter-accept #accept-order { padding: 8px 12px; min-height: 48px; font-size: 13px; }
+  .factory .customer-stage .handover-surface { left: 50%; margin-left: 16vw; width: clamp(162px, 44vw, 245px); }
+  .factory .customer-stage .received-shipper { left: 50%; margin-left: -16vw; width: clamp(110px, 29vw, 180px); }
+  .shop-game .customer-stage[data-handover=true] .shop-conversation { bottom: max(18px, env(safe-area-inset-bottom)); max-height: 36%; }
+}
+@media (min-aspect-ratio: 1/1) and (max-height: 580px) {
+  .shop-game .customer-stage .shop-conversation { top: 44%; max-height: 59%; }
+  .customer-stage .shop-character { left: 13%; }
+  .shop-game .customer-stage .shop-speaker { padding: 3px 10px; margin-bottom: 4px; }
+  .shop-game .customer-stage .shop-bubble { padding: 8px 14px 2px; }
+  .shop-game .customer-stage #shop-dialogue { min-height: 28px; font-size: 15px; }
+  .customer-stage .dialogue-controls { margin-top: 4px; padding-top: 0; }
+  .customer-stage #conversation-options { margin-top: 4px; padding: 2px 9px; }
+  .customer-stage .counter-top { flex-wrap: nowrap; }
+  .customer-stage .counter-slip { flex: none; width: auto; min-width: 150px; padding: 6px 12px; }
+  .customer-stage .counter-slip > span:last-child { display: none; }
+  .customer-stage .counter-accept { width: auto; min-width: 172px; padding: 4px; }
+}

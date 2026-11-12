@@ -3,11 +3,16 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import modelBase64 from '../dist/models/cmp-polishing-cell.glb';
+import { createWorkshopRoom } from './workshop-room.js';
+import { createWaferHandling } from './wafer-handling.js';
+import { createProcessFinish } from './process-finish.js';
+export { createInstallation } from './installation-scene.js';
 
 // Blender-authored role nodes are driven by the shared six-second playback.
 // The GLB is bundled as bytes so file:// does not need fetch, CORS or a CDN.
 export function create({host,canvas,fallback,detail,onUnavailable}) {
-  let renderer,asset=null,roles=null,lastFrame=null,ready=false,lost=false,disposed=false;
+  const workshop=host.dataset.theme==='workshop';
+  let renderer,asset=null,roles=null,lastFrame=null,ready=false,lost=false,disposed=false,processFinish=null,appearance={};
   let transparent=host.querySelector('#scene-transparent').checked;
   let cutaway=host.querySelector('#scene-cutaway').checked;
   const padMeshes=[],headMaterials=[],ringMaterials=[],waferMaterials=[],textures=[];
@@ -31,25 +36,32 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
     if(!context){unavailable();return null;}
     renderer=new THREE.WebGLRenderer({canvas,context,antialias:true,alpha:true});
   } catch {unavailable();return null;}
-  const scene=new THREE.Scene(),camera=new THREE.OrthographicCamera(-6,6,4.4,-4.4,.1,100);
+  const scene=new THREE.Scene(),camera=workshop?new THREE.PerspectiveCamera(42,1,.1,100):new THREE.OrthographicCamera(-6,6,4.4,-4.4,.1,100);
+  host.dataset.projection=workshop?'perspective':'orthographic';
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.6));
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
-  renderer.localClippingEnabled=true;renderer.toneMapping=THREE.AgXToneMapping;renderer.toneMappingExposure=1.0;
+  renderer.localClippingEnabled=true;renderer.toneMapping=THREE.AgXToneMapping;renderer.toneMappingExposure=workshop?.92:1.0;
   const pmrem=new THREE.PMREMGenerator(renderer),room=new RoomEnvironment();
   const environment=pmrem.fromScene(room,.06);scene.environment=environment.texture;room.dispose();pmrem.dispose();
-  scene.background=new THREE.Color(0xdbe2eb);
+  scene.background=new THREE.Color(workshop?0xe7e8d8:0xdbe2eb);
   scene.add(new THREE.HemisphereLight(0xf5f8ff,0x93a4ba,1.4));
   const key=new THREE.DirectionalLight(0xfffaf2,3.0);key.position.set(-4,9,6);key.castShadow=true;
   key.shadow.mapSize.set(2048,2048);key.shadow.normalBias=.016;key.shadow.radius=3;
   Object.assign(key.shadow.camera,{left:-6,right:6,top:6,bottom:-6,near:.5,far:25});scene.add(key);
   const fill=new THREE.DirectionalLight(0xd7e6ff,1.5);fill.position.set(6,5,0);scene.add(fill);
   const rim=new THREE.DirectionalLight(0xffffff,2.0);rim.position.set(-2,6,-6);scene.add(rim);
-  const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:new THREE.Color().setRGB(.79,.85,.94),roughness:.78}));
+  if(workshop){key.intensity=2.4;fill.intensity=.7;rim.intensity=.9;Object.assign(key.shadow.camera,{left:-13,right:13,top:13,bottom:-13,far:45});}
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:workshop?new THREE.Color(0xd8deca):new THREE.Color().setRGB(.79,.85,.94),roughness:.78}));
   ground.rotation.x=-Math.PI/2;ground.position.y=-.915;ground.receiveShadow=true;scene.add(ground);
-  const controls=new OrbitControls(camera,canvas);controls.target.set(-.15,.65,-.15);
+  const handling=workshop?createWaferHandling():null;
+  let handlingState={completed:0,mode:'idle'};
+  const workshopRoom=workshop?createWorkshopRoom():null;
+  if(workshop){ground.visible=false;scene.add(workshopRoom,handling.group);}
+  const controls=new OrbitControls(camera,canvas);controls.target.set(-.15,workshop?.4:.65,-.15);
   controls.enablePan=false;controls.enableDamping=false;controls.rotateSpeed=.65;controls.zoomSpeed=.65;
   controls.minPolarAngle=.035;controls.maxPolarAngle=Math.PI*.49;
   controls.minZoom=.65;controls.maxZoom=3;
+  if(workshop){controls.minDistance=7;controls.maxDistance=30;controls.minPolarAngle=.22;controls.maxPolarAngle=Math.PI*.48;controls.minAzimuthAngle=-.95;controls.maxAzimuthAngle=.95;}
   controls.addEventListener('change',render);
   function customView(){host.dataset.view='custom';host.querySelectorAll('[data-scene-view]').forEach(b=>b.setAttribute('aria-pressed','false'));}
   const slice=new THREE.Plane(new THREE.Vector3(0,0,-1),.18);
@@ -166,27 +178,111 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
 
   const labelPoints={head:new THREE.Vector3(),wafer:new THREE.Vector3(),front:new THREE.Vector3(),pad:new THREE.Vector3(),slurry:new THREE.Vector3(-1.7,1.18,.95),conditioner:new THREE.Vector3(-3.58,1.47,-.74)};
   const labels=Object.entries(labelPoints).map(([name,point])=>({name,point,element:host.querySelector(`[data-scene-label="${name}"]`)}));
+  const workpieceControls=Array.from(host.querySelectorAll('[data-anchor]'), element=>({
+    element, point:handling.anchors[element.dataset.anchor],
+    hit:element.querySelector('.wafer-hit'), stamp:''
+  }));
   const projected=new THREE.Vector3();
+  const rimPoint=new THREE.Vector3(),carryPoint=new THREE.Vector3();
+  const lastLandingPoint=new THREE.Vector3();
+  let lastLandingTarget=null;
+  const carryPlane=new THREE.Plane(new THREE.Vector3(0,1,0),-.74);
+  function moveWorkpiece(position){
+    if(!handling || disposed || !ready || lost)return;
+    if(!position){handling.update(handlingState);render();return;}
+    if(position.settle){
+      if(position.target===lastLandingTarget && !matchMedia('(prefers-reduced-motion: reduce)').matches && handling.settle(lastLandingPoint)){
+        if(rackFrame===null){hoverStart=performance.now()-15;rackFrame=requestAnimationFrame(animateRack);}
+      }
+      lastLandingTarget=null;
+      return;
+    }
+    if(position.target){
+      const point=handling.anchors[{place:'platen',measure:'meter',store:'rack',discard:'reject'}[position.target]];
+      carryPoint.copy(point); // Seat the held wafer exactly where its ghost rests.
+      lastLandingPoint.copy(point);lastLandingTarget=position.target;
+    }else{
+      lastLandingTarget=null;
+      const r=canvas.getBoundingClientRect();
+      pointerNdc.set(2*(position.x+(position.offsetX||0)-r.left)/r.width-1,1-2*(position.y+(position.offsetY||0)-r.top)/r.height);
+      raycaster.setFromCamera(pointerNdc,camera);
+      if(!raycaster.ray.intersectPlane(carryPlane,carryPoint))return;
+      carryPoint.x=THREE.MathUtils.clamp(carryPoint.x,-9,9);
+      carryPoint.z=THREE.MathUtils.clamp(carryPoint.z,-7.5,4.4);
+    }
+    handling.carry(carryPoint,position.target,position.slot);
+    render();
+  }
   function render(){
     if(!ready||disposed||lost||!host.getClientRects().length)return;
     if(pointer&&performance.now()-lastPickTime>100)updateHover();
+    workshopRoom?.userData.updateCamera(camera);
     try{renderer.render(scene,camera);}catch{lost=true;unavailable();return;}
     const w=canvas.clientWidth,h=canvas.clientHeight;
+    let transferInView=['feed','result'].includes(handlingState.station);
+    const viewStamp=handling&&[w,h,...camera.matrixWorldInverse.elements,...camera.projectionMatrix.elements].join(',');
+    for(const control of workpieceControls){
+      const {element,point,hit}=control;
+      if(element.hidden || element.parentElement.hidden)continue;
+      projected.copy(point).project(camera);
+      element.classList.toggle('outside-view',projected.z>1 || Math.abs(projected.x)>.9 || Math.abs(projected.y)>.9);
+      if(element.dataset.anchor!=='port'){
+        if(element.classList.contains('outside-view') && element.parentElement.dataset.transferArea!=='rack')transferInView=false;
+        const extension=element.hasAttribute('data-slot')?handling.reach(Number(element.dataset.slot)):0;
+        const stamp=viewStamp+';'+[point.x,point.y,point.z,extension.toFixed(3)].join(',');
+        if(control.stamp===stamp)continue;
+        control.stamp=stamp;
+        // The screen controls are invisible. Project the same notched model rim
+        // used by the visible guides (including perspective and slot height).
+        let left=Infinity,right=-Infinity,top=Infinity,bottom=-Infinity;
+        // The fixed hit footprint stays on its shelf while the visible disc
+        // slides out, so a stationary pointer cannot oscillate between levels.
+        const pixels=handling.profile.map(v=>{
+          rimPoint.copy(v).add(point);
+          if(v.z>0)rimPoint.z+=extension;
+          rimPoint.project(camera);
+          const x=(1+rimPoint.x)*w/2,y=(1-rimPoint.y)*h/2;
+          left=Math.min(left,x);right=Math.max(right,x);
+          top=Math.min(top,y);bottom=Math.max(bottom,y);
+          return [x,y];
+        });
+        const width=Math.max(1,right-left),height=Math.max(1,bottom-top);
+        element.style.width=width+'px';element.style.height=height+'px';
+        element.style.left=(left+width/2)+'px';element.style.top=(top+height/2)+'px';
+        hit.style.clipPath='polygon('+pixels.map(([x,y])=>((x-left)*100/width).toFixed(2)+'% '+((y-top)*100/height).toFixed(2)+'%').join(',')+')';
+        continue;
+      }
+      element.style.left=(projected.x+1)*w/2+'px';
+      element.style.top=(1-projected.y)*h/2+'px';
+    }
+    if(handling)host.dataset.transferReady=String(transferInView);
     for(const {name,point,element} of labels){
-      projected.copy(point).project(camera);element.hidden=(name==='front'&&!cutaway)||projected.z>1||Math.abs(projected.x)>.90||Math.abs(projected.y)>.93;
+      projected.copy(point).project(camera);element.hidden=(workshop&&handlingState.mode!=='polish'&&['wafer','front'].includes(name))||(name==='front'&&!cutaway)||projected.z>1||Math.abs(projected.x)>.90||Math.abs(projected.y)>.93;
       element.style.left=`${(projected.x+1)/2*w}px`;element.style.top=`${(1-projected.y)/2*h}px`;
     }
   }
   function setView(view='perspective'){
-    const positions={perspective:[8.5,8.0,11.8],front:[0,3.2,14.2],top:[.01,15.5,.01]};if(!positions[view])return;
+    const positions=workshop?{feed:[-1.9,4.95,12.9],transfer:[4.45,7.4,18.3],bench:[1.65,6.7,19.3],perspective:[2.4,5.6,14.2],front:[0,4.1,14.6],top:[.01,15,.01],room:[3,4.6,25]}:{perspective:[8.5,8.0,11.8],front:[0,3.2,14.2],top:[.01,15.5,.01]};if(!positions[view])return;
+    if(workshop)controls.target.set(-.15,view==='room'?1.5:.4,view==='room'?-1.5:-.15);
+    if(view==='feed')controls.target.set(-1.95,.15,.45);
+    if(view==='transfer')controls.target.set(3.9,-1.12,2.15);
+    if(view==='bench')controls.target.set(1.25,-.80,1.8);
     clearPart(false);camera.position.set(...positions[view]);camera.zoom=1;camera.updateProjectionMatrix();
     controls.update();host.dataset.view=view;
-    host.querySelectorAll('[data-scene-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sceneView===view)));render();
+    host.querySelectorAll('[data-scene-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.sceneView===view)));resize();
   }
   function resize(){
     if(disposed)return;const w=canvas.clientWidth,h=canvas.clientHeight;if(!w||!h){clearPart(false);return;}
     renderer.setSize(w,h,false);const aspect=w/h,span=8.8*Math.max(1,1.28/aspect);
-    camera.left=-span*aspect/2;camera.right=span*aspect/2;camera.top=span/2;camera.bottom=-span/2;
+    if(workshop){
+      const closeUp=document.body.dataset.benchFocus==='true' &&
+        ['setup','playing'].includes(handlingState.station) && host.dataset.view!=='room';
+      // In portrait, frame the platen during polishing and the whole bench for transfers.
+      const frameWidth=closeUp?THREE.MathUtils.clamp(aspect,.75,1.58):1.58;
+      camera.aspect=aspect;
+      camera.fov=Math.max(32,THREE.MathUtils.radToDeg(2*Math.atan(Math.tan(THREE.MathUtils.degToRad(42)/2)*frameWidth/aspect)));
+    }
+    else{camera.left=-span*aspect/2;camera.right=span*aspect/2;camera.top=span/2;camera.bottom=-span/2;}
     camera.updateProjectionMatrix();controls.update();render();
   }
   function deformPad(depth,angle,baseHeight){
@@ -218,9 +314,10 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
     for(const name of ['CmpHeadAssembly','CmpRetainer','CmpWafer','CmpFilm'])roles[name].rotation.y=g.headRotation;
     roles.CmpFilm.position.set(.8,g.filmBottom,.18);roles.CmpFilm.scale.y=g.filmHeight;
     roles.CmpWafer.position.set(.8,g.waferBottom,.18);roles.CmpWafer.scale.y=g.waferHeight/.075;
-    roles.CmpHeadAssembly.position.set(.8,g.waferTop,.18);roles.CmpHeadAssembly.scale.y=.70;
-    roles.CmpRetainer.position.set(.8,g.filmBottom,.18);
-    const shaftBottom=g.waferTop+.955*.70,shaftHeight=Math.max(.08,2.42-shaftBottom);
+    const raised=workshop && ['feed','setup','result'].includes(handlingState.station) ? .55 : 0;
+    roles.CmpHeadAssembly.position.set(.8,g.waferTop+raised,.18);roles.CmpHeadAssembly.scale.y=.70;
+    roles.CmpRetainer.position.set(.8,g.filmBottom+raised,.18);
+    const shaftBottom=g.waferTop+raised+.955*.70,shaftHeight=Math.max(.08,2.42-shaftBottom);
     for(const name of ['CmpSpindle','CmpBellows']){
       roles[name].position.set(.8,shaftBottom+shaftHeight/2,.18);roles[name].scale.y=shaftHeight;
     }
@@ -232,7 +329,10 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
     const flow=frame?.slurryRatio ?? 1;
     liquid.scale.setScalar(Math.sqrt(flow));
     droplets.forEach((drop,i)=>{drop.visible=g.contacting;drop.scale.setScalar(Math.sqrt(flow));const t=((frame?frame.progress*18*flow:0)+i/14)%1;drop.position.set(-1.55+.014*Math.sin(i*2),.86-t*(.86-g.padRestTop),.95);});
-    sectionWafer.visible=sectionFilm.visible=cutaway;
+    const waferVisible=!workshop||handlingState.mode==='polish';
+    roles.CmpWafer.visible=roles.CmpFilm.visible=waferVisible;
+    sectionWafer.visible=sectionFilm.visible=cutaway&&waferVisible;
+    for(const name of ['wafer','front']){const label=host.querySelector(`[data-scene-label="${name}"]`);if(label)label.hidden=!waferVisible;}
     sectionWafer.position.set(.8,(g.waferTop+g.waferBottom)/2,.181);sectionWafer.scale.y=g.waferHeight;
     sectionFilm.position.set(.8,g.filmBottom+g.filmHeight/2,.182);sectionFilm.scale.y=g.filmHeight;
     labelPoints.head.set(1.87,g.waferTop+(cutaway?.95:.40),.15);labelPoints.wafer.set(.4,g.waferTop,cutaway?.18:1.60);
@@ -245,6 +345,7 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
   }
   function setCutaway(value){
     cutaway=value;host.dataset.cutaway=String(value);
+    if(handling){handlingState.padTop=model.geometry(null,{cutaway}).padTop;handling.update(handlingState);}
     [...headMaterials,...ringMaterials,...waferMaterials].forEach(m=>{m.clippingPlanes=value?[slice]:[];m.clipShadows=true;m.needsUpdate=true;});
     host.querySelector('#scene-scale-note').textContent=value
       ? '단면: 눌림·막 두께 확대 · 실측 배율 아님'
@@ -277,13 +378,15 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
   fallback.textContent='장비 모델을 불러오는 중입니다.';setView();resize();
   const raw=atob(modelBase64),bytes=new Uint8Array(raw.length);
   for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
-  new GLTFLoader().parseAsync(bytes.buffer,'').then(gltf=>{
+  Promise.all([new GLTFLoader().parseAsync(bytes.buffer,''),workshopRoom?.userData.ready]).then(([gltf,catalog])=>{
     if(disposed){releaseObject(gltf.scene);return;}
     asset=gltf.scene;roles={};
     for(const name of ['CmpStatic','CmpPadRotor','CmpPadSurface','CmpHeadAssembly','CmpHeadCover','CmpRetainer','CmpWafer','CmpFilm','CmpSpindle','CmpBellows']){
       roles[name]=asset.getObjectByName(name);if(!roles[name])throw new Error(`Missing model role: ${name}`);
     }
+    if(workshop){processFinish=createProcessFinish(asset,catalog);processFinish.update(appearance);host.dataset.catalogModel='blender-glb';}
     const studioMaterials={Housing_Powdercoat:[[.76,.82,.9],.12,.3],Brushed_Steel:[[.36,.44,.56],.72,.3],Machined_Aluminum:[[.67,.75,.87],.68,.25],Anodized_Blue:[[.016,.16,.61],.48,.27],Pad_Polyurethane:[[.19,.24,.32],.02,.86],Silicon_Back:[[.13,.22,.37],.7,.19]};
+    if(workshop){studioMaterials.Housing_Powdercoat=[[.88,.86,.71],.08,.6];studioMaterials.Anodized_Blue=[[.25,.43,.32],.25,.46];}
     const seen=new Set();asset.traverse(o=>{
       if(!o.isMesh)return;o.castShadow=true;o.receiveShadow=true;pickMeshes.push(o);
       if(!o.geometry.getAttribute('_cmp_part'))throw new Error('Missing semantic part attribute');
@@ -297,7 +400,7 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
     });
     roles.CmpWafer.traverse(o=>{if(o.isMesh)uvProject(o,1.15);});
     roles.CmpFilm.traverse(o=>{if(o.isMesh)uvProject(o,1.15);});
-    roles.CmpPadSurface.traverse(o=>{
+    for(const surface of [roles.CmpPadSurface,...(processFinish?.padRoots||[])])surface.traverse(o=>{
       if(!o.isMesh)return;uvProject(o,3.2);
       o.geometry.boundingBox=null;o.geometry.computeBoundingSphere();o.geometry.boundingSphere.radius+=.3;
       padMeshes.push({mesh:o,positions:o.geometry.attributes.position.array.slice(),normals:o.geometry.attributes.normal.array.slice()});
@@ -322,18 +425,43 @@ export function create({host,canvas,fallback,detail,onUnavailable}) {
     if(!lost){fallback.hidden=true;host.querySelector('.scene-labels').hidden=false;}
     setTransparent(transparent);setCutaway(cutaway);setFrame(lastFrame);resize();
   }).catch(()=>{if(!disposed){host.dataset.model='failed';ready=false;unavailable();}});
+  let rackFrame=null,hoverStart=0;
+  function animateRack(t){
+    rackFrame=null;
+    if(disposed||lost||!handling)return;
+    const delta=Math.max(0,Math.min(50,t-hoverStart));
+    const factor=1-Math.exp(-delta/48);
+    hoverStart=t;
+    const hovering=handling.animateHover(factor),seating=handling.animateSeating(delta);
+    render();
+    if(hovering||seating)rackFrame=requestAnimationFrame(animateRack);
+  }
+  function hoverSlot(slot){
+    if(!handling||disposed||lost)return;
+    handling.hoverSlot(slot);
+    if(rackFrame===null){
+      hoverStart=performance.now()-15;
+      rackFrame=requestAnimationFrame(animateRack);
+    }
+  }
   return {
-    setFrame,setView,setTransparent,setCutaway,resize,zoom,
+    hoverSlot,setFrame,setView,setTransparent,setCutaway,resize,zoom,moveWorkpiece,
+    setAppearance(next){appearance={...next};workshopRoom?.userData.setAppearance(next);processFinish?.update(next);host.dataset.equipment=`pad:${next.pad||0},care:${next.care||0},endpoint:${next.endpoint||0}`;render();},
+    setHandling(next){if(!handling)return;
+      const changeStation=next.station!==handlingState.station || (next.station==='feed'&&!!next.completed!==!!handlingState.completed);
+      next.padTop=model.geometry(null,{cutaway}).padTop;
+      handlingState=next;handling.update(next);
+      if(changeStation)setView(({feed:next.completed?'bench':'feed',result:'transfer'})[next.station]||'perspective');host.dataset.handling=next.frame?.phase||next.mode;setFrame(lastFrame);},
     setState(next){host.dataset.playback=next;},
     dispose(){
-      disposed=true;observer.disconnect();controls.dispose();canvas.removeEventListener('keydown',keydown);
+      disposed=true;if(rackFrame!==null)cancelAnimationFrame(rackFrame);observer.disconnect();controls.dispose();canvas.removeEventListener('keydown',keydown);
       if(hoverFrame!==null)cancelAnimationFrame(hoverFrame);
       canvas.removeEventListener('pointermove',pointerMove);canvas.removeEventListener('pointerdown',pointerDown);canvas.removeEventListener('pointerup',pointerUp);
       canvas.removeEventListener('pointercancel',pointerCancel);canvas.removeEventListener('pointerleave',pointerLeave);
       tip.removeEventListener('pointerleave',tipLeave);host.querySelector('#scene-part-close').removeEventListener('click',closePart);
       partSelect.removeEventListener('change',choosePart);document.removeEventListener('keydown',dismissPart);document.removeEventListener('visibilitychange',documentHidden);
       canvas.removeEventListener('webglcontextlost',contextLost);canvas.removeEventListener('webglcontextrestored',contextRestored);
-      releaseObject(scene);textures.forEach(t=>t.dispose());environment.dispose();renderer.dispose();
+      workshopRoom?.userData.disposeTextures();processFinish?.dispose();releaseObject(scene);textures.forEach(t=>t.dispose());environment.dispose();renderer.dispose();
     }
   };
 }

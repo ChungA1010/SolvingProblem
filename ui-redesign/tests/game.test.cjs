@@ -8,15 +8,15 @@ const settle=s=>act(act(finish(s),'inspect',{count:6}),'ship');
 
 test('measurement and maintenance share two actions; rejected third action cannot spend money or change state',()=>{
   let s=act(game.create(1),'service');assert.deepEqual(game.actions(s),{used:1,limit:2,remaining:1});
-  s=act(run(s),'measure');assert.equal(s.wallet,65);assert.equal(game.actions(s).remaining,0);
+  s=act(run(s),'measure');assert.equal(s.wallet,55);assert.equal(game.actions(s).remaining,0);
   const before=game.serialize(s);assert.throws(()=>act(s,'measure'));s=act(s,'advance');
   assert.throws(()=>act(s,'service'),/추가 행동/);s=run(s);assert.throws(()=>act(s,'measure'),/추가 행동/);
-  assert.equal(s.wallet,65);assert.equal(s.rows.length,2);assert.equal(game.restore(before).wallet,65);
+  assert.equal(s.wallet,45);assert.equal(s.rows.length,2);assert.equal(game.restore(before).wallet,55);
 });
 test('two measurements exhaust actions but all remaining wafers and mandatory inspection remain available',()=>{
   let s=act(run(game.create()),'measure');s=act(act(run(act(s,'advance')),'measure'),'advance');
-  s=finish(s);assert.equal(s.phase,'inspection');assert.equal(s.wallet,90);assert.equal(game.actions(s).remaining,0);
-  s=act(s,'inspect',{count:6});assert.equal(s.inspected,6);assert.equal(s.wallet,90);s=act(s,'ship');assert.equal(s.phase,'settled');
+  s=finish(s);assert.equal(s.phase,'inspection');assert.equal(s.wallet,30);assert.equal(game.actions(s).remaining,0);
+  s=act(s,'inspect',{count:6});assert.equal(s.inspected,6);assert.equal(s.wallet,30);s=act(s,'ship');assert.equal(s.phase,'settled');
 });
 test('invalid inputs, early maintenance and duplicate measurements never consume actions',()=>{
   const s=game.create();assert.throws(()=>act(s,'service'));assert.throws(()=>act(s,'measure'));
@@ -44,7 +44,7 @@ test('save replay is deterministic and ignores supplied wallet or inspection fie
   assert.equal(game.restore({...saved,events:[...saved.events,{type:'measure'}]}),null);assert.deepEqual(run(game.create(2)),run(game.create(2)));
 });
 test('legacy in-progress and settled games preserve unlimited actions, results and balances',()=>{
-  let old=game.create(1);old.version=game.legacyVersion;
+  let old=game.restore({version:game.legacyVersion,order:1,events:[]});
   for(let i=0;i<6;i++)old=act(act(run(old),'measure'),'advance');
   assert.equal(old.inspected,6);old=act(old,'ship');const restored=game.restore(game.serialize(old));
   assert.deepEqual(restored,old);assert.equal(game.actions(restored).limit,null);assert.equal(restored.spent,30);

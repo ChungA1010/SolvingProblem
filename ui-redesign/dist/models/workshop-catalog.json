@@ -1,0 +1,70 @@
+{
+  "authoring": "4.5.15 LTS",
+  "assets": {
+    "pad-1": {
+      "node": "shop_pad_1",
+      "source": "model-source/workshop-catalog/pad-1.blend",
+      "sha256": "e01cb3494d4a5aa769c6feb6903e70d0fc60dcdaea30a194d3a5c372252bd0cc"
+    },
+    "pad-2": {
+      "node": "shop_pad_2",
+      "source": "model-source/workshop-catalog/pad-2.blend",
+      "sha256": "9ffd5ac2669820041c156f72a8c873ebb272dfc5619b284cbbe89892397533a3"
+    },
+    "care-1": {
+      "node": "shop_care_1",
+      "source": "model-source/workshop-catalog/care-1.blend",
+      "sha256": "3919bfc84dc874260d8bdca1f5e2a085e68ee15ad984652e6280adaf33886bd4"
+    },
+    "care-2": {
+      "node": "shop_care_2",
+      "source": "model-source/workshop-catalog/care-2.blend",
+      "sha256": "74d3c40308b7ca2b1975d0b8de22bcdf7d8d342e20446a8c1a7f4c79e737f5cd"
+    },
+    "endpoint-1": {
+      "node": "shop_endpoint_1",
+      "source": "model-source/workshop-catalog/endpoint-1.blend",
+      "sha256": "4213e00e84e0f67a3939de04f7a4ad886304196e2ab50cbf41c68958d80c867a"
+    },
+    "endpoint-2": {
+      "node": "shop_endpoint_2",
+      "source": "model-source/workshop-catalog/endpoint-2.blend",
+      "sha256": "509f7a41470d0faebff01b0882234591bbbf0f6443f6090532e8ca7634539e0d"
+    },
+    "task_lamp": {
+      "node": "shop_task_lamp",
+      "source": "model-source/workshop-catalog/task_lamp.blend",
+      "sha256": "223af9620e62000836cf051f2caed9f20321f7f44d36777bc4a50da1aad5b0ed"
+    },
+    "storage_cabinet": {
+      "node": "shop_storage_cabinet",
+      "source": "model-source/workshop-catalog/storage_cabinet.blend",
+      "sha256": "454fb1f9ed776eee16fd105315f51f6d842b872154cfbdd57b75e1d7c28a51a1"
+    },
+    "note_board": {
+      "node": "shop_note_board",
+      "source": "model-source/workshop-catalog/note_board.blend",
+      "sha256": "e600baf5f9bfff9dd83d4f80be0cb99335861be108d5772bad83275d871af563"
+    },
+    "environment": {
+      "node": "shop_environment",
+      "source": "model-source/workshop-catalog/environment.blend",
+      "sha256": "51d3b9ee0e9bdbf852a690e805eb41e47b1566a754d59c9ef26238752d564101"
+    },
+    "floor_plant": {
+      "node": "shop_floor_plant",
+      "source": "model-source/workshop-catalog/floor_plant.blend",
+      "sha256": "1cc1ec25cb7a3c33392dcce2d4ebbd218eacc2d96cdfa2cd3be8989f5a6a72f3"
+    },
+    "wall_clock": {
+      "node": "shop_wall_clock",
+      "source": "model-source/workshop-catalog/wall_clock.blend",
+      "sha256": "9aa480665b93e50801c75407fca2c6642cd45d05d49f998b740d06d0a3480d41"
+    },
+    "wall_shelf": {
+      "node": "shop_wall_shelf",
+      "source": "model-source/workshop-catalog/wall_shelf.blend",
+      "sha256": "01c51a045821a5bc084cceb80b4a1c680d9cbcf15983196903c359779bb719a9"
+    }
+  }
+}

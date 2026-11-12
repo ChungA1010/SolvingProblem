@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-12",
+  "verification": "native-browser interaction and Node model/VM tests",
+  "automated_tests": 198,
+  "browser_url": "http://127.0.0.1:8566/game.html",
+  "browser_checks": [
+    "real pointer drag input/pad/meter/storage/recall/floor discard/customer delivery",
+    "hidden result hover and free review",
+    "invalid pressure blocks run",
+    "quoted cost 12P versus Slurry C 150% 14P",
+    "measurement debit and reload remain 83P",
+    "customer 1: 3 good wafers; 100 - 36 - 5 + 300 = 359P",
+    "customer 2: maintenance and failed/discarded wafer; 359 - 30 - 13 = 316P",
+    "customer 3: 1 good wafer; 316 - 12 + 100 = 404P",
+    "three-customer day closing; total sales 400P / costs 96P / profit 304P",
+    "pad purchase 240P leaves 164P; next day and reload preserve balance",
+    "next accepted order applies pad x1.10 and recommended duration 99 seconds",
+    "mute preference survives reload",
+    "390x844 visual check; 320x568 no horizontal overflow and all inputs/run inside viewport",
+    "browser console errors empty"
+  ],
+  "legacy_check": "pre-change in-progress v6 restored and retained 10P quote",
+  "limits": [
+    "Synthetic audio scheduling/mute/failure isolation verified by VM and browser controls; subjective speaker volume/timbre not evaluated.",
+    "No real CMP economic calibration is claimed."
+  ]
+}

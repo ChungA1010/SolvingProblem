@@ -1,0 +1,89 @@
+/* Persistent action rail, with readable controls and an optional hands-on guide. */
+.factory #work-screen,.factory #result-screen{animation:none;transform:none}
+.factory .workshop-room{padding-bottom:110px}
+.factory .workshop .bench-toolbar{position:sticky;top:0;z-index:12;background:#d9dfcc;border-bottom:1px solid #a8b69a}
+.factory .workshop[data-mode=setup] #bench-target{display:inline}
+.factory .workshop .workshop-grid{grid-template-columns:minmax(0,1fr) 320px}
+.factory .workshop .workshop-controls:not([hidden]){grid-template-areas:'monitor' 'variables';overflow:visible}
+.factory .workshop .console-monitor{border-radius:12px 12px 0 0}
+.factory .condition-drawer{grid-area:variables;background:#e7e7d2;border-radius:0 0 12px 12px;color:#354b3d}
+.factory .condition-drawer>summary{padding:15px;cursor:pointer;font-size:13px;font-weight:700;list-style:none}
+.factory .condition-drawer>summary:before{content:'+';display:inline-block;width:20px}
+.factory .condition-drawer[open]>summary:before{content:'−'}
+.factory .condition-drawer>summary span{font-size:11px;font-weight:500;margin-left:10px;color:#62725b}
+.factory .condition-drawer .workshop-variables{border-top:1px solid #bdc6ae;border-radius:0;margin:0;min-width:0}
+.factory .condition-drawer legend{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.factory .workshop .workshop-variable label{font-size:12px}
+.factory .workshop .workshop-variable>small{font-size:11px}
+.factory .workshop .workshop-variable input[type=number]{min-height:44px}
+.factory .workshop .workshop-variable input[type=range]{height:24px}
+.factory .workshop .workshop-estimate p,.factory .workshop #measurement-age,.factory .workshop .endpoint-control small{font-size:11px;line-height:1.6}
+.factory .workshop .endpoint-control label{font-size:12px}
+.factory .endpoint-control strong{display:block;font-size:12px;margin-top:8px;color:#fff1ba}
+.factory .endpoint-control[data-ready=true] strong{color:#def5cb}
+.factory .workshop .action-dock{position:fixed;inset:auto 0 0;z-index:45;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;gap:12px;margin:0;padding:13px max(20px,env(safe-area-inset-right)) calc(13px + env(safe-area-inset-bottom));background:#f6f3e7f5;backdrop-filter:blur(14px);border:0;border-top:1px solid #9eac91;box-shadow:0 -5px 24px #30452b12;color:#344c3b;max-height:40dvh;overflow:auto}
+.factory .workshop .action-dock button{flex-shrink:0;min-height:48px;font-size:13px}
+.factory .workshop #process{width:auto;min-width:300px;min-height:48px;font-size:14px}
+.factory .dock-summary{display:grid;grid-template-columns:auto auto;gap:3px 20px;margin-right:auto;flex-shrink:0}
+.factory .dock-summary span{font-size:12px}.factory .dock-summary strong{font-size:16px;font-variant-numeric:tabular-nums}
+.factory .dock-summary small{grid-column:1/-1;font-size:11px;color:#68775e}
+.factory .dock-result-label{margin-right:auto;font-size:13px;font-weight:650}
+.factory .workshop #game-error{font-size:12px;max-width:380px;color:#86551f;background:#fff0d2;padding:9px;border-radius:8px;margin:0}
+.factory .workshop #shift-note{font-size:11px;max-width:200px;margin:0}
+.factory .first-order-guide{display:flex;align-items:center;gap:18px;margin:12px 16px 0;padding:14px 18px;border:1px solid #b7bf96;border-radius:12px;background:#f8f5df;color:#3c533b}
+.factory .first-order-guide[hidden]{display:none}
+.factory .guide-progress{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.factory .guide-progress b{display:grid;place-items:center;width:25px;height:25px;border:1px solid #bec7a5;border-radius:50%;font-size:12px;color:#788567}
+.factory .guide-progress b[data-current=true]{background:#4f7255;border-color:#4f7255;color:white}
+.factory .guide-progress i{width:10px;border-top:1px solid #bcc7a5}
+.factory .guide-copy{flex:1}.factory .guide-copy>span{font-size:10px;font-weight:700;color:#74835e}
+.factory .guide-copy h3{font-size:14px;margin:2px 0 4px;font-weight:750}.factory .guide-copy p{font-size:12px;line-height:1.65;max-width:80ch}
+.factory #guide-focus{font-size:12px;min-height:40px}.factory #guide-dismiss{font-size:11px}
+.factory [data-guide-target=true]{outline:2px solid #c3a555;outline-offset:4px;scroll-margin-block:160px}
+.factory .debrief-evidence{display:grid;gap:12px;margin-top:12px}
+.factory .debrief-evidence section{padding:14px 16px;background:#f0f2e7;border-radius:10px}
+.factory .debrief-evidence h3{font-size:12px;font-weight:750;color:#52664b;margin:0 0 5px}
+.factory .debrief-evidence p{font-size:13px;margin:0!important;line-height:1.8;max-width:90ch}
+.factory .workshop button:focus-visible,.factory .workshop summary:focus-visible{outline:3px solid #aa8443;outline-offset:3px}
+.factory .workshop #process:disabled{cursor:not-allowed;background:#8d9a8d;color:#f3f3e9;box-shadow:none}
+@media(min-width:1101px){
+ .factory .workshop .scene-viewport{height:clamp(360px,calc(100dvh - 260px),650px)}
+ .factory .workshop:has(.first-order-guide:not([hidden])) .scene-viewport{height:clamp(300px,calc(100dvh - 375px),570px)}
+}
+@media(max-width:1100px),(max-aspect-ratio:6/5){
+ .factory .workshop .workshop-grid{grid-template-columns:minmax(0,1fr)}
+ .factory .workshop .workshop-controls:not([hidden]){grid-template-columns:minmax(0,1fr);grid-template-areas:'monitor' 'variables'}
+ .factory .workshop .workshop-controls>.console-monitor{grid-row:auto}
+ .factory .first-order-guide{flex-wrap:wrap;gap:10px}.factory .guide-copy{min-width:55%}
+ .factory .workshop .scene-viewport{height:360px}
+}
+@media(max-width:600px){
+ .factory .workshop[data-mode=setup] .workshop-grid,.factory .workshop[data-mode=result] .workshop-grid{grid-template-areas:'monitor' 'machine' 'brief'}
+ .factory .workshop-room{padding-bottom:150px}
+ .factory .workshop .bench-toolbar{gap:6px;padding:8px 10px}
+ .factory .workshop .bench-toolbar h2{font-size:15px}.factory .bench-status{font-size:11px}
+ .factory .workshop .bench-menu{gap:5px}.factory .workshop .bench-menu button{min-height:36px;font-size:11px}
+ .factory .workshop .scene-viewport{height:245px;min-height:0}
+ .factory .workshop[data-mode=playing] .scene-viewport{height:340px}
+ .factory .workshop .machine-wear{padding:7px 10px;grid-template-columns:1fr 1fr auto;gap:7px}
+ .factory .workshop .machine-wear button{grid-column:auto;min-height:40px;max-width:100px;font-size:10px}
+ .factory .workshop .scene-view-buttons button{padding:6px 9px;min-height:32px}
+ .factory .first-order-guide{margin:8px 8px 0;padding:10px 12px;gap:7px 12px}
+ .factory .guide-progress{display:none}.factory .guide-copy{flex-basis:100%}
+ .factory .guide-copy p{font-size:12px}.factory .guide-copy h3{font-size:14px}
+ .factory #guide-focus{padding:6px 10px;min-height:34px}.factory #guide-dismiss{margin-left:auto;min-height:34px}
+ .factory .workshop .console-monitor{padding:12px 14px 8px}
+ .factory .workshop .workshop-target{padding-bottom:5px;margin-bottom:7px}
+ .factory .workshop .workshop-estimate{padding:8px 10px;margin-top:7px}
+ .factory .workshop .action-dock{flex-wrap:wrap;gap:7px 10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}
+ .factory .dock-summary{width:100%;gap:2px 8px;grid-template-columns:1fr auto}
+ .factory .dock-summary span{font-size:11px}.factory .dock-summary small{font-size:10px}
+ .factory .workshop #process{width:100%;min-width:0;min-height:46px}
+ .factory .workshop #game-error{width:100%;max-width:none;font-size:11px;padding:5px}
+ .factory .workshop #shift-note{display:none}
+ .factory .dock-result-label{flex-basis:100%;font-size:12px}
+ .factory .workshop .result-actions>button:not(.game-link){flex:1;min-width:0;padding:8px;font-size:11px;min-height:46px}
+ .factory .workshop .result-actions .game-link{font-size:11px;min-height:28px;margin:auto}
+ .factory .workshop .condition-drawer .workshop-variables{padding:12px 14px}
+ .factory .workshop .measurement-card{padding:14px}
+}

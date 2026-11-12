@@ -1,6 +1,12 @@
 /* Presentation only. No campaign events, random outcomes or economic effects. */
 (function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.CMPShop=api;})(globalThis,function(){
   'use strict';
+  const portraits=Object.freeze({research:'seoyun',startup:'dohyeon',production:'minjae',lee:'lee',jensen:'jensen'});
+  function artwork(customer,mood='neutral'){
+    const person=portraits[customer]||portraits.research;
+    const expression=mood==='retry'?2:['delighted','accepted'].includes(mood)?1:0;
+    return {src:`./media/counter-art/${person}-expressions.png`,position:`${expression*50}% 0`,label:['기본','만족','아쉬움'][expression]};
+  }
   function lines(text){return String(text||'').match(/.+?(?:[.!?。！？](?=\s|$)|$)/gs)?.map(s=>s.trim()).filter(Boolean)||[''];}
   function create({schedule=setTimeout,cancel=clearTimeout,onChange=()=>{}}={}){
     let key=null,timer=null,epoch=0,current={visible:false,phase:'hidden',index:0,lines:[''],mood:'neutral'};
@@ -17,5 +23,5 @@
     function leave(){stop();key=null;current.visible=false;current.phase='hidden';publish();}
     return Object.freeze({enter,say,next,ready,leave,destroy:stop});
   }
-  return Object.freeze({lines,create});
+  return Object.freeze({lines,create,artwork});
 });

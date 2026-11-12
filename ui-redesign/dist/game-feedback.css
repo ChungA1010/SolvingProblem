@@ -1,0 +1,31 @@
+/* Feedback lives on the held object, never in a persistent tutorial overlay. */
+.factory[data-carrying] { cursor: grabbing; }
+.factory[data-carrying] .pickup { cursor: grabbing; }
+.transfer-ghost {
+  scale: 1.045;
+  rotate: -1.5deg;
+  filter: drop-shadow(0 14px 7px #243a2845);
+  transition: scale 140ms ease-out, rotate 140ms ease-out, filter 140ms ease-out;
+}
+.transfer-ghost.over-landing {
+  scale: 1;
+  rotate: 0deg;
+  filter: drop-shadow(0 3px 2px #243a2845);
+}
+.factory .pickup.returned-piece > .piece { animation: piece-return 160ms ease-out; }
+.factory .receiver.seated-piece > :is(.meter-art, .slot-art, .pad-art) {
+  animation: receiver-seat 180ms ease-out;
+}
+@keyframes piece-return {
+  from { transform: translateY(-5px) rotate(-1deg); }
+  to { transform: none; }
+}
+@keyframes receiver-seat {
+  30% { transform: translateY(2px); }
+  to { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .transfer-ghost, .transfer-ghost.over-landing { transition: none; scale: 1; rotate: 0deg; }
+  .factory .pickup.returned-piece > .piece,
+  .factory .receiver.seated-piece > :is(.meter-art, .slot-art, .pad-art) { animation: none; }
+}

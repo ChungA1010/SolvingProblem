@@ -50,7 +50,7 @@
       if (!visible(item.el)) { item.player.finish(); return; }
       if (item.pending !== undefined) {
         const from = item.pending; item.pending = undefined;
-        item.player.set(item.target, {from, immediate: preference.matches || item.scientific});
+        item.player.set(item.target, {from, immediate: item.options.immediate || preference.matches || item.scientific});
       }
     }
     function set(el, value, options = {}) {
@@ -81,7 +81,7 @@
       item.target = value;
       if (changed) {
         item.pending = visible(el) ? undefined : (item.pending ?? previous ?? 0);
-        item.player.set(value, {immediate: !visible(el) || preference.matches || item.scientific});
+        item.player.set(value, {immediate: item.options.immediate || !visible(el) || preference.matches || item.scientific});
       } else if (formatChanged) item.player.finish();
       reveal(item);
     }
