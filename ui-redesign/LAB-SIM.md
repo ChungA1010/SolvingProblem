@@ -32,7 +32,16 @@ npm run preview   # http://127.0.0.1:8510/lab-sim.html
 | `tools/lab_sim/evaluate.py` | 개발 fold 평가와 채택 규칙 판정 → `runs/lab_sim_state_model_v2/REPORT.md` |
 | `dist/lab-sim/state-model.js` | 브라우저 모델. Python과 1e-9 이내 일치(테스트) |
 | `dist/lab-sim/sim-engine.js` | 화면 없는 엔진: 레시피 단계 타임라인, 계측 대기열, 제거량·규격, 과제 |
-| `dist/lab-sim/sim-view.js`, `lab-sim.css` | 장비 콘솔 화면, 도식 애니메이션, 게이지, 추세, 관리도, 결과 창 |
+| `dist/lab-sim/sim-view.js`, `lab-sim.css` | 화면: 팀 3D 연마부 구동, 단계 안내, 운전 메뉴, 결과 영역, 결과 창 |
+
+## 화면 구성
+
+CMP Lab 디자인 토큰(밝은 배경, 흰 카드, `#0d6efd`)을 따른다.
+
+- **위:** 4단계 안내(연마 시간 정하기 → 연마 진행 → 계측 결정 → 결과 확인)와 "지금 할 일" 문구
+- **가운데:** 팀 3D 연마부(`cmp-scene.js`, `scene-model.js`, `scene-parts.js`)를 그대로 불러온다. 실제 센서 기록으로 접근·접촉·분리, 패드·헤드 회전, 압력에 따른 패드 압축, 슬러리 유량을 구동한다. 팀 파일은 수정하지 않는다. WebGL을 쓸 수 없으면 2D 도식으로 대체한다.
+- **오른쪽 메뉴:** [운전] 예측과 연마 시간·종료 시간 조정·계측 결정, [계측 설정] 계측 주기·결과 도착·대기열, [과제 안내]
+- **아래 결과:** 실시간 공정 데이터(게이지·압력 추세), 예측 상세, 장비 상태·알람, 관리도, 운전 기록
 
 ## 모델 (상태 추적 v2)
 

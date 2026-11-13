@@ -3,203 +3,240 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="description" content="PHM 2016 실제 운전 기록을 재생하는 CMP 연마 장비 운영 시뮬레이터. 상태 추적 모델로 MRR을 예측하고 연마 시간과 계측을 결정합니다.">
-  <title>CMP 연마 장비 시뮬레이터</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='12' fill='%230b1016'/%3E%3Ccircle cx='24' cy='24' r='15' fill='none' stroke='%2338bdf8' stroke-width='3'/%3E%3Ccircle cx='30' cy='20' r='6' fill='%2338bdf8'/%3E%3C/svg%3E">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="PHM 2016 실제 운전 기록을 재생하는 CMP 연마 장비 시뮬레이터. 3D 연마부를 보며 연마 시간과 계측을 결정합니다.">
+  <title>CMP Lab — 연마 장비 시뮬레이터</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='14' fill='%230d6efd'/%3E%3Ccircle cx='24' cy='24' r='15' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='30' cy='20' r='6' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./lab-sim/lab-sim.css">
+  <!-- Team 3D polishing unit (built from src/cmp-scene.js); this page only drives it with replayed sensor values. -->
+  <script src="./scene-model.js" defer></script>
+  <script src="./scene-parts.js" defer></script>
+  <script src="./cmp-scene.js" defer></script>
   <script src="./lab-sim/state-model.js" defer></script>
   <script src="./lab-sim/sim-engine.js" defer></script>
   <script src="./lab-sim/sim-view.js" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="13"/><circle cx="20" cy="13" r="4.5"/></svg>
-      <div>
-        <strong>CMP-04 · 연마 장비 시뮬레이터</strong>
-        <span>PHM 2016 실제 운전 기록 재생 · 상태 추적 모델 v2</span>
-      </div>
+    <a class="back" href="./index.html" aria-label="CMP Lab 홈으로">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>CMP Lab</span>
+    </a>
+    <div class="title">
+      <h1>연마 장비 시뮬레이터</h1>
+      <p>실제 운전 기록(PHM 2016) 재생 · 상태 추적 모델 v2</p>
     </div>
-    <div class="status-strip" aria-label="장비 상태 요약">
-      <div class="chip state" id="tool-state" data-state="idle"><i class="led" aria-hidden="true"></i><span>대기</span></div>
-      <div class="chip clock"><span class="k">운전 시각</span><b id="sim-clock">D+0 00:00:00</b></div>
-      <div class="chip lot"><span class="k">진행</span><b id="lot-progress">—</b><span class="bar" aria-hidden="true"><i id="lot-bar"></i></span></div>
-      <div class="chip task"><span class="k">과제</span><b id="task-name">—</b></div>
+    <div class="status" aria-label="장비 상태 요약">
+      <span class="state-badge" id="tool-state" data-state="idle"><i class="led" aria-hidden="true"></i><span>대기</span></span>
+      <span class="meta"><span>운전 시각</span><b id="sim-clock">—</b></span>
+      <span class="meta lot"><span>진행</span><b id="lot-progress">—</b><span class="bar" aria-hidden="true"><i id="lot-bar"></i></span></span>
     </div>
-    <div class="controls">
-      <div class="seg" role="group" aria-label="재생 속도" id="speed">
-        <button type="button" data-speed="1">1×</button>
-        <button type="button" data-speed="4">4×</button>
-        <button type="button" data-speed="8" aria-pressed="true">8×</button>
-        <button type="button" data-speed="32">32×</button>
-        <button type="button" data-speed="128">128×</button>
-      </div>
-      <button type="button" class="btn ghost" id="pause" aria-pressed="false">일시정지</button>
-      <button type="button" class="btn ghost" id="skip" title="현재 웨이퍼 공정을 끝까지 진행">공정 건너뛰기</button>
-      <label class="switch"><input type="checkbox" id="auto-mode"><span>자동 R2R</span></label>
-      <button type="button" class="btn" id="open-tasks">과제 선택</button>
-    </div>
+    <button type="button" class="secondary-button" id="open-tasks">과제 선택</button>
   </header>
 
-  <main class="console" id="console">
-    <section class="col col-left" aria-label="장비 상태와 이벤트">
-      <article class="panel">
-        <h2>장비 상태</h2>
-        <dl class="kv">
-          <div><dt>패드 사용량 <em class="src data">기록</em></dt><dd><b id="pad-usage">—</b><span class="meter"><i id="pad-meter"></i></span></dd></div>
-          <div><dt>드레서 사용량 <em class="src data">기록</em></dt><dd><b id="dresser-usage">—</b></dd></div>
-          <div><dt>패드 교체 후</dt><dd><b id="since-pad">—</b></dd></div>
-          <div><dt>직전 유휴</dt><dd><b id="idle-time">—</b></dd></div>
-        </dl>
-      </article>
-      <article class="panel">
-        <h2>상태 추정 <small>R2R · 칼만</small></h2>
-        <div class="state-est" id="state-est"></div>
-        <p class="hint">같은 레시피의 측정 결과로 장비의 "정상 압력 기준 제거 속도"를 추적합니다. 측정이 없으면 불확실성이 커집니다.</p>
-      </article>
-      <article class="panel grow">
-        <h2>알람 · 이벤트</h2>
-        <ol class="log" id="event-log" aria-live="polite"></ol>
-      </article>
-    </section>
+  <main class="page">
+    <section class="card sim" aria-label="시뮬레이터">
+      <div class="guide">
+        <ol class="guide-steps" id="guide-steps" aria-label="운전 순서">
+          <li data-step="ready"><span>1</span>연마 시간 정하기</li>
+          <li data-step="run"><span>2</span>연마 진행</li>
+          <li data-step="decide"><span>3</span>계측 결정</li>
+          <li data-step="done"><span>4</span>결과 확인</li>
+        </ol>
+        <p class="guide-text" id="guide-text" aria-live="polite">‘과제 선택’에서 과제를 고르면 운전이 시작됩니다.</p>
+        <span class="badge badge-blue" id="task-name">과제 없음</span>
+      </div>
 
-    <section class="col col-center" aria-label="공정 화면">
-      <article class="panel process">
-        <div class="process-head">
-          <h2>공정 화면 <small id="process-wafer">—</small></h2>
-          <ol class="steps" id="steps" aria-label="레시피 단계">
-            <li data-phase="load">로딩</li><li data-phase="pressurize">가압</li><li data-phase="polish">본 연마</li><li data-phase="rinse">린스</li><li data-phase="unload">언로딩</li>
-          </ol>
-        </div>
-        <div class="machine-wrap">
-          <svg class="machine" id="machine" viewBox="0 0 560 360" role="img" aria-label="연마 장비 상단 도식">
+      <div class="sim-grid">
+        <div class="stage">
+          <section id="cmp-scene" class="cmp-scene" aria-label="입체 CMP 연마부" data-renderer="pending">
+            <div class="scene-viewport">
+              <canvas id="cmp-canvas" tabindex="0" role="img" aria-label="회전 가능한 CMP 연마부. 실제 운전 기록의 압력·회전·슬러리 값으로 움직입니다." aria-describedby="scene-help scene-scale-note scene-part-title scene-part-description"></canvas>
+              <div class="scene-labels" aria-hidden="true"><span data-scene-label="head">가압 헤드</span><span data-scene-label="wafer">웨이퍼 뒷면 ↑</span><span data-scene-label="front">앞면 · 연마층 ↓</span><span data-scene-label="pad">연마 패드</span><span data-scene-label="slurry">슬러리 공급</span><span data-scene-label="conditioner">컨디셔너</span></div>
+              <aside id="scene-part-tip" class="scene-part-tip" aria-label="부품 역할 설명" hidden><div class="scene-part-tip-heading"><span>부품 안내</span><button id="scene-part-close" type="button" aria-label="부품 설명 닫기">×</button></div><h4 id="scene-part-title"></h4><p id="scene-part-description" role="status" aria-live="polite"></p></aside>
+              <p id="scene-fallback" class="scene-fallback" role="status">입체 장비를 준비하고 있습니다.</p>
+              <div class="hud">
+                <div class="hud-main"><b id="machine-phase">대기</b><span id="machine-sub">과제를 선택하세요</span></div>
+                <ol class="steps" id="steps" aria-label="레시피 단계">
+                  <li data-phase="load">로딩</li><li data-phase="pressurize">가압</li><li data-phase="polish">본 연마</li><li data-phase="rinse">린스</li><li data-phase="unload">언로딩</li>
+                </ol>
+              </div>
+              <div class="hud-alarm" id="hud-alarm" role="alert" hidden></div>
+              <div class="hud-removal" aria-label="예상 누적 제거량">
+                <div class="hud-removal-head"><span>예상 누적 제거량 <em class="src model">모델</em></span><b id="removal-pct">—</b></div>
+                <div class="removal-track"><div class="spec-band" title="규격 95~105%"></div><i id="removal-fill"></i><i id="removal-proj" class="proj"></i></div>
+                <div class="removal-scale"><span>0%</span><span class="target">목표 100% (규격 95~105%)</span></div>
+              </div>
+            </div>
+            <div class="scene-bar">
+              <div class="seg" role="group" aria-label="3D 시점"><button type="button" data-scene-view="perspective" aria-pressed="true">사선</button><button type="button" data-scene-view="front" aria-pressed="false">정면</button><button type="button" data-scene-view="top" aria-pressed="false">위</button></div>
+              <div class="seg" role="group" aria-label="3D 확대 및 축소"><button id="scene-zoom-out" type="button" aria-label="장비 축소">−</button><button id="scene-zoom-in" type="button" aria-label="장비 확대">+</button></div>
+              <label class="check"><input id="scene-cutaway" type="checkbox">접촉부 단면</label>
+              <label class="check"><input id="scene-transparent" type="checkbox">헤드 투명</label>
+              <label class="part-picker"><span class="sr-only">설명을 확인할 부품 선택</span><select id="scene-part-select" aria-describedby="scene-part-title scene-part-description"><option value="">부품 역할 보기</option></select></label>
+              <span class="badge badge-neutral scene-phase">장비 구조</span>
+              <span id="scene-scale-note" class="sr-only" aria-live="polite">일반: 변형 축소 · 연마면은 아래쪽</span>
+              <span id="scene-help" class="scene-help">드래그 회전 · 휠 확대 · 부품 클릭 시 설명</span>
+            </div>
+            <details id="scene-detail" hidden></details>
+          </section>
+          <svg class="machine" id="machine" viewBox="0 0 560 360" role="img" aria-label="연마 장비 상단 도식 (3D를 사용할 수 없을 때)" hidden>
             <defs>
-              <pattern id="pad-grid" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M14 0H0V14" fill="none" stroke="#1e3347" stroke-width="1"/></pattern>
-              <radialGradient id="pad-shade" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#16324a"/><stop offset="1" stop-color="#0c1c2b"/></radialGradient>
-              <radialGradient id="wafer-shade" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#b9c7d6"/><stop offset=".6" stop-color="#7f93a8"/><stop offset="1" stop-color="#4b5d70"/></radialGradient>
+              <pattern id="pad-grid" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M14 0H0V14" fill="none" stroke="#c7d5e6" stroke-width="1"/></pattern>
+              <radialGradient id="pad-shade" cx="50%" cy="45%" r="60%"><stop offset="0" stop-color="#e6edf6"/><stop offset="1" stop-color="#c9d6e6"/></radialGradient>
+              <radialGradient id="wafer-shade" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#f8fafc"/><stop offset=".6" stop-color="#cbd5e1"/><stop offset="1" stop-color="#94a3b8"/></radialGradient>
               <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
             </defs>
             <rect x="8" y="8" width="544" height="344" rx="18" class="frame"/>
             <g id="platen" transform="rotate(0 230 185)">
               <circle cx="230" cy="185" r="150" fill="url(#pad-shade)"/>
               <circle cx="230" cy="185" r="150" fill="url(#pad-grid)" opacity=".85"/>
-              <g class="grooves" fill="none" stroke="#21405c">
-                <circle cx="230" cy="185" r="120"/><circle cx="230" cy="185" r="90"/><circle cx="230" cy="185" r="60"/><circle cx="230" cy="185" r="30"/>
-              </g>
-              <path d="M230 35V335M80 185H380" stroke="#2c4f70" stroke-width="2"/>
-              <circle cx="230" cy="185" r="150" fill="none" stroke="#2b4964" stroke-width="3"/>
+              <g fill="none" stroke="#b6c6da"><circle cx="230" cy="185" r="120"/><circle cx="230" cy="185" r="90"/><circle cx="230" cy="185" r="60"/><circle cx="230" cy="185" r="30"/></g>
+              <path d="M230 35V335M80 185H380" stroke="#a9bbd1" stroke-width="2"/>
+              <circle cx="230" cy="185" r="150" fill="none" stroke="#9fb3cb" stroke-width="3"/>
             </g>
             <circle cx="230" cy="185" r="9" class="hub"/>
-            <g id="slurry-film" opacity="0"><ellipse cx="250" cy="150" rx="118" ry="96" fill="#d9a441" opacity=".10"/></g>
-            <g id="conditioner" transform="rotate(0 470 300)">
-              <path d="M470 300L322 252" class="arm"/>
-              <circle cx="322" cy="252" r="22" class="dresser"/>
-              <circle cx="322" cy="252" r="12" fill="none" stroke="#7b8796" stroke-dasharray="3 3"/>
-            </g>
+            <g id="slurry-film" opacity="0"><ellipse cx="250" cy="150" rx="118" ry="96" fill="#d9a441" opacity=".14"/></g>
+            <g id="conditioner" transform="rotate(0 470 300)"><path d="M470 300L322 252" class="arm"/><circle cx="322" cy="252" r="22" class="dresser"/></g>
             <circle cx="470" cy="300" r="13" class="pivot"/>
-            <g id="slurry-arm">
-              <path d="M488 60L300 98" class="arm"/>
-              <circle cx="488" cy="60" r="11" class="pivot"/>
-              <rect x="292" y="92" width="14" height="14" rx="3" class="nozzle"/>
-              <g id="drops"></g>
-            </g>
-            <circle id="press-glow" cx="282" cy="160" r="70" fill="#38bdf8" opacity="0" filter="url(#glow)"/>
-            <g id="carrier" transform="translate(282 160)">
-              <g id="carrier-spin">
-                <circle r="62" class="retainer"/>
-                <circle r="50" fill="url(#wafer-shade)"/>
-                <path d="M-50 0A50 50 0 0 1 50 0" fill="none" stroke="#dbe5ef" stroke-opacity=".35"/>
-                <path d="M0-50V50M-50 0H50" stroke="#2c3e52" stroke-opacity=".5"/>
-                <rect x="-4" y="-58" width="8" height="8" rx="2" fill="#f1f5f9"/>
-              </g>
-            </g>
-            <g class="labels">
-              <text x="70" y="335">플래튼 · 패드</text>
-              <text x="418" y="116" text-anchor="middle">슬러리 노즐</text>
-              <text x="160" y="250" text-anchor="middle">캐리어 헤드 · 웨이퍼</text>
-              <text x="470" y="340" text-anchor="middle">컨디셔너</text>
-            </g>
-            <text id="machine-phase" x="24" y="40" class="phase-text">대기</text>
-            <text id="machine-sub" x="24" y="62" class="phase-sub">과제를 선택하세요</text>
+            <g id="slurry-arm"><path d="M488 60L300 98" class="arm"/><circle cx="488" cy="60" r="11" class="pivot"/><rect x="292" y="92" width="14" height="14" rx="3" class="nozzle"/><g id="drops"></g></g>
+            <circle id="press-glow" cx="282" cy="160" r="70" fill="#0d6efd" opacity="0" filter="url(#glow)"/>
+            <g id="carrier" transform="translate(282 160)"><g id="carrier-spin"><circle r="62" class="retainer"/><circle r="50" fill="url(#wafer-shade)"/><path d="M0-50V50M-50 0H50" stroke="#64748b" stroke-opacity=".4"/><rect x="-4" y="-58" width="8" height="8" rx="2" fill="#0d6efd"/></g></g>
           </svg>
-          <div class="removal" aria-label="예상 누적 제거량">
-            <div class="removal-head"><span>예상 누적 제거량 <em class="src model">모델</em></span><b id="removal-pct">—</b></div>
-            <div class="removal-track"><div class="spec-band" title="규격 95~105%"></div><i id="removal-fill"></i><i id="removal-proj" class="proj"></i></div>
-            <div class="removal-scale"><span>0%</span><span class="target">목표 100%</span></div>
-            <p class="hint">초록 띠 = 규격 95~105% · 점선 = 이대로 끝났을 때 예상</p>
-            <p class="hint" id="removal-note">실제 제거량은 계측 전까지 알 수 없습니다. 여기서는 모델 예측으로 누적합니다.</p>
+          <div class="playback" aria-label="시뮬레이션 재생">
+            <button type="button" class="secondary-button small" id="pause" aria-pressed="false">일시정지</button>
+            <button type="button" class="secondary-button small" id="skip" title="현재 웨이퍼 공정을 끝까지 진행">공정 건너뛰기</button>
+            <div class="seg" role="group" aria-label="재생 속도" id="speed">
+              <button type="button" data-speed="1">1×</button><button type="button" data-speed="4">4×</button><button type="button" data-speed="8" aria-pressed="true">8×</button><button type="button" data-speed="32">32×</button><button type="button" data-speed="128">128×</button>
+            </div>
+            <label class="switch"><input type="checkbox" id="auto-mode"><span>자동 R2R 운전</span></label>
           </div>
         </div>
+
+        <aside class="menu" aria-label="운전 메뉴">
+          <div class="menu-tabs" role="tablist" aria-label="운전 메뉴">
+            <button type="button" role="tab" id="tab-run" aria-controls="panel-run" aria-selected="true">운전</button>
+            <button type="button" role="tab" id="tab-metrology" aria-controls="panel-metrology" aria-selected="false">계측 설정</button>
+            <button type="button" role="tab" id="tab-task" aria-controls="panel-task" aria-selected="false">과제 안내</button>
+          </div>
+
+          <div class="menu-panel" role="tabpanel" id="panel-run" aria-labelledby="tab-run">
+            <div class="wafer-card">
+              <div><span class="k" id="wafer-kind">다음 웨이퍼</span><b id="wafer-label">—</b></div>
+              <span class="recipe" id="wafer-recipe">—</span>
+            </div>
+            <ul class="flags" id="wafer-flags"></ul>
+            <div class="predict">
+              <div class="predict-head"><span>예측 MRR <em class="src model">모델</em></span><small id="predict-stage">투입 전</small></div>
+              <b class="predict-value" id="pred-mrr">—</b>
+              <div class="interval" aria-label="90% 예측 구간">
+                <svg id="interval" viewBox="0 0 300 40" preserveAspectRatio="none" aria-hidden="true"></svg>
+                <div class="interval-lab"><span id="pred-low">—</span><span>90% 예측 구간</span><span id="pred-high">—</span></div>
+              </div>
+            </div>
+            <div class="decide" id="decide">
+              <h3 id="decide-title">연마 시간 설정</h3>
+              <div id="decide-body"><p class="note">과제를 선택하면 여기에서 연마 시간을 정합니다.</p></div>
+            </div>
+          </div>
+
+          <div class="menu-panel" role="tabpanel" id="panel-metrology" aria-labelledby="tab-metrology" hidden>
+            <h3>계측 정책</h3>
+            <p class="note" id="policy-note">계측은 비용과 시간이 들지만, 결과가 들어와야 장비 상태 추정이 갱신됩니다.</p>
+            <div class="field-row">
+              <label>계측 주기
+                <select id="policy-sample"><option value="1">매 장</option><option value="2">2장마다</option><option value="5">5장마다</option><option value="10">10장마다</option><option value="manual">직접 결정</option></select>
+              </label>
+              <label>결과 도착
+                <select id="policy-delay"><option value="0">즉시</option><option value="1">1장 뒤</option><option value="2">2장 뒤</option><option value="3">3장 뒤</option></select>
+              </label>
+            </div>
+            <p class="current-policy">현재: <b id="policy-label">—</b></p>
+            <h3>계측 대기열</h3>
+            <ol class="queue" id="queue"></ol>
+            <h3>자동 R2R 운전</h3>
+            <p class="note">켜면 모델 권장 시간으로 웨이퍼를 자동 투입하고, 연마 중 압력 경보가 뜨면 종료 시간도 자동 조정합니다. 재생 영역 아래 스위치로 켜고 끕니다.</p>
+          </div>
+
+          <div class="menu-panel" role="tabpanel" id="panel-task" aria-labelledby="tab-task" hidden>
+            <h3 id="task-title">과제를 선택하세요</h3>
+            <p class="note" id="task-goal">위쪽 ‘과제 선택’에서 과제를 고르세요.</p>
+            <ul class="task-focus" id="task-focus"></ul>
+            <h3>조작 방법</h3>
+            <ol class="howto">
+              <li><b>운전</b> 메뉴에서 예측 MRR과 구간을 보고 <b>연마 시간</b>을 정합니다.</li>
+              <li><b>연마 시작</b>을 누르면 3D 장비가 실제 기록대로 연마합니다.</li>
+              <li>압력 경보가 뜨면 <b>종료 시간 조정</b>을 할 수 있습니다.</li>
+              <li>연마가 끝나면 <b>계측</b>할지 정하고 다음 웨이퍼로 넘어갑니다.</li>
+              <li>결과는 시뮬레이터 아래 <b>결과</b> 영역과 마지막 <b>결과 창</b>에서 확인합니다.</li>
+            </ol>
+            <button type="button" class="secondary-button block" id="open-tasks-2">과제 바꾸기</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <h2 class="section-title">결과</h2>
+    <section class="results" aria-label="시뮬레이션 결과">
+      <article class="card process-data">
+        <div class="card-heading"><h3>실시간 공정 데이터 <em class="src data">실측 센서</em></h3><small id="process-wafer">—</small></div>
         <div class="gauges" id="gauges"></div>
         <div class="trend">
-          <div class="trend-head"><span>주 압력 추세 · 현재 웨이퍼 <em class="src data">실측 센서</em></span><span class="legend"><i class="sw ref"></i>기준 압력 <i class="sw dev"></i>허용 ±1.5%</span></div>
+          <div class="trend-head"><span>주 압력 추세 · 현재 웨이퍼</span><span class="legend"><i class="sw ref"></i>기준 압력 <i class="sw dev"></i>허용 ±1.5%</span></div>
           <svg id="trend" viewBox="0 0 640 120" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <p class="note" id="removal-note">실제 제거량은 계측 전까지 알 수 없습니다. 위 막대는 모델 예측으로 누적한 값입니다.</p>
         </div>
       </article>
-    </section>
 
-    <section class="col col-right" aria-label="예측과 운전 결정">
-      <article class="panel wafer-card">
-        <div class="wafer-head">
-          <div><span class="k" id="wafer-kind">다음 웨이퍼</span><b id="wafer-label">—</b></div>
-          <span class="recipe" id="wafer-recipe">—</span>
-        </div>
-        <ul class="flags" id="wafer-flags"></ul>
-      </article>
-      <article class="panel predict">
-        <h2>R2R 예측 <small id="predict-stage">투입 전</small></h2>
-        <div class="big"><b id="pred-mrr">—</b><span>MRR <em class="src model">모델</em></span></div>
-        <div class="interval" aria-label="90% 예측 구간">
-          <svg id="interval" viewBox="0 0 300 46" preserveAspectRatio="none" aria-hidden="true"></svg>
-          <div class="interval-lab"><span id="pred-low">—</span><span>90% 예측 구간</span><span id="pred-high">—</span></div>
-        </div>
-        <dl class="kv compact">
-          <div><dt>상태 추정</dt><dd id="pred-level">—</dd></div>
-          <div><dt>마지막 반영 후</dt><dd id="pred-steps">—</dd></div>
-          <div><dt>압력 보정</dt><dd id="pred-factor">—</dd></div>
-          <div><dt>이벤트 보정</dt><dd id="pred-offset">—</dd></div>
-        </dl>
-      </article>
-      <article class="panel decide" id="decide">
-        <h2 id="decide-title">연마 시간 설정</h2>
-        <div id="decide-body"></div>
-      </article>
-      <article class="panel">
-        <h2>계측 대기열 <small id="policy-label">—</small></h2>
-        <ol class="queue" id="queue"></ol>
-      </article>
-    </section>
+      <div class="results-row two">
+        <article class="card">
+          <div class="card-heading"><h3>예측 상세 <em class="src model">모델</em></h3></div>
+          <dl class="kv">
+            <div><dt>장비 상태 추정 (정상 압력 기준)</dt><dd id="pred-level">—</dd></div>
+            <div><dt>마지막 측정 반영 후</dt><dd id="pred-steps">—</dd></div>
+            <div><dt>압력 보정 배율</dt><dd id="pred-factor">—</dd></div>
+            <div><dt>휴지·패드 교체 보정</dt><dd id="pred-offset">—</dd></div>
+          </dl>
+          <div class="state-est" id="state-est"></div>
+        </article>
+        <article class="card">
+          <div class="card-heading"><h3>장비 상태 <em class="src data">기록</em></h3></div>
+          <dl class="kv">
+            <div><dt>패드 사용량</dt><dd><b id="pad-usage">—</b><span class="meter"><i id="pad-meter"></i></span></dd></div>
+            <div><dt>드레서 사용량</dt><dd><b id="dresser-usage">—</b></dd></div>
+            <div><dt>패드 교체 후</dt><dd><b id="since-pad">—</b></dd></div>
+            <div><dt>직전 유휴</dt><dd><b id="idle-time">—</b></dd></div>
+          </dl>
+          <h4 class="sub-title">알람 · 이벤트</h4>
+          <ol class="log" id="event-log" aria-live="polite"></ol>
+        </article>
+      </div>
 
-    <section class="row-bottom" aria-label="관리도와 운전 기록">
-      <article class="panel spc">
-        <div class="spc-head">
-          <h2>관리도 · MRR <small>회색 = 이전 생산, 띠 = 투입 전 90% 구간</small></h2>
-          <div class="seg small" role="group" aria-label="레시피 선택" id="spc-recipe">
-            <button type="button" data-recipe="A456" aria-pressed="true">A456</button>
-            <button type="button" data-recipe="B456">B456</button>
+      <div class="results-row two wide-left">
+        <article class="card">
+          <div class="card-heading"><h3>관리도 · MRR</h3>
+            <div class="seg" role="group" aria-label="레시피 선택" id="spc-recipe"><button type="button" data-recipe="A456" aria-pressed="true">A456</button><button type="button" data-recipe="B456">B456</button></div>
           </div>
-        </div>
-        <svg id="spc" viewBox="0 0 900 230" preserveAspectRatio="none" role="img" aria-label="MRR 관리도"></svg>
-        <div class="spc-legend"><span><i class="dot meas"></i>실측(계측 완료)</span><span><i class="dot hidden"></i>미계측 · 추정값</span><span><i class="dot next"></i>다음 웨이퍼 예측</span><span><i class="tick"></i>휴지·패드 교체</span></div>
-      </article>
-      <article class="panel runlog">
-        <h2>운전 기록</h2>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>웨이퍼</th><th>레시피</th><th>시간(초)</th><th>투입 전 예측</th><th>연마 중 추정</th><th>실측 MRR</th><th>제거량</th><th>판정</th><th>비고</th></tr></thead>
-            <tbody id="runlog"></tbody>
-          </table>
-        </div>
-      </article>
+          <svg id="spc" viewBox="0 0 900 230" role="img" aria-label="MRR 관리도"></svg>
+          <div class="spc-legend"><span><i class="dot meas"></i>실측(계측 완료)</span><span><i class="dot hidden"></i>미계측 · 추정값</span><span><i class="dot next"></i>다음 웨이퍼 예측</span><span><i class="band"></i>투입 전 90% 구간</span><span><i class="tick"></i>휴지·패드 교체</span></div>
+        </article>
+        <article class="card">
+          <div class="card-heading"><h3>운전 기록</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>웨이퍼</th><th>레시피</th><th>시간(초)</th><th>투입 전 예측</th><th>연마 중 추정</th><th>실측 MRR</th><th>제거량</th><th>판정</th><th>비고</th></tr></thead>
+              <tbody id="runlog"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
     </section>
-  </main>
 
-  <footer class="provenance">
-    <span class="src data">실제 기록</span> 웨이퍼 순서 · 휴지/패드 교체 · 연마 중 센서 · 실측 MRR (PHM 2016 CMP, fold 5, 14일 327장)
-    <span class="src model">모델</span> 상태 추적 v2 · fold 1~4로 학습 · 개발 평가만 있고 독립 검증 없음
-    <span class="src assume">가정</span> 제거량 = 실측 MRR × 연마 시간 · 목표 = 기준 MRR × 기준 시간 · 규격 ±5% · 값은 원시 단위(물리 단위 미확인)
-  </footer>
+    <footer class="provenance">
+      <span class="badge badge-green">실제 기록</span> 웨이퍼 순서 · 휴지/패드 교체 · 연마 중 센서 · 실측 MRR (PHM 2016 CMP, fold 5, 14일 327장)
+      <span class="badge badge-blue">모델</span> 상태 추적 v2 · fold 1~4로 학습 · 개발 평가만 있고 독립 검증 없음
+      <span class="badge badge-amber">가정</span> 제거량 = 실측 MRR × 연마 시간 · 목표 = 기준 MRR × 기준 시간 · 규격 ±5% · 원시 단위(물리 단위 미확인) · 3D는 설명용 표현
+    </footer>
+  </main>
 
   <dialog id="task-dialog" aria-labelledby="task-dialog-title">
     <form method="dialog" class="dialog">
@@ -213,11 +250,11 @@
         <label>계측 주기
           <select id="cfg-sample"><option value="1">매 장</option><option value="2">2장마다</option><option value="5">5장마다</option><option value="10">10장마다</option><option value="manual">직접 결정</option></select>
         </label>
-        <label>계측 지연
+        <label>결과 도착
           <select id="cfg-delay"><option value="0">즉시</option><option value="1">1장 뒤</option><option value="2">2장 뒤</option><option value="3">3장 뒤</option></select>
         </label>
       </fieldset>
-      <footer><button value="cancel" class="btn ghost" id="task-cancel">닫기</button><button value="start" class="btn primary" id="task-start" disabled>운전 시작</button></footer>
+      <footer><button value="cancel" class="secondary-button" id="task-cancel">닫기</button><button value="start" class="primary-button" id="task-start" disabled>운전 시작</button></footer>
     </form>
   </dialog>
 

@@ -17,13 +17,17 @@
     { key: 'slurry_c', label: '슬러리 C 유량', d: 0 },
   ];
   const STORE = 'cmp-lab-sim-runs-v1';
+  // Chart colours follow the CMP Lab tokens (light ground, brand blue).
+  const C = { grid: '#eef2f7', axis: '#8b98ab', brand: '#0d6efd', band: '#0d6efd', pred: '#5b8def', ok: '#10b981',
+    warn: '#f59e0b', alarm: '#dc2626', hist: '#cbd5e1', hidden: '#94a3b8', next: '#f97316', event: '#f97316', cursor: '#94a3b8', track: '#edf1f7' };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   let modelJson = null, replay = null, session = null, task = null, policy = null, runLabel = '';
   let speed = 8, paused = false, auto = false, spcRecipe = 'A456';
   let run = null;                  // { elapsed, total, sample, spark, trend, autoAdjusted, lastTrendAt }
   let wait = 0;                    // real seconds before an automatic next action
-  let anim = { platen: 0, carrier: 0, t: 0, drops: [] };
+  let anim = { platen: 0, carrier: 0, stage3d: 0, head3d: 0, t: 0, drops: [] };
+  let scene3D = null, lastSceneKey = '';
   let lastFrame = 0, lastPaint = 0, selectedTask = null;
 
   /* ---------- helpers ---------- */
@@ -85,9 +89,76 @@
     run = null; wait = auto ? 0.6 : 0; paused = false; $('pause').setAttribute('aria-pressed', 'false'); $('pause').textContent = '일시정지';
     setSpeed(auto ? 128 : 8);
     $('task-name').textContent = `${t.code} · ${t.title}${t.runs ? ` (${t.runs[runIndex].label.split('.')[0]})` : ''}`;
-    $('policy-label').textContent = policyText(policy);
+    syncPolicyControls(); renderTaskTab(); selectTab('run');
     resetProcessView();
     renderAll();
+  }
+
+  /* ---------- menu, guide, task tab, policy ---------- */
+  function selectTab(name) {
+    for (const t of ['run', 'metrology', 'task']) {
+      $(`tab-${t}`).setAttribute('aria-selected', String(t === name));
+      $(`panel-${t}`).hidden = t !== name;
+    }
+  }
+
+  function renderTaskTab() {
+    if (!task) return;
+    $('task-title').textContent = `${task.code} · ${task.title}`;
+    $('task-goal').textContent = task.goal;
+    $('task-focus').replaceChildren(...task.focus.map(f => el('li', {}, f)));
+  }
+
+  function syncPolicyControls() {
+    const editable = !!(task && task.configurable);
+    $('policy-sample').value = String(policy.sample); $('policy-delay').value = String(policy.delay);
+    $('policy-sample').disabled = !editable; $('policy-delay').disabled = !editable;
+    $('policy-note').textContent = editable
+      ? '자유 운전에서는 운전 중에도 바꿀 수 있습니다. 다음 계측 결정부터 적용됩니다.'
+      : '이 과제는 비교를 위해 계측 정책이 고정되어 있습니다. 바꾸려면 자유 운전을 고르세요.';
+    $('policy-label').textContent = policyText(policy);
+  }
+
+  function changePolicy() {
+    if (!session || !task || !task.configurable) return;
+    const sv = $('policy-sample').value;
+    policy = { sample: sv === 'manual' ? 'manual' : Number(sv), delay: Number($('policy-delay').value) };
+    session.state.policy = { ...policy }; runLabel = policyText(policy);
+    syncPolicyControls(); renderDecide(); renderGuide();
+  }
+
+  function renderGuide() {
+    const text = $('guide-text'), order = ['ready', 'run', 'decide', 'done'];
+    let msg = '‘과제 선택’에서 과제를 고르면 운전이 시작됩니다.', tone = '', k = -1;
+    if (session) {
+      const st = session.state, rec = st.records[st.records.length - 1];
+      k = order.indexOf(st.phase);
+      if (st.phase === 'ready') msg = auto ? '자동 R2R 운전 중입니다. 모델 권장 시간으로 다음 웨이퍼를 자동 투입합니다.'
+        : '오른쪽 [운전] 메뉴에서 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요.';
+      else if (st.phase === 'run') {
+        if (st.run && st.run.alarm) { tone = 'alarm'; msg = auto ? '압력 경보! 자동 R2R이 종료 시간을 조정합니다.' : '압력 경보! 오른쪽 [운전] 메뉴에서 종료 시간을 조정할지 판단하세요.'; }
+        else msg = '장비가 연마 중입니다. 3D 장비와 아래 ‘결과’의 실시간 공정 데이터를 지켜보세요.';
+      } else if (st.phase === 'decide') {
+        const planned = session.shouldMeasure(rec);
+        msg = auto ? '자동 R2R 운전 중입니다.' : planned === null
+          ? '이 웨이퍼를 계측할지 오른쪽에서 정하세요. 계측해야 실제 결과를 알 수 있고 상태 추정이 갱신됩니다.'
+          : `계측 정책에 따라 이 웨이퍼는 ${planned ? '계측합니다' : '계측하지 않습니다'}. 오른쪽 버튼으로 다음 웨이퍼로 넘어가세요.`;
+      } else msg = '운전이 끝났습니다. ‘결과 보기’로 수율과 예측 정확도를 확인하세요.';
+    }
+    document.querySelectorAll('#guide-steps li').forEach((li, i) => { li.classList.toggle('active', i === k); li.classList.toggle('done', k >= 0 && i < k); });
+    if (text.textContent !== msg) text.textContent = msg;
+    text.dataset.tone = tone;
+  }
+
+  function renderHudAlarm(s) {
+    const box = $('hud-alarm'), r = session && session.state.run;
+    if (!s || !r || !s.alarm || session.state.phase !== 'run') { if (!box.hidden) { box.hidden = true; box.dataset.key = ''; } return; }
+    const alpha = modelJson.recipes[r.wafer.recipe].alpha;
+    const key = `${r.wafer.n}|${(s.pressureDev * 100).toFixed(1)}|${alpha > 0 ? s.inproc.mrr.toFixed(2) : ''}`;
+    if (box.dataset.key === key && !box.hidden) return;
+    box.dataset.key = key; box.hidden = false;
+    box.replaceChildren(el('strong', {}, `공정 경보 · 주 압력 ${(s.pressureDev * 100).toFixed(1)}%`),
+      el('span', {}, alpha > 0 ? `예측 MRR ${fmt(r.pre.mrr, 2)} → ${fmt(s.inproc.mrr, 2)} (연마 중 보정)` : `${r.wafer.recipe}는 압력 반응이 확인되지 않아 예측을 보정하지 않습니다.`));
   }
 
   function setSpeed(v) {
@@ -108,7 +179,8 @@
     const rec = session.finish();
     run.sample = session.sample(run.total) || run.sample;
     const planned = session.shouldMeasure(rec);
-    wait = planned === null ? (auto ? 0.5 : 0) : (auto ? 0.5 : 1.6);
+    wait = auto ? 0.5 : 0; // manual operation waits for the operator's click, so step 3 is never skipped
+    void planned;
     renderAll();
     return rec;
   }
@@ -161,6 +233,52 @@
     if (s.elapsed - run.lastTrendAt >= 0.5) { run.trend.push([s.elapsed, s.values.p_main, s.phase]); run.lastTrendAt = s.elapsed; }
   }
 
+  /* ---------- 3D polishing unit (team scene) ---------- */
+  function initScene() {
+    const useSvg = () => { scene3D = null; $('machine').hidden = false; $('cmp-scene').dataset.renderer = 'unavailable'; };
+    if (!window.CMPScene || !window.CMPSceneModel || !window.CMPSceneParts) { useSvg(); return; }
+    try {
+      scene3D = window.CMPScene.create({ host: $('cmp-scene'), canvas: $('cmp-canvas'), fallback: $('scene-fallback'),
+        detail: $('scene-detail'), onUnavailable: useSvg });
+    } catch { useSvg(); return; }
+    if (!scene3D) { useSvg(); return; }
+    document.querySelectorAll('[data-scene-view]').forEach(b => b.addEventListener('click', () => scene3D?.setView(b.dataset.sceneView)));
+    $('scene-transparent').addEventListener('change', () => scene3D?.setTransparent($('scene-transparent').checked));
+    $('scene-cutaway').addEventListener('change', () => { scene3D?.setCutaway($('scene-cutaway').checked); lastSceneKey = ''; });
+    $('scene-zoom-in').addEventListener('click', () => scene3D?.zoom(0.85));
+    $('scene-zoom-out').addEventListener('click', () => scene3D?.zoom(1.15));
+  }
+
+  /* Map one replayed sensor sample onto the team scene's display frame (display geometry only). */
+  function sceneFrame(s) {
+    const r = session && session.state.run;
+    if (!s || !r) return null;
+    const clamp01 = v => Math.max(0, Math.min(1, v));
+    let phase, engagement;
+    if (s.phase === 'load' || s.phase === 'pressurize') { phase = 'approach'; engagement = clamp01(s.elapsed / Math.max(1, r.tl.pre)); }
+    else if (s.phase === 'polish' || s.phase === 'rinse') { phase = 'contact'; engagement = 1; }
+    else { phase = 'release'; engagement = 1 - clamp01((s.elapsed - (s.total - 12)) / 12); }
+    const pr = Math.max(0, Math.min(1.15, s.values.p_main / r.meta.p_ref));
+    return { progress: anim.t / 40, rotation: anim.head3d, stageRotation: anim.stage3d,
+      slurryRatio: Math.max(0, Math.min(1.6, s.values.slurry_c / 450)), phase, engagement,
+      removedFraction: clamp01(s.mainElapsed / s.tSet) * 0.85, compression: (2 + 12 * pr / 1.15) * engagement,
+      contactOpacity: phase === 'contact' ? 0.25 + 0.5 * clamp01((pr - 0.9) / 0.2) : 0 };
+  }
+
+  function driveScene(s) {
+    if (!scene3D) return;
+    const running = !!(s && session && session.state.phase === 'run');
+    const host = $('cmp-scene');
+    host.dataset.alarm = String(!!(running && s.alarm && s.phase === 'polish'));
+    const frame = running || (s && session && session.state.phase === 'decide') ? sceneFrame(s) : null;
+    // Re-render only when something visible changed (idle scenes stay still).
+    const key = frame ? `${frame.phase}|${frame.engagement.toFixed(3)}|${frame.rotation.toFixed(1)}|${frame.stageRotation.toFixed(1)}|${frame.compression.toFixed(2)}` : 'idle';
+    if (key === lastSceneKey) return;
+    lastSceneKey = key;
+    scene3D.setState(running ? 'running' : 'idle');
+    scene3D.setFrame(frame);
+  }
+
   /* ---------- machine animation ---------- */
   function animateMachine(dt) {
     const s = run && run.sample, polishing = s && (s.phase === 'polish' || s.phase === 'rinse');
@@ -169,7 +287,14 @@
     const carrierRate = s ? (s.values.wafer_rot + 0.3 * s.values.head_rot) : 0;
     anim.platen = (anim.platen + platenRate * 1.6 * dt * vis) % 360;
     anim.carrier = (anim.carrier + carrierRate * 2.2 * dt * vis) % 360;
+    // The team scene scales pad angle by 0.55 and head angle by 0.30; wrap at their full turns.
+    if (session && session.state.phase === 'run') {
+      anim.stage3d = (anim.stage3d + platenRate * 0.8 * dt * vis) % (360 / 0.55);
+      anim.head3d = (anim.head3d + carrierRate * 3.5 * dt * vis) % (360 / 0.30);
+    }
     anim.t += dt * vis;
+    driveScene(s);
+    if ($('machine').hidden) return; // 2D fallback only when the 3D unit is unavailable
     $('platen').setAttribute('transform', `rotate(${anim.platen.toFixed(2)} 230 185)`);
     $('carrier-spin').setAttribute('transform', `rotate(${anim.carrier.toFixed(2)})`);
     $('conditioner').setAttribute('transform', `rotate(${(polishing ? 9 * Math.sin(anim.t * 0.9) : 0).toFixed(2)} 470 300)`);
@@ -187,7 +312,7 @@
     glow.setAttribute('cx', x.toFixed(1)); glow.setAttribute('cy', y.toFixed(1));
     if (s && s.phase === 'polish') {
       const dev = Math.abs(s.pressureDev || 0);
-      glow.setAttribute('fill', dev > E.PRESSURE_ALARM ? '#f87171' : '#38bdf8');
+      glow.setAttribute('fill', dev > E.PRESSURE_ALARM ? C.alarm : C.brand);
       glow.setAttribute('opacity', (0.18 + 0.22 * Math.min(1.2, s.values.p_main / (run && session.state.run ? session.state.run.meta.p_ref : 260))).toFixed(2));
     } else glow.setAttribute('opacity', '0');
     $('slurry-film').setAttribute('opacity', s && s.values.slurry_c > 20 ? '1' : '0');
@@ -211,6 +336,7 @@
     const r = session.state.run, meta = r ? r.meta : null;
     const order = ['load', 'pressurize', 'polish', 'rinse', 'unload'], k = order.indexOf(s.phase);
     document.querySelectorAll('#steps li').forEach((li, i) => { li.classList.toggle('active', i === k); li.classList.toggle('done', i < k); });
+    renderHudAlarm(s);
     $('machine-phase').textContent = PHASE[s.phase] || '';
     $('machine-sub').textContent = `${r ? r.wafer.label : ''} · ${fmt(s.elapsed, 0)} / ${fmt(s.total, 0)}초${s.phase === 'polish' ? ` · 본 연마 ${fmt(s.mainElapsed, 0)}/${fmt(s.tSet, 1)}초` : ''}`;
     for (const g of GAUGES) {
@@ -244,14 +370,14 @@
     if (!meta) return;
     const W = 640, H = 120, top = meta.p_ref * 1.12, x = t => t / s.total * W, y = p => H - 6 - Math.max(0, p) / top * (H - 14);
     const r = session.state.run, pre = r.tl.pre;
-    host.append(svg('rect', { x: x(pre), y: 0, width: Math.max(0, x(pre + s.tSet) - x(pre)), height: H, fill: '#38bdf8', opacity: '0.05' }));
+    host.append(svg('rect', { x: x(pre), y: 0, width: Math.max(0, x(pre + s.tSet) - x(pre)), height: H, fill: C.brand, opacity: '0.05' }));
     const bandTop = y(meta.p_ref * (1 + E.PRESSURE_ALARM)), bandBottom = y(meta.p_ref * (1 - E.PRESSURE_ALARM));
-    host.append(svg('rect', { x: 0, y: bandTop, width: W, height: Math.max(1, bandBottom - bandTop), fill: '#fbbf24', opacity: '0.16' }));
-    host.append(svg('line', { x1: 0, x2: W, y1: y(meta.p_ref), y2: y(meta.p_ref), stroke: '#34d399', 'stroke-dasharray': '6 4', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke', opacity: '0.8' }));
+    host.append(svg('rect', { x: 0, y: bandTop, width: W, height: Math.max(1, bandBottom - bandTop), fill: C.warn, opacity: '0.18' }));
+    host.append(svg('line', { x1: 0, x2: W, y1: y(meta.p_ref), y2: y(meta.p_ref), stroke: C.ok, 'stroke-dasharray': '6 4', 'stroke-width': 1.2, 'vector-effect': 'non-scaling-stroke' }));
     if (run.trend.length > 1) {
-      host.append(svg('path', { d: run.trend.map((p, i) => `${i ? 'L' : 'M'}${x(p[0]).toFixed(1)} ${y(p[1]).toFixed(1)}`).join(''), fill: 'none', stroke: Math.abs(s.pressureDev) > E.PRESSURE_ALARM ? '#f87171' : '#38bdf8', 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke' }));
+      host.append(svg('path', { d: run.trend.map((p, i) => `${i ? 'L' : 'M'}${x(p[0]).toFixed(1)} ${y(p[1]).toFixed(1)}`).join(''), fill: 'none', stroke: Math.abs(s.pressureDev) > E.PRESSURE_ALARM ? C.alarm : C.brand, 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke' }));
     }
-    host.append(svg('line', { x1: x(s.elapsed), x2: x(s.elapsed), y1: 0, y2: H, stroke: '#dbe4ee', opacity: '0.4', 'vector-effect': 'non-scaling-stroke' }));
+    host.append(svg('line', { x1: x(s.elapsed), x2: x(s.elapsed), y1: 0, y2: H, stroke: C.cursor, opacity: '0.7', 'vector-effect': 'non-scaling-stroke' }));
   }
 
   function renderTop() {
@@ -259,6 +385,7 @@
     let state = st.phase === 'run' ? 'run' : st.phase === 'decide' ? 'decide' : st.phase === 'done' ? 'done' : 'ready';
     if (st.phase === 'run' && st.run && st.run.alarm) state = 'alarm';
     const chip = $('tool-state'); chip.dataset.state = state; chip.querySelector('span').textContent = STATE_TEXT[state];
+    renderGuide();
     const w = st.run ? st.run.wafer : (c ? c.wafer : session.wafers[st.n - 1]);
     $('sim-clock').textContent = clock(w.t_start_h, run ? run.elapsed : 0);
     const done = st.records.length, total = st.end - st.task.start + 1;
@@ -314,10 +441,10 @@
   function paintInterval(p, recipe) {
     const host = $('interval'); host.replaceChildren(); if (!p) return;
     const ref = modelJson.recipe_meta[recipe].mrr_ref, lo = ref - 18, hi = ref + 18, x = v => Math.max(2, Math.min(298, (v - lo) / (hi - lo) * 300));
-    host.append(svg('line', { x1: 0, x2: 300, y1: 23, y2: 23, stroke: '#1d2836', 'stroke-width': 6, 'stroke-linecap': 'round' }));
-    host.append(svg('rect', { x: x(p.low), y: 15, width: Math.max(2, x(p.high) - x(p.low)), height: 16, rx: 4, fill: '#a5b4fc', opacity: '0.28' }));
-    host.append(svg('line', { x1: x(ref), x2: x(ref), y1: 6, y2: 40, stroke: '#5b6a7d', 'stroke-dasharray': '3 3' }));
-    host.append(svg('circle', { cx: x(p.mrr), cy: 23, r: 6, fill: '#a5b4fc' }));
+    host.append(svg('line', { x1: 0, x2: 300, y1: 20, y2: 20, stroke: C.track, 'stroke-width': 6, 'stroke-linecap': 'round' }));
+    host.append(svg('rect', { x: x(p.low), y: 12, width: Math.max(2, x(p.high) - x(p.low)), height: 16, rx: 6, fill: C.band, opacity: '0.16' }));
+    host.append(svg('line', { x1: x(ref), x2: x(ref), y1: 4, y2: 36, stroke: C.axis, 'stroke-dasharray': '3 3' }));
+    host.append(svg('circle', { cx: x(p.mrr), cy: 20, r: 6, fill: C.brand, stroke: '#fff', 'stroke-width': 2 }));
   }
 
   function renderDecide() {
@@ -470,31 +597,34 @@
     const lo = Math.floor(Math.min(...vals) - 2), hi = Math.ceil(Math.max(...vals) + 2);
     const x = i => L + (i + 0.5) / view.length * (W - L - R), y = v => T + (hi - v) / (hi - lo) * (H - T - B);
     for (let g = Math.ceil(lo / 5) * 5; g <= hi; g += 5) {
-      host.append(svg('line', { x1: L, x2: W - R, y1: y(g), y2: y(g), stroke: '#1d2836', 'vector-effect': 'non-scaling-stroke' }));
-      const t = svg('text', { x: L - 6, y: y(g) + 4, 'text-anchor': 'end', fill: '#5b6a7d', 'font-size': 11 }); t.textContent = g; host.append(t);
+      host.append(svg('line', { x1: L, x2: W - R, y1: y(g), y2: y(g), stroke: C.grid, 'vector-effect': 'non-scaling-stroke' }));
+      const t = svg('text', { x: L - 6, y: y(g) + 4, 'text-anchor': 'end', fill: C.axis, 'font-size': 11 }); t.textContent = g; host.append(t);
     }
     const firstSession = view.findIndex(p => p.kind !== 'hist');
     if (firstSession > 0) {
-      host.append(svg('line', { x1: x(firstSession) - 6, x2: x(firstSession) - 6, y1: T, y2: H - B, stroke: '#38bdf8', 'stroke-dasharray': '4 4', opacity: '.6', 'vector-effect': 'non-scaling-stroke' }));
-      const t = svg('text', { x: x(firstSession) - 2, y: T + 12, fill: '#38bdf8', 'font-size': 11 }); t.textContent = '이번 운전 →'; host.append(t);
+      host.append(svg('line', { x1: x(firstSession) - 6, x2: x(firstSession) - 6, y1: T, y2: H - B, stroke: C.brand, 'stroke-dasharray': '4 4', opacity: '.5', 'vector-effect': 'non-scaling-stroke' }));
+      const t = svg('text', { x: x(firstSession) - 2, y: T + 12, fill: C.brand, 'font-size': 11, 'font-weight': 700 }); t.textContent = '이번 운전 →'; host.append(t);
     }
     const band = view.map((p, i) => [i, p]).filter(([, p]) => Number.isFinite(p.low));
     if (band.length > 1) {
       const d = band.map(([i, p], k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.high).toFixed(1)}`).join('') + band.slice().reverse().map(([i, p]) => `L${x(i).toFixed(1)} ${y(p.low).toFixed(1)}`).join('') + 'Z';
-      host.append(svg('path', { d, fill: '#a5b4fc', opacity: '0.14' }));
-      host.append(svg('path', { d: band.map(([i, p], k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.pred).toFixed(1)}`).join(''), fill: 'none', stroke: '#a5b4fc', 'stroke-dasharray': '4 3', 'stroke-width': 1.4, 'vector-effect': 'non-scaling-stroke' }));
+      host.append(svg('path', { d, fill: C.band, opacity: '0.10' }));
+      host.append(svg('path', { d: band.map(([i, p], k) => `${k ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.pred).toFixed(1)}`).join(''), fill: 'none', stroke: C.pred, 'stroke-dasharray': '4 3', 'stroke-width': 1.4, 'vector-effect': 'non-scaling-stroke' }));
     }
     view.forEach((p, i) => {
-      if (p.ev) host.append(svg('line', { x1: x(i), x2: x(i), y1: H - B - 12, y2: H - B, stroke: '#93c5fd', 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke' }));
-      if (p.kind === 'hist') host.append(svg('circle', { cx: x(i), cy: y(p.mrr), r: 2.6, fill: '#5b6a7d' }));
-      else if (p.kind === 'meas') host.append(svg('circle', { cx: x(i), cy: y(p.mrr), r: 4, fill: p.inSpec ? '#38bdf8' : '#f87171', stroke: '#0a0f15', 'stroke-width': 1 }));
-      else if (p.kind === 'hidden') host.append(svg('circle', { cx: x(i), cy: y(p.est), r: 4, fill: 'none', stroke: '#8b9bb0', 'stroke-width': 1.5 }));
-      else if (p.kind === 'next') host.append(svg('circle', { cx: x(i), cy: y(p.pred), r: 5, fill: '#fbbf24' }));
+      if (p.ev) host.append(svg('line', { x1: x(i), x2: x(i), y1: H - B - 12, y2: H - B, stroke: C.event, 'stroke-width': 2, 'vector-effect': 'non-scaling-stroke' }));
+      if (p.kind === 'hist') host.append(svg('circle', { cx: x(i), cy: y(p.mrr), r: 2.6, fill: C.hist }));
+      else if (p.kind === 'meas') host.append(svg('circle', { cx: x(i), cy: y(p.mrr), r: 4, fill: p.inSpec ? C.brand : C.alarm, stroke: '#fff', 'stroke-width': 1.5 }));
+      else if (p.kind === 'hidden') host.append(svg('circle', { cx: x(i), cy: y(p.est), r: 4, fill: '#fff', stroke: C.hidden, 'stroke-width': 1.5 }));
+      else if (p.kind === 'next') host.append(svg('circle', { cx: x(i), cy: y(p.pred), r: 5.5, fill: C.next, stroke: '#fff', 'stroke-width': 1.5 }));
     });
   }
 
   function renderAll() {
     renderTop(); renderEquipment(); renderWaferAndPrediction(); renderDecide(); renderQueue(); renderLog(); renderRunLog(); renderSpc();
+    // When the operator has to act, bring the [운전] menu forward.
+    if (!auto && ['ready', 'decide', 'done'].includes(session.state.phase)) selectTab('run');
+    if (!session.state.run) renderHudAlarm(null);
     if (!session.state.run) {
       $('process-wafer').textContent = session.state.phase === 'done' ? '운전 종료' : `${session.current().wafer.label} 투입 대기`;
       $('machine-phase').textContent = session.state.phase === 'decide' ? '언로딩 완료' : session.state.phase === 'done' ? '운전 종료' : '투입 대기';
@@ -562,8 +692,15 @@
     document.querySelectorAll('#speed button').forEach(b => b.addEventListener('click', () => setSpeed(Number(b.dataset.speed))));
     $('pause').addEventListener('click', () => { paused = !paused; $('pause').setAttribute('aria-pressed', String(paused)); $('pause').textContent = paused ? '재개' : '일시정지'; });
     $('skip').addEventListener('click', () => { if (session && session.state.phase === 'run' && run) { run.elapsed = run.total - 1e-6; } });
-    $('auto-mode').addEventListener('change', e => { auto = e.target.checked; if (session) { session.state.auto = auto; wait = auto ? 0.3 : 0; renderDecide(); } });
+    $('auto-mode').addEventListener('change', e => { auto = e.target.checked; if (session) { session.state.auto = auto; wait = auto ? 0.3 : 0; renderDecide(); renderGuide(); } });
     $('open-tasks').addEventListener('click', openTasks);
+    $('open-tasks-2').addEventListener('click', openTasks);
+    for (const t of ['run', 'metrology', 'task']) $(`tab-${t}`).addEventListener('click', () => selectTab(t));
+    $('policy-sample').addEventListener('change', changePolicy);
+    $('policy-delay').addEventListener('change', changePolicy);
+    let resizeTimer = 0; // the control chart is drawn in real pixels, so redraw it after a resize
+    window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (session) renderSpc(); }, 150); });
+    renderGuide();
     document.querySelectorAll('#spc-recipe button').forEach(b => b.addEventListener('click', () => {
       spcRecipe = b.dataset.recipe; document.querySelectorAll('#spc-recipe button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); if (session) renderSpc();
     }));
@@ -593,7 +730,7 @@
       $('loading-text').textContent = `시뮬레이터 데이터를 불러오지 못했습니다 (${err.message}). 재생 데이터는 로컬에서 생성합니다: python -m tools.lab_sim.build_lab_data --wafer-table <wafer_table.csv> --traces <CMP-data/training>`;
       return;
     }
-    buildGauges(); wire();
+    buildGauges(); wire(); initScene();
     // Read-only hook for automated browser checks.
     window.LabSimDebug = Object.freeze({ session: () => session, auto: () => auto, wait: () => wait, paused: () => paused, run: () => run });
     $('loading').hidden = true;
