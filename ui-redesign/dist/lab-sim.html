@@ -13,6 +13,7 @@
   <script src="./scene-parts.js" defer></script>
   <script src="./cmp-scene.js" defer></script>
   <script src="./lab-sim/state-model.js" defer></script>
+  <script src="./lab-sim/virtual-tool.js" defer></script>
   <script src="./lab-sim/sim-engine.js" defer></script>
   <script src="./lab-sim/sim-view.js" defer></script>
 </head>
@@ -23,7 +24,7 @@
     </a>
     <div class="title">
       <h1>연마 장비 시뮬레이터</h1>
-      <p>실제 운전 기록(PHM 2016) 재생 · 상태 추적 모델 v2</p>
+      <p id="mode-line">PHM 2016 데이터로 학습한 상태 추적 모델 v2</p>
     </div>
     <div class="status" aria-label="장비 상태 요약">
       <span class="state-badge" id="tool-state" data-state="idle"><i class="led" aria-hidden="true"></i><span>대기</span></span>
@@ -161,6 +162,7 @@
             <h3 id="task-title">과제를 선택하세요</h3>
             <p class="note" id="task-goal">위쪽 ‘과제 선택’에서 과제를 고르세요.</p>
             <ul class="task-focus" id="task-focus"></ul>
+            <ol class="chapter-list" id="chapter-list" hidden></ol>
             <h3>조작 방법</h3>
             <ol class="howto">
               <li><b>운전</b> 메뉴에서 예측 MRR과 구간을 보고 <b>연마 시간</b>을 정합니다.</li>
@@ -169,6 +171,24 @@
               <li>연마가 끝나면 <b>계측</b>할지 정하고 다음 웨이퍼로 넘어갑니다.</li>
               <li>결과는 시뮬레이터 아래 <b>결과</b> 영역과 마지막 <b>결과 창</b>에서 확인합니다.</li>
             </ol>
+            <div class="scope">
+              <h3>이 시뮬레이터가 다루는 것</h3>
+              <ul class="scope-yes">
+                <li>보이지 않는 장비 상태의 변화와 R2R 보정</li>
+                <li>계측 주기·지연과 예측 정확도</li>
+                <li>재가동·패드 교체 직후 첫 장</li>
+                <li>주 압력과 MRR (A456, 관측된 범위 안)</li>
+                <li>레시피 단계(로딩→가압→본 연마→린스→언로딩)</li>
+              </ul>
+              <h3>다루지 않는 것 (데이터 근거 없음)</h3>
+              <ul class="scope-no">
+                <li>웨이퍼 안 균일도(중심·가장자리)와 구역 압력</li>
+                <li>막 두께·종점 검출·디싱·이로전</li>
+                <li>회전 속도·슬러리 성분·온도의 효과</li>
+                <li>스크래치 같은 결함과 세정</li>
+                <li>물리 단위(nm, µm/min) — 값은 원시 단위</li>
+              </ul>
+            </div>
             <button type="button" class="secondary-button block" id="open-tasks-2">과제 바꾸기</button>
           </div>
         </aside>
@@ -223,7 +243,7 @@
           <div class="card-heading"><h3>운전 기록</h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>웨이퍼</th><th>레시피</th><th>시간(초)</th><th>투입 전 예측</th><th>연마 중 추정</th><th>실측 MRR</th><th>제거량</th><th>판정</th><th>비고</th></tr></thead>
+              <thead><tr><th>웨이퍼</th><th>레시피</th><th>시간(초)</th><th>투입 전 예측</th><th>연마 중 추정</th><th id="th-actual">결과 MRR</th><th>제거량</th><th>판정</th><th>비고</th></tr></thead>
               <tbody id="runlog"></tbody>
             </table>
           </div>
@@ -232,8 +252,8 @@
     </section>
 
     <footer class="provenance">
-      <span class="badge badge-green">실제 기록</span> 웨이퍼 순서 · 휴지/패드 교체 · 연마 중 센서 · 실측 MRR (PHM 2016 CMP, fold 5, 14일 327장)
-      <span class="badge badge-blue">모델</span> 상태 추적 v2 · fold 1~4로 학습 · 개발 평가만 있고 독립 검증 없음
+      <span class="badge badge-green">데이터</span> <span id="prov-data">PHM 2016 CMP 기록으로 학습(fold 1~4) · 연마 중 센서 모양은 실제 기록(fold 5)</span>
+      <span class="badge badge-blue">모델</span> <span id="prov-model">상태 추적 v2 · 가상 장비는 학습 밖 fold 5 검증 24/25 · 독립 최종 검증 없음</span>
       <span class="badge badge-amber">가정</span> 제거량 = 실측 MRR × 연마 시간 · 목표 = 기준 MRR × 기준 시간 · 규격 ±5% · 원시 단위(물리 단위 미확인) · 3D는 설명용 표현
     </footer>
   </main>
@@ -242,7 +262,7 @@
     <form method="dialog" class="dialog">
       <header>
         <h2 id="task-dialog-title">운전 과제 선택</h2>
-        <p>실제 CMP 장비의 14일 운전 기록(웨이퍼 327장)을 재생합니다. 웨이퍼의 결과는 실제 측정값에서 나오며, 여러분은 예측을 보고 연마 시간과 계측을 결정합니다.</p>
+        <p><b>연습</b>은 PHM 2016 데이터로 학습한 모델이 움직이는 가상 장비입니다. 조건을 바꾸면 결과도 바뀌며, 결과는 모델이 만든 값입니다. <b>실전</b>은 실제 공장 기록을 그대로 재생하며 결과는 실측값입니다.</p>
       </header>
       <div class="task-grid" id="task-grid"></div>
       <fieldset class="free-config" id="free-config" hidden>
@@ -255,6 +275,15 @@
         </label>
       </fieldset>
       <footer><button value="cancel" class="secondary-button" id="task-cancel">닫기</button><button value="start" class="primary-button" id="task-start" disabled>운전 시작</button></footer>
+    </form>
+  </dialog>
+
+  <dialog id="chapter-dialog" aria-labelledby="chapter-title">
+    <form method="dialog" class="dialog narrow">
+      <header><span class="badge badge-blue" id="chapter-step">챕터</span><h2 id="chapter-title">챕터</h2><p id="chapter-intro"></p></header>
+      <div class="chapter-watch"><h3>이번 챕터에서 볼 것</h3><ul id="chapter-watch"></ul></div>
+      <p class="note" id="chapter-policy"></p>
+      <footer><button value="ok" class="primary-button" id="chapter-ok">시작</button></footer>
     </form>
   </dialog>
 

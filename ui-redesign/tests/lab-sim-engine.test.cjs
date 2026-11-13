@@ -41,12 +41,15 @@ const runWafer = (s, t, measure = true) => {
   const rec = s.finish(); s.metrology(measure); return rec;
 };
 
-test('task presets stay inside the 327-wafer replay session', () => {
-  for (const t of Engine.TASKS) {
-    assert.ok(t.start >= 1 && t.start + t.count - 1 <= 327, t.id);
-    assert.ok(t.goal && t.lesson && t.title, t.id);
-  }
-  assert.deepEqual(Engine.TASKS.map(t => t.code), ['T1', 'T2', 'T3', 'T4', '자유']);
+test('tasks: one guided practice day, a sandbox and the real 14-day replay', () => {
+  assert.deepEqual(Engine.TASKS.map(t => [t.id, t.source]), [['practice', 'virtual'], ['sandbox', 'virtual'], ['replay', 'replay']]);
+  for (const t of Engine.TASKS) assert.ok(t.goal && t.lesson && t.title && t.focus.length, t.id);
+  const replayTask = Engine.TASKS.find(t => t.id === 'replay');
+  assert.equal(replayTask.start + replayTask.count - 1, 327);
+  const ch = Engine.PRACTICE_CHAPTERS;
+  assert.deepEqual(ch.map(c => c.id), ['basic', 'restart', 'pad', 'delay', 'pressure']);
+  for (let i = 1; i < ch.length; i++) assert.equal(ch[i].from, ch[i - 1].to + 1, 'chapters are contiguous');
+  assert.equal(ch.at(-1).to, Engine.TASKS[0].count);
 });
 
 test('pre-start view recommends a bounded time and rejects out-of-range input', () => {

@@ -28,6 +28,8 @@ import pandas as pd
 from .features import add_context, contexts, load_table, pad_step_from
 from .fit import fit
 from .state_model import ModelParams, RecipeParams, StateModel, WaferContext
+from .validate_virtual import estimate_reversion, estimate_wear, pressure_range
+from .virtual_tool import VirtualParams, VirtualTool
 
 ROOT = Path(__file__).resolve().parents[2]
 WEB = ROOT / "ui-redesign"
@@ -113,6 +115,23 @@ def parity_fixture(params: ModelParams) -> dict:
             "note": "Synthetic values only. Measurements are applied at the end of step index `applied_at`, in due order."}
 
 
+def virtual_fixture(vp: VirtualParams) -> dict:
+    """Seeded virtual-tool sequence with synthetic inputs, for checking the browser generator."""
+    init = [["A456", 76.0, 2.5], ["B456", 82.0, 3.5]]
+    tool = VirtualTool(vp, {r: (m, v) for r, m, v in init}, seed=20261113)
+    rng = np.random.default_rng(13)
+    steps = []
+    for i in range(60):
+        recipe = "A456" if rng.random() < 0.6 else "B456"
+        lo, hi = vp.pressure_range[recipe]
+        inputs = {"recipe": recipe, "pressure": float(rng.uniform(lo, hi)), "after_rest": bool(rng.random() < 0.1),
+                  "after_pad_change": bool(rng.random() < 0.08), "u_pad": float(rng.uniform(0, 330))}
+        steps.append({"inputs": inputs, "out": tool.wafer(inputs["recipe"], inputs["pressure"], inputs["after_rest"],
+                                                          inputs["after_pad_change"], inputs["u_pad"])})
+    return {"seed": 20261113, "init": init, "virtual": vp.to_json(), "steps": steps,
+            "note": "Synthetic inputs; outputs from tools/lab_sim/virtual_tool.py."}
+
+
 def build(table: Path, trace_dir: Path, out_dir: Path, fixture: Path):
     raw = load_table(table)
     train_raw = raw[raw.fold < 5]
@@ -135,6 +154,11 @@ def build(table: Path, trace_dir: Path, out_dir: Path, fixture: Path):
         recipe_meta[rec] = {"mrr_ref": r(mrr_ref), "t_ref": r(t_ref, 1), "target_removal": r(mrr_ref * t_ref, 1),
                             "spec_pct": SPEC_PCT, "p_ref": r(params.recipes[rec].p_ref, 2)}
     model_json["recipe_meta"] = recipe_meta
+    # Practice-mode virtual tool: generator parameters from folds 1..4; pressure bounds from development data.
+    vp = VirtualParams(model=params, wear=estimate_wear(train), reversion=estimate_reversion(train, params),
+                       pressure_range=pressure_range(w))
+    model_json["virtual"] = {**vp.to_json(), "pad_step": pad_step,
+                             "validation": "fold 5 posterior predictive check: 24/25 statistics inside 5-95% band (runs/lab_sim_virtual_tool)"}
 
     # Warm the state up on folds 1..4 (fully measured), exactly as the online replay would.
     model = StateModel(params)
@@ -174,6 +198,7 @@ def build(table: Path, trace_dir: Path, out_dir: Path, fixture: Path):
     (out_dir / "data" / "replay.json").write_text(json.dumps(replay, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
     fixture.parent.mkdir(parents=True, exist_ok=True)
     fixture.write_text(json.dumps(parity_fixture(params), indent=1), encoding="utf-8")
+    fixture.with_name("lab-sim-virtual-parity.json").write_text(json.dumps(virtual_fixture(vp), indent=1), encoding="utf-8")
     missing = sum(1 for x in wafers if x["trace"] is None)
     size = (out_dir / "data" / "replay.json").stat().st_size
     print(json.dumps({"pad_step": pad_step, "params": {k: vars(v) for k, v in params.recipes.items()},

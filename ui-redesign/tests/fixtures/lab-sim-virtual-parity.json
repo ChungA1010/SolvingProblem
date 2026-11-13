@@ -1,0 +1,1010 @@
+{
+ "seed": 20261113,
+ "init": [
+  [
+   "A456",
+   76.0,
+   2.5
+  ],
+  [
+   "B456",
+   82.0,
+   3.5
+  ]
+ ],
+ "virtual": {
+  "wear": {
+   "A456": {
+    "slope": -0.0019833244141321546,
+    "ref_usage": 166.74969189854323
+   },
+   "B456": {
+    "slope": -0.004941626169572943,
+    "ref_usage": 177.67625493512523
+   }
+  },
+  "reversion": {
+   "A456": {
+    "phi": 0.900447475869727,
+    "mu": 77.44073116438356
+   },
+   "B456": {
+    "phi": 0.9432291859114397,
+    "mu": 83.37032419354838
+   }
+  },
+  "pressure_range": {
+   "A456": [
+    251.66025668829138,
+    270.0
+   ],
+   "B456": [
+    251.39526541909166,
+    269.96678777678807
+   ]
+  }
+ },
+ "steps": [
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 267.2795351977464,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 25.475821047079062
+   },
+   "out": {
+    "mrr": 87.09969654330055,
+    "level": 85.07812429921981,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.7521176471215255
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 262.7943115323412,
+    "after_rest": true,
+    "after_pad_change": false,
+    "u_pad": 324.9851468283933
+   },
+   "out": {
+    "mrr": 90.03642485744295,
+    "level": 85.73221473420814,
+    "factor": 1.0,
+    "offset": 2.316807688737816,
+    "wear": -0.727945475190565
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 266.58259282754284,
+    "after_rest": true,
+    "after_pad_change": false,
+    "u_pad": 269.8422456657865
+   },
+   "out": {
+    "mrr": 75.96725156745734,
+    "level": 75.6387148917503,
+    "factor": 0.9881495914777776,
+    "offset": 0.35782347460074376,
+    "wear": -0.2044659788018054
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 261.15565341781286,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 164.29624474972903
+   },
+   "out": {
+    "mrr": 71.24208933252622,
+    "level": 75.65126476239867,
+    "factor": 0.9680333944529834,
+    "offset": 0.0,
+    "wear": 0.00486598162902614
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 265.904481423105,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 243.25957346485856
+   },
+   "out": {
+    "mrr": 71.79295014156067,
+    "level": 73.98650911304746,
+    "factor": 0.9856360158531862,
+    "offset": 0.0,
+    "wear": -0.15174391603283288
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 251.95477889160742,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 38.721069368294565
+   },
+   "out": {
+    "mrr": 90.92235737686516,
+    "level": 84.97257747081579,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.6866645813949148
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 261.7513041050614,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 180.7415925619808
+   },
+   "out": {
+    "mrr": 71.05875233091683,
+    "level": 73.8871758305772,
+    "factor": 0.9702413104951568,
+    "offset": 0.0,
+    "wear": -0.027750478185907635
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 265.21753985833124,
+    "after_rest": false,
+    "after_pad_change": true,
+    "u_pad": 316.29454540617354
+   },
+   "out": {
+    "mrr": 77.20533540975376,
+    "level": 77.89995174759396,
+    "factor": 0.9830897092117791,
+    "offset": 1.0533065348837243,
+    "wear": -0.29659595896949975
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 259.8598488524608,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 41.158039990950726
+   },
+   "out": {
+    "mrr": 86.83728001027792,
+    "level": 85.1942720132451,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.6746219835915167
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 265.2670119276211,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 306.40220154621693
+   },
+   "out": {
+    "mrr": 90.19320532239915,
+    "level": 88.38513785581382,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.6361155064764202
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 267.64292691200325,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 174.83795430739184
+   },
+   "out": {
+    "mrr": 90.76936283000707,
+    "level": 90.42838819579357,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.014025820659122626
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 254.37772689185337,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 0.5493823013302157
+   },
+   "out": {
+    "mrr": 93.58519278928495,
+    "level": 91.29474062989401,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.8752947891417749
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 258.9942997405641,
+    "after_rest": false,
+    "after_pad_change": true,
+    "u_pad": 306.42019105677656
+   },
+   "out": {
+    "mrr": 72.01025683806131,
+    "level": 74.50827835724898,
+    "factor": 0.9600218407706542,
+    "offset": 1.0533065348837243,
+    "wear": -0.2770119109145487
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 262.5344691735482,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 53.30215788083166
+   },
+   "out": {
+    "mrr": 88.69080067504096,
+    "level": 91.76636696968468,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.6146102928205022
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 263.882285042361,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 100.04188437334791
+   },
+   "out": {
+    "mrr": 71.99447347580201,
+    "level": 74.32227330608839,
+    "factor": 0.9781402806428504,
+    "offset": 0.0,
+    "wear": 0.13230322327794855
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 258.27665167412624,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 26.750464667620804
+   },
+   "out": {
+    "mrr": 74.48009018651318,
+    "level": 74.92338414176065,
+    "factor": 0.9573617134301788,
+    "offset": 0.0,
+    "wear": 0.2776638853267236
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 258.14873048945117,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 267.04754164934394
+   },
+   "out": {
+    "mrr": 71.7093365749876,
+    "level": 75.74179144318404,
+    "factor": 0.9568875441866536,
+    "offset": 0.0,
+    "wear": -0.1989231740957217
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 260.9673297857237,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 258.0275257853989
+   },
+   "out": {
+    "mrr": 72.29841597498519,
+    "level": 74.83372810244546,
+    "factor": 0.967335329668855,
+    "offset": 0.0,
+    "wear": -0.18103355641690014
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 265.08884450601914,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 276.30929185603964
+   },
+   "out": {
+    "mrr": 89.01613499356039,
+    "level": 92.44362917691987,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.48740759643284487
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 265.65654873226396,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 153.3914677256596
+   },
+   "out": {
+    "mrr": 69.81446453931831,
+    "level": 74.68306201323524,
+    "factor": 0.9847169964057048,
+    "offset": 0.0,
+    "wear": 0.026493692131530428
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 265.45637007299916,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 259.95356125908165
+   },
+   "out": {
+    "mrr": 70.73374474508856,
+    "level": 71.95138723535179,
+    "factor": 0.9839749882412667,
+    "offset": 0.0,
+    "wear": -0.18485350959433974
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 262.28152763906854,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 173.05053954474437
+   },
+   "out": {
+    "mrr": 69.85391997305527,
+    "level": 70.69549225005379,
+    "factor": 0.9722067057708341,
+    "offset": 0.0,
+    "wear": -0.01249662496643783
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 264.66387853781066,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 254.06483560706536
+   },
+   "out": {
+    "mrr": 64.90650060533642,
+    "level": 68.5623164363765,
+    "factor": 0.98103743639874,
+    "offset": 0.0,
+    "wear": -0.17317425624056954
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 257.4062010246715,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 294.7780404011822
+   },
+   "out": {
+    "mrr": 65.06302318130597,
+    "level": 67.22985921181453,
+    "factor": 0.9541351882301005,
+    "offset": 0.0,
+    "wear": -0.25392174928630373
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 254.89558807050233,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 209.84784566585762
+   },
+   "out": {
+    "mrr": 61.41899552640866,
+    "level": 65.30876079105013,
+    "factor": 0.9448290248429585,
+    "offset": 0.0,
+    "wear": -0.08547762057073632
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 269.11105939081006,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 192.92591443445312
+   },
+   "out": {
+    "mrr": 65.4885673454815,
+    "level": 65.79063745178748,
+    "factor": 0.9975219333664846,
+    "offset": 0.0,
+    "wear": -0.05191594122522638
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 269.59572271458217,
+    "after_rest": true,
+    "after_pad_change": false,
+    "u_pad": 87.23421665126855
+   },
+   "out": {
+    "mrr": 64.65511276015951,
+    "level": 64.37713475474595,
+    "factor": 0.9993184492616523,
+    "offset": 0.35782347460074376,
+    "wear": 0.1577049833592409
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 254.95316152441842,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 255.87957664070984
+   },
+   "out": {
+    "mrr": 62.783048255915126,
+    "level": 64.1501612755918,
+    "factor": 0.945042434069584,
+    "offset": 0.0,
+    "wear": -0.17677347643792407
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 260.7667325239703,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 85.08726246769973
+   },
+   "out": {
+    "mrr": 62.745627681005594,
+    "level": 66.54086121685803,
+    "factor": 0.9665917698581761,
+    "offset": 0.0,
+    "wear": 0.16196309000753611
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 257.0007970689803,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 90.37164771382486
+   },
+   "out": {
+    "mrr": 67.80695490317046,
+    "level": 67.53440151274111,
+    "factor": 0.9526324653818053,
+    "offset": 0.0,
+    "wear": 0.15148243973521638
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 268.1259707902935,
+    "after_rest": true,
+    "after_pad_change": true,
+    "u_pad": 36.99944387138981
+   },
+   "out": {
+    "mrr": 70.32829563804358,
+    "level": 68.41474199752881,
+    "factor": 0.9938704762782884,
+    "offset": 1.411130009484468,
+    "wear": 0.2573368346519558
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 268.7427119302405,
+    "after_rest": true,
+    "after_pad_change": false,
+    "u_pad": 215.16377550103508
+   },
+   "out": {
+    "mrr": 93.8017214224087,
+    "level": 91.6032187068467,
+    "factor": 1.0,
+    "offset": 2.316807688737816,
+    "wear": -0.185249312660904
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 251.730963345816,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 307.45099935529385
+   },
+   "out": {
+    "mrr": 62.41504487249711,
+    "level": 68.61035168755967,
+    "factor": 0.9330986166579714,
+    "offset": 0.0,
+    "wear": -0.27905633817928804
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 263.2173976581528,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 207.8200042473603
+   },
+   "out": {
+    "mrr": 87.56236731023698,
+    "level": 90.37881569251444,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.14895914045038716
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 259.2177027184287,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 282.187720358034
+   },
+   "out": {
+    "mrr": 86.276705957214,
+    "level": 84.28075806331087,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.5164565925542639
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 262.5787754144786,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 118.81945065802995
+   },
+   "out": {
+    "mrr": 66.33918222797872,
+    "level": 69.07691967232948,
+    "factor": 0.9733085229027171,
+    "offset": 0.0,
+    "wear": 0.09506121762755385
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 266.5571573170752,
+    "after_rest": false,
+    "after_pad_change": true,
+    "u_pad": 85.17878965289542
+   },
+   "out": {
+    "mrr": 84.89158946020672,
+    "level": 82.74540296245381,
+    "factor": 1.0,
+    "offset": 1.3013068055987127,
+    "wear": 0.45708789505783154
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 254.63382595920453,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 243.97311832536883
+   },
+   "out": {
+    "mrr": 67.92306829413515,
+    "level": 73.30354266299639,
+    "factor": 0.9438587434731219,
+    "offset": 0.0,
+    "wear": -0.15315910697526142
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 266.51613333556173,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 243.51459207565975
+   },
+   "out": {
+    "mrr": 79.7872659848705,
+    "level": 80.62636920305377,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.3253484497748316
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 262.1641530706965,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 296.2200568988046
+   },
+   "out": {
+    "mrr": 78.97913906676274,
+    "level": 78.93827957324724,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.5857991540243904
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 253.859143147566,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 104.3557718150282
+   },
+   "out": {
+    "mrr": 68.58004787994714,
+    "level": 74.02756103992355,
+    "factor": 0.9409872037535698,
+    "offset": 0.0,
+    "wear": 0.12374738499504592
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 262.39683845772936,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 273.37564473888125
+   },
+   "out": {
+    "mrr": 77.67802641809607,
+    "level": 79.90124938418342,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.4729106090664028
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 263.3892710004181,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 86.70465961043999
+   },
+   "out": {
+    "mrr": 73.4709537824972,
+    "level": 76.20534119481431,
+    "factor": 0.9763128108933389,
+    "offset": 0.0,
+    "wear": 0.15875526676699175
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 260.5367218052324,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 29.178674187685903
+   },
+   "out": {
+    "mrr": 73.42742295472114,
+    "level": 74.74955826753708,
+    "factor": 0.965739182315435,
+    "offset": 0.0,
+    "wear": 0.27284795810295037
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 261.55979728498517,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 187.76862434393936
+   },
+   "out": {
+    "mrr": 75.73666532650789,
+    "level": 75.04576196989534,
+    "factor": 0.9695314464938491,
+    "offset": 0.0,
+    "wear": -0.04168736187794862
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 254.97040804554638,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 329.8293664335687
+   },
+   "out": {
+    "mrr": 71.63353332140736,
+    "level": 74.19735794790645,
+    "factor": 0.9451063622601918,
+    "offset": 0.0,
+    "wear": -0.3234398999540418
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 264.6317685611464,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 144.39711327424052
+   },
+   "out": {
+    "mrr": 74.17605860524795,
+    "level": 74.13915121189882,
+    "factor": 0.9809184133973256,
+    "offset": 0.0,
+    "wear": 0.04433241490438809
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 255.68489879340922,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 245.5521237612737
+   },
+   "out": {
+    "mrr": 71.10590119117849,
+    "level": 74.8339766037239,
+    "factor": 0.9477547862744036,
+    "offset": 0.0,
+    "wear": -0.15629078700633892
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 257.6468713092263,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 185.13873027991764
+   },
+   "out": {
+    "mrr": 84.04690890584085,
+    "level": 79.66154112731287,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.03687676345361904
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 251.7987585875361,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 170.29747889840138
+   },
+   "out": {
+    "mrr": 84.26633355742322,
+    "level": 82.86744084957438,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.03646315276249229
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 259.95519066962356,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 16.18210675731274
+   },
+   "out": {
+    "mrr": 75.70784414085422,
+    "level": 75.48777659085903,
+    "factor": 0.9635836036334645,
+    "offset": 0.0,
+    "wear": 0.2986243675875243
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 260.4254247982609,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 166.01986611174118
+   },
+   "out": {
+    "mrr": 85.75405182342324,
+    "level": 83.99277037016941,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.05760151605235218
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 268.0054579300133,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 249.79179951849375
+   },
+   "out": {
+    "mrr": 78.74202033070773,
+    "level": 80.89249013147383,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": -0.3563680623461781
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 264.7616902761406,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 56.38220313442076
+   },
+   "out": {
+    "mrr": 69.91993747911006,
+    "level": 74.21278004610379,
+    "factor": 0.981399998065829,
+    "offset": 0.0,
+    "wear": 0.21889453499234035
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 258.7735319769349,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 143.41943965324904
+   },
+   "out": {
+    "mrr": 66.90654913640029,
+    "level": 73.46574323293721,
+    "factor": 0.959203514363338,
+    "offset": 0.0,
+    "wear": 0.046271458865953484
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 253.61548235125935,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 168.26761992380978
+   },
+   "out": {
+    "mrr": 75.94586243177356,
+    "level": 78.43446531076277,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.04649395699187667
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 258.2468195916796,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 129.27960898063847
+   },
+   "out": {
+    "mrr": 73.07686051509775,
+    "level": 73.14017397015994,
+    "factor": 0.957251133966719,
+    "offset": 0.0,
+    "wear": 0.07431533025063672
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 266.659945007391,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 95.15593164204985
+   },
+   "out": {
+    "mrr": 74.16760624896264,
+    "level": 76.33874991247636,
+    "factor": 0.9884363150935477,
+    "offset": 0.0,
+    "wear": 0.14199365261622768
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "B456",
+    "pressure": 253.612643953927,
+    "after_rest": false,
+    "after_pad_change": false,
+    "u_pad": 85.45142382429127
+   },
+   "out": {
+    "mrr": 75.33132197121193,
+    "level": 73.46636584150816,
+    "factor": 1.0,
+    "offset": 0.0,
+    "wear": 0.455740638901742
+   }
+  },
+  {
+   "inputs": {
+    "recipe": "A456",
+    "pressure": 261.79511801355807,
+    "after_rest": true,
+    "after_pad_change": false,
+    "u_pad": 255.77998369905887
+   },
+   "out": {
+    "mrr": 73.37412466184054,
+    "level": 73.55459414527607,
+    "factor": 0.9704037168072975,
+    "offset": 0.35782347460074376,
+    "wear": -0.17657595132527246
+   }
+  }
+ ],
+ "note": "Synthetic inputs; outputs from tools/lab_sim/virtual_tool.py."
+}
