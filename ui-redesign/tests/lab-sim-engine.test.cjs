@@ -32,8 +32,8 @@ function replay({ n = 30, lowAt = [] } = {}) {
     warm_state: { A456: { level: 74, var: 2, at: -1, updates: 50 }, B456: { level: 80, var: 3, at: -1, updates: 50 } },
     history: { A456: [{ mrr: 74, pred: 73.5, low: 68, high: 79 }], B456: [{ mrr: 80, pred: 79.8, low: 73, high: 86 }] } };
 }
-const task = (over = {}) => ({ id: 't', start: 1, count: 30, policy: { sample: 1, delay: 0 }, pass: s => s.inSpec > 0, ...over });
-const session = (opts = {}) => Engine.createSession({ modelJson, replay: replay(opts.replay), LabStateModel, task: task(opts.task), policy: opts.policy });
+const session = (opts = {}) => Engine.createSession({ modelJson, replay: replay(opts.replay), LabStateModel, source: 'replay',
+  policy: opts.policy || { sample: 1, delay: 0 }, count: opts.count });
 const runWafer = (s, t, measure = true) => {
   const c = s.current(); s.begin(t ?? c.recommended);
   const total = s.sample(0).total;
@@ -41,15 +41,17 @@ const runWafer = (s, t, measure = true) => {
   const rec = s.finish(); s.metrology(measure); return rec;
 };
 
-test('tasks: one guided practice day, a sandbox and the real 14-day replay', () => {
-  assert.deepEqual(Engine.TASKS.map(t => [t.id, t.source]), [['practice', 'virtual'], ['sandbox', 'virtual'], ['replay', 'replay']]);
-  for (const t of Engine.TASKS) assert.ok(t.goal && t.lesson && t.title && t.focus.length, t.id);
-  const replayTask = Engine.TASKS.find(t => t.id === 'replay');
-  assert.equal(replayTask.start + replayTask.count - 1, 327);
-  const ch = Engine.PRACTICE_CHAPTERS;
-  assert.deepEqual(ch.map(c => c.id), ['basic', 'restart', 'pad', 'delay', 'pressure']);
-  for (let i = 1; i < ch.length; i++) assert.equal(ch[i].from, ch[i - 1].to + 1, 'chapters are contiguous');
-  assert.equal(ch.at(-1).to, Engine.TASKS[0].count);
+test('one simulator: suggestions tick themselves and the replay source locks recorded conditions', () => {
+  assert.deepEqual(Engine.SUGGESTIONS.map(x => x.id), ['inspec', 'pressure', 'skip', 'delay', 'event', 'alarm', 'replay']);
+  const s = session();
+  assert.equal(s.state.source, 'replay');
+  assert.throws(() => s.setPressure(250), /실제 기록/);
+  assert.throws(() => s.setRecipe('B456'), /실제 기록/);
+  assert.equal(s.current().controls.pressure, false);
+  runWafer(s);
+  const sum = s.summary();
+  assert.equal(sum.suggestions.find(x => x.id === 'replay').done, true);
+  assert.deepEqual(sum.situations.map(x => x.id), ['normal', 'event', 'stale', 'alarm', 'pressure']);
 });
 
 test('pre-start view recommends a bounded time and rejects out-of-range input', () => {
@@ -142,11 +144,11 @@ test('every-k policy, maintenance announcements and the session summary', () => 
   assert.ok(sum.coveragePct >= 0 && sum.meanWidth > 0);
 });
 
-test('a finished session flushes pending results and grades the task', () => {
-  const s = session({ task: { count: 4 }, policy: { sample: 1, delay: 3 } });
+test('the end of the replay record flushes pending results', () => {
+  const s = session({ count: 4, policy: { sample: 1, delay: 3 } });
   for (let i = 0; i < 4; i++) runWafer(s);
   assert.equal(s.state.phase, 'done');
   assert.equal(s.state.records.filter(r => r.measured).length, 4);
-  assert.equal(typeof s.summary().passed, 'boolean');
+  assert.equal(s.summary().pendingResults, 0);
   assert.equal(s.current(), null);
 });

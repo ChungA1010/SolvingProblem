@@ -31,7 +31,7 @@
       <span class="meta"><span>운전 시각</span><b id="sim-clock">—</b></span>
       <span class="meta lot"><span>진행</span><b id="lot-progress">—</b><span class="bar" aria-hidden="true"><i id="lot-bar"></i></span></span>
     </div>
-    <button type="button" class="secondary-button" id="open-tasks">과제 선택</button>
+    <button type="button" class="primary-button small" id="open-results">결과 보기</button>
   </header>
 
   <main class="page">
@@ -43,9 +43,11 @@
           <li data-step="decide"><span>3</span>계측 결정</li>
           <li data-step="done"><span>4</span>결과 확인</li>
         </ol>
-        <p class="guide-text" id="guide-text" aria-live="polite">‘과제 선택’에서 과제를 고르면 운전이 시작됩니다.</p>
-        <span class="badge badge-blue" id="task-name">과제 없음</span>
+        <p class="guide-text" id="guide-text" aria-live="polite">운전 기록과 모델을 불러오는 중입니다.</p>
+        <span class="badge badge-blue" id="task-name">가상 장비</span>
       </div>
+
+      <div class="notice" id="notice" role="status" hidden><div><strong id="notice-title"></strong><span id="notice-text"></span></div><button type="button" id="notice-close" aria-label="안내 닫기">×</button></div>
 
       <div class="sim-grid">
         <div class="stage">
@@ -116,8 +118,8 @@
         <aside class="menu" aria-label="운전 메뉴">
           <div class="menu-tabs" role="tablist" aria-label="운전 메뉴">
             <button type="button" role="tab" id="tab-run" aria-controls="panel-run" aria-selected="true">운전</button>
-            <button type="button" role="tab" id="tab-metrology" aria-controls="panel-metrology" aria-selected="false">계측 설정</button>
-            <button type="button" role="tab" id="tab-task" aria-controls="panel-task" aria-selected="false">과제 안내</button>
+            <button type="button" role="tab" id="tab-metrology" aria-controls="panel-metrology" aria-selected="false">설정</button>
+            <button type="button" role="tab" id="tab-task" aria-controls="panel-task" aria-selected="false">도움말</button>
           </div>
 
           <div class="menu-panel" role="tabpanel" id="panel-run" aria-labelledby="tab-run">
@@ -141,35 +143,42 @@
           </div>
 
           <div class="menu-panel" role="tabpanel" id="panel-metrology" aria-labelledby="tab-metrology" hidden>
-            <h3>계측 정책</h3>
-            <p class="note" id="policy-note">계측은 비용과 시간이 들지만, 결과가 들어와야 장비 상태 추정이 갱신됩니다.</p>
+            <h3>결과 기준</h3>
+            <div class="seg wide" role="group" aria-label="결과 기준" id="source-seg">
+              <button type="button" data-source="virtual" aria-pressed="true">가상 장비 (모델)</button>
+              <button type="button" data-source="replay" aria-pressed="false">실제 기록 (실측)</button>
+            </div>
+            <p class="note" id="source-note">가상 장비: 학습된 모델이 결과를 만듭니다. 압력·레시피·정비를 바꾸면 결과도 바뀝니다.</p>
+            <label class="check"><input type="checkbox" id="events-toggle" checked>돌발 상황 (휴지·패드 교체·연마 중 압력 저하)</label>
+            <h3>계측</h3>
             <div class="field-row">
-              <label>계측 주기
-                <select id="policy-sample"><option value="1">매 장</option><option value="2">2장마다</option><option value="5">5장마다</option><option value="10">10장마다</option><option value="manual">직접 결정</option></select>
+              <label>계측 규칙
+                <select id="policy-sample"><option value="manual">직접 결정</option><option value="1">매 장 자동</option><option value="2">2장마다 자동</option><option value="5">5장마다 자동</option><option value="10">10장마다 자동</option></select>
               </label>
               <label>결과 도착
                 <select id="policy-delay"><option value="0">즉시</option><option value="1">1장 뒤</option><option value="2">2장 뒤</option><option value="3">3장 뒤</option></select>
               </label>
             </div>
+            <p class="note" id="policy-note">계측은 비용과 시간이 들지만, 결과가 들어와야 장비 상태 추정이 갱신됩니다. 바꾸면 다음 결정부터 적용됩니다.</p>
             <p class="current-policy">현재: <b id="policy-label">—</b></p>
             <h3>계측 대기열</h3>
             <ol class="queue" id="queue"></ol>
-            <h3>자동 R2R 운전</h3>
-            <p class="note">켜면 모델 권장 시간으로 웨이퍼를 자동 투입하고, 연마 중 압력 경보가 뜨면 종료 시간도 자동 조정합니다. 재생 영역 아래 스위치로 켜고 끕니다.</p>
+            <h3>운전</h3>
+            <div class="actions two"><button type="button" class="btn" id="restart">새로 시작</button><button type="button" class="btn" id="restart-same">같은 흐름으로 다시</button></div>
+            <p class="note" id="seed-note"></p>
           </div>
 
           <div class="menu-panel" role="tabpanel" id="panel-task" aria-labelledby="tab-task" hidden>
-            <h3 id="task-title">과제를 선택하세요</h3>
-            <p class="note" id="task-goal">위쪽 ‘과제 선택’에서 과제를 고르세요.</p>
-            <ul class="task-focus" id="task-focus"></ul>
-            <ol class="chapter-list" id="chapter-list" hidden></ol>
+            <h3>추천 연습</h3>
+            <p class="note">해 보면 자동으로 체크됩니다. 순서는 자유입니다.</p>
+            <ul class="suggestions" id="suggestions"></ul>
             <h3>조작 방법</h3>
             <ol class="howto">
-              <li><b>운전</b> 메뉴에서 예측 MRR과 구간을 보고 <b>연마 시간</b>을 정합니다.</li>
+              <li><b>운전</b> 메뉴에서 공정 조건(압력·레시피·정비)을 정하고, 예측 MRR과 구간을 보고 <b>연마 시간</b>을 정합니다.</li>
               <li><b>연마 시작</b>을 누르면 3D 장비가 실제 기록대로 연마합니다.</li>
               <li>압력 경보가 뜨면 <b>종료 시간 조정</b>을 할 수 있습니다.</li>
               <li>연마가 끝나면 <b>계측</b>할지 정하고 다음 웨이퍼로 넘어갑니다.</li>
-              <li>결과는 시뮬레이터 아래 <b>결과</b> 영역과 마지막 <b>결과 창</b>에서 확인합니다.</li>
+              <li>결과는 시뮬레이터 아래 <b>결과</b> 영역과 위쪽 <b>결과 보기</b>에서 언제든 확인합니다.</li>
             </ol>
             <div class="scope">
               <h3>이 시뮬레이터가 다루는 것</h3>
@@ -189,7 +198,7 @@
                 <li>물리 단위(nm, µm/min) — 값은 원시 단위</li>
               </ul>
             </div>
-            <button type="button" class="secondary-button block" id="open-tasks-2">과제 바꾸기</button>
+
           </div>
         </aside>
       </div>
@@ -258,34 +267,7 @@
     </footer>
   </main>
 
-  <dialog id="task-dialog" aria-labelledby="task-dialog-title">
-    <form method="dialog" class="dialog">
-      <header>
-        <h2 id="task-dialog-title">운전 과제 선택</h2>
-        <p><b>연습</b>은 PHM 2016 데이터로 학습한 모델이 움직이는 가상 장비입니다. 조건을 바꾸면 결과도 바뀌며, 결과는 모델이 만든 값입니다. <b>실전</b>은 실제 공장 기록을 그대로 재생하며 결과는 실측값입니다.</p>
-      </header>
-      <div class="task-grid" id="task-grid"></div>
-      <fieldset class="free-config" id="free-config" hidden>
-        <legend>자유 운전 설정</legend>
-        <label>계측 주기
-          <select id="cfg-sample"><option value="1">매 장</option><option value="2">2장마다</option><option value="5">5장마다</option><option value="10">10장마다</option><option value="manual">직접 결정</option></select>
-        </label>
-        <label>결과 도착
-          <select id="cfg-delay"><option value="0">즉시</option><option value="1">1장 뒤</option><option value="2">2장 뒤</option><option value="3">3장 뒤</option></select>
-        </label>
-      </fieldset>
-      <footer><button value="cancel" class="secondary-button" id="task-cancel">닫기</button><button value="start" class="primary-button" id="task-start" disabled>운전 시작</button></footer>
-    </form>
-  </dialog>
 
-  <dialog id="chapter-dialog" aria-labelledby="chapter-title">
-    <form method="dialog" class="dialog narrow">
-      <header><span class="badge badge-blue" id="chapter-step">챕터</span><h2 id="chapter-title">챕터</h2><p id="chapter-intro"></p></header>
-      <div class="chapter-watch"><h3>이번 챕터에서 볼 것</h3><ul id="chapter-watch"></ul></div>
-      <p class="note" id="chapter-policy"></p>
-      <footer><button value="ok" class="primary-button" id="chapter-ok">시작</button></footer>
-    </form>
-  </dialog>
 
   <dialog id="debrief" aria-labelledby="debrief-title">
     <div class="dialog wide">

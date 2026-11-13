@@ -22,13 +22,13 @@
     warn: '#f59e0b', alarm: '#dc2626', hist: '#cbd5e1', hidden: '#94a3b8', next: '#f97316', event: '#f97316', cursor: '#94a3b8', track: '#edf1f7' };
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  let modelJson = null, replay = null, session = null, task = null, policy = null, runLabel = '';
+  let modelJson = null, replay = null, session = null, policy = null, runLabel = '';
   let speed = 8, paused = false, auto = false, spcRecipe = 'A456';
   let run = null;                  // { elapsed, total, sample, spark, trend, autoAdjusted, lastTrendAt }
   let wait = 0;                    // real seconds before an automatic next action
   let anim = { platen: 0, carrier: 0, stage3d: 0, head3d: 0, t: 0, drops: [] };
   let scene3D = null, lastSceneKey = '';
-  let lastFrame = 0, lastPaint = 0, selectedTask = null;
+  let lastFrame = 0, lastPaint = 0;
 
   /* ---------- helpers ---------- */
   function el(tag, attrs = {}, text) {
@@ -58,75 +58,42 @@
     }
   }
 
-  function buildTaskDialog() {
-    const grid = $('task-grid'); grid.replaceChildren();
-    const done = new Set(storeGet().filter(r => r.passed).map(r => r.task));
-    const groups = [['virtual', '연습', '학습된 모델로 움직이는 가상 장비 · 조건을 바꾸면 결과도 바뀝니다 (결과는 모델이 만든 값)'],
-      ['replay', '실전 검증', 'PHM 2016 실제 운전 기록 재생 · 결과는 실측값이고 조건은 바꿀 수 없습니다']];
-    for (const [source, title, desc] of groups) {
-      const head = el('div', { class: 'task-group' }); head.append(el('h3', {}, title), el('p', {}, desc)); grid.append(head);
-      for (const t of E.TASKS.filter(x => x.source === source)) {
-        const b = el('button', { type: 'button', class: 'task-card', 'aria-pressed': 'false', 'data-task': t.id, 'data-source': t.source });
-        b.append(el('span', { class: 'code' }, t.code));
-        if (t.recommended) b.append(el('span', { class: 'rec' }, '처음이라면 여기부터'));
-        b.append(el('strong', {}, t.title), el('p', {}, t.goal));
-        const ul = el('ul'); t.focus.forEach(f => ul.append(el('li', {}, f))); b.append(ul);
-        b.append(el('span', { class: 'meta' }, t.chapters ? `${t.count}장 · 챕터 ${t.chapters.length}개 · 약 10~15분 (8×)`
-          : t.source === 'virtual' ? `${t.count}장 · 레시피·압력·정비·계측 직접 설정` : `${t.count}장 · 14일 실제 기록`));
-        if (done.has(t.id)) b.append(el('span', { class: 'done' }, '✓ 통과한 과제'));
-        b.addEventListener('click', () => {
-          grid.querySelectorAll('.task-card').forEach(c => c.setAttribute('aria-pressed', String(c === b)));
-          selectedTask = t; $('task-start').disabled = false; $('free-config').hidden = !t.configurable;
-        });
-        grid.append(b);
-      }
-    }
+  /* ---------- run control (one simulator, no task selection) ---------- */
+  let sourceSel = 'virtual', eventsOn = true;
+
+  function saveRun() {
+    if (!session || !session.state.records.length || session.saved) return;
+    const sum = session.summary();
+    const all = storeGet(); all.push({ at: new Date().toISOString(), source: sum.source, seed: sum.seed, policy: policyText(sum.policy),
+      count: sum.count, measured: sum.measured, yieldPct: sum.yieldPct, meanAbsErrPct: sum.meanAbsErrPct, meanWidth: sum.meanWidth, coveragePct: sum.coveragePct });
+    storePut(all); session.saved = true;
   }
 
-  /* ---------- session control ---------- */
-  function startTask(t, opts = {}) {
-    task = t;
-    if (t.configurable) {
-      const sv = $('cfg-sample').value; policy = { sample: sv === 'manual' ? 'manual' : Number(sv), delay: Number($('cfg-delay').value) };
-    } else policy = { ...t.policy };
-    if (opts.policy) policy = { ...opts.policy };
-    auto = !!t.auto; runLabel = policyText(policy);
-    $('auto-mode').checked = auto;
-    session = E.createSession({ modelJson, replay, LabStateModel: M, LabVirtualTool: window.LabVirtualTool, task: t, policy, auto, seed: opts.seed });
-    if (session.state.chapterIntro) policy = { ...session.state.policy };
+  function startRun(opts = {}) {
+    saveRun();
+    if (opts.source) sourceSel = opts.source;
+    if (opts.events !== undefined) eventsOn = opts.events;
+    policy = { ...(opts.policy || policy || { sample: 'manual', delay: 0 }) };
+    auto = $('auto-mode').checked;
+    session = E.createSession({ modelJson, replay, LabStateModel: M, LabVirtualTool: window.LabVirtualTool, source: sourceSel,
+      seed: opts.seed, events: eventsOn, policy, auto });
     run = null; wait = auto ? 0.6 : 0; paused = false; $('pause').setAttribute('aria-pressed', 'false'); $('pause').textContent = '일시정지';
-    setSpeed(auto ? 128 : 8);
-    const virtual = t.source === 'virtual';
-    $('mode-line').textContent = virtual ? '연습 모드 · 학습된 모델로 움직이는 가상 장비 (결과는 모델이 만든 값)' : '실전 검증 · PHM 2016 실제 운전 기록 재생 (결과는 실측값)';
+    const virtual = sourceSel === 'virtual';
+    $('mode-line').textContent = virtual ? '가상 장비 · 학습된 모델이 결과를 만듭니다 (모델이 만든 값)' : '실제 기록 · PHM 2016 실제 운전 기록 재생 (결과는 실측값)';
     $('th-actual').textContent = virtual ? '결과 MRR (모델)' : '실측 MRR';
     $('prov-data').textContent = virtual ? 'PHM 2016 CMP 기록으로 학습(fold 1~4) · 연마 중 센서 모양은 실제 기록(fold 5)을 설정 압력에 맞춰 사용'
       : '웨이퍼 순서 · 휴지/패드 교체 · 연마 중 센서 · 실측 MRR (PHM 2016 CMP, fold 5, 14일 327장)';
-    syncPolicyControls(); renderTaskTab(); selectTab('run');
+    syncSettings(); renderHelp(); selectTab('run');
     resetProcessView();
     renderAll();
-    showChapterIfNeeded();
   }
 
-  function taskBadge() {
-    if (!session) return '과제 없음';
-    const ch = task.chapters && task.chapters.find(c => c.id === session.state.chapterId);
-    return ch ? `${task.code} · 챕터 ${task.chapters.indexOf(ch) + 1}/${task.chapters.length} ${ch.title}` : `${task.code} · ${task.title}`;
+  function modeBadge() {
+    if (!session) return '—';
+    return session.state.virtual ? `가상 장비 · 흐름 #${session.state.seed}` : `실제 기록 · 14일 327장`;
   }
 
-  /* A chapter change pauses the run until the operator reads what is about to happen. */
-  function showChapterIfNeeded() {
-    const ch = session && session.state.chapterIntro;
-    if (!ch || $('chapter-dialog').open) return;
-    const i = task.chapters.indexOf(ch);
-    $('chapter-step').textContent = `챕터 ${i + 1} / ${task.chapters.length} · 웨이퍼 ${ch.from}~${ch.to}`;
-    $('chapter-title').textContent = ch.title;
-    $('chapter-intro').textContent = ch.intro;
-    $('chapter-watch').replaceChildren(...ch.watch.map(w => el('li', {}, w)));
-    $('chapter-policy').textContent = `계측: ${policyText(ch.policy)} · 압력 설정 ${ch.pressureLocked ? '잠김' : '조절 가능'}`;
-    $('chapter-dialog').showModal();
-  }
-
-  /* ---------- menu, guide, task tab, policy ---------- */
+  /* ---------- menu, guide, settings, help ---------- */
   function selectTab(name) {
     for (const t of ['run', 'metrology', 'task']) {
       $(`tab-${t}`).setAttribute('aria-selected', String(t === name));
@@ -134,57 +101,59 @@
     }
   }
 
-  function renderTaskTab() {
-    if (!task) return;
-    $('task-title').textContent = `${task.code} · ${task.title}`;
-    $('task-goal').textContent = task.goal;
-    $('task-focus').replaceChildren(...task.focus.map(f => el('li', {}, f)));
-    const list = $('chapter-list');
-    list.hidden = !task.chapters;
-    if (!task.chapters) return;
-    const k = task.chapters.findIndex(c => c.id === session.state.chapterId), done = session.state.phase === 'done';
-    list.replaceChildren(...task.chapters.map((c, i) => {
-      const li = el('li', { class: done || i < k ? 'done' : i === k ? 'active' : '' });
-      li.append(el('span', {}, String(i + 1)), document.createTextNode(c.title), el('small', {}, `${c.from}~${c.to}`));
-      return li;
-    }));
+  function renderHelp() {
+    if (!session) return;
+    const list = session.summary().suggestions;
+    $('suggestions').replaceChildren(...list.map(x => el('li', { class: x.done ? 'done' : '' }, x.text)));
   }
 
-  function syncPolicyControls() {
-    const editable = !!(task && task.configurable);
+  function syncSettings() {
+    const virtual = sourceSel === 'virtual';
+    document.querySelectorAll('#source-seg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.source === sourceSel)));
+    $('source-note').textContent = virtual
+      ? '가상 장비: 학습된 모델이 결과를 만듭니다. 압력·레시피·정비를 바꾸면 결과도 바뀝니다. 같은 흐름으로 다시 하면 판단만 바꿔 비교할 수 있습니다.'
+      : '실제 기록: 실측값으로 채점합니다. 기록에 없는 조건(압력·레시피·정비)은 바꿀 수 없고, 사건은 실제로 일어난 그대로입니다.';
+    $('events-toggle').checked = eventsOn; $('events-toggle').disabled = !virtual;
     $('policy-sample').value = String(policy.sample); $('policy-delay').value = String(policy.delay);
-    $('policy-sample').disabled = !editable; $('policy-delay').disabled = !editable;
-    $('policy-note').textContent = editable
-      ? '자유 운전에서는 운전 중에도 바꿀 수 있습니다. 다음 계측 결정부터 적용됩니다.'
-      : '이 과제는 비교를 위해 계측 정책이 고정되어 있습니다. 바꾸려면 자유 운전을 고르세요.';
     $('policy-label').textContent = policyText(policy);
+    $('restart-same').disabled = !virtual;
+    $('seed-note').textContent = virtual ? `지금 웨이퍼 흐름 번호: #${session ? session.state.seed : '—'}` : '실제 기록은 늘 같은 흐름입니다.';
   }
 
   function changePolicy() {
-    if (!session || !task || !task.configurable) return;
+    if (!session) return;
     const sv = $('policy-sample').value;
-    policy = { sample: sv === 'manual' ? 'manual' : Number(sv), delay: Number($('policy-delay').value) };
-    session.state.policy = { ...policy }; runLabel = policyText(policy);
-    syncPolicyControls(); renderDecide(); renderGuide();
+    try { policy = session.setPolicy({ sample: sv === 'manual' ? 'manual' : Number(sv), delay: Number($('policy-delay').value) }); }
+    catch (e) { flashError(e.message); }
+    runLabel = policyText(policy);
+    syncSettings(); renderDecide(); renderGuide();
+  }
+
+  function renderNotice() {
+    const n = session && session.state.notice, box = $('notice');
+    if (!n || box.dataset.dismissed === `${session.state.n}`) { box.hidden = true; return; }
+    box.hidden = false; box.dataset.kind = n.kind;
+    $('notice-title').textContent = n.title; $('notice-text').textContent = n.text;
   }
 
   function renderGuide() {
     const text = $('guide-text'), order = ['ready', 'run', 'decide', 'done'];
-    let msg = '‘과제 선택’에서 과제를 고르면 운전이 시작됩니다.', tone = '', k = -1;
+    let msg = '운전 기록과 모델을 불러오는 중입니다.', tone = '', k = -1;
     if (session) {
       const st = session.state, rec = st.records[st.records.length - 1];
       k = order.indexOf(st.phase);
       if (st.phase === 'ready') msg = auto ? '자동 R2R 운전 중입니다. 모델 권장 시간으로 다음 웨이퍼를 자동 투입합니다.'
-        : '오른쪽 [운전] 메뉴에서 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요.';
+        : st.virtual ? '오른쪽 [운전]에서 공정 조건을 정하고, 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요.'
+          : '오른쪽 [운전]에서 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요. (실제 기록: 조건은 기록대로)';
       else if (st.phase === 'run') {
-        if (st.run && st.run.alarm) { tone = 'alarm'; msg = auto ? '압력 경보! 자동 R2R이 종료 시간을 조정합니다.' : '압력 경보! 오른쪽 [운전] 메뉴에서 종료 시간을 조정할지 판단하세요.'; }
+        if (st.run && st.run.alarm) { tone = 'alarm'; msg = auto ? '압력 경보! 자동 R2R이 종료 시간을 조정합니다.' : '압력 경보! 오른쪽 [운전]에서 종료 시간을 조정할지 판단하세요.'; }
         else msg = '장비가 연마 중입니다. 3D 장비와 아래 ‘결과’의 실시간 공정 데이터를 지켜보세요.';
       } else if (st.phase === 'decide') {
         const planned = session.shouldMeasure(rec);
         msg = auto ? '자동 R2R 운전 중입니다.' : planned === null
           ? '이 웨이퍼를 계측할지 오른쪽에서 정하세요. 계측해야 실제 결과를 알 수 있고 상태 추정이 갱신됩니다.'
-          : `계측 정책에 따라 이 웨이퍼는 ${planned ? '계측합니다' : '계측하지 않습니다'}. 오른쪽 버튼으로 다음 웨이퍼로 넘어가세요.`;
-      } else msg = '운전이 끝났습니다. ‘결과 보기’로 수율과 예측 정확도를 확인하세요.';
+          : `계측 규칙에 따라 이 웨이퍼는 ${planned ? '계측합니다' : '계측하지 않습니다'}. 오른쪽 버튼으로 다음 웨이퍼로 넘어가세요.`;
+      } else msg = '실제 기록의 끝까지 운전했습니다. ‘결과 보기’로 수율과 예측 정확도를 확인하세요.';
     }
     document.querySelectorAll('#guide-steps li').forEach((li, i) => { li.classList.toggle('active', i === k); li.classList.toggle('done', k >= 0 && i < k); });
     if (text.textContent !== msg) text.textContent = msg;
@@ -230,12 +199,11 @@
     const next = session.metrology(measure);
     run = null;
     policy = { ...session.state.policy }; runLabel = policyText(policy);
-    syncPolicyControls(); renderTaskTab();
+    syncSettings(); renderHelp();
     if (!next) { renderAll(); setTimeout(showDebrief, 400); return; }
     wait = auto ? 0.35 : 0;
     resetProcessView();
     renderAll();
-    showChapterIfNeeded();
   }
 
   /* ---------- frame loop ---------- */
@@ -263,7 +231,7 @@
       const rec = st.records[st.records.length - 1], planned = session.shouldMeasure(rec);
       // A manual metrology policy waits for the operator; the automatic controller measures in that case.
       if (wait <= 0 && (planned !== null || auto)) decideMetrology(planned === null ? true : planned);
-    } else if (st.phase === 'ready' && auto && wait >= 0 && !st.chapterIntro) {
+    } else if (st.phase === 'ready' && auto && wait >= 0) {
       wait -= dt;
       if (wait <= 0) { wait = -1; beginWafer(session.current().recommended); }
     }
@@ -430,12 +398,18 @@
     if (st.phase === 'run' && st.run && st.run.alarm) state = 'alarm';
     const chip = $('tool-state'); chip.dataset.state = state; chip.querySelector('span').textContent = STATE_TEXT[state];
     renderGuide();
-    const badge = taskBadge(); if ($('task-name').textContent !== badge) $('task-name').textContent = badge;
+    const badge = modeBadge(); if ($('task-name').textContent !== badge) $('task-name').textContent = badge;
     const w = st.run ? st.run.wafer : (c ? c.wafer : session.wafers[st.n - 1]);
     $('sim-clock').textContent = clock(w.t_start_h || 0, run ? run.elapsed : 0);
-    const done = st.records.length, total = st.end - st.task.start + 1;
-    $('lot-progress').textContent = `${w.label} · ${done}/${total}`;
-    $('lot-bar').style.width = `${100 * done / total}%`;
+    const done = st.records.length;
+    if (st.virtual) {
+      const sug = session.summary().suggestions, k = sug.filter(x => x.done).length;
+      $('lot-progress').textContent = `${w.label} · ${done}장 · 추천 연습 ${k}/${sug.length}`;
+      $('lot-bar').style.width = `${100 * k / sug.length}%`;
+    } else {
+      $('lot-progress').textContent = `${w.label} · ${done}/${st.end}`;
+      $('lot-bar').style.width = `${100 * done / st.end}%`;
+    }
   }
 
   function renderEquipment() {
@@ -495,7 +469,7 @@
 
   /* Practice mode: conditions the learned model can answer for (pressure, recipe, maintenance). */
   function conditionsBlock(c) {
-    const box = el('div', { class: 'conditions' }), info = c.pressure, ctl = task.controls || {};
+    const box = el('div', { class: 'conditions' }), info = c.pressure, ctl = c.controls;
     const apply = fn => { try { fn(); } catch (e) { flashError(e.message); } renderAll(); };
     if (ctl.recipe) {
       const h = el('h4'); h.append(document.createTextNode('레시피'));
@@ -523,8 +497,9 @@
         : `${c.wafer.recipe}: 학습 자료에서 압력 반응이 확인되지 않아 압력을 바꿔도 MRR은 그대로입니다 (α=0).`));
     if (ctl.maintenance) {
       const checks = el('div', { class: 'checks' });
-      for (const [kind, label, on] of [['pad', '투입 전 패드 교체', c.wafer.pad_change], ['rest', '투입 전 장비 휴지 3시간', c.wafer.rest]]) {
+      for (let [kind, label, on] of [['pad', '투입 전 패드 교체', c.wafer.pad_change], ['rest', '투입 전 장비 휴지 3시간', c.wafer.rest]]) {
         const lab = el('label', { class: 'check' }), cb = el('input', { type: 'checkbox' }); cb.checked = !!on;
+        if (on && c.wafer.randomEvent) { cb.disabled = true; label += ' (돌발로 이미 발생)'; }
         cb.addEventListener('change', () => apply(() => session.setMaintenance(kind, cb.checked)));
         lab.append(cb, document.createTextNode(label)); checks.append(lab);
       }
@@ -538,6 +513,7 @@
     if (st.phase === 'ready') {
       const c = session.current(); title.textContent = st.virtual ? '공정 조건 · 연마 시간 설정' : '연마 시간 설정';
       if (st.virtual) body.append(conditionsBlock(c));
+      else body.append(el('p', { class: 'replay-lock' }, '실제 기록: 압력·레시피·정비는 기록된 그대로입니다. 연마 시간과 계측만 정합니다.'));
       const [lo, hi] = c.limits;
       const field = el('div', { class: 'field' });
       field.append(el('label', { for: 't-input' }, `본 연마 시간 (초) · 허용 ${lo.toFixed(0)}~${hi.toFixed(0)}`));
@@ -709,9 +685,11 @@
   }
 
   function renderAll() {
-    renderTop(); renderEquipment(); renderWaferAndPrediction(); renderDecide(); renderQueue(); renderLog(); renderRunLog(); renderSpc();
+    renderTop(); renderNotice(); renderEquipment(); renderWaferAndPrediction(); renderDecide(); renderQueue(); renderLog(); renderRunLog(); renderSpc();
     // When the operator has to act, bring the [운전] menu forward.
-    if (!auto && ['ready', 'decide', 'done'].includes(session.state.phase)) selectTab('run');
+    const ph = `${session.state.n}:${session.state.phase}`;
+    if (!auto && ph !== renderAll.lastPhase && ['ready', 'decide', 'done'].includes(session.state.phase)) selectTab('run');
+    renderAll.lastPhase = ph;
     if (!session.state.run) renderHudAlarm(null);
     if (!session.state.run) {
       $('process-wafer').textContent = session.state.phase === 'done' ? '운전 종료' : `${session.current().wafer.label} 투입 대기`;
@@ -722,51 +700,46 @@
   }
 
   /* ---------- debrief ---------- */
+  /* ---------- results (any time) ---------- */
+  function table(headers, rows, cls) {
+    const wrap = el('div', { class: 'table-wrap' }), tb = el('table', cls ? { class: cls } : {}), head = el('tr');
+    headers.forEach(h => head.append(el('th', {}, h)));
+    const thead = el('thead'); thead.append(head); tb.append(thead);
+    const body = el('tbody');
+    rows.forEach(r => { const tr = el('tr'); r.forEach(v => tr.append(el('td', {}, v))); body.append(tr); });
+    tb.append(body); wrap.append(tb); return wrap;
+  }
+
   function showDebrief() {
-    const sum = session.summary(), t = task;
-    const entry = { at: new Date().toISOString(), task: t.id, label: runLabel, auto, policy: { ...policy }, ...sum };
-    const all = storeGet(); if (!session.saved) { all.push(entry); storePut(all); session.saved = true; }
-    $('debrief-title').textContent = `${t.code} · ${t.title} — 운전 결과`;
-    $('debrief-sub').textContent = `${t.chapters ? '챕터별 계측 정책' : runLabel} · ${auto ? '자동 R2R' : '수동 운전'} · 웨이퍼 ${sum.count}장 · ${sum.source === 'virtual' ? '가상 장비(모델이 만든 결과)' : '실제 기록(실측)'}`;
+    const sum = session.summary(), virtual = sum.source === 'virtual';
+    $('debrief-title').textContent = session.state.phase === 'done' ? '운전 결과' : '지금까지의 운전 결과';
+    $('debrief-sub').textContent = `${virtual ? `가상 장비 (모델이 만든 결과) · 흐름 #${sum.seed}` : '실제 기록 (실측)'} · ${policyText(sum.policy)} · ${auto ? '자동 R2R' : '수동 운전'} · 웨이퍼 ${sum.count}장${sum.pendingResults ? ` · 계측 결과 대기 ${sum.pendingResults}건` : ''}`;
     const stats = $('debrief-stats'); stats.replaceChildren();
     const tile = (label, value, cls = '') => { const d = el('div', { class: `stat ${cls}` }); d.append(el('span', {}, label), el('b', {}, value)); stats.append(d); };
-    tile('규격(목표 ±5%) 수율', `${sum.inSpec}/${sum.count} · ${pct(sum.yieldPct, 0)}`, sum.passed === null ? '' : sum.passed ? 'pass' : 'fail');
+    tile('규격(목표 ±5%) 수율', sum.count ? `${sum.inSpec}/${sum.count} · ${pct(sum.yieldPct, 0)}` : '—', sum.count ? (sum.yieldPct >= 65 ? 'pass' : 'fail') : '');
     tile('계측 횟수', `${sum.measured}회`);
-    tile('평균 제거량 오차', pct(sum.meanAbsErrPct, 2));
+    tile('평균 제거량 오차', sum.count ? pct(sum.meanAbsErrPct, 2) : '—');
     tile('90% 구간 실제 포함률', pct(sum.coveragePct, 0));
     tile('평균 예측 구간 폭', fmt(sum.meanWidth, 2));
     tile('연마 중 시간 조정', `${sum.adjusted}회`);
-    const lesson = $('debrief-lesson'); lesson.replaceChildren(el('h3', {}, sum.passed === false ? '목표 미달 — 다시 도전해 보세요' : '이번 운전에서 확인한 것'), el('p', {}, t.lesson));
-    if (sum.chapters.length) {
-      // Per-chapter scorecard: the same operator, five situations.
-      const wrap = el('div', { class: 'table-wrap' }), tb = el('table', { class: 'chapters-table' }), head = el('tr');
-      ['챕터', '웨이퍼', '규격 수율', '평균 제거량 오차', '평균 예측 구간 폭', '시간 조정'].forEach(h => head.append(el('th', {}, h)));
-      const thead = el('thead'); thead.append(head); tb.append(thead);
-      const body = el('tbody');
-      for (const c of sum.chapters) {
-        const tr = el('tr');
-        [`${c.index}. ${c.title}`, `${c.count}장`, `${c.inSpec}/${c.count} · ${pct(c.yieldPct, 0)}`, pct(c.meanAbsErrPct, 2), fmt(c.meanWidth, 2), `${c.adjusted}회`]
-          .forEach(v => tr.append(el('td', {}, v)));
-        body.append(tr);
-      }
-      tb.append(body); wrap.append(tb);
-      const ul = el('ul', { class: 'task-focus' });
-      sum.chapters.forEach(c => ul.append(el('li', {}, `${c.title}: ${c.lesson}`)));
-      lesson.append(el('h3', {}, '챕터별 결과'), wrap, el('h3', {}, '챕터별로 배운 것'), ul);
-    }
-    if (sum.source === 'virtual') lesson.append(el('p', { class: 'note' }, `결과는 학습된 모델로 만든 가상 장비 값입니다(seed ${sum.seed}). 같은 웨이퍼 흐름으로 다시 하면 판단만 바꿔 결과를 비교할 수 있습니다.`));
+    const lesson = $('debrief-lesson'); lesson.replaceChildren();
+    lesson.append(el('h3', {}, '상황별 결과'),
+      table(['상황', '웨이퍼', '규격 수율', '평균 제거량 오차', '평균 예측 구간 폭'],
+        sum.situations.map(g => [g.title, `${g.count}장`, g.count ? `${g.inSpec}/${g.count} · ${pct(g.yieldPct, 0)}` : '—', g.count ? pct(g.meanAbsErrPct, 2) : '—', fmt(g.meanWidth, 2)]), 'situations-table'),
+      el('p', { class: 'note' }, '한 웨이퍼가 여러 상황에 속할 수 있습니다. 측정이 반영되지 않은 예측일수록 구간이 넓고 오차가 커지는지 비교해 보세요.'));
+    const ul = el('ul', { class: 'suggestions' });
+    sum.suggestions.forEach(x => ul.append(el('li', { class: x.done ? 'done' : '' }, x.text)));
+    lesson.append(el('h3', {}, `추천 연습 ${sum.suggestions.filter(x => x.done).length}/${sum.suggestions.length}`), ul);
     const cmp = $('debrief-compare'); cmp.replaceChildren();
-    const mine = storeGet().filter(r => r.task === t.id).slice(-6);
-    if (mine.length > 1) {
-      cmp.append(el('h3', {}, '같은 과제의 이전 운전과 비교'));
-      const wrap = el('div', { class: 'table-wrap' }), tb = el('table'), head = el('tr');
-      ['운전', '모드', '수율', '계측', '평균 오차', '구간 폭', '구간 포함률'].forEach(h => head.append(el('th', {}, h)));
-      const thead = el('thead'); thead.append(head); tb.append(thead); const body = el('tbody');
-      for (const r of mine) { const tr = el('tr'); [r.label, r.auto ? '자동' : '수동', pct(r.yieldPct, 0), `${r.measured}회`, pct(r.meanAbsErrPct, 2), fmt(r.meanWidth, 2), pct(r.coveragePct, 0)].forEach(c => tr.append(el('td', {}, c))); body.append(tr); }
-      tb.append(body); wrap.append(tb); cmp.append(wrap);
+    const prev = storeGet().slice(-6).reverse();
+    if (prev.length) {
+      cmp.append(el('h3', {}, '이전 운전과 비교'),
+        table(['결과 기준', '계측', '웨이퍼', '수율', '평균 오차', '구간 폭'], [
+          [`지금 (${virtual ? '가상' : '실제'})`, `${sum.measured}회`, `${sum.count}장`, pct(sum.yieldPct, 0), pct(sum.meanAbsErrPct, 2), fmt(sum.meanWidth, 2)],
+          ...prev.map(r => [`${r.source === 'virtual' ? `가상 #${r.seed}` : '실제 기록'}`, `${r.measured}회`, `${r.count}장`, pct(r.yieldPct, 0), pct(r.meanAbsErrPct, 2), fmt(r.meanWidth, 2)])]));
     }
     const hidden = $('hidden-rows'); hidden.replaceChildren();
-    const unmeasured = session.state.records.filter(r => !r.measured);
+    const unmeasured = session.state.records.filter(r => r.status === 'skipped');
     $('debrief-hidden').hidden = !unmeasured.length;
     for (const r of unmeasured) {
       const w = session.wafers[r.n - 1], tr = el('tr');
@@ -774,27 +747,15 @@
       const v = el('td'); v.append(el('span', { class: `pill ${r.inSpec ? 'in' : 'out'}` }, r.inSpec ? '규격 안' : '규격 밖')); tr.append(v); hidden.append(tr);
     }
     const actions = $('debrief-actions'); actions.replaceChildren();
-    const close = el('button', { type: 'button', class: 'btn ghost' }, '닫기'); close.addEventListener('click', () => $('debrief').close());
-    const firstPolicy = t.chapters ? undefined : { ...policy };
-    const again = el('button', { type: 'button', class: 'btn' }, '새 흐름으로 다시'); again.addEventListener('click', () => { $('debrief').close(); startTask(t, { policy: firstPolicy }); });
-    const pick = el('button', { type: 'button', class: 'btn' }, '과제 선택'); pick.addEventListener('click', () => { $('debrief').close(); openTasks(); });
-    actions.append(close, pick, again);
-    if (sum.source === 'virtual') {
-      const same = el('button', { type: 'button', class: 'btn' }, '같은 웨이퍼 흐름으로 다시');
-      same.addEventListener('click', () => { $('debrief').close(); startTask(t, { seed: sum.seed, policy: firstPolicy }); });
-      const real = el('button', { type: 'button', class: 'btn primary' }, '실전 검증: 실제 기록으로');
-      real.addEventListener('click', () => { $('debrief').close(); startTask(E.TASKS.find(x => x.source === 'replay')); });
-      actions.append(same, real);
-    }
+    const btn = (label, cls, fn) => { const b = el('button', { type: 'button', class: cls }, label); b.addEventListener('click', () => { $('debrief').close(); fn(); }); actions.append(b); };
+    if (session.state.phase !== 'done') btn('운전 계속', 'btn primary', () => {});
+    btn('새로 시작', 'btn', () => startRun({}));
+    if (virtual) btn('같은 흐름으로 다시', 'btn', () => startRun({ seed: sum.seed }));
+    btn(virtual ? '실제 기록으로 운영해 보기' : '가상 장비로 돌아가기', 'btn', () => startRun({ source: virtual ? 'replay' : 'virtual' }));
     if (!$('debrief').open) $('debrief').showModal();
   }
 
   /* ---------- wiring ---------- */
-  function openTasks() {
-    buildTaskDialog(); selectedTask = null; $('task-start').disabled = true; $('free-config').hidden = true;
-    $('task-dialog').returnValue = ''; // a previous "start" must not leak into an Esc close
-    $('task-dialog').showModal();
-  }
   function flashError(msg) { const host = $('event-log'); const li = el('li', { 'data-kind': 'alarm' }); li.append(el('span', { class: 't' }, '오류'), el('span', {}, msg)); host.prepend(li); }
 
   function wire() {
@@ -802,23 +763,26 @@
     $('pause').addEventListener('click', () => { paused = !paused; $('pause').setAttribute('aria-pressed', String(paused)); $('pause').textContent = paused ? '재개' : '일시정지'; });
     $('skip').addEventListener('click', () => { if (session && session.state.phase === 'run' && run) { run.elapsed = run.total - 1e-6; } });
     $('auto-mode').addEventListener('change', e => { auto = e.target.checked; if (session) { session.state.auto = auto; wait = auto ? 0.3 : 0; renderDecide(); renderGuide(); } });
-    $('open-tasks').addEventListener('click', openTasks);
-    $('open-tasks-2').addEventListener('click', openTasks);
-    for (const t of ['run', 'metrology', 'task']) $(`tab-${t}`).addEventListener('click', () => selectTab(t));
+    $('open-results').addEventListener('click', () => { if (session) showDebrief(); });
+    for (const t of ['run', 'metrology', 'task']) $(`tab-${t}`).addEventListener('click', () => { selectTab(t); if (t === 'task') renderHelp(); });
     $('policy-sample').addEventListener('change', changePolicy);
     $('policy-delay').addEventListener('change', changePolicy);
+    document.querySelectorAll('#source-seg button').forEach(b => b.addEventListener('click', () => {
+      if (b.dataset.source === sourceSel) return;
+      if (session && session.state.records.length && !confirm('결과 기준을 바꾸면 새 운전이 시작됩니다. 지금 운전 결과는 비교 기록에 저장됩니다.')) return;
+      startRun({ source: b.dataset.source });
+    }));
+    $('events-toggle').addEventListener('change', e => { eventsOn = e.target.checked; try { session.setEvents(eventsOn); } catch (err) { flashError(err.message); } renderAll(); });
+    $('restart').addEventListener('click', () => startRun({}));
+    $('restart-same').addEventListener('click', () => { if (session && session.state.virtual) startRun({ seed: session.state.seed }); });
+    $('notice-close').addEventListener('click', () => { $('notice').dataset.dismissed = `${session.state.n}`; renderNotice(); });
     let resizeTimer = 0; // the control chart is drawn in real pixels, so redraw it after a resize
     window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { if (session) renderSpc(); }, 150); });
     renderGuide();
     document.querySelectorAll('#spc-recipe button').forEach(b => b.addEventListener('click', () => {
       spcRecipe = b.dataset.recipe; document.querySelectorAll('#spc-recipe button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); if (session) renderSpc();
     }));
-    $('task-dialog').addEventListener('close', () => { if ($('task-dialog').returnValue === 'start' && selectedTask) startTask(selectedTask); });
-    // Closing the chapter card (button or Esc) acknowledges it; the run continues from there.
-    $('chapter-dialog').addEventListener('close', () => {
-      if (!session || !session.state.chapterIntro) return;
-      session.ackChapter(); wait = auto ? 0.4 : wait; renderAll();
-    });
+    window.addEventListener('beforeunload', saveRun);
     setInterval(() => { if (session && session.state.phase === 'run') { renderTop(); renderWaferAndPrediction(); } }, 250);
     let lastCount = -1, lastQueue = -1, lastLog = -1;
     setInterval(() => {
@@ -826,7 +790,7 @@
       const st = session.state;
       if (st.records.length !== lastCount || st.queue.length !== lastQueue || st.log.length !== lastLog) {
         lastCount = st.records.length; lastQueue = st.queue.length; lastLog = st.log.length;
-        renderLog(); renderQueue(); renderRunLog(); renderSpc(); renderEquipment();
+        renderLog(); renderQueue(); renderRunLog(); renderSpc(); renderEquipment(); renderHelp();
       }
     }, 300);
   }
@@ -849,7 +813,7 @@
     window.LabSimDebug = Object.freeze({ session: () => session, auto: () => auto, wait: () => wait, paused: () => paused, run: () => run });
     $('loading').hidden = true;
     requestAnimationFrame(frame);
-    openTasks();
+    startRun({ source: 'virtual' });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();

@@ -376,3 +376,22 @@ dialog:has(.dialog.narrow) { width: min(560px, calc(100vw - 32px)); }
 .chapter-watch h3 { font-size: 13px; color: var(--brand); margin-bottom: 4px; }
 .chapter-watch ul { margin: 0; padding-left: 18px; font-size: 13px; color: #34506e; }
 .chapters-table td:first-child { font-weight: 700; }
+
+/* unified simulator: notice, settings, suggestions */
+.primary-button.small { padding: 9px 16px; border-radius: 12px; font-size: 13px; }
+.notice { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin: -4px 0 14px; padding: 10px 14px; border-radius: 14px; background: var(--warning-soft); border: 1px solid #f5d5a8; color: var(--warning-ink); }
+.notice[hidden] { display: none; }
+.notice strong { display: block; font-size: 13.5px; }
+.notice span { font-size: 12.5px; }
+.notice button { border: 0; background: transparent; font-size: 18px; color: var(--warning-ink); cursor: pointer; line-height: 1; }
+.notice[data-kind="maint"] { background: #eef6ff; border-color: #c9dbff; color: #155e9a; }
+.notice[data-kind="maint"] button { color: #155e9a; }
+.seg.wide { display: grid; grid-template-columns: 1fr 1fr; }
+.seg.wide button { padding: 8px 6px; }
+.suggestions { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.suggestions li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; padding: 8px 10px; border-radius: 12px; background: #fff; border: 1px solid var(--line); font-size: 12.5px; color: #47647b; }
+.suggestions li::before { content: ""; width: 18px; height: 18px; border-radius: 6px; border: 2px solid #cbd5e1; margin-top: 1px; }
+.suggestions li.done { color: var(--success-ink); background: #f6fdf9; border-color: #c8eedb; }
+.suggestions li.done::before { content: "✓"; display: grid; place-items: center; border-color: var(--success); background: var(--success); color: #fff; font-size: 12px; font-weight: 800; }
+.replay-lock { margin: 0 0 12px; padding: 10px 12px; border-radius: 12px; background: var(--warning-soft); color: var(--warning-ink); font-size: 12.5px; }
+.situations-table td:first-child { font-weight: 700; }
