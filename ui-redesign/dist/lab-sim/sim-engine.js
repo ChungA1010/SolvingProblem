@@ -4,7 +4,10 @@
      pressure, recipe and maintenance; random disturbances (idle, pad change, pressure drop) can occur.
      Outcomes are model-generated, not measurements.
    - 'replay': PHM 2016 fold 5 exactly as recorded (327 wafers). Outcomes are measurements, so only the
-     polishing time and metrology are the operator's; recorded conditions and events cannot change. */
+     polishing time and metrology are the operator's; recorded conditions and events cannot change.
+   Rotation speed is a textbook assumption, not learned: Preston (MRR proportional to pressure x velocity) is applied
+   to the whole MRR, and the prediction knows it too. The recorded speed is fixed per recipe, so the data cannot
+   check it. */
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
@@ -21,15 +24,17 @@
   // Disturbance rates per wafer, close to the real fold 5 record (rest 7%, pad change 6%, A456 low pressure 12%).
   const DISTURB = Object.freeze({ rest: 0.05, pad: 0.05, anomaly: 0.08 });
   const VIRTUAL_CAP = 999;
+  const SPEED_RANGE = Object.freeze([0.8, 1.2]); // platen/head speed as a fraction of the recorded recipe speed (Preston, no data)
 
   /* Suggested practice; each one ticks itself when the operator has done it. */
   const SUGGESTIONS = Object.freeze([
-    Object.freeze({ id: 'inspec', text: '예측을 보고 연마 시간을 정해 계측 결과가 규격(±5%) 안에 들게 하기', done: s => s.records.some(r => r.measured && r.inSpec) }),
-    Object.freeze({ id: 'pressure', text: '주 압력을 낮춰 보고 예측 MRR과 권장 시간이 어떻게 바뀌는지 보기 (A456)', done: s => s.records.some(r => r.pressureChanged) }),
-    Object.freeze({ id: 'skip', text: '계측을 몇 장 건너뛰고 예측 구간이 넓어지는 것 보기', done: s => s.records.some(r => r.stale) }),
+    Object.freeze({ id: 'inspec', text: '참고 정보를 보고 직접 정한 연마 시간으로 계측 결과를 규격(±5%) 안에 넣기', done: s => s.records.some(r => r.measured && r.inSpec) }),
+    Object.freeze({ id: 'pressure', text: '주 압력을 바꿔 보고 모델 추정 MRR이 어떻게 달라지는지 보기 (A456)', done: s => s.records.some(r => r.pressureChanged) }),
+    Object.freeze({ id: 'speed', text: '회전 속도를 바꿔 보기: Preston 식대로 MRR이 속도에 비례해 변합니다 (교과서 가정)', done: s => s.records.some(r => r.speedChanged) }),
+    Object.freeze({ id: 'skip', text: '계측을 몇 장 건너뛰고 모델 추정 범위가 넓어지는 것 보기', done: s => s.records.some(r => r.stale) }),
     Object.freeze({ id: 'delay', text: '결과 도착을 늦춰 놓고 운전해 보기 (설정 탭)', done: s => s.records.some(r => r.delay > 0) }),
     Object.freeze({ id: 'event', text: '휴지·패드 교체 직후 첫 장을 연마해 보기', done: s => s.records.some(r => r.events.afterRest || r.events.afterPad) }),
-    Object.freeze({ id: 'alarm', text: '연마 중 압력 경보에 종료 시간 조정으로 대응하기', done: s => s.records.some(r => r.alarm && r.adjusted) }),
+    Object.freeze({ id: 'alarm', text: '연마 중 압력 경보에 종료 시간을 직접 고쳐 대응하기', done: s => s.records.some(r => r.alarm && r.adjusted) }),
     Object.freeze({ id: 'replay', text: '결과 기준을 실제 기록으로 바꿔 실측값으로 운영해 보기 (설정 탭)', done: s => s.source === 'replay' && s.records.length > 0 }),
   ]);
 
@@ -41,6 +46,8 @@
   const normCdf = x => 0.5 * (1 + erf(x / Math.SQRT2));
   const ctxOf = w => ({ recipe: w.recipe, position: w.position, clock: w.clock, after_rest: w.after_rest, after_pad_change: w.after_pad_change });
   const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
+  // Preston velocity term: the whole MRR (and its spread) scales with the speed ratio.
+  const scalePred = (p, vf) => (p ? { ...p, mrr: p.mrr * vf, sd: p.sd * vf, low: p.low * vf, high: p.high * vf, speed_factor: vf } : p);
 
   function inSpecProbability(pred, tSet, meta) {
     if (!pred || !(tSet > 0)) return null;
@@ -64,10 +71,11 @@
     return 'unload';
   }
 
-  /* A recorded trace used as the step/sensor template of a virtual wafer, rescaled to the setpoint. */
-  function scaleTrace(tpl, setpoint, anomaly) {
-    const f = setpoint / tpl.plateau;
-    const tr = { ...tpl, p_main: tpl.p_main.map(v => v * f), p_center: tpl.p_center.map(v => v * f), plateau: setpoint };
+  /* A recorded trace used as the step/sensor template of a virtual wafer, rescaled to the setpoint and speed. */
+  function scaleTrace(tpl, setpoint, anomaly, speed = 1) {
+    const f = setpoint / tpl.plateau, rot = v => v * speed;
+    const tr = { ...tpl, p_main: tpl.p_main.map(v => v * f), p_center: tpl.p_center.map(v => v * f), plateau: setpoint,
+      wafer_rot: tpl.wafer_rot.map(rot), stage_rot: tpl.stage_rot.map(rot), head_rot: tpl.head_rot.map(rot) };
     if (anomaly) {
       for (let i = tr.main_start + anomaly.after; i <= tr.main_end; i++) { tr.p_main[i] *= 1 + anomaly.drop; tr.p_center[i] *= 1 + anomaly.drop; }
     }
@@ -108,6 +116,7 @@
         nextPos: Object.fromEntries(RECIPES.map(r => [r, snap[r].at + 1])),
         pending: { rest: new Set(), pad: new Set() }, uPad: 140, uDresser: 300, clockH: 0, recipe: 'A456',
         setpoint: Object.fromEntries(RECIPES.map(r => [r, modelJson.recipes[r].p_ref])),
+        speed: Object.fromEntries(RECIPES.map(r => [r, 1])),
         range: modelJson.virtual.pressure_range, padStep: modelJson.virtual.pad_step };
       W = [];
       end = Math.min(VIRTUAL_CAP, count || VIRTUAL_CAP);
@@ -165,8 +174,8 @@
       s.queue = s.queue.filter(q => q.due > s.finished);
       for (const q of due) {
         const r = q.rec, w = W[r.n - 1];
-        model.update(ctxOf(w), w.mrr, w.p_main);
-        r.measured = true; r.status = r.inSpec ? 'in' : 'out';
+        model.update(ctxOf(w), w.mrr / (w.vf || 1), w.p_main); // the state is kept at the recipe speed
+        r.measured = true; r.status = r.inSpec ? 'in' : 'out'; r.deliveredAt = s.finished;
         event(r.inSpec ? 'ok' : 'warn', `계측 결과 ${w.label}: MRR ${w.mrr.toFixed(2)} · 제거량 ${r.removalPct.toFixed(1)}% ${r.inSpec ? '규격 안' : '규격 밖'}`);
       }
       return due.length;
@@ -178,17 +187,23 @@
         setpoint: virtual ? vs.setpoint[recipe] : lastP[recipe], range: virtual ? vs.range[recipe] : null };
     }
 
+    function speedInfo(recipe) {
+      return { recipe, ratio: virtual ? vs.speed[recipe] : 1, range: SPEED_RANGE, available: virtual, locked: !virtual };
+    }
+
     function current() {
       if (s.phase === 'done') return null;
       const w = wafer(); prepare(w);
       const ctx = ctxOf(w), m = meta[w.recipe];
       const planned = virtual ? vs.setpoint[w.recipe] : lastP[w.recipe];
-      const pred = model.predict(ctx, planned);
+      const vf = virtual ? vs.speed[w.recipe] : 1;
+      const pred = scalePred(model.predict(ctx, planned), vf);
       const rec = pred ? clamp(m.target_removal / pred.mrr, m.t_ref * TIME_RANGE[0], m.t_ref * TIME_RANGE[1]) : m.t_ref;
       return { wafer: w, ctx, meta: m, planned, pred, recommended: Math.round(rec * 10) / 10,
         limits: [m.t_ref * TIME_RANGE[0], m.t_ref * TIME_RANGE[1]], pending: s.queue.length,
         state: model.tracker(w.recipe).snapshot(), params: modelJson.recipes[w.recipe],
-        pressure: pressureInfo(w.recipe), controls: { pressure: virtual, recipe: virtual, maintenance: virtual } };
+        pressure: pressureInfo(w.recipe), speed: speedInfo(w.recipe),
+        controls: { pressure: virtual, speed: virtual, recipe: virtual, maintenance: virtual } };
     }
 
     function requireReady(what) {
@@ -203,6 +218,15 @@
       // Controls round to 0.1; a value within 0.05 of a bound is snapped onto it.
       if (!(Number.isFinite(value) && value >= lo - 0.05 && value <= hi + 0.05)) throw new Error(`압력은 관측 범위 ${lo.toFixed(1)}~${hi.toFixed(1)} 안에서 정하세요.`);
       vs.setpoint[w.recipe] = clamp(value, lo, hi);
+      return current();
+    }
+
+    function setSpeed(ratio) {
+      requireReady('회전 속도');
+      const w = wafer(); prepare(w);
+      const [lo, hi] = SPEED_RANGE;
+      if (!(Number.isFinite(ratio) && ratio >= lo - 0.005 && ratio <= hi + 0.005)) throw new Error(`회전 속도는 기준의 ${Math.round(lo * 100)}~${Math.round(hi * 100)}% 안에서 정하세요.`);
+      vs.speed[w.recipe] = clamp(ratio, lo, hi);
       return current();
     }
 
@@ -235,6 +259,7 @@
       if (!(tSet >= lo && tSet <= hi)) throw new Error(`연마 시간은 ${lo.toFixed(0)}~${hi.toFixed(0)}초 사이로 정하세요.`);
       const w = c.wafer;
       let setpoint = null, alarmRef = c.meta.p_ref;
+      const vf = virtual ? vs.speed[w.recipe] : 1;
       if (virtual) {
         // Commit the wafer's context, consume pending first-wafer flags, and start the next ones.
         vs.nextPos[w.recipe] += 1; vs.uPad = w.u_pad; vs.uDresser = w.u_dresser;
@@ -242,10 +267,10 @@
         if (w.pad_change) { RECIPES.forEach(r => vs.pending.pad.add(r)); event('maint', `유지보수: 패드 교체 (${w.label} 투입 전)`); }
         vs.pending.rest.delete(w.recipe); vs.pending.pad.delete(w.recipe);
         setpoint = vs.setpoint[w.recipe]; alarmRef = setpoint;
-        w.trace = scaleTrace(w.template, setpoint, w.anomaly);
+        w.trace = scaleTrace(w.template, setpoint, w.anomaly, vf);
       }
       s.notice = null;
-      s.run = { wafer: w, ctx: c.ctx, meta: c.meta, pre: c.pred, planned: c.planned, tSet, tInitial: tSet, setpoint, alarmRef,
+      s.run = { wafer: w, ctx: c.ctx, meta: c.meta, pre: c.pred, planned: c.planned, tSet, tInitial: tSet, setpoint, alarmRef, vf,
         recommended: c.recommended, tl: timeline(w.trace, tSet), adjusted: false, alarm: null, delay: s.policy.delay };
       s.phase = 'run';
       return s.run;
@@ -265,7 +290,7 @@
       const seen = Math.max(0, Math.min(idx, tr.main_end) - tr.main_start + 1);
       const pMean = seen > 0 ? tl.prefix[seen] / seen : null;
       const trusted = mainElapsed >= ALARM_AFTER_S && pMean !== null;
-      const inproc = trusted ? model.predict(run.ctx, pMean) : run.pre;
+      const inproc = trusted ? scalePred(model.predict(run.ctx, pMean), run.vf) : run.pre;
       const dev = trusted ? pMean / run.alarmRef - 1 : 0;
       let suggestion = null;
       if (trusted && Math.abs(dev) > PRESSURE_ALARM) {
@@ -303,10 +328,10 @@
         // The virtual tool decides the outcome now, from the pressure the wafer actually saw.
         const pObs = mainMean(w.trace);
         const out = tool.wafer(w.recipe, pObs, w.after_rest, w.after_pad_change, w.u_pad);
-        w.mrr = out.mrr; w.p_main = pObs; w.truth = out;
+        w.mrr = out.mrr * run.vf; w.vf = run.vf; w.p_main = pObs; w.truth = { ...out, speed: run.vf };
         w.t_end_h = w.t_start_h + run.tl.total(run.tSet) / 3600; vs.clockH = w.t_end_h;
       }
-      const inproc = model.predict(run.ctx, w.p_main);
+      const inproc = scalePred(model.predict(run.ctx, w.p_main), run.vf);
       const removalPct = w.mrr * run.tSet / m.target_removal * 100;
       const pRef = modelJson.recipes[w.recipe].p_ref;
       const rec = { n: w.n, label: w.label, recipe: w.recipe, tSet: run.tSet, tInitial: run.tInitial, setpoint: run.setpoint,
@@ -315,6 +340,7 @@
         covered: run.pre ? (w.mrr >= run.pre.low && w.mrr <= run.pre.high) : null,
         stale: !!run.pre && run.pre.steps > 1.5,                    // predicted without the latest same-recipe measurement
         pressureChanged: run.setpoint !== null && Math.abs(run.setpoint / pRef - 1) > 0.003,
+        speed: run.vf, speedChanged: Math.abs(run.vf - 1) > 0.001, ctx: run.ctx, planned: run.planned, deliveredAt: null,
         measured: false, status: 'awaiting', events: { rest: w.rest, pad: w.pad_change, afterRest: w.after_rest, afterPad: w.after_pad_change } };
       s.records.push(rec);
       lastP[w.recipe] = w.p_main;
@@ -360,13 +386,14 @@
 
     /* Results so far, overall and by situation (a wafer can belong to more than one). */
     function summary() {
-      const r = s.records, plain = x => !(x.events.afterRest || x.events.afterPad) && !x.stale && !x.alarm && !x.pressureChanged;
+      const r = s.records, plain = x => !(x.events.afterRest || x.events.afterPad) && !x.stale && !x.alarm && !x.pressureChanged && !x.speedChanged;
       const groups = [
         ['normal', '정상 운전', r.filter(plain)],
         ['event', '휴지·패드 교체 직후 첫 장', r.filter(x => x.events.afterRest || x.events.afterPad)],
         ['stale', '최근 측정이 반영되지 않은 예측', r.filter(x => x.stale)],
         ['alarm', '연마 중 압력 경보', r.filter(x => x.alarm)],
         ['pressure', '압력 설정을 바꾼 웨이퍼', r.filter(x => x.pressureChanged)],
+        ['speed', '회전 속도를 바꾼 웨이퍼', r.filter(x => x.speedChanged)],
       ];
       return { source, seed: s.seed, policy: { ...s.policy }, auto: s.auto, ...statsOf(r),
         inSpecKnown: r.filter(x => x.measured && x.inSpec).length, pendingResults: s.queue.length,
@@ -374,14 +401,48 @@
         suggestions: SUGGESTIONS.map(x => ({ id: x.id, text: x.text, done: !!x.done(s) })) };
     }
 
+    /* The same wafers under other operating rules. A wafer's outcome MRR does not depend on its polishing time,
+       so each alternative only changes the time: the fixed recipe time, or the model's R2R time (target / estimated
+       MRR, re-estimated from the observed pressure on an alarm) fed by the operator's own measurements or by every
+       wafer measured at once. */
+    function compare() {
+      const recs = s.records;
+      if (!recs.length) return null;
+      const outcome = (r, t) => ({ pct: W[r.n - 1].mrr * t / meta[r.recipe].target_removal * 100, spec: meta[r.recipe].spec_pct });
+      function r2r(availableAt) {
+        const mdl = LabStateModel.create(modelJson); mdl.restore(replay.warm_state);
+        const order = recs.map((r, i) => ({ r, at: availableAt(r, i) })).filter(x => x.at !== null)
+          .sort((a, b) => a.at - b.at || a.r.n - b.r.n);
+        let k = 0;
+        return recs.map((r, i) => {
+          for (; k < order.length && order[k].at <= i; k++) { const w = W[order[k].r.n - 1]; mdl.update(order[k].r.ctx, w.mrr / (w.vf || 1), w.p_main); }
+          const w = W[r.n - 1], m = meta[r.recipe], vf = r.speed || 1;
+          const est = mdl.predict(r.ctx, r.alarm ? w.p_main : r.planned);
+          const t = est ? clamp(m.target_removal / (est.mrr * vf), m.t_ref * TIME_RANGE[0], m.t_ref * TIME_RANGE[1]) : m.t_ref;
+          return outcome(r, Math.round(t * 10) / 10); // same 0.1 s resolution as the operator's control
+        });
+      }
+      const stats = (id, title, rows) => {
+        const ok = rows.filter(x => Math.abs(x.pct - 100) <= x.spec).length;
+        return { id, title, count: rows.length, inSpec: ok, yieldPct: 100 * ok / rows.length,
+          meanAbsErrPct: rows.reduce((a, x) => a + Math.abs(x.pct - 100), 0) / rows.length };
+      };
+      return { rows: [
+        stats('fixed', '매번 기준 레시피 시간 (보정 없음)', recs.map(r => outcome(r, meta[r.recipe].t_ref))),
+        stats('mine', '내 운전', recs.map(r => ({ pct: r.removalPct, spec: meta[r.recipe].spec_pct }))),
+        stats('r2r-own', '모델 자동 보정 · 내 계측 선택 그대로', r2r(r => (r.deliveredAt === null || r.deliveredAt === undefined ? null : r.deliveredAt))),
+        stats('r2r-all', '모델 자동 보정 · 매 장 계측', r2r((r, i) => i + 1)),
+      ] };
+    }
+
     announce();
     return {
       get state() { return s; }, get history() { return history; }, get wafers() { return W; }, meta, model,
-      current, begin, sample, adjust, finish, metrology, shouldMeasure, summary, pressureInfo,
-      setPressure, setRecipe, setMaintenance, setPolicy, setEvents,
+      current, begin, sample, adjust, finish, metrology, shouldMeasure, summary, compare, pressureInfo, speedInfo,
+      setPressure, setSpeed, setRecipe, setMaintenance, setPolicy, setEvents,
       inSpecProbability: (pred, t, m) => inSpecProbability(pred, t, m),
     };
   }
 
-  return { SUGGESTIONS, DISTURB, createSession, inSpecProbability, normCdf, timeline, phaseOf, scaleTrace, PRESSURE_ALARM, TIME_RANGE };
+  return { SUGGESTIONS, DISTURB, createSession, inSpecProbability, normCdf, timeline, phaseOf, scaleTrace, PRESSURE_ALARM, TIME_RANGE, SPEED_RANGE };
 });

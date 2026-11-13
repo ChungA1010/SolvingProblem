@@ -6,6 +6,7 @@
   const SVG = 'http://www.w3.org/2000/svg';
   const fmt = (x, d = 2) => (x === null || x === undefined || !Number.isFinite(x) ? '—' : x.toFixed(d));
   const pct = (x, d = 1) => (Number.isFinite(x) ? `${x.toFixed(d)}%` : '—');
+  const clampV = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
   const PHASE = { load: '로딩', pressurize: '가압', polish: '본 연마', rinse: '린스 (저압)', unload: '탈착 · 언로딩' };
   const STATE_TEXT = { idle: '대기', ready: '투입 대기', run: '가공 중', decide: '계측 결정', alarm: '공정 경보', done: '운전 종료' };
   const GAUGES = [
@@ -60,6 +61,7 @@
 
   /* ---------- run control (one simulator, no task selection) ---------- */
   let sourceSel = 'virtual', eventsOn = true;
+  let lastTime = {};               // the operator's own last polishing time per recipe (never the model's)
 
   function saveRun() {
     if (!session || !session.state.records.length || session.saved) return;
@@ -74,6 +76,7 @@
     if (opts.source) sourceSel = opts.source;
     if (opts.events !== undefined) eventsOn = opts.events;
     policy = { ...(opts.policy || policy || { sample: 'manual', delay: 0 }) };
+    lastTime = {};
     auto = $('auto-mode').checked;
     session = E.createSession({ modelJson, replay, LabStateModel: M, LabVirtualTool: window.LabVirtualTool, source: sourceSel,
       seed: opts.seed, events: eventsOn, policy, auto });
@@ -142,15 +145,15 @@
     if (session) {
       const st = session.state, rec = st.records[st.records.length - 1];
       k = order.indexOf(st.phase);
-      if (st.phase === 'ready') msg = auto ? '자동 R2R 운전 중입니다. 모델 권장 시간으로 다음 웨이퍼를 자동 투입합니다.'
-        : st.virtual ? '오른쪽 [운전]에서 공정 조건을 정하고, 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요.'
-          : '오른쪽 [운전]에서 예측 MRR을 보고 연마 시간을 정한 뒤 ‘연마 시작’을 누르세요. (실제 기록: 조건은 기록대로)';
+      if (st.phase === 'ready') msg = auto ? '자동 운전 중입니다. 비교용으로 모델이 연마 시간을 정해 다음 웨이퍼를 투입합니다.'
+        : st.virtual ? '오른쪽 [운전]의 참고 정보를 보고 레시피·압력·회전 속도·연마 시간을 직접 정한 뒤 ‘연마 시작’을 누르세요.'
+          : '오른쪽 [운전]의 참고 정보를 보고 연마 시간을 직접 정한 뒤 ‘연마 시작’을 누르세요. (실제 기록: 조건은 기록대로)';
       else if (st.phase === 'run') {
-        if (st.run && st.run.alarm) { tone = 'alarm'; msg = auto ? '압력 경보! 자동 R2R이 종료 시간을 조정합니다.' : '압력 경보! 오른쪽 [운전]에서 종료 시간을 조정할지 판단하세요.'; }
+        if (st.run && st.run.alarm) { tone = 'alarm'; msg = auto ? '압력 경보! 자동 운전이 종료 시간을 조정합니다.' : '압력 경보! 오른쪽 [운전]에서 종료 시간을 다시 정할지 판단하세요.'; }
         else msg = '장비가 연마 중입니다. 3D 장비와 아래 ‘결과’의 실시간 공정 데이터를 지켜보세요.';
       } else if (st.phase === 'decide') {
         const planned = session.shouldMeasure(rec);
-        msg = auto ? '자동 R2R 운전 중입니다.' : planned === null
+        msg = auto ? '자동 운전 중입니다.' : planned === null
           ? '이 웨이퍼를 계측할지 오른쪽에서 정하세요. 계측해야 실제 결과를 알 수 있고 상태 추정이 갱신됩니다.'
           : `계측 규칙에 따라 이 웨이퍼는 ${planned ? '계측합니다' : '계측하지 않습니다'}. 오른쪽 버튼으로 다음 웨이퍼로 넘어가세요.`;
       } else msg = '실제 기록의 끝까지 운전했습니다. ‘결과 보기’로 수율과 예측 정확도를 확인하세요.';
@@ -178,7 +181,9 @@
 
   function beginWafer(t) {
     try {
+      const recipe = session.current().wafer.recipe;
       const r = session.begin(t);
+      if (!auto) lastTime[recipe] = t;
       run = { elapsed: 0, total: r.tl.total(), sample: null, spark: {}, trend: [], autoAdjusted: false, lastTrendAt: -1 };
       GAUGES.forEach(g => { run.spark[g.key] = []; });
       renderAll();
@@ -446,9 +451,10 @@
     if (st.queue.length) flags.append(el('li', {}, `계측 대기 ${st.queue.length}건`));
     if (st.run && st.run.alarm) flags.append(el('li', { class: 'alarm' }, '압력 경보'));
     if (st.virtual && c && Math.abs(c.pressure.setpoint / c.pressure.pRef - 1) > 0.001) flags.append(el('li', {}, `압력 설정 ${((c.pressure.setpoint / c.pressure.pRef - 1) * 100).toFixed(1)}%`));
+    if (st.virtual && c && Math.abs(c.speed.ratio - 1) > 0.001) flags.append(el('li', {}, `회전 속도 ${Math.round(c.speed.ratio * 100)}%`));
     if (!flags.children.length) flags.append(el('li', {}, '정상 운전'));
     const p = st.phase === 'decide' ? st.records[st.records.length - 1].inproc : (live ? run.sample.inproc : (st.run ? st.run.pre : c.pred));
-    $('predict-stage').textContent = st.phase === 'decide' ? '연마 후 · 계측 전 추정' : live ? '연마 중 · 실시간 보정' : '투입 전';
+    $('predict-stage').textContent = st.phase === 'decide' ? '연마 후 · 계측 전 추정' : live ? '연마 중 · 실시간 보정' : '투입 전 · 참고용';
     $('pred-mrr').textContent = fmt(p && p.mrr, 2);
     $('pred-low').textContent = fmt(p && p.low, 2); $('pred-high').textContent = fmt(p && p.high, 2);
     $('pred-level').textContent = p ? `${fmt(p.level, 2)} ± ${fmt(p.level_sd, 2)}` : '—';
@@ -467,35 +473,87 @@
     host.append(svg('circle', { cx: x(p.mrr), cy: 20, r: 6, fill: C.brand, stroke: '#fff', 'stroke-width': 2 }));
   }
 
-  /* Practice mode: conditions the learned model can answer for (pressure, recipe, maintenance). */
+  /* Reference information the operator reads before deciding (target, recipe basis, own recent results). */
+  function renderRefInfo() {
+    const host = $('ref-info'); if (!host || !session) return;
+    const st = session.state;
+    if (st.phase === 'done') { host.hidden = true; return; }
+    host.hidden = false; host.replaceChildren();
+    const w = st.run ? st.run.wafer : session.current().wafer, recipe = w.recipe, m = session.meta[recipe];
+    const lo = m.target_removal * (1 - m.spec_pct / 100), hi = m.target_removal * (1 + m.spec_pct / 100);
+    const dl = el('dl');
+    const item = (k, v, sub) => { const d = el('div'); d.append(el('dt', {}, k)); const dd = el('dd'); dd.append(el('b', {}, v)); if (sub) dd.append(el('small', {}, sub)); d.append(dd); dl.append(d); };
+    item('목표 제거량', fmt(m.target_removal, 0), `규격 ${fmt(lo, 0)}~${fmt(hi, 0)} (±${m.spec_pct}%)`);
+    item('기준 레시피', `${fmt(m.t_ref, 0)}초 · MRR ${fmt(m.mrr_ref, 1)}`, `기준 압력 ${fmt(m.p_ref, 1)} · 회전 속도 100%`);
+    const head = el('h4'); head.append(document.createTextNode(`참고 정보 · ${recipe}`), el('em', { class: 'src data' }, '기록'));
+    host.append(head, dl, el('h5', {}, '최근 계측 결과 (같은 레시피)'));
+    const ul = el('ul', { class: 'recent' });
+    const measured = st.records.filter(r => r.recipe === recipe && r.measured).slice(-3).reverse();
+    for (const r of measured) {
+      const li = el('li'), wr = session.wafers[r.n - 1];
+      const pRef = modelJson.recipes[r.recipe].p_ref, cond = [r.speedChanged && `속도 ${Math.round(r.speed * 100)}%`, r.setpoint && Math.abs(r.setpoint / pRef - 1) > 0.001 && `압력 ${((r.setpoint / pRef - 1) * 100).toFixed(1)}%`, r.alarm && '압력 경보'].filter(Boolean);
+      li.append(el('span', {}, r.label), el('span', {}, `MRR ${fmt(wr.mrr, 2)} · ${fmt(r.tSet, 1)}초${cond.length ? ` · ${cond.join(' · ')}` : ''}`), el('span', { class: `pill ${r.inSpec ? 'in' : 'out'}` }, pct(r.removalPct)));
+      ul.append(li);
+    }
+    if (!measured.length) {
+      const hist = session.history[recipe], last = hist && hist[hist.length - 1];
+      ul.append(el('li', { class: 'empty' }, `이번 운전에서는 아직 계측 결과가 없습니다.${last ? ` 장비 인수 전 마지막 기록 MRR ${fmt(last.mrr, 2)}.` : ''}`));
+    }
+    host.append(ul);
+    let blind = 0;
+    for (let i = st.records.length - 1; i >= 0; i--) { const r = st.records[i]; if (r.recipe !== recipe) continue; if (r.measured) break; blind += 1; }
+    const notes = [];
+    if (blind) notes.push(`마지막 계측 결과 이후 ${recipe} ${blind}장은 결과를 모릅니다.`);
+    if (st.queue.length) notes.push(`계측 결과 대기 ${st.queue.length}건.`);
+    notes.push('제거량 = MRR × 연마 시간.');
+    host.append(el('p', { class: 'note' }, notes.join(' ')));
+  }
+
+  /* What the operator sets. Each control says where its effect comes from (recorded data or a textbook assumption). */
   function conditionsBlock(c) {
     const box = el('div', { class: 'conditions' }), info = c.pressure, ctl = c.controls;
     const apply = fn => { try { fn(); } catch (e) { flashError(e.message); } renderAll(); };
+    const heading = (label, tag, right) => {
+      const h = el('h4'), left = el('span', { class: 'lab' });
+      left.append(document.createTextNode(label)); if (tag) left.append(tag);
+      h.append(left); if (right) h.append(right); return h;
+    };
     if (ctl.recipe) {
-      const h = el('h4'); h.append(document.createTextNode('레시피'));
       const sel = el('select', { 'aria-label': '다음 웨이퍼 레시피' });
       for (const r of ['A456', 'B456']) { const o = el('option', { value: r }, r); if (r === c.wafer.recipe) o.selected = true; sel.append(o); }
       sel.addEventListener('change', () => apply(() => session.setRecipe(sel.value)));
-      h.append(sel); box.append(h);
+      box.append(heading('레시피', null, sel));
     }
     const [lo, hi] = info.range;
     const dev = v => `${v.toFixed(1)} (${v >= info.pRef ? '+' : ''}${((v / info.pRef - 1) * 100).toFixed(1)}%)`;
-    const head = el('h4'); const val = el('span', { class: 'val' }, dev(info.setpoint));
-    head.append(document.createTextNode('주 압력 설정'), val); box.append(head);
+    const val = el('span', { class: 'val' }, dev(info.setpoint));
+    box.append(heading('주 압력', el('em', { class: 'src data' }, info.alpha > 0 ? '데이터 근거' : '데이터: 반응 없음'), val));
     const row = el('div', { class: 'row' });
     const sMin = Math.ceil(lo * 10) / 10, sMax = Math.floor(hi * 10) / 10; // round inward so every slider value is allowed
     const slider = el('input', { type: 'range', min: sMin.toFixed(1), max: sMax.toFixed(1), step: '0.1', value: Math.min(sMax, Math.max(sMin, info.setpoint)).toFixed(1), 'aria-label': '주 압력 설정값' });
-    slider.disabled = info.locked;
     slider.addEventListener('input', () => { val.textContent = dev(Number(slider.value)); });
     slider.addEventListener('change', () => apply(() => session.setPressure(Number(slider.value))));
-    const reset = el('button', { type: 'button', class: 'btn' }, '기준'); reset.disabled = info.locked;
+    const reset = el('button', { type: 'button', class: 'btn' }, '기준');
     reset.addEventListener('click', () => apply(() => session.setPressure(info.pRef)));
     row.append(slider, reset); box.append(row);
-    box.append(el('p', { class: `hint-line${info.locked ? ' lock' : ''}` }, info.locked
-      ? '이 챕터에서는 압력이 기준값으로 잠겨 있습니다.'
-      : info.alpha > 0 ? `${c.wafer.recipe}: 압력에 비례해 MRR이 변합니다 (Preston α=${info.alpha}, 실제 저압 웨이퍼 근거). 관측된 범위 안에서만 설정할 수 있습니다.`
-        : `${c.wafer.recipe}: 학습 자료에서 압력 반응이 확인되지 않아 압력을 바꿔도 MRR은 그대로입니다 (α=0).`));
+    box.append(el('p', { class: 'hint-line' }, info.alpha > 0
+      ? `${c.wafer.recipe}: 압력을 낮춘 실제 기록 21장이 Preston 식대로 압력에 비례해 덜 깎였습니다. 기록된 범위 안에서만 정할 수 있습니다.`
+      : `${c.wafer.recipe}: 실제 기록에서는 압력이 바뀌어도 MRR이 거의 변하지 않았습니다. Preston 식이 늘 맞지는 않는다는 예입니다.`));
+    if (ctl.speed) {
+      const sp = c.speed, [a, b] = sp.range;
+      const sval = el('span', { class: 'val' }, `${Math.round(sp.ratio * 100)}%`);
+      box.append(heading('회전 속도', el('em', { class: 'src assume' }, '교과서 가정'), sval));
+      const srow = el('div', { class: 'row' });
+      const ss = el('input', { type: 'range', min: String(Math.round(a * 100)), max: String(Math.round(b * 100)), step: '1', value: String(Math.round(sp.ratio * 100)), 'aria-label': '회전 속도 (기록된 속도 대비 %)' });
+      ss.addEventListener('input', () => { sval.textContent = `${ss.value}%`; });
+      ss.addEventListener('change', () => apply(() => session.setSpeed(Number(ss.value) / 100)));
+      const sreset = el('button', { type: 'button', class: 'btn' }, '기준');
+      sreset.addEventListener('click', () => apply(() => session.setSpeed(1)));
+      srow.append(ss, sreset); box.append(srow);
+      box.append(el('p', { class: 'hint-line' }, 'Preston 식: MRR ∝ 압력 × 속도. 실제 기록은 레시피마다 속도가 고정이라 데이터로 확인하지 못한 가정입니다. 100% = 기록된 속도.'));
+    }
     if (ctl.maintenance) {
+      box.append(heading('정비', el('em', { class: 'src data' }, '데이터 근거')));
       const checks = el('div', { class: 'checks' });
       for (let [kind, label, on] of [['pad', '투입 전 패드 교체', c.wafer.pad_change], ['rest', '투입 전 장비 휴지 3시간', c.wafer.rest]]) {
         const lab = el('label', { class: 'check' }), cb = el('input', { type: 'checkbox' }); cb.checked = !!on;
@@ -511,39 +569,31 @@
   function renderDecide() {
     const st = session.state, body = $('decide-body'), title = $('decide-title'); body.replaceChildren();
     if (st.phase === 'ready') {
-      const c = session.current(); title.textContent = st.virtual ? '공정 조건 · 연마 시간 설정' : '연마 시간 설정';
+      const c = session.current(); title.textContent = '내가 정하는 값';
       if (st.virtual) body.append(conditionsBlock(c));
-      else body.append(el('p', { class: 'replay-lock' }, '실제 기록: 압력·레시피·정비는 기록된 그대로입니다. 연마 시간과 계측만 정합니다.'));
-      const [lo, hi] = c.limits;
+      else body.append(el('p', { class: 'replay-lock' }, '실제 기록: 압력·레시피·정비·회전 속도는 기록된 그대로입니다. 연마 시간과 계측만 정합니다.'));
+      const [lo, hi] = c.limits, last = lastTime[c.wafer.recipe];
       const field = el('div', { class: 'field' });
       field.append(el('label', { for: 't-input' }, `본 연마 시간 (초) · 허용 ${lo.toFixed(0)}~${hi.toFixed(0)}`));
-      const row = el('div', { class: 'row' });
-      const range = el('input', { type: 'range', min: lo.toFixed(1), max: hi.toFixed(1), step: '0.1', value: c.recommended, 'aria-label': '본 연마 시간' });
-      const num = el('input', { type: 'number', id: 't-input', min: lo.toFixed(1), max: hi.toFixed(1), step: '0.1', value: c.recommended });
-      row.append(range, num); field.append(row);
-      const out = el('div', { class: 'outcome' });
-      const remB = el('b'), probB = el('b');
-      const d1 = el('div'); d1.append(el('span', {}, '예상 제거량 (목표 대비)'), remB);
-      const d2 = el('div'); d2.append(el('span', {}, '규격 ±5% 안에 들 확률'), probB);
-      out.append(d1, d2);
-      const update = v => {
-        const t = Number(v); if (!Number.isFinite(t)) return;
-        remB.textContent = pct(c.pred.mrr * t / c.meta.target_removal * 100);
-        const pr = session.inSpecProbability(c.pred, t, c.meta);
-        probB.textContent = pct(100 * pr, 0); probB.className = pr >= 0.7 ? 'prob-good' : pr >= 0.45 ? 'prob-mid' : 'prob-bad';
-      };
-      range.addEventListener('input', () => { num.value = range.value; update(range.value); });
-      num.addEventListener('input', () => { range.value = num.value; update(num.value); });
-      update(c.recommended);
-      const note = el('p', { class: 'note' }, `R2R 권장 ${fmt(c.recommended, 1)}초 = 목표 제거량 ÷ 예측 MRR. 기준 레시피 시간은 ${fmt(c.meta.t_ref, 0)}초입니다.`);
-      const actions = el('div', { class: 'actions two' });
-      const recBtn = el('button', { type: 'button', class: 'btn' }, '권장값 적용');
-      recBtn.addEventListener('click', () => { range.value = c.recommended; num.value = c.recommended; update(c.recommended); });
-      const go = el('button', { type: 'button', class: 'btn primary' }, auto ? '자동 운전 중' : '연마 시작');
-      go.disabled = auto;
-      go.addEventListener('click', () => beginWafer(Math.round(Number(num.value) * 10) / 10));
-      actions.append(recBtn, go);
-      body.append(field, out, note, actions);
+      const row = el('div', { class: 'row nudge' });
+      const num = el('input', { type: 'number', id: 't-input', min: lo.toFixed(1), max: hi.toFixed(1), step: '0.1', placeholder: '직접 입력', value: last !== undefined ? last.toFixed(1) : undefined });
+      const go = el('button', { type: 'button', class: 'btn primary block', id: 'start-btn' }, auto ? '자동 운전 중' : '연마 시작');
+      const valid = () => { const t = Number(num.value); return num.value !== '' && Number.isFinite(t) && t >= lo && t <= hi; };
+      const sync = () => { go.disabled = auto || !valid(); };
+      row.append(num);
+      for (const d of [-5, -1, 1, 5]) {
+        const b = el('button', { type: 'button', class: 'btn' }, d > 0 ? `+${d}` : `${d}`);
+        b.addEventListener('click', () => { const t = num.value === '' ? c.meta.t_ref : Number(num.value); num.value = (Math.round(clampV(t + d, lo, hi) * 10) / 10).toFixed(1); sync(); });
+        row.append(b);
+      }
+      num.addEventListener('input', sync);
+      num.addEventListener('keydown', e => { if (e.key === 'Enter' && !go.disabled) go.click(); });
+      go.addEventListener('click', () => { if (valid()) beginWafer(Math.round(Number(num.value) * 10) / 10); });
+      field.append(row);
+      body.append(field, el('p', { class: 'note' }, last !== undefined
+        ? `지난번 ${c.wafer.recipe} 웨이퍼에 내가 쓴 ${fmt(last, 1)}초를 넣어 두었습니다. 참고 정보를 보고 고치세요.`
+        : '참고 정보를 보고 직접 정하세요. 모델이 시간을 대신 정해 주지 않습니다.'), go);
+      sync();
     } else if (st.phase === 'run') {
       title.textContent = '연마 진행';
       body.append(el('div', { id: 'run-info' }));
@@ -584,8 +634,7 @@
     $('run-status').textContent = `${PHASE[s.phase]} · ${fmt(s.elapsed, 0)}/${fmt(s.total, 0)}초 · 설정 ${fmt(s.tSet, 1)}초${r.adjusted ? ' (조정됨)' : ''}`;
     $('run-bar').style.width = `${100 * s.elapsed / s.total}%`;
     // Rebuild the detail block only when its meaning changes, so its button stays clickable.
-    const key = [s.phase === 'polish' && s.mainElapsed >= 5, !!s.alarm, s.suggestion, r.adjusted, auto,
-      s.alarm ? Math.round(s.projectedFinalPct * 10) : 0].join('|');
+    const key = [s.phase === 'polish' && s.mainElapsed >= 5, !!s.alarm, r.adjusted, r.tSet, auto].join('|');
     const detail = $('run-detail');
     if (detail.dataset.key === key) return;
     detail.dataset.key = key; detail.replaceChildren();
@@ -594,22 +643,26 @@
 
   function paintRunDetail(host, s, r) {
     if (s.alarm) {
-      const box = el('div', { class: 'alarm-box', role: 'alert' });
-      box.append(el('strong', {}, `주 압력 ${(s.pressureDev * 100).toFixed(1)}% · ${session.state.virtual ? '설정값' : '기준'} 이탈`));
+      const box = el('div', { class: 'alarm-box', role: 'alert' }), dev = r.alarm ? r.alarm.dev : s.pressureDev;
+      box.append(el('strong', {}, `주 압력 ${(dev * 100).toFixed(1)}% · ${session.state.virtual ? '설정값' : '기준'} 이탈`));
       const alpha = modelJson.recipes[r.wafer.recipe].alpha;
-      if (alpha > 0) {
-        box.append(el('div', {}, `연마 중 보정 MRR ${fmt(s.inproc.mrr, 2)} (투입 전 ${fmt(r.pre.mrr, 2)}). 이대로 끝나면 최종 ${pct(s.projectedFinalPct)}.`));
-      } else {
-        box.append(el('div', {}, `${r.wafer.recipe}는 학습 자료에서 압력 변화에 대한 MRR 반응이 확인되지 않아 보정하지 않습니다 (α=0).`));
-      }
+      box.append(el('div', {}, alpha > 0
+        ? `압력이 낮아지면 Preston 식대로 MRR도 비슷한 비율로 줄어, 같은 시간이면 덜 깎입니다. 모델의 연마 중 추정 MRR ${fmt(s.inproc.mrr, 2)} (투입 전 ${fmt(r.pre && r.pre.mrr, 2)}).`
+        : `${r.wafer.recipe}는 실제 기록에서 압력 변화에 MRR이 거의 반응하지 않았습니다. 시간을 바꿀지 직접 판단하세요.`));
       host.append(box);
-      if (s.suggestion && !auto) {
-        const b = el('button', { type: 'button', class: 'btn warn block' }, `종료 시간 조정: ${fmt(s.tSet, 1)} → ${fmt(s.suggestion, 1)}초`);
-        b.addEventListener('click', () => { try { session.adjust(s.suggestion, run.elapsed); } catch (e) { flashError(e.message); } });
-        host.append(b);
-      } else if (auto && r.adjusted) host.append(el('p', { class: 'note' }, '자동 R2R이 종료 시간을 조정했습니다.'));
+      if (!auto) {
+        const lo = r.meta.t_ref * E.TIME_RANGE[0], hi = r.meta.t_ref * E.TIME_RANGE[1];
+        const field = el('div', { class: 'field' });
+        field.append(el('label', { for: 'adj-input' }, `종료 시간 다시 정하기 (지금 ${fmt(r.tSet, 1)}초)`));
+        const row = el('div', { class: 'row' });
+        const inp = el('input', { type: 'number', id: 'adj-input', min: lo.toFixed(1), max: hi.toFixed(1), step: '0.1', value: r.tSet.toFixed(1) });
+        const b = el('button', { type: 'button', class: 'btn warn' }, '적용');
+        b.addEventListener('click', () => { try { session.adjust(Math.round(Number(inp.value) * 10) / 10, run.elapsed); if (run && run.sample) paintDecideRun(run.sample); } catch (e) { flashError(e.message); } });
+        row.append(inp, b); field.append(row); host.append(field);
+        if (r.adjusted) host.append(el('p', { class: 'note' }, `종료 시간을 ${fmt(r.tSet, 1)}초로 바꿨습니다.`));
+      } else if (r.adjusted) host.append(el('p', { class: 'note' }, '자동 운전이 종료 시간을 조정했습니다.'));
     } else if (s.phase === 'polish' && s.mainElapsed >= 5) {
-      host.append(el('p', { class: 'note' }, `연마 중 압력 정상 (${(s.pressureDev * 100).toFixed(2)}%). 정상 운전에서는 센서가 예측을 거의 바꾸지 않습니다.`));
+      host.append(el('p', { class: 'note' }, `연마 중 압력 정상 (${(s.pressureDev * 100).toFixed(2)}%). 정상 운전에서는 센서가 추정을 거의 바꾸지 않습니다.`));
     }
   }
 
@@ -634,7 +687,7 @@
       const w = session.wafers[r.n - 1], tr = el('tr');
       const verdict = r.measured ? (r.inSpec ? ['in', '규격 안'] : ['out', '규격 밖']) : r.status === 'queued' ? ['q', '계측 대기'] : ['unk', '미확인'];
       const pRef = modelJson.recipes[r.recipe].p_ref, sp = r.setpoint && Math.abs(r.setpoint / pRef - 1) > 0.001 ? `압력 ${((r.setpoint / pRef - 1) * 100).toFixed(1)}%` : null;
-      const notes = [r.events.afterRest && '휴지 후 첫 장', r.events.afterPad && '패드 교체 후', sp, r.alarm && '압력 경보', r.adjusted && '시간 조정'].filter(Boolean).join(' · ');
+      const notes = [r.events.afterRest && '휴지 후 첫 장', r.events.afterPad && '패드 교체 후', sp, r.speedChanged && `속도 ${Math.round(r.speed * 100)}%`, r.alarm && '압력 경보', r.adjusted && '시간 조정'].filter(Boolean).join(' · ');
       const cells = [r.label, r.recipe, `${fmt(r.tSet, 1)}${r.adjusted ? '*' : ''}`, r.pre ? `${fmt(r.pre.mrr, 2)} [${fmt(r.pre.low, 1)}–${fmt(r.pre.high, 1)}]` : '—',
         fmt(r.inproc.mrr, 2), r.measured ? fmt(w.mrr, 2) : '—', r.measured ? pct(r.removalPct) : '?'];
       cells.forEach(c => tr.append(el('td', {}, c)));
@@ -685,7 +738,7 @@
   }
 
   function renderAll() {
-    renderTop(); renderNotice(); renderEquipment(); renderWaferAndPrediction(); renderDecide(); renderQueue(); renderLog(); renderRunLog(); renderSpc();
+    renderTop(); renderNotice(); renderEquipment(); renderWaferAndPrediction(); renderRefInfo(); renderDecide(); renderQueue(); renderLog(); renderRunLog(); renderSpc();
     // When the operator has to act, bring the [운전] menu forward.
     const ph = `${session.state.n}:${session.state.phase}`;
     if (!auto && ph !== renderAll.lastPhase && ['ready', 'decide', 'done'].includes(session.state.phase)) selectTab('run');
@@ -695,7 +748,7 @@
       $('process-wafer').textContent = session.state.phase === 'done' ? '운전 종료' : `${session.current().wafer.label} 투입 대기`;
       $('machine-phase').textContent = session.state.phase === 'decide' ? '언로딩 완료' : session.state.phase === 'done' ? '운전 종료' : '투입 대기';
       const c = session.state.phase === 'ready' ? session.current() : null;
-      $('machine-sub').textContent = c ? `${c.wafer.label} · ${c.wafer.recipe} · 권장 ${fmt(c.recommended, 1)}초` : '';
+      $('machine-sub').textContent = c ? `${c.wafer.label} · ${c.wafer.recipe} · 목표 제거량 ${fmt(c.meta.target_removal, 0)}` : '';
     } else $('process-wafer').textContent = `${session.state.run.wafer.label} · ${session.state.run.wafer.recipe}`;
   }
 
@@ -713,20 +766,37 @@
   function showDebrief() {
     const sum = session.summary(), virtual = sum.source === 'virtual';
     $('debrief-title').textContent = session.state.phase === 'done' ? '운전 결과' : '지금까지의 운전 결과';
-    $('debrief-sub').textContent = `${virtual ? `가상 장비 (모델이 만든 결과) · 흐름 #${sum.seed}` : '실제 기록 (실측)'} · ${policyText(sum.policy)} · ${auto ? '자동 R2R' : '수동 운전'} · 웨이퍼 ${sum.count}장${sum.pendingResults ? ` · 계측 결과 대기 ${sum.pendingResults}건` : ''}`;
+    $('debrief-sub').textContent = `${virtual ? `가상 장비 (모델이 만든 결과) · 흐름 #${sum.seed}` : '실제 기록 (실측)'} · ${policyText(sum.policy)} · ${auto ? '자동 운전 (모델이 시간 결정)' : '직접 운전'} · 웨이퍼 ${sum.count}장${sum.pendingResults ? ` · 계측 결과 대기 ${sum.pendingResults}건` : ''}`;
     const stats = $('debrief-stats'); stats.replaceChildren();
     const tile = (label, value, cls = '') => { const d = el('div', { class: `stat ${cls}` }); d.append(el('span', {}, label), el('b', {}, value)); stats.append(d); };
     tile('규격(목표 ±5%) 수율', sum.count ? `${sum.inSpec}/${sum.count} · ${pct(sum.yieldPct, 0)}` : '—', sum.count ? (sum.yieldPct >= 65 ? 'pass' : 'fail') : '');
     tile('계측 횟수', `${sum.measured}회`);
     tile('평균 제거량 오차', sum.count ? pct(sum.meanAbsErrPct, 2) : '—');
-    tile('90% 구간 실제 포함률', pct(sum.coveragePct, 0));
-    tile('평균 예측 구간 폭', fmt(sum.meanWidth, 2));
+    tile('모델 추정 범위(90%) 적중률', pct(sum.coveragePct, 0));
+    tile('모델 추정 범위 평균 폭', fmt(sum.meanWidth, 2));
     tile('연마 중 시간 조정', `${sum.adjusted}회`);
     const lesson = $('debrief-lesson'); lesson.replaceChildren();
+    const cmpRes = session.compare();
+    if (cmpRes) {
+      const by = id => cmpRes.rows.find(x => x.id === id);
+      const f = by('fixed'), mine = by('mine'), own = by('r2r-own'), all = by('r2r-all');
+      lesson.append(el('h3', {}, '같은 웨이퍼를 다른 방식으로 운전했다면'),
+        table(['운전 방식', '규격 수율', '평균 제거량 오차'], cmpRes.rows.map(x => [x.title, `${x.inSpec}/${x.count} · ${pct(x.yieldPct, 0)}`, pct(x.meanAbsErrPct, 2)]), 'compare-table'));
+      const ul = el('ul', { class: 'takeaways' });
+      ul.append(el('li', {}, `보정 없이 매번 기준 레시피 시간으로 깎았다면 수율 ${pct(f.yieldPct, 0)}입니다. 장비 상태가 계속 변하기 때문에 같은 시간으로는 결과가 흔들립니다.`));
+      ul.append(el('li', {}, mine.yieldPct >= own.yieldPct - 5
+        ? `내 시간 판단(${pct(mine.yieldPct, 0)})은 같은 계측 결과를 받은 모델 자동 보정(${pct(own.yieldPct, 0)})만큼 좋았습니다.`
+        : `같은 계측 결과를 받은 모델 자동 보정은 ${pct(own.yieldPct, 0)}였습니다. 최근 계측 결과와 모델 추정을 더 반영해 시간을 정해 보세요.`));
+      ul.append(el('li', {}, all.yieldPct - own.yieldPct >= 3
+        ? `매 장 계측했다면 모델 자동 보정 수율은 ${pct(all.yieldPct, 0)}입니다. 계측을 늘리면 ${fmt(all.yieldPct - own.yieldPct, 0)}%p 올라가지만, 그만큼 비용과 시간이 듭니다.`
+        : `매 장 계측해도 모델 자동 보정 수율은 ${pct(all.yieldPct, 0)}로, 지금 계측량과 큰 차이가 없었습니다.`));
+      if (mine.count < 20) ul.append(el('li', { class: 'muted' }, `아직 ${mine.count}장이라 우연의 영향이 큽니다. 20장 이상 운전하면 차이가 분명해집니다.`));
+      lesson.append(ul);
+    }
     lesson.append(el('h3', {}, '상황별 결과'),
-      table(['상황', '웨이퍼', '규격 수율', '평균 제거량 오차', '평균 예측 구간 폭'],
+      table(['상황', '웨이퍼', '규격 수율', '평균 제거량 오차', '모델 추정 범위 폭'],
         sum.situations.map(g => [g.title, `${g.count}장`, g.count ? `${g.inSpec}/${g.count} · ${pct(g.yieldPct, 0)}` : '—', g.count ? pct(g.meanAbsErrPct, 2) : '—', fmt(g.meanWidth, 2)]), 'situations-table'),
-      el('p', { class: 'note' }, '한 웨이퍼가 여러 상황에 속할 수 있습니다. 측정이 반영되지 않은 예측일수록 구간이 넓고 오차가 커지는지 비교해 보세요.'));
+      el('p', { class: 'note' }, '한 웨이퍼가 여러 상황에 속할 수 있습니다. 측정이 반영되지 않은 추정일수록 범위가 넓고 오차가 커지는지 비교해 보세요.'));
     const ul = el('ul', { class: 'suggestions' });
     sum.suggestions.forEach(x => ul.append(el('li', { class: x.done ? 'done' : '' }, x.text)));
     lesson.append(el('h3', {}, `추천 연습 ${sum.suggestions.filter(x => x.done).length}/${sum.suggestions.length}`), ul);
@@ -790,7 +860,7 @@
       const st = session.state;
       if (st.records.length !== lastCount || st.queue.length !== lastQueue || st.log.length !== lastLog) {
         lastCount = st.records.length; lastQueue = st.queue.length; lastLog = st.log.length;
-        renderLog(); renderQueue(); renderRunLog(); renderSpc(); renderEquipment(); renderHelp();
+        renderLog(); renderQueue(); renderRunLog(); renderSpc(); renderEquipment(); renderHelp(); renderRefInfo();
       }
     }, 300);
   }

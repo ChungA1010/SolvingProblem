@@ -42,16 +42,18 @@ const runWafer = (s, t, measure = true) => {
 };
 
 test('one simulator: suggestions tick themselves and the replay source locks recorded conditions', () => {
-  assert.deepEqual(Engine.SUGGESTIONS.map(x => x.id), ['inspec', 'pressure', 'skip', 'delay', 'event', 'alarm', 'replay']);
+  assert.deepEqual(Engine.SUGGESTIONS.map(x => x.id), ['inspec', 'pressure', 'speed', 'skip', 'delay', 'event', 'alarm', 'replay']);
   const s = session();
   assert.equal(s.state.source, 'replay');
   assert.throws(() => s.setPressure(250), /실제 기록/);
   assert.throws(() => s.setRecipe('B456'), /실제 기록/);
+  assert.throws(() => s.setSpeed(1.1), /실제 기록/);
+  assert.equal(s.current().speed.ratio, 1);
   assert.equal(s.current().controls.pressure, false);
   runWafer(s);
   const sum = s.summary();
   assert.equal(sum.suggestions.find(x => x.id === 'replay').done, true);
-  assert.deepEqual(sum.situations.map(x => x.id), ['normal', 'event', 'stale', 'alarm', 'pressure']);
+  assert.deepEqual(sum.situations.map(x => x.id), ['normal', 'event', 'stale', 'alarm', 'pressure', 'speed']);
 });
 
 test('pre-start view recommends a bounded time and rejects out-of-range input', () => {

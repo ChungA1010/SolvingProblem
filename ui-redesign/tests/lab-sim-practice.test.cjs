@@ -36,7 +36,7 @@ function polish(s, { t, measure = true, adjust = false } = {}) {
 test('the virtual simulator is open-ended, starts with every control open and lets the operator decide each measurement', () => {
   const s = make();
   const c = s.current();
-  assert.deepEqual(c.controls, { pressure: true, recipe: true, maintenance: true });
+  assert.deepEqual(c.controls, { pressure: true, speed: true, recipe: true, maintenance: true });
   assert.equal(c.pressure.locked, false);
   assert.equal(s.state.policy.sample, 'manual');
   for (let i = 0; i < 60; i++) { const r = polish(s, { measure: i % 3 === 0 }).rec; assert.equal(s.shouldMeasure(r), null); }
@@ -117,4 +117,42 @@ test('metrology delay and rule are settings; results arrive late and the summary
   const sum = s.summary();
   assert.equal(sum.count, 3); assert.ok(sum.situations.find(x => x.id === 'stale').count >= 1);
   assert.ok(sum.suggestions.find(x => x.id === 'delay').done);
+});
+
+test('rotation speed follows Preston in both the virtual tool and the prediction, and is a textbook assumption', () => {
+  const a = make({ events: false }), b = make({ events: false });
+  assert.deepEqual(Engine.SPEED_RANGE, [0.8, 1.2]);
+  const base = a.current().pred.mrr;
+  b.setSpeed(1.15);
+  assert.ok(Math.abs(b.current().pred.mrr - base * 1.15) < 1e-9, 'prediction scales with speed');
+  assert.equal(b.current().pred.speed_factor, 1.15);
+  const ra = polish(a, { t: 110 }).rec, rb = polish(b, { t: 110 }).rec;
+  assert.ok(Math.abs(b.wafers[0].mrr - a.wafers[0].mrr * 1.15) < 1e-9, 'same hidden state, MRR x speed');
+  assert.ok(Math.abs(rb.removalPct - ra.removalPct * 1.15) < 1e-9);
+  assert.equal(rb.speedChanged, true); assert.equal(ra.speedChanged, false);
+  assert.ok(b.wafers[0].trace.stage_rot.every((v, i) => Math.abs(v - a.wafers[0].trace.stage_rot[i] * 1.15) < 1e-9), 'the 3D spins faster');
+  // the measurement is normalised back to the recipe speed, so both trackers hold the same state
+  assert.ok(Math.abs(a.model.tracker('A456').snapshot().level - b.model.tracker('A456').snapshot().level) < 1e-9);
+  assert.throws(() => b.setSpeed(1.5), /80~120%/);
+  assert.ok(b.summary().suggestions.find(x => x.id === 'speed').done);
+});
+
+test('comparison: the same wafers under fixed time and model R2R; an operator who copies the model matches it', () => {
+  const s = make({ events: false });
+  for (let i = 0; i < 30; i++) polish(s);          // recommended time, every wafer measured at once
+  const cmp = s.compare(), by = id => cmp.rows.find(x => x.id === id);
+  assert.deepEqual(cmp.rows.map(x => x.id), ['fixed', 'mine', 'r2r-own', 'r2r-all']);
+  for (const id of ['r2r-own', 'r2r-all']) {
+    assert.equal(by(id).inSpec, by('mine').inSpec, id);
+    assert.ok(Math.abs(by(id).meanAbsErrPct - by('mine').meanAbsErrPct) < 1e-9, id);
+  }
+  const fixed = s.state.records.map(r => s.wafers[r.n - 1].mrr * s.meta[r.recipe].t_ref / s.meta[r.recipe].target_removal * 100);
+  assert.ok(Math.abs(by('fixed').meanAbsErrPct - fixed.reduce((x, v) => x + Math.abs(v - 100), 0) / fixed.length) < 1e-9);
+
+  const blind = make({ events: false });
+  for (let i = 0; i < 30; i++) polish(blind, { t: 116, measure: i === 0 });
+  const c2 = blind.compare(), b2 = id => c2.rows.find(x => x.id === id);
+  assert.ok(b2('r2r-all').meanAbsErrPct <= b2('r2r-own').meanAbsErrPct + 1e-9, 'measuring every wafer helps the controller');
+  assert.equal(b2('mine').inSpec, b2('fixed').inSpec, 'always the recipe time = the fixed rule');
+  assert.equal(make().compare(), null);
 });
