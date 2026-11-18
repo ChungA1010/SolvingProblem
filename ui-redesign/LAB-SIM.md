@@ -68,6 +68,9 @@ npm run preview   # http://127.0.0.1:8510/lab-sim.html
 | `dist/lab-sim/state-model-v2.json` | 상태 모델(fold 1~4) + 가상 장비 파라미터(`virtual`) + 레시피 기준값 | O |
 | `dist/lab-sim/data/replay.json` | fold 5 순서·사건·실측 MRR·연마 챔버 센서, fold 4 끝 상태 | X |
 | `tests/fixtures/lab-sim-parity.json`, `lab-sim-virtual-parity.json` | 합성 입력과 Python 결과(PHM 값 없음) | O |
+| `standalone/CMP-Lab.html` | 홈·팩토리 게임·장비 시뮬레이터 전체를 서버 없이 더블클릭으로 여는 한 파일(약 47 MB) | X |
+
+한 파일 만들기: `replay.json`을 만든 뒤 `node tools/build-standalone.mjs [출력 경로]`. `dist/`는 바꾸지 않는다. 껍데기 페이지가 세 페이지를 한 번에 하나씩 `iframe srcdoc`으로 보여 주고, 함께 쓰는 3D 장면·이미지·글꼴·데이터는 한 번만 넣는다. 스크립트가 실행 중에 만드는 `./media/...` 경로는 빌드가 `__cmpAsset(...)`으로 감싸 내장 사본을 쓰게 한다. 데이터 기반 MRR 예측 탭은 Ridge API 서버(127.0.0.1:8000)가 있어야 동작한다. 재생 데이터가 들어 있으므로 데이터 공개 범위가 정해질 때까지 팀 안에서만 공유한다.
 
 ## 모델과 가상 장비
 

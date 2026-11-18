@@ -867,7 +867,9 @@
 
   async function init() {
     try {
-      const [m, r] = await Promise.all([
+      // The single-file build (tools/build-standalone.mjs) embeds both files, because a page opened from disk cannot fetch.
+      const embedded = window.LabSimEmbeddedData;
+      const [m, r] = embedded ? [embedded.model, embedded.replay] : await Promise.all([
         fetch('./lab-sim/state-model-v2.json').then(x => { if (!x.ok) throw new Error('state-model-v2.json'); return x.json(); }),
         fetch('./lab-sim/data/replay.json').then(x => { if (!x.ok) throw new Error('data/replay.json'); return x.json(); }),
       ]);
