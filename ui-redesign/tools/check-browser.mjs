@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, process-all, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -714,6 +714,71 @@ async function processBond(t) {
   t.expect(next.landed && next.record.by === 'operator' && next.record.ok && next.wafer.packaged.chips === good && sheet.finished && sheet.sheet && sheet.title.includes(String(good)) && sheet.operated === 1, 'the last process ends the run: the sheet shows the chips made', `${JSON.stringify(next.record)} | ${JSON.stringify(sheet)}`);
 }
 
+/**
+ * One wafer through all eight pieces of equipment, from the crystal to the packaged chips. The controls are set through
+ * each station's own control function (the same refusals apply), not with the mouse: each equipment's own check does
+ * that. This one is about the hand-overs: every equipment opens on the wafer the one before it made.
+ */
+async function processAll(t) {
+  const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
+  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&start=wafer`);
+  if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station' && !!${PL}.sim`, 30000))) throw new Error('the first equipment did not open');
+  await sleep(2500);
+  const set = pairs => b.evaluate(`(() => { const d = ${PL}; return ${JSON.stringify(pairs)}.map(([name, value]) => d.station.control(d.sim, name, value)); })()`);
+  const until = (expression, speed, ms = 180000) => b.evaluate(`${PL}.setSpeed(${speed})`).then(() => reached(b, expression, ms));
+  const handOver = async (index, equipment) => {
+    const done = await b.evaluate(`(() => { const d = ${PL}; if (!d.station.result(d.sim)) return null; d.finishStation(); return d.run.records.at(-1); })()`);
+    const opened = equipment ? await reached(b, `${PL}.mode === 'station' && ${PL}.station.equipment === '${equipment}' && ${PL}.viewing === ${index + 1} && Object.keys(${PL}.scene.parts).length > 5`, 30000) : await reached(b, `${PL}.run.finished && !!document.querySelector('.sheet')`, 30000);
+    await sleep(1800);
+    return { done, opened };
+  };
+  const steps = [];
+  const passed = (name, step) => { steps.push(step.done); t.expect(step.done && step.done.by === 'operator' && step.done.ok && step.opened, name, JSON.stringify(step.done)); };
+
+  await set([['dopant', 2.9], ['seed', 1]]); await until(`${S}.attached`, 300);
+  await set([['speed', 9]]); await until(`${S}.necked`, 600);
+  await set([['speed', 1]]); await until(`2 * ${S}.radius > 292`, 3000);
+  await set([['auto', true]]); await until(`${S}.body.length >= 105`, 3000);
+  await set([['seed', 0]]); await until(`${PL}.sim.canMeasure()`, 300); await b.evaluate(`${PL}.sim.measure()`);
+  passed('1 wafer: a crystal with a neck and a body in range gives the wafer, and the furnace opens on it', await handOver(0, 'oxidation'));
+
+  await set([['boat', 1]]); await until(`${S}.sealed`, 1200);
+  await set([['setpoint', 1000], ['h2o', true], ['n2', false]]); await until(`${S}.oxide > 494`, 600);
+  await set([['h2o', false], ['n2', true], ['setpoint', 600]]); await until(`${S}.tube <= 800`, 1200);
+  await set([['boat', 0]]); await until(`${PL}.sim.canMeasure()`, 1200); await b.evaluate(`${PL}.sim.measure()`);
+  passed('2 oxidation: the oxide is grown on that wafer, and the photo cell opens on it', await handOver(1, 'photo'));
+
+  await set([['coat', true]]); await until(`${S}.phase === 'coated'`, 96);
+  await b.evaluate(`(() => { const d = ${PL}; d.station.control(d.sim, 'dose', 240); d.station.control(d.sim, 'focus', d.sim.state.bestFocus); d.station.control(d.sim, 'expose', true); })()`);
+  await until(`${S}.phase === 'exposed'`, 96); await set([['develop', true]]); await until(`${S}.phase === 'developed'`, 96);
+  passed('3 photo: the pattern is printed, and the etch chamber opens on it', await handOver(2, 'etch'));
+
+  await set([['chf3', true], ['power', 300], ['pressure', 10], ['load', true]]); await until(`${S}.floor <= 0 && ${S}.siliconLoss > 1`, 240);
+  await set([['power', 0]]); await sleep(600); await set([['load', false]]); await until(`!!${S}.result && ${S}.inside <= 0`, 30);
+  passed('4 etch: the windows are opened, and the implanter opens on them', await handOver(3, 'implant'));
+
+  await set([['energy', 60], ['dose', 15], ['implant', true]]); await until(`${S}.phase === 'implanted'`, 600);
+  await set([['temperature', 950], ['minutes', 30], ['anneal', true]]); await until(`${S}.phase === 'done'`, 3000);
+  passed('5 implantation: the junction is made in the windows, and the plating cell opens on it', await handOver(4, 'plating'));
+
+  await set([['head', 1]]); await until(`${S}.immersed`, 16);
+  await set([['rotation', 60], ['current', 20]]); await until(`${S}.thickness > 775`, 16);
+  await set([['current', 0]]); await sleep(500); await set([['head', 0]]); await until(`${PL}.sim.canMeasure()`, 16); await b.evaluate(`${PL}.sim.measure()`);
+  passed('6 metallization: the copper is plated, and the prober opens on the polished wafer', await handOver(5, 'prober'));
+
+  await b.evaluate(`(() => { const d = ${PL}, o = d.sim.state.offset; for (const [name, value] of [['x', -o.x], ['y', -o.y], ['z', 50], ['contact', true], ['probe', true]]) d.station.control(d.sim, name, value); })()`);
+  await until(`${S}.phase === 'done'`, 240);
+  const map = await b.evaluate(`({ good: ${S}.result.good, missed: ${S}.result.missed, clean: ${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length })`);
+  passed('7 EDS: every chip is tested, and the bonder opens on the good ones', await handOver(6, 'bonder'));
+  t.expect(map.good === map.clean && map.missed === 0, 'on a wafer made within every run sheet, the chips that fail are the ones with a defect', JSON.stringify(map));
+
+  await set([['power', 80], ['force', 30], ['time', 15], ['run', true]]); await until(`${S}.phase === 'done'`, 240);
+  passed('8 packaging: the good chips are wired, and the run ends with its sheet', await handOver(7, null));
+  const sheet = await b.evaluate(`({ rows: [...document.querySelectorAll('.sheet tbody tr')].map(row => ({ who: row.querySelector('.who').textContent, state: row.querySelector('.state').textContent })), chips: ${PL}.run.wafer.packaged.chips, title: document.querySelector('.bench h2').textContent, substrate: ${PL}.run.wafer.substrate.resistivity })`);
+  t.expect(sheet.rows.length === 8 && sheet.rows.every(row => row.who === '직접 조작' && /통과/.test(row.state)) && sheet.chips === map.good && sheet.title.includes(String(sheet.chips)) && Math.abs(sheet.substrate - 10) < 1, 'the sheet lists eight processes, all operated by hand and all passed, and the chips made from the crystal that was grown', JSON.stringify(sheet));
+  await t.shot('1-run-sheet');
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -806,6 +871,7 @@ const CHECKS = {
   'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
   'process-eds': { run: processEds, minutes: 10, about: 'dist/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
   'process-bond': { run: processBond, minutes: 10, about: 'dist/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
+  'process-all': { run: processAll, minutes: 10, about: 'dist/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

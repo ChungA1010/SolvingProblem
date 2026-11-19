@@ -102,6 +102,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
 | `process-route` | 여덟 공정이 순서대로 보이는지, 중간 공정에서 시작해 공정 기록까지 가는지 (장비 없이 표준 조건으로) |
 | `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-eds`, `process-bond` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
+| `process-all` | 웨이퍼 한 장을 여덟 장비로 처음부터 끝까지 (마우스 대신 각 장비의 조작 함수로). 장비 사이의 넘겨주기 |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |
 
 - 3D는 소프트웨어로 그려서 초당 3프레임쯤 나온다. 동작은 확인하지만 속도와 손맛은 확인하지 못한다. 그것은 실제 그래픽 카드에서 사람이 봐야 한다.
