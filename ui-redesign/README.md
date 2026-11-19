@@ -1,5 +1,7 @@
 # CMP Lab — 반도체 공방과 학습 실험실
 
+> 이 문서는 2026-11-12 기준의 게임 설명입니다. 폴더 구조와 빌드·검사 방법은 [MAINTENANCE.md](MAINTENANCE.md)에, 홈 화면의 `학습 실험실`(3D 연마 장비)은 [LAB-3D.md](LAB-3D.md)에 있습니다.
+
 **[공개 게임 플레이](https://cmp-lab-semiholic-2026.a4991698.chatgpt.site/game)** · **[학습 실험실](https://cmp-lab-semiholic-2026.a4991698.chatgpt.site)**
 
 2026-11-12 공개 게임 v45를 반영했습니다. 교육용 게임은 가정 기반 계산을 사용하며 실제 CMP 장비의 성능·경제성을 예측하지 않습니다. 기존 데이터 기반 Ridge 예측 화면도 보존했습니다. 이 화면은 별도의 로컬 모델 API가 필요하며, 공개 사이트에 자동 배포되지 않습니다. [모델 연결 안내](MODEL_CONNECTION.md)를 참고하세요.

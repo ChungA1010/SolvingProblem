@@ -1,0 +1,20 @@
+# Unit tests of the web app in ui-redesign/. They need Node only; no package is installed.
+# The Python tests run in tests.yml. The browser checks (ui-redesign/tools/check-browser.mjs) are run by hand.
+name: Web tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: ui-redesign   # the rest of the repository (frozen model runs, about 600 MB) is not needed here
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: node --test tests/*.test.cjs
+        working-directory: ui-redesign
