@@ -1,4 +1,5 @@
-// Browser checks of what a visitor can reach: the home page, the learning lab (the 3D tool) and the single-file build.
+// Browser checks of what a visitor can reach: the home page, the learning lab (the 3D CMP tool), the 8-process lab and
+// the single-file build.
 //
 // Each check opens the page in a headless Chrome or Edge, uses it with real mouse and keyboard input and compares
 // what the page shows with what it should show. The unit tests (node --test tests/*.test.cjs) cover the calculations;
@@ -6,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, standalone. A prefix selects several ("lab"); none runs them all.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-lab, standalone. A prefix selects several ("lab"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
 // The 3D pages render in software at about 3 frames per second, so a full run takes several minutes.
@@ -23,7 +24,21 @@ const line = (a, b, steps = 10) => Array.from({ length: steps + 1 }, (_, i) => (
 const reached = (browser, expression, ms) => browser.until(expression, ms).then(() => true, () => false);
 let standaloneFile = path.join(root, 'standalone/CMP-Lab.html');   // --file changes it
 const LAB = 'window.Lab3DDebug';   // the hooks dist/lab-3d/app.js leaves for these checks
-const leavesHome = entry => !['#home', '#main'].includes(entry);   // the brand link and the skip link stay on the home page
+const leavesHome = entry => !['#home', '#main'].includes(entry);   // the brand link, the current tab and the skip link stay on the home page
+/** Notes every click that reaches the page, with whether it landed on the element a check was aiming at (see clickOn). */
+const watchClicks = b => b.evaluate(`(() => { window.__clicks = 0; window.__onTarget = false; document.addEventListener('click', event => { window.__clicks++; window.__onTarget = !!event.target.closest('[data-check-target]'); }, true); })()`);
+/** A real click on a page element. Panels slide with CSS transitions, which lag at 3 frames per second, so the element
+ *  can still be moving: the click is repeated until it has landed on the element. False if it never does. */
+async function clickOn(b, selector, settle = 900) {
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const aim = await b.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; e.setAttribute('data-check-target', ''); const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, clicks: window.__clicks }; })()`);
+    if (aim) await b.click(aim, 250);
+    const landed = await b.evaluate(`(() => { const hit = window.__clicks > ${aim ? aim.clicks : 'Infinity'} && window.__onTarget; for (const e of document.querySelectorAll('[data-check-target]')) e.removeAttribute('data-check-target'); return hit; })()`);
+    if (landed) { await sleep(settle); return true; }
+    await sleep(600);
+  }
+  return false;
+}
 
 // ----- home page -----
 async function home(t) {
@@ -34,7 +49,7 @@ async function home(t) {
   await sleep(1500);
 
   const entries = await b.evaluate(`[...document.querySelectorAll('a[href], button')].filter(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden').map(e => e.getAttribute('href') || '#' + (e.dataset.page || ''))`);
-  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html', 'the page offers the factory game and the learning lab, and nothing else', entries.join(' '));
+  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html,./process-lab.html', 'the page offers the factory game, the learning lab and the tab of the 8-process lab, and nothing else', entries.join(' '));
   const parked = await b.evaluate(`[...document.querySelectorAll('[data-parked]')].map(e => e.getClientRects().length > 0)`);
   t.expect(parked.length > 0 && !parked.includes(true), `the ${parked.length} parked entries stay out of sight`);
   t.expect(!(await shown('.sidebar')) && !(await shown('.topbar')), 'the workspace frame (side menu, top bar) is hidden on the home page');
@@ -75,23 +90,11 @@ async function openLab(t, width = 1600, height = 1000) {
   await b.goto(`${fileUrl(dist, 'lab-3d.html')}?seed=11`);                                   // a fixed seed: the same incoming wafers every run
   if (!(await reached(b, `!!(${LAB} && ${LAB}.scene)`, 60000))) throw new Error(await b.evaluate(`!document.getElementById('fallback').hidden`).catch(() => false) ? 'the page could not start WebGL in this browser' : 'the 3D tool did not start');
   await sleep(2500);
-  // Every click that reaches the page is noted, with whether it landed on the element a check was aiming at.
-  await b.evaluate(`(() => { window.__clicks = 0; window.__onTarget = false; document.addEventListener('click', event => { window.__clicks++; window.__onTarget = !!event.target.closest('[data-check-target]'); }, true); })()`);
+  await watchClicks(b);
   const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById('scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);
   const onPage = async point => { const box = await canvasBox(); return { x: point.x + box.x, y: point.y + box.y }; };
   const lab = {
-    // A real click on a page element. Panels slide with CSS transitions, which lag at 3 frames per second, so the
-    // element can still be moving: the click is repeated until it has landed on the element. False if it never does.
-    clickOn: async (selector, settle = 900) => {
-      for (let attempt = 0; attempt < 5; attempt++) {
-        const aim = await b.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; e.setAttribute('data-check-target', ''); const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, clicks: window.__clicks }; })()`);
-        if (aim) await b.click(aim, 250);
-        const landed = await b.evaluate(`(() => { const hit = window.__clicks > ${aim ? aim.clicks : 'Infinity'} && window.__onTarget; for (const e of document.querySelectorAll('[data-check-target]')) e.removeAttribute('data-check-target'); return hit; })()`);
-        if (landed) { await sleep(settle); return true; }
-        await sleep(600);
-      }
-      return false;
-    },
+    clickOn: (selector, settle) => clickOn(b, selector, settle),
     cardNames: () => b.evaluate(`Object.fromEntries(Object.entries(${LAB}.parts).map(([key, part]) => [key, typeof part.name === 'function' ? part.name(${LAB}.sim.state) : part.name]))`),
     at: async (x, y, z) => onPage(await b.evaluate(`${LAB}.scene.project(${x}, ${y}, ${z})`)),          // a point of the 3D scene, in page pixels
     part: async name => onPage(await b.evaluate(`${LAB}.scene.screenOf(${JSON.stringify(name)})`)),     // where a part is on the page
@@ -265,6 +268,108 @@ async function labPanels(t) {
   p = await lab.panels(); t.expect(landed && p.drawer.open, 'the film monitor\'s record link opens it again', `click landed: ${landed}, ${JSON.stringify(p.drawer)}`);
 }
 
+// ----- 8-process lab -----
+async function processLab(t) {
+  const b = await t.open({ width: 1600, height: 1000 });
+  const P = 'window.ProcessLabDebug', S = `${P}.sim.state`;
+  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5`);
+  if (!(await reached(b, `!!${P}`, 30000))) throw new Error('the page did not start');
+  await sleep(800); await watchClicks(b);
+
+  const names = await b.evaluate(`[...document.querySelectorAll('.stop .name')].map(e => e.textContent)`);
+  t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route shows the eight processes in order', names.join(' '));
+  t.expect(await b.evaluate(`${P}.mode === 'bench' && !${P}.run && !!document.getElementById('start-here') && document.querySelectorAll('.stop svg').length === 8`), 'before a run every stop carries a picture of the wafer, and the first process is offered as the start');
+  await t.shot('1-intro');
+
+  // start in the middle of the route
+  let landed = await clickOn(b, '.stop:nth-child(3)');
+  const intro = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, selected: ${P}.selected, run: !!${P}.run })`);
+  t.expect(landed && intro.title === '포토' && intro.selected === 2 && !intro.run, 'a click on a stop shows that process and the wafer arriving at it', JSON.stringify(intro));
+  landed = await clickOn(b, '#start-here', 1900);
+  const begun = await b.evaluate(`({ start: ${P}.run.start, before: ${P}.run.records.filter(r => r.before).length, oxide: ${P}.run.wafer.oxide, resist: !!${P}.run.wafer.resist, result: document.querySelector('.bench .result').textContent })`);
+  t.expect(landed && begun.start === 2 && begun.before === 2 && begun.oxide === 500 && begun.resist && begun.result.length > 5, 'starting there hands over a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
+  await t.shot('2-photo');
+  for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);   // the last click opens the run sheet
+  const sheet = await b.evaluate(`({ finished: ${P}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${P}.run.wafer.packaged.chips })`);
+  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 2 && sheet.chips === 148, 'the run goes on from there to packaging and ends with the sheet of all eight processes', JSON.stringify(sheet));
+  await t.shot('3-run-sheet');
+
+  // the process that has equipment: the oxidation furnace, operated by hand
+  await clickOn(b, '.stop:nth-child(2)'); landed = await clickOn(b, '#start-here', 600);
+  if (!(landed && await reached(b, `${P}.mode === 'station' && !!${P}.sim`, 30000))) throw new Error('the furnace did not open');
+  await sleep(3000);
+  const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById('scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);
+  const onPage = async point => { const box = await canvasBox(); return { x: point.x + box.x, y: point.y + box.y }; };
+  const at = async (x, y, z) => onPage(await b.evaluate(`${P}.scene.project(${x}, ${y}, ${z})`));
+  const state = () => b.evaluate(`(() => { const s = ${S}; return { boat: s.boat, target: s.controls.boat, set: s.controls.setpoint, tube: s.tube, wafer: s.wafer, n2: s.controls.n2, o2: s.controls.o2, h2o: s.controls.h2o, ambient: s.ambient, sealed: s.sealed, oxide: s.oxide, growing: s.growing }; })()`);
+  const card = () => b.evaluate(`document.getElementById('callout').hidden ? '' : document.getElementById('co-name').textContent`);
+  const guide = () => b.evaluate(`document.getElementById('guide-text').textContent`);
+  const fast = async (expression, ms = 240000) => { await b.evaluate(`${P}.setSpeed(1200)`); const ok = await reached(b, expression, ms); await b.evaluate(`${P}.setSpeed(60)`); await sleep(700); return ok; };
+  const L = await b.evaluate(`${P}.scene.layout`), cards = await b.evaluate(`Object.fromEntries(Object.entries(${P}.parts).map(([key, part]) => [key, part.name]))`);
+  const scene = Object.keys(await b.evaluate(`${P}.scene.parts`));
+  t.expect(scene.length > 0 && String([...scene].sort()) === String(Object.keys(cards).sort()), `every part of the furnace has a card and every card has a part (${scene.length} parts)`, `scene: ${scene.join(' ')} | cards: ${Object.keys(cards).join(' ')}`);
+  const wrong = [];
+  for (const name of scene) {
+    const point = await onPage(await b.evaluate(`${P}.scene.screenOf(${JSON.stringify(name)})`));
+    await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(400);
+    await b.mouse('mouseMoved', { x: point.x + 1, y: point.y + 1 }); await sleep(120); await b.mouse('mouseMoved', point);
+    let under = null;
+    for (let i = 0; i < 30 && under !== name; i++) { await sleep(200); under = await b.evaluate(`${P}.scene.hovered`); }
+    await sleep(400);
+    const shown = await card();
+    if (under !== name || shown !== cards[name]) wrong.push(`${name}: under the pointer ${under}, card ${JSON.stringify(shown)}`);
+  }
+  t.expect(!wrong.length, 'each part shows its own card under the pointer', wrong.join('; '));
+  await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(600);
+
+  let s = await state();
+  t.expect(s.boat === 0 && s.set === 700 && s.n2 && !s.o2 && !s.h2o && s.oxide < 3, 'the furnace starts at standby with the boat down and nitrogen flowing', JSON.stringify(s));
+  const low = await at(L.boatGrip[0], L.flangeDown + L.boatGrip[1], L.boatGrip[2]);
+  await b.drag(line(low, { x: low.x, y: low.y - 240 }, 12)); await sleep(500);
+  s = await state(); t.expect(s.target === 1, 'pulling the boat up sends it into the tube', `target ${s.target}`);
+  t.expect(await fast(`${S}.sealed`, 60000), 'the boat closes the tube');
+
+  const dial = await at(L.dial[0], L.dial[1], L.dial[2]);
+  await b.mouse('mouseMoved', dial); await sleep(80); await b.mouse('mousePressed', dial, 1); await sleep(60); await b.mouse('mouseMoved', { x: dial.x + 40, y: dial.y }, 1); await sleep(700);
+  const held = { pill: await b.evaluate(`document.getElementById('pill').hidden ? '' : document.getElementById('pill').textContent`), card: await card() };
+  for (const p of line({ x: dial.x + 40, y: dial.y }, { x: dial.x + 200, y: dial.y }, 8)) { await b.mouse('mouseMoved', p, 1); await sleep(35); }
+  await b.mouse('mouseReleased', { x: dial.x + 200, y: dial.y }, 0); await sleep(400);
+  s = await state(); t.expect(s.set === 1000 && /°C/.test(held.pill) && held.card === '', 'pulling the temperature dial sets the heater, and the value shows on the dial while it is held', `setpoint ${s.set}, ${JSON.stringify(held)}`);
+  for (let i = 0; i < 3; i++) { await b.wheel(dial, 100); await sleep(60); }
+  await sleep(300); s = await state(); t.expect(s.set === 985, 'the wheel moves the setpoint in steps of 5 C', `setpoint ${s.set}`);
+
+  for (const name of ['h2o', 'n2']) await b.click(await at(...L.valves[name]), 350);
+  s = await state(); t.expect(s.h2o && !s.n2 && s.ambient === 'wet', 'a click on a valve opens or closes it: steam on, nitrogen off', JSON.stringify(s));
+  t.expect(await fast(`${S}.tube > 980 && ${S}.oxide > 60`), 'the tube heats up and the oxide grows in steam');
+  await sleep(600);
+  const live = await b.evaluate(`({ mean: document.getElementById('mon-mean').textContent, note: document.getElementById('mon-togo').textContent, trend: !!document.querySelector('#trend path[stroke="#0d6efd"]'), thumb: ${P}.run.wafer.oxide })`);
+  s = await state(); t.expect(s.growing && /계산값/.test(live.note) && live.trend && Number(live.mean.replace(/,/g, '')) > 50, 'the wafer monitor follows the growing film', JSON.stringify(live));
+  await t.shot('4-oxidising');
+
+  const high = await at(L.boatGrip[0], L.flangeDown + L.travel + L.boatGrip[1], L.boatGrip[2]);
+  await b.drag(line(high, { x: high.x, y: high.y + 200 }, 10)); await sleep(1200);
+  s = await state(); const locked = await guide();
+  t.expect(s.boat === 1 && s.target === 1 && /잠겨/.test(locked), 'the boat does not move while the tube is hotter than 800 C, and the page says why', `boat ${s.boat}, guide: ${locked}`);
+
+  t.expect(await fast(`${S}.oxide > 490`), 'the film reaches the thickness the run sheet asks for');
+  for (const name of ['h2o', 'n2']) await b.click(await at(...L.valves[name]), 350);
+  const stopped = (await state()).oxide;
+  await b.drag(line(dial, { x: dial.x - 220, y: dial.y }, 12)); await sleep(300);
+  t.expect(await fast(`${S}.tube <= 800`), 'with the setpoint down the tube cools below 800 C');
+  s = await state(); t.expect(!s.h2o && s.n2 && Math.abs(s.oxide - stopped) < 1, 'with the steam off the film stops growing', `${stopped.toFixed(1)} -> ${s.oxide.toFixed(1)} nm`);
+  await b.drag(line(high, { x: high.x, y: high.y + 200 }, 10)); await sleep(500);
+  t.expect(await fast(`${P}.sim.canMeasure()`, 120000), 'the boat comes down and the wafers cool');
+  await sleep(600);
+  landed = await clickOn(b, '#guide-action', 900);
+  const measured = await b.evaluate(`(() => { const m = ${S}.measured; return m ? { mean: m.mean, ok: m.ok, points: m.points.length, note: document.getElementById('mon-togo').textContent } : null; })()`);
+  t.expect(landed && measured && measured.points === 5 && measured.ok && /계측값/.test(measured.note), 'the thickness is measured at five points and meets the run sheet', JSON.stringify(measured));
+  await t.shot('5-measured');
+  landed = await clickOn(b, '#guide-action', 1900);
+  const handed = await b.evaluate(`({ mode: ${P}.mode, viewing: ${P}.viewing, oxide: ${P}.run.wafer.oxide, record: ${P}.run.records.find(r => r.step === 'oxidation') })`);
+  t.expect(landed && handed.mode === 'bench' && handed.viewing === 2 && measured && Math.abs(handed.oxide - measured.mean) < 1e-9 && handed.record.by === 'operator' && handed.record.ok, 'the measured film goes on to the next process on the same wafer', JSON.stringify(handed));
+  await t.shot('6-next-process');
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -291,10 +396,10 @@ async function standalone(t) {
   await b.goto(`${pathToFileURL(file).href}#index`);
   await b.until(loaded, 90000); await sleep(2500);
   const pages = await b.evaluate(`Object.keys(JSON.parse(document.getElementById('cmp-pages').textContent))`);
-  t.expect(String(pages) === 'index,game,lab-3d', 'the file holds the home page, the game and the learning lab', pages.join(' '));
+  t.expect(String(pages) === 'index,game,lab-3d,process-lab', 'the file holds the home page, the game, the learning lab and the 8-process lab', pages.join(' '));
   t.expect(!(await b.evaluate(`!!document.getElementById('cmp-data:lab-sim-replay')`)), 'no PHM replay data is embedded (a file built with --all holds it and must not be handed out)');
   const entries = await visible('#page-home a, #page-home button');
-  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html' && !(await parkedShown()), 'the home page offers the game and the learning lab only', entries.join(' '));
+  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html,./process-lab.html' && !(await parkedShown()), 'the home page offers the game, the learning lab and the 8-process lab only', entries.join(' '));
   t.expect(await b.evaluate(`[...${F}.document.querySelectorAll('.door-art img')].every(i => i.complete && i.naturalWidth > 0)`), 'the home pictures are inside the file');
   await t.shot('1-home');
 
@@ -329,6 +434,15 @@ async function standalone(t) {
     t.expect(await reached(b, `location.hash === '#lab-3d' && !!(${D} && ${D}.scene)`, 90000), 'the game\'s menu link opens the learning lab');
   }
 
+  await b.evaluate(`location.hash = '#process-lab'`);
+  const PL = `${F}.ProcessLabDebug`, processOpen = await reached(b, `location.hash === '#process-lab' && ${loaded} && !!${PL}`, 90000);
+  t.expect(processOpen, 'the 8-process lab opens inside the file');
+  if (processOpen) {
+    await b.evaluate(`${PL}.start(1)`);
+    t.expect(await reached(b, `${PL}.mode === 'station' && Object.keys(${PL}.scene.parts).length > 5`, 60000), 'its oxidation furnace starts inside the file');
+    await sleep(2500); await t.shot('4-process-lab');
+  }
+
   await b.evaluate(`location.hash = '#lab-sim'`);
   t.expect(await reached(b, `${loaded} && !!${F}.document.querySelector('.door-lab')`, 60000), 'the address of a parked page that is not in the file falls back to the home page');
 }
@@ -339,6 +453,7 @@ const CHECKS = {
   'lab-hover': { run: labHover, minutes: 8, about: 'dist/lab-3d.html, a card for every part' },
   'lab-operate': { run: labOperate, minutes: 10, about: 'dist/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'dist/lab-3d.html, instrument strip, report and record over two wafers' },
+  'process-lab': { run: processLab, minutes: 12, about: 'dist/process-lab.html, the route of eight processes and the oxidation furnace' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

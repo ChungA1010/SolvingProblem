@@ -1,4 +1,4 @@
-// Build the whole CMP Lab web app (dist/index.html, game.html, lab-sim.html, lab-3d.html) as ONE self-contained HTML
+// Build the whole CMP Lab web app (dist/index.html, game.html, lab-sim.html, lab-3d.html, process-lab.html) as ONE self-contained HTML
 // file that opens straight from disk (file://) with no server. Nothing in dist/ is changed.
 //
 // How it works: the file is a small shell that shows one page at a time in a full-window <iframe srcdoc>. Each page
@@ -22,7 +22,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.resolve(here, '../dist');
 const args = process.argv.slice(2), everything = args.includes('--all');
 const out = path.resolve(args.find(a => !a.startsWith('--')) || path.join(here, '../standalone/CMP-Lab.html'));
-const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html', 'lab-3d': 'lab-3d.html' };   // page name = file name without .html
+const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html', 'lab-3d': 'lab-3d.html', 'process-lab': 'process-lab.html' };   // page name = file name without .html
 const PARKED = ['lab-sim'];   // not linked from the home page for now; bundled only with --all
 const bundled = Object.entries(PAGES).filter(([name]) => everything || !PARKED.includes(name));
 const withSimulator = bundled.some(([name]) => name === 'lab-sim');

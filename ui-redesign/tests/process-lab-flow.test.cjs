@@ -1,0 +1,75 @@
+// Route of the process lab (dist/process-lab/flow-model.js): the eight processes, where a run can start, and how one
+// process's result reaches the next.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const F = require('../dist/process-lab/flow-model.js');
+
+const finish = run => { while (!run.finished) F.complete(run); return run; };
+
+test('the route is the eight processes in their usual order', () => {
+  assert.deepEqual(F.STEPS.map(step => step.id), ['wafer', 'oxidation', 'photo', 'etch', 'deposition', 'metal', 'eds', 'package']);
+  assert.deepEqual(F.STEPS.map(step => step.name), ['웨이퍼 제조', '산화', '포토', '식각', '증착·이온주입', '금속배선', 'EDS', '패키징']);
+  for (const step of F.STEPS) assert.ok(step.does.length > 10, step.id);
+});
+
+test('a run can start at any process and receives a wafer finished up to there by the standard recipe', () => {
+  for (const [index, step] of F.STEPS.entries()) {
+    const run = F.createRun(step.id);
+    assert.equal(run.at, index); assert.equal(run.records.length, index);
+    assert.ok(run.records.every(record => record.before && record.by === 'standard'));
+    assert.deepEqual(run.wafer, F.arriving(index));
+  }
+  const atEtch = F.createRun('etch').wafer;
+  assert.equal(atEtch.oxide, 500); assert.equal(atEtch.resist.opening, 1000); assert.equal(atEtch.window, null);
+  assert.throws(() => F.createRun('cmp'));
+});
+
+test('a standard run ends with every die tested good and packaged', () => {
+  const run = finish(F.createRun('wafer'));
+  assert.equal(run.records.length, 8); assert.equal(run.at, 8);
+  assert.ok(F.DIE_COUNT > 100 && F.DIE_COUNT < 200, `${F.DIE_COUNT} dies of 20 mm on a 300 mm wafer`);
+  assert.deepEqual(run.wafer.tested, { total: F.DIE_COUNT, good: F.DIE_COUNT, reason: null });
+  assert.equal(run.wafer.packaged.chips, F.DIE_COUNT);
+  assert.equal(run.wafer.resist, null, 'the resist is stripped after the etch');
+  assert.ok(run.wafer.window.open && run.wafer.junction && run.wafer.metal.planar);
+  assert.equal(F.complete(run), null, 'nothing after the last process');
+});
+
+test('every die sits inside the usable area of the wafer', () => {
+  const reach = F.STANDARD.substrate.diameter / 2 - F.STANDARD.edge, half = F.STANDARD.die / 2;
+  for (const die of F.dies()) assert.ok(Math.hypot(Math.abs(die.x) + half, Math.abs(die.y) + half) <= reach);
+});
+
+test('the operator\'s oxide goes onto the wafer and is judged against the run sheet', () => {
+  const run = F.createRun('oxidation');
+  const record = F.complete(run, { mean: 512.4, how: '습식 1,000 °C 90분' });
+  assert.equal(record.by, 'operator'); assert.equal(record.ok, true);
+  assert.match(record.text, /512 nm/); assert.match(record.text, /습식/);
+  assert.equal(run.wafer.oxide, 512.4);
+  assert.equal(F.apply('oxidation', F.arriving(1), { mean: 560 }).record.ok, false);
+});
+
+test('an oxide thicker than the standard etch can clear leaves the windows closed, and the chips fail at EDS', () => {
+  const run = F.createRun('oxidation');
+  F.complete(run, { mean: 680 });
+  finish(run);
+  const byStep = Object.fromEntries(run.records.map(record => [record.step, record]));
+  assert.equal(byStep.etch.ok, false); assert.equal(run.wafer.window.open, false); assert.equal(run.wafer.window.left, 80);
+  assert.equal(run.wafer.junction, null);
+  assert.equal(run.wafer.tested.good, 0); assert.match(byStep.eds.text, /모두 불량/);
+  assert.equal(run.wafer.packaged.chips, 0); assert.equal(byStep.package.ok, false);
+});
+
+test('an oxide thinner than standard is cleared early and the over-etch bites into the silicon', () => {
+  const run = F.createRun('oxidation');
+  F.complete(run, { mean: 300 });
+  F.complete(run); F.complete(run);
+  assert.ok(run.wafer.window.open);
+  assert.equal(run.wafer.window.siliconLoss, (F.STANDARD.etchReach - 300) / F.STANDARD.selectivity);
+});
+
+test('applying a process does not change the wafer it was given', () => {
+  const before = F.arriving(3), copy = JSON.parse(JSON.stringify(before));
+  F.apply('etch', before);
+  assert.deepEqual(before, copy);
+});

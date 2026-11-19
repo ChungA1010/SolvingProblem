@@ -20,6 +20,11 @@
 .home { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; min-height: 100vh; background: var(--ground); color: var(--ink); font-family: var(--text); }
 .home-top { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 14px var(--gutter); }
 .home-brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
+.home-tabs { display: flex; gap: 24px; margin: 0 auto 0 12px; white-space: nowrap; }
+.home-tabs a { padding: 5px 0 4px; border-bottom: 2px solid transparent; font-size: 14.5px; font-weight: 650; color: var(--quiet); text-decoration: none; }
+.home-tabs a[aria-current="page"] { border-bottom-color: var(--ink); color: var(--ink); }
+.home-tabs a:hover, .home-tabs a:focus-visible { color: var(--ink); }
+.home-tabs small { margin-left: 6px; font-size: 11px; font-weight: 600; color: var(--quiet); }
 .home-thesis { margin: 0; font-size: 14px; font-weight: 500; color: var(--quiet); word-break: keep-all; }
 
 /* Two rows shared by both doors (picture, caption), so the pictures end and the captions start on the same line. */

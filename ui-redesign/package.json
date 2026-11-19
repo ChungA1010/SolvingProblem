@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "npm run build:scene && npm run build:lab3d && tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
+    "build": "npm run build:scene && node tools/build-scenes.mjs && tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
     "build:scene": "esbuild src/cmp-scene.js --bundle --format=iife --global-name=CMPScene --target=es2020 --loader:.glb=base64 --minify --legal-comments=eof --outfile=dist/cmp-scene.js",
-    "build:lab3d": "node tools/build-lab3d.mjs",
+    "build:lab3d": "node tools/build-scenes.mjs lab-3d",
+    "build:process-lab": "node tools/build-scenes.mjs process-lab",
     "standalone": "node tools/build-standalone.mjs",
     "preview": "node server.mjs",
     "test": "node --test tests/*.test.cjs",

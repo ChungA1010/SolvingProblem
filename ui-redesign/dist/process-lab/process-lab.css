@@ -1,0 +1,63 @@
+/* 8-process lab. Tokens, top bar, stage and the HUD pieces (monitor, guide, part card) come from ../lab-3d/lab-3d.css;
+ * this file adds the route, the bench views and what the wafer monitor needs here. */
+
+/* Route: the eight processes in order. Each stop carries a small picture of the wafer as it leaves that process. */
+.route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.stop { position: relative; display: grid; grid-template-rows: auto 40px; gap: 5px; min-width: 0; padding: 8px 11px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
+.stop:first-child { border-left: 0; }
+.stop:hover { background: #f6f8fc; }
+.stop[aria-pressed="true"] { background: var(--brand-soft); }
+.stop:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
+.stop .head { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
+.stop .no { font-size: 11px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
+.stop .name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stop .mark { margin-left: auto; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--faint); }
+.stop .mark[data-tone="ok"] { color: var(--success-ink); } .stop .mark[data-tone="bad"] { color: var(--danger); }
+.stop svg { display: block; width: 100%; height: 40px; border-radius: 5px; background: #eef1f6; }
+.stop[data-state="todo"] .name { color: var(--muted); } .stop[data-state="todo"] svg { opacity: .5; }
+.stop[data-state="current"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--brand); }
+
+.stage { height: calc(100vh - 200px); min-height: 520px; }
+.stage[data-mode="bench"] { background: var(--panel); }
+.stage[data-mode="bench"]::after, .stage[data-mode="bench"] #scene, .stage[data-mode="bench"] .hud, .stage[data-mode="station"] .bench { display: none; }
+
+/* Bench: one process shown as the wafer's cross-section, before the equipment view or instead of it. */
+.bench { position: absolute; inset: 0; overflow: auto; display: grid; place-items: center; padding: 26px 32px; }
+.bench-inner { display: grid; gap: 16px; width: min(880px, 100%); }
+.bench-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
+.bench-head .no { font-size: 13px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
+.bench-head h2 { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+.bench-head p { max-width: 36em; margin-top: 5px; font-size: 14.5px; color: var(--muted); word-break: keep-all; }
+.bench-actions { display: flex; flex: none; gap: 8px; }
+.bench-actions .btn { padding: 9px 18px; font-size: 14.5px; white-space: nowrap; }
+.figure { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #f3f5f9; }
+.figure svg { display: block; width: 100%; height: auto; max-height: 46vh; }
+.figure .after { position: absolute; inset: 0; animation: develop 1.5s ease-out both; }      /* the processed wafer is drawn over the incoming one, left to right */
+.figure .after svg { height: 100%; }
+@keyframes develop { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 2px; vertical-align: -1px; }
+.legend .scale { margin-left: auto; }
+.result { font-size: 16px; font-weight: 650; word-break: keep-all; } .result[data-tone="bad"] { color: var(--danger); }
+.assumed { font-size: 12.5px; color: var(--muted); word-break: keep-all; }
+
+/* Run sheet: what each process left on the wafer. */
+.sheet { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.sheet th { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: 12px; font-weight: 650; color: var(--muted); }
+.sheet td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.sheet .no { width: 2em; color: var(--faint); font-variant-numeric: tabular-nums; }
+.sheet .name { font-weight: 700; white-space: nowrap; }
+.sheet .who, .sheet .state { white-space: nowrap; color: var(--muted); }
+.sheet .state[data-tone="ok"] { color: var(--success-ink); font-weight: 700; } .sheet .state[data-tone="bad"] { color: var(--danger); font-weight: 700; }
+.sheet tr[data-before="true"] td { color: var(--faint); } .sheet tr[data-before="true"] .name { font-weight: 600; }
+
+/* Wafer monitor of the oxidation furnace: thickness so far, over time, and what the wafers are in right now. */
+.trend { height: 56px; margin-top: 9px; }
+.trend svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.monitor .now { margin-top: 6px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.monitor .now b { color: var(--ink); font-weight: 650; }
+.callout .basis { margin-top: 7px; font-size: 11.5px; color: var(--muted); }
+
+@media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 138px); overflow-x: auto; } }
+@media (max-width: 720px) { .bench { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2 { font-size: 25px; } }
+@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } }
