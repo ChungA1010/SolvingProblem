@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -291,8 +291,8 @@ async function processRoute(t) {
   t.expect(landed && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'starting there hands over a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
   await t.shot('2-etch');
   for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);   // the last click opens the run sheet
-  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${PL}.run.wafer.packaged.chips })`);
-  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.chips === 148, 'the run goes on from there to packaging and ends with the sheet of all eight processes', JSON.stringify(sheet));
+  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${PL}.run.wafer.packaged.chips, good: ${PL}.run.wafer.tested.good, clean: ${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length, title: document.querySelector('.bench h2').textContent })`);
+  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.chips === sheet.good && sheet.good === sheet.clean && sheet.good > 100 && sheet.good < 148 && sheet.title.includes(String(sheet.chips)), 'the run goes on from there to packaging and ends with the sheet of all eight processes; the chips without a defect are the ones packaged', JSON.stringify(sheet));
   await t.shot('3-run-sheet');
   landed = await clickOn(b, '#from-first', 1900);
   const again = await b.evaluate(`({ start: ${PL}.run.start, records: ${PL}.run.records.length, title: document.querySelector('.bench h2').textContent })`);
@@ -571,6 +571,48 @@ async function processPlating(t) {
   t.expect(next.landed && next.viewing === 6 && next.record.by === 'operator' && next.record.ok && next.wafer.metal && Math.abs(next.wafer.metal.thickness - stopped) < 1e-6 && next.wafer.metal.over === 0 && next.wafer.metal.planar, 'the copper goes on, through the standard polish, to the next process on the same wafer', JSON.stringify(next.record));
 }
 
+async function processEds(t) {
+  const { b, lab } = await openProcess(t, 'eds'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ phase: s.phase, x: s.controls.x, y: s.controls.y, z: s.controls.z, offset: s.offset, contact: s.contact, tested: s.tested, good: s.good, passes: s.passes, queue: s.queue.length, result: s.result && { good: s.result.good, missed: s.result.missed, bins: s.result.bins } })`);
+  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const clean = await b.evaluate(`${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length`), total = await b.evaluate(`${PL}.flow.DIE_COUNT`);
+  await lab.cards();
+  let s = await state(), shown = await lab.monitor();
+  t.expect(s.phase === 'setup' && s.tested === 0 && s.z === 20 && /카메라/.test(shown.note) && Math.abs(shown.value - Math.hypot(s.offset.x, s.offset.y)) < 1, 'the prober starts with the needles off the pad centres, as the camera shows', JSON.stringify({ offset: s.offset, shown }));
+  await press('contact'); await sleep(900);
+  s = await state(); t.expect(s.contact && !s.contact.touching && /닿지 않/.test(await lab.guide()), 'a contact check with the dials untouched finds the needles off the pads', await lab.guide());
+
+  // first pass as it stands: every chip reads open
+  await press('probe');
+  t.expect(await reached(b, `${S}.phase === 'probing' && ${S}.tested > 3`, 30000), 'the probe button steps the chuck from chip to chip');
+  await sleep(600); await t.shot('1-probing');
+  t.expect(await lab.fast(`${S}.phase === 'done'`, 240), 'the prober goes through the whole wafer');
+  s = await state(); let said = await lab.guide();
+  t.expect(s.result && s.result.good === 0 && s.result.bins.contact === total && s.result.missed === clean && /접촉 불량이 많/.test(said), 'misaligned, every chip is binned as a contact failure, and the page points at the contact', `${JSON.stringify(s.result)} | ${said}`);
+
+  // align by the camera, raise the overdrive, check the contact, test the failed chips again
+  const x = await lab.at(L.dials.x), y = await lab.at(L.dials.y), z = await lab.at(L.dials.z);
+  await b.drag(line(x, { x: x.x - 4 * s.offset.x, y: x.y }, 12)); await sleep(300);
+  await b.drag(line(y, { x: y.x - 4 * s.offset.y, y: y.y }, 12)); await sleep(1300);
+  s = await state(); shown = await lab.monitor();
+  t.expect(s.x === -s.offset.x && s.y === -s.offset.y && shown.value < 1.5 && /카메라/.test(shown.note), 'dragging the X and Y dials brings the needles onto the pad centres in the camera view', JSON.stringify({ x: s.x, y: s.y, offset: s.offset, shown }));
+  await press('contact'); await sleep(900);
+  s = await state(); said = await lab.guide();
+  t.expect(s.contact && s.contact.touching && s.contact.resistance > 10 && /오버드라이브/.test(said), 'now the needles touch, but with too much resistance, and the page points at the overdrive', `${JSON.stringify(s.contact)} | ${said}`);
+  for (let i = 0; i < 6; i++) { await b.wheel(z, -100); await sleep(50); }
+  await sleep(400); await press('contact'); await sleep(900);
+  s = await state(); t.expect(s.z === 50 && s.contact && s.contact.touching && s.contact.resistance < 1, 'with more overdrive the contact check reads under an ohm', JSON.stringify({ z: s.z, contact: s.contact }));
+  await t.shot('2-aligned');
+  await press('probe');
+  t.expect(await reached(b, `${S}.phase === 'probing' && ${S}.passes === 2`, 30000) && await lab.fast(`${S}.phase === 'done'`, 240), 'the failed chips are tested again');
+  await sleep(900); s = await state(); shown = await lab.monitor();
+  t.expect(s.result && s.result.good === clean && s.result.missed === 0 && s.result.bins.contact === 0 && s.result.bins.leak === total - clean, 'the second pass finds every good chip; the chips with a defect leak', JSON.stringify(s.result));
+  t.expect(Math.abs(shown.value - clean / total * 100) < 1 && /계측값/.test(shown.note) && shown.trend && await b.evaluate(`document.querySelectorAll('#mon-section svg rect').length === ${total}`), 'the wafer monitor shows the map and the yield', JSON.stringify(shown));
+  await t.shot('3-map');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 7 && next.record.by === 'operator' && next.record.ok && next.wafer.tested.good === clean && next.wafer.tested.dies.length === total, 'the map goes on to packaging: only the good chips will be packaged', JSON.stringify(next.record));
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -660,6 +702,7 @@ const CHECKS = {
   'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
   'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
   'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
+  'process-eds': { run: processEds, minutes: 10, about: 'dist/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

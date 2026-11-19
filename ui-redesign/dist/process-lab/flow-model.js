@@ -21,7 +21,7 @@
     { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.', equipment: true },
     { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.', equipment: true },
     { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.', equipment: true },
-    { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.' },
+    { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.', equipment: true },
     { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.' },
   ];
   const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch, implantation and plating (nm; surface: phosphorus per cm3)
@@ -38,6 +38,7 @@
     junction: 300, surface: 2e19, liner: 30,                        // nm; phosphorus per cm3 at the surface
     plated: 800, polish: 880, dishRate: 0.25,                       // nm of copper plated on the field; nm of field copper the polish clears; nm of dishing per nm polished after the field is clear
     die: 20, edge: 3,                                               // mm: die size and the edge of the wafer that holds no chips
+    defects: 0.03,                                                  // killer defects per cm2 at the centre of the wafer; (1 + 1.5 r^4) times that toward the edge
   };
   const nm = v => `${Math.round(v).toLocaleString('en-US')} nm`;
   const SUPERSCRIPT = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
@@ -59,8 +60,20 @@
     return list;
   }
   const DIE_COUNT = dies().length;
+  /**
+   * Which chips of the wafer of this lot carry a killer defect: the Poisson yield model, a chip of area A is hit with
+   * probability 1 - exp(-A D). The same lot number always gives the same wafer.
+   */
+  function defects(lot = 1) {
+    let seed = (Math.imul(Math.floor(lot) || 1, 2654435761) >>> 0) || 1;
+    const random = () => (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296;
+    const area = (STANDARD.die / 10) ** 2, R = STANDARD.substrate.diameter / 2;
+    for (let i = 0; i < 8; i++) random();
+    return dies().map(die => random() < 1 - Math.exp(-area * STANDARD.defects * (1 + 1.5 * (Math.hypot(die.x, die.y) / R) ** 4)));
+  }
+  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함' };
 
-  const empty = () => ({ substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
+  const empty = (lot = 1) => ({ lot, substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
 
   /**
    * The junction an implant and its anneal leave on the wafer (no film on it yet). `result` is what the operator's
@@ -164,10 +177,22 @@
               : !w.metal ? '금속이 없어 전기가 통할 길이 없음'
                 : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
                   : w.metal.burnt ? '도금이 타서 금속의 저항이 큼'
-                    : w.metal.dishing > (w.window.depth + w.window.siliconLoss) / 2 ? '금속이 깊이 파여 저항이 큼' : null;
-      w.tested = { total: DIE_COUNT, good: reason ? 0 : DIE_COUNT, reason };
-      ok = !reason;
-      text = ok ? `칩 ${DIE_COUNT}개 모두 양품` : `칩 ${DIE_COUNT}개 모두 불량 · ${reason}`;
+                    : w.metal.dishing > (w.window.depth + w.window.siliconLoss) / 2 ? '금속이 깊이 파여 저항이 큼' : null;      // what fails every chip of the wafer
+      const share = good => `칩 ${DIE_COUNT}개 중 양품 ${good}개 (수율 ${Math.round(good / DIE_COUNT * 100)}%)`;
+      if (result) {                                                 // the operator's probing: one entry per chip
+        const good = result.dies.filter(die => die.good).length, missed = result.missed || 0, bins = {};
+        for (const die of result.dies) if (!die.good) bins[die.bin] = (bins[die.bin] || 0) + 1;
+        const sorted = Object.entries(bins).map(([bin, n]) => `${BIN_NAMES[bin] || bin} ${n}`).join(', ');
+        w.tested = { total: DIE_COUNT, good, reason: good ? null : reason, dies: result.dies, missed };
+        ok = good > 0 && missed === 0;
+        text = (good ? `${share(good)}${sorted ? ` · 불량: ${sorted}` : ''}` : `칩 ${DIE_COUNT}개 모두 불량${reason ? ` · ${reason}` : ''}`)
+          + (missed ? ` · 탐침이 제대로 닿지 않아 양품 ${missed}개를 불량으로 가림` : '') + (result.how ? ` · ${result.how}` : '');
+      } else {
+        const killed = defects(w.lot), good = reason ? 0 : killed.filter(hit => !hit).length;
+        w.tested = { total: DIE_COUNT, good, reason, dies: killed.map(hit => ({ good: !reason && !hit, bin: reason ? 'process' : hit ? 'defect' : 'good' })) };
+        ok = !reason;
+        text = reason ? `칩 ${DIE_COUNT}개 모두 불량 · ${reason}` : `${share(good)} · 불량 ${DIE_COUNT - good}개는 결함`;
+      }
     } else if (id === 'package') {
       const good = w.tested ? w.tested.good : 0;
       w.packaged = { chips: good }; ok = good > 0;
@@ -177,17 +202,17 @@
   }
 
   /** The wafer as it arrives at step `index` when everything before went by the standard recipe. */
-  function arriving(index) {
-    let wafer = empty();
+  function arriving(index, lot = 1) {
+    let wafer = empty(lot);
     for (let i = 0; i < index; i++) wafer = apply(STEPS[i].id, wafer).wafer;
     return wafer;
   }
 
-  /** A run that starts at the given process. The processes before it are filled in with the standard recipe. */
-  function createRun(startId) {
+  /** A run that starts at the given process, on the wafer of the given lot. The processes before it are filled in with the standard recipe. */
+  function createRun(startId, lot = 1) {
     const start = STEPS.findIndex(step => step.id === startId);
     if (start < 0) throw new Error(`unknown process: ${startId}`);
-    const run = { start, at: start, wafer: empty(), records: [], finished: false };
+    const run = { start, at: start, wafer: empty(lot), records: [], finished: false };
     for (let i = 0; i < start; i++) { const out = apply(STEPS[i].id, run.wafer); run.wafer = out.wafer; run.records.push({ ...out.record, before: true }); }
     return run;
   }
@@ -199,5 +224,5 @@
     return out.record;
   }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, empty, sci, implanted, metallised, apply, arriving, createRun, complete };
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, defects, empty, sci, implanted, metallised, apply, arriving, createRun, complete };
 });

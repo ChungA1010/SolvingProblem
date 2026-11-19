@@ -13,7 +13,7 @@
  *   view(sim)            what the equipment needs to draw itself
  *   live(sim, wafer)     the wafer as it is inside the equipment right now (for the route pictures)
  *   forecast(sim, wafer) optional: the wafer as it would leave with the controls as they are (for the later stops)
- *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map } or { section, top, height }), value, unit, note, meter, trend, now, spec
+ *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map }, { section, top, height } or { custom: an SVG element }), value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
  */
@@ -94,8 +94,9 @@
     const root = svg('svg', { viewBox: '-162 -162 324 324', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': tested ? `웨이퍼 맵: 양품 ${tested.good}개, 불량 ${tested.total - tested.good}개` : '웨이퍼 맵' });
     root.append(svg('circle', { cx: 0, cy: 0, r: 150, fill: '#dfe4ec', stroke: '#b8c1ce', 'stroke-width': thumb ? 3 : 1.5 }), svg('path', { d: 'M-5,150 L0,143 L5,150 Z', fill: '#f3f5f9' }));
     F.dies().forEach((die, i) => {
-      const good = !tested ? null : tested.dies ? tested.dies[i].good : tested.good > 0;
-      root.append(svg('rect', { x: die.x - 9.2, y: -die.y - 9.2, width: 18.4, height: 18.4, rx: 1.5, fill: good === null ? '#aeb8c6' : good ? INK.good : INK.bad }));
+      const entry = tested && tested.dies ? tested.dies[i] : null, good = !tested ? null : entry ? entry.good : tested.good > 0;
+      const tip = thumb || good == null ? null : entry && entry.text ? entry.text : good ? '양품' : entry && entry.bin === 'defect' ? '불량 · 결함' : '불량';
+      root.append(svg('rect', { x: die.x - 9.2, y: -die.y - 9.2, width: 18.4, height: 18.4, rx: 1.5, fill: good == null ? '#aeb8c6' : good ? INK.good : INK.bad }, tip ? svg('title', {}, tip) : null));   // the title shows under the pointer
       if (good === false && !thumb) root.append(svg('path', { d: `M${die.x - 5},${-die.y - 5} l10,10 m0,-10 l-10,10`, stroke: '#fff', 'stroke-width': 1.6, 'stroke-linecap': 'round' }));   // not by colour alone
     });
     return root;
@@ -208,8 +209,8 @@
 
   // ----- run -----
   function start(i) {
-    run = F.createRun(F.STEPS[i].id); after = []; sim = null; station = null;
-    let wafer = F.empty();
+    run = F.createRun(F.STEPS[i].id, seed); after = []; sim = null; station = null;
+    let wafer = F.empty(seed);
     for (let k = 0; k < i; k++) { wafer = F.apply(F.STEPS[k].id, wafer).wafer; after[k] = wafer; }
     enter();
   }
@@ -287,7 +288,7 @@
     }
     $('spec').replaceChildren(...d.spec.map(text => el('span', { text })));
     const film = d.picture.film != null; $('film').hidden = !film; $('mon-section').hidden = film;
-    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top != null ? { top: d.picture.top, height: d.picture.height } : true));
+    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.custom ? d.picture.custom : d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top != null ? { top: d.picture.top, height: d.picture.height } : true));
     renderTrend(d.trend);
     const now = performance.now(), next = F.STEPS[run.at + 1], [text, label, action, part] = station.guide(sim, next ? next.name : '공정 기록');
     $('guide-step').textContent = F.STEPS[run.at].name;

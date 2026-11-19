@@ -5,6 +5,7 @@ const assert = require('node:assert/strict');
 const F = require('../dist/process-lab/flow-model.js');
 
 const finish = run => { while (!run.finished) F.complete(run); return run; };
+const GOOD = F.defects(1).filter(hit => !hit).length;            // chips of lot 1 without a killer defect
 
 test('the route is the eight processes in their usual order', () => {
   assert.deepEqual(F.STEPS.map(step => step.id), ['wafer', 'oxidation', 'photo', 'etch', 'deposition', 'metal', 'eds', 'package']);
@@ -24,12 +25,14 @@ test('a run can start at any process and receives a wafer finished up to there b
   assert.throws(() => F.createRun('cmp'));
 });
 
-test('a standard run ends with every die tested good and packaged', () => {
+test('a standard run ends with every chip tested, the ones without a defect good, and those packaged', () => {
   const run = finish(F.createRun('wafer'));
   assert.equal(run.records.length, 8); assert.equal(run.at, 8);
   assert.ok(F.DIE_COUNT > 100 && F.DIE_COUNT < 200, `${F.DIE_COUNT} dies of 20 mm on a 300 mm wafer`);
-  assert.deepEqual(run.wafer.tested, { total: F.DIE_COUNT, good: F.DIE_COUNT, reason: null });
-  assert.equal(run.wafer.packaged.chips, F.DIE_COUNT);
+  assert.equal(run.wafer.tested.total, F.DIE_COUNT); assert.equal(run.wafer.tested.good, GOOD); assert.equal(run.wafer.tested.reason, null);
+  assert.equal(run.wafer.tested.dies.length, F.DIE_COUNT); assert.equal(run.wafer.tested.dies.filter(die => die.good).length, GOOD); assert.ok(run.wafer.tested.dies.every(die => die.good || die.bin === 'defect'));
+  assert.match(run.records.at(-2).text, new RegExp(`양품 ${GOOD}개`)); assert.equal(run.records.at(-2).ok, true, 'defects are not a fault of the run');
+  assert.equal(run.wafer.packaged.chips, GOOD);
   assert.equal(run.wafer.resist, null, 'the resist is stripped after the etch');
   assert.ok(run.wafer.window.open && run.wafer.junction && run.wafer.metal.planar);
   assert.equal(F.complete(run), null, 'nothing after the last process');
@@ -112,7 +115,7 @@ test('the operator\'s implant decides the junction: in the windows only, deep en
   const good = F.createRun('deposition'), record = F.complete(good, { depth: 284, surface: 1.66e19, masked: true, how: 'P⁺ 60 keV' });
   assert.ok(record.ok && record.by === 'operator' && /284 nm/.test(record.text) && /1\.7×10¹⁹/.test(record.text) && /장벽막 30 nm/.test(record.text) && /60 keV/.test(record.text), record.text);
   assert.deepEqual(good.wafer.junction, { depth: 284, surface: 1.66e19, species: 'P' }); assert.equal(good.wafer.liner, 30);
-  finish(good); assert.equal(good.wafer.tested.good, F.DIE_COUNT);
+  finish(good); assert.equal(good.wafer.tested.good, GOOD);
 
   const deep = F.apply('deposition', F.arriving(4), { depth: 420, surface: 3e19, masked: true });
   assert.equal(deep.record.ok, false, 'a junction off the target depth is marked on the sheet');
@@ -137,18 +140,42 @@ test('the operator\'s plating decides the metal: enough to fill and cover the wi
   assert.deepEqual(F.arriving(6).metal, { thickness: 800, over: 0, dishing: 20, planar: true }, 'the standard recipe plates 800 nm and the polish over-polishes by 80 nm');
   const good = F.createRun('metal'), record = F.complete(good, { thickness: 790, burnt: false, how: '30 rpm' });
   assert.ok(record.ok && record.by === 'operator' && /790 nm/.test(record.text) && /접시 파임 23 nm/.test(record.text) && /30 rpm/.test(record.text), record.text);
-  assert.deepEqual(good.wafer.metal, { thickness: 790, over: 0, dishing: 22.5, planar: true }); finish(good); assert.equal(good.wafer.tested.good, F.DIE_COUNT);
+  assert.deepEqual(good.wafer.metal, { thickness: 790, over: 0, dishing: 22.5, planar: true }); finish(good); assert.equal(good.wafer.tested.good, GOOD);
 
   const thick = F.createRun('metal'); assert.equal(F.complete(thick, { thickness: 1000, burnt: false }).ok, false); finish(thick);
   assert.equal(thick.wafer.metal.over, 120); assert.equal(thick.wafer.tested.good, 0); assert.match(thick.wafer.tested.reason, /산화막 위에 남아/);
   const thin = F.createRun('metal'); assert.equal(F.complete(thin, { thickness: 600, burnt: false }).ok, false); finish(thin);
-  assert.equal(thin.wafer.metal.dishing, 70); assert.equal(thin.wafer.metal.planar, false); assert.equal(thin.wafer.tested.good, F.DIE_COUNT, 'dished, but the chips still work');
+  assert.equal(thin.wafer.metal.dishing, 70); assert.equal(thin.wafer.metal.planar, false); assert.equal(thin.wafer.tested.good, GOOD, 'dished, but the chips still work');
   const short = F.createRun('metal'); F.complete(short, { thickness: 300, burnt: false }); finish(short);
   assert.equal(short.wafer.metal.dishing, 205 + 145, 'the window was 205 nm short of full, and the polish took 145 nm more'); assert.equal(short.wafer.tested.good, 0); assert.match(short.wafer.tested.reason, /깊이 파여/);
   const burnt = F.createRun('metal'); assert.equal(F.complete(burnt, { thickness: 800, burnt: true }).ok, false); finish(burnt);
   assert.equal(burnt.wafer.tested.good, 0); assert.match(burnt.wafer.tested.reason, /타서/);
   const none = F.createRun('metal'); assert.equal(F.complete(none, { thickness: 0, burnt: false }).ok, false); finish(none);
   assert.equal(none.wafer.metal, null); assert.equal(none.wafer.tested.good, 0); assert.match(none.wafer.tested.reason, /금속이 없어/);
+});
+
+test('killer defects follow the Poisson yield model and are fixed by the lot', () => {
+  assert.deepEqual(F.defects(7), F.defects(7)); assert.notDeepEqual(F.defects(7), F.defects(8));
+  assert.ok(GOOD > F.DIE_COUNT * 0.75 && GOOD < F.DIE_COUNT * 0.95, `${GOOD} of ${F.DIE_COUNT}`);
+  const dies = F.dies(), R = 150; let inner = 0, innerHit = 0, outer = 0, outerHit = 0;
+  for (let lot = 1; lot <= 300; lot++) F.defects(lot).forEach((hit, i) => { const far = Math.hypot(dies[i].x, dies[i].y) / R > 0.7; if (far) { outer++; outerHit += hit; } else { inner++; innerHit += hit; } });
+  const centre = 1 - Math.exp(-4 * 0.03);                       // a 4 cm2 chip at 0.03 defects per cm2
+  assert.ok(innerHit / inner > centre * 0.95 && innerHit / inner < centre * 1.25, `inner chips hit: ${(innerHit / inner).toFixed(3)} against ${centre.toFixed(3)} at the centre`);
+  assert.ok(outerHit / outer > innerHit / inner * 1.3, 'more defects toward the edge');
+  assert.equal(F.createRun('eds', 7).wafer.lot, 7); assert.equal(finish(F.createRun('eds', 7)).wafer.tested.good, F.defects(7).filter(hit => !hit).length);
+});
+
+test('the operator\'s probing decides which chips count as good', () => {
+  const dies = F.defects(1).map(hit => hit ? { good: false, bin: 'leak', text: '누설' } : { good: true, bin: 'good' });
+  const run = F.createRun('eds'), record = F.complete(run, { dies, missed: 0, how: '오버드라이브 50 µm' });
+  assert.ok(record.ok && record.by === 'operator' && new RegExp(`양품 ${GOOD}개`).test(record.text) && /불량: 누설/.test(record.text) && /50 µm/.test(record.text), record.text);
+  assert.equal(run.wafer.tested.good, GOOD); assert.equal(run.wafer.tested.dies, dies); finish(run); assert.equal(run.wafer.packaged.chips, GOOD);
+  const poor = F.createRun('eds'), lost = dies.map((die, i) => i < 10 && die.good ? { good: false, bin: 'contact' } : die), missed = lost.filter((die, i) => !die.good && dies[i].good).length;
+  const flagged = F.complete(poor, { dies: lost, missed });
+  assert.equal(flagged.ok, false); assert.match(flagged.text, /탐침이 제대로 닿지 않아/); assert.equal(poor.wafer.tested.good, GOOD - missed);
+  const dead = F.createRun('deposition'); F.complete(dead, { depth: 700, surface: 5e19, masked: false }); F.complete(dead);
+  const all = F.complete(dead, { dies: dies.map(() => ({ good: false, bin: 'leak' })), missed: 0 });
+  assert.equal(all.ok, false); assert.match(all.text, /모두 불량 · 이온이 산화막을 뚫고/);
 });
 
 test('numbers are written as a power of ten', () => {
