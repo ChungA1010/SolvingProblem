@@ -52,6 +52,8 @@
 .sheet tr[data-before="true"] td { color: var(--faint); } .sheet tr[data-before="true"] .name { font-weight: 600; }
 
 /* Wafer monitor of the oxidation furnace: thickness so far, over time, and what the wafers are in right now. */
+#mon-section { flex: none; width: 96px; height: 64px; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px #1e293b14; background: #eef1f6; }
+#mon-section svg { display: block; width: 100%; height: 100%; }
 .trend { height: 56px; margin-top: 9px; }
 .trend svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .monitor .now { margin-top: 6px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
