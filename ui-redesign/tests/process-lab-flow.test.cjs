@@ -94,6 +94,18 @@ test('with no resist left the etch takes the oxide off, the implant goes in ever
   assert.equal(run.wafer.tested.good, 0); assert.match(run.wafer.tested.reason, /전면/);
 });
 
+test('the operator\'s etch decides the window: open and shallow passes, closed or dug in does not', () => {
+  const good = F.apply('etch', F.arriving(3), { oxide: 500, width: 1030, depth: 500, open: true, left: 0, siliconLoss: 6, how: 'CHF₃' });
+  assert.equal(good.record.ok, true); assert.equal(good.record.by, 'operator'); assert.equal(good.wafer.resist, null);
+  assert.deepEqual(good.wafer.window, { width: 1030, depth: 500, open: true, left: 0, siliconLoss: 6 });
+  assert.equal(F.apply('etch', F.arriving(3), { oxide: 500, width: 1030, depth: 500, open: true, left: 0, siliconLoss: 60 }).record.ok, false, 'too much silicon lost');
+  assert.equal(F.apply('etch', F.arriving(3), { oxide: 500, width: 1300, depth: 500, open: true, left: 0, siliconLoss: 5 }).record.ok, false, 'window too wide');
+  const closed = F.createRun('etch'); F.complete(closed, { oxide: 500, width: 1010, depth: 300, open: false, left: 200, siliconLoss: 0 }); finish(closed);
+  assert.equal(closed.wafer.junction, null); assert.equal(closed.wafer.tested.good, 0);
+  const gone = F.createRun('etch'); F.complete(gone, { oxide: 0, stripped: true, width: 0, depth: 0, open: false, left: 0, siliconLoss: 0 }); finish(gone);
+  assert.ok(gone.wafer.unmasked && gone.wafer.junction.everywhere); assert.equal(gone.wafer.tested.good, 0);
+});
+
 test('applying a process does not change the wafer it was given', () => {
   const before = F.arriving(3), copy = JSON.parse(JSON.stringify(before));
   F.apply('etch', before);

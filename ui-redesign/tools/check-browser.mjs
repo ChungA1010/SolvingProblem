@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -438,6 +438,43 @@ async function processPhoto(t) {
   t.expect(next.landed && next.viewing === 3 && next.record.by === 'operator' && next.record.ok && s.result && Math.abs(carried - s.result.opening) < 1e-9, 'the resist pattern goes on to the etch on the same wafer', JSON.stringify(next.record));
 }
 
+async function processEtch(t) {
+  const { b, lab } = await openProcess(t, 'etch'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ inside: s.inside, plasma: s.plasma, power: s.controls.power, pressure: s.controls.pressure, chf3: s.controls.chf3, floor: s.floor, signal: s.signal, result: s.result && { open: s.result.open, ok: s.result.ok, width: s.result.width, silicon: s.result.siliconLoss } })`);
+  await lab.cards();
+  let s = await state();
+  t.expect(s.inside === 0 && !s.plasma && s.floor === 500, 'the wafer waits on the load arm with its resist pattern on', JSON.stringify(s));
+  await b.click(await lab.at(L.valves.chf3), 350);
+  const power = await lab.at(L.dials.power), pressure = await lab.at(L.dials.pressure);
+  await b.drag(line(power, { x: power.x + 150, y: power.y }, 12)); await sleep(500);
+  s = await state(); t.expect(s.chf3 && s.power === 300 && !s.plasma, 'gas and power do not strike a plasma while the wafer is outside', JSON.stringify(s));
+  await b.click(await lab.at(L.buttons.load), 400);
+  t.expect(await reached(b, `${S}.plasma`, 30000), 'with the wafer in and the door shut the plasma strikes');
+  for (let i = 0; i < 8; i++) { await b.wheel(pressure, 100); await sleep(50); }
+  await sleep(300); s = await state(); t.expect(s.pressure === 10, 'the wheel lowers the pressure in steps of 5 mTorr', `${s.pressure} mTorr`);
+  await b.click(await lab.at(L.buttons.load), 400); await sleep(700);
+  const refused = await lab.guide();
+  t.expect((await state()).inside === 1 && /문이 열리지/.test(refused), 'the door does not open while the plasma is on, and the page says why', refused);
+
+  await lab.fast(`${S}.floor < 250`, 240); await sleep(900);
+  const during = await state(), shown = await lab.monitor();
+  t.expect(during.signal > 0.2 && shown.trend && /계산값/.test(shown.note), 'while the oxide is etched the endpoint light is high and the monitor follows the opening', JSON.stringify({ signal: during.signal, shown }));
+  await t.shot('1-etching');
+  t.expect(await lab.fast(`${S}.floor <= 0 && ${S}.siliconLoss > 1`, 240), 'the opening reaches the silicon');
+  await sleep(700);
+  const through = await state();
+  t.expect(through.signal < during.signal * 0.6, 'the endpoint light drops when the oxide is through', `${during.signal.toFixed(2)} -> ${through.signal.toFixed(2)}`);
+  await b.drag(line(power, { x: power.x - 170, y: power.y }, 12)); await sleep(500);
+  s = await state(); t.expect(s.power === 0 && !s.plasma, 'turning the RF power down stops the etch', JSON.stringify(s));
+  await b.click(await lab.at(L.buttons.load), 400);
+  t.expect(await reached(b, `!!${S}.result && ${S}.inside <= 0`, 30000), 'the wafer comes out, the resist is stripped and the window is measured');
+  await sleep(900); s = await state();
+  t.expect(s.result && s.result.open && s.result.ok && s.result.silicon < 20, 'stopped at the endpoint, the window is open with little silicon lost', JSON.stringify(s.result));
+  await t.shot('2-measured');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 4 && next.record.by === 'operator' && next.record.ok && next.wafer.window.open && s.result && Math.abs(next.wafer.window.width - s.result.width) < 1e-9 && !next.wafer.resist, 'the window goes on to the next process on the same wafer', JSON.stringify(next.record));
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -524,6 +561,7 @@ const CHECKS = {
   'process-route': { run: processRoute, minutes: 4, about: 'dist/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
   'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
   'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
+  'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

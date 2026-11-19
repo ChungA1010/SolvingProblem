@@ -16,8 +16,9 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { buildFurnace } from './process-lab/furnace.js';
 import { buildTrack } from './process-lab/track.js';
+import { buildEtcher } from './process-lab/etcher.js';
 
-const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack };
+const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher };
 
 export function create({ canvas, on = {} }) {
   let renderer;

@@ -18,13 +18,13 @@
     { id: 'wafer', name: '웨이퍼 제조', does: '실리콘 결정을 길러 얇게 자르고 닦아 웨이퍼를 만듭니다.' },
     { id: 'oxidation', name: '산화', does: '웨이퍼 표면에 산화막(SiO₂)을 기릅니다. 뒤 공정에서 마스크와 절연막이 됩니다.', equipment: true },
     { id: 'photo', name: '포토', does: '감광막을 바르고 빛으로 무늬를 옮깁니다.', equipment: true },
-    { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.' },
+    { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.', equipment: true },
     { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.' },
     { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.' },
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.' },
     { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.' },
   ];
-  const SPEC = { oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 } };   // nm: what the run sheet asks of oxidation and of photo
+  const SPEC = { oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 } };   // nm: what the run sheet asks of oxidation, photo and etch
   const STANDARD = {                                                // assumed results of the standard recipes
     substrate: { type: 'p', orientation: '(100)', diameter: 300, resistivity: 10 },   // mm, ohm cm
     oxide: 500,                                                     // nm
@@ -70,6 +70,16 @@
         w.resist = { thickness: STANDARD.resist, opening: STANDARD.opening };
         text = `감광막 ${nm(STANDARD.resist)}, 너비 ${nm(STANDARD.opening)}의 창 무늬`;
       }
+    } else if (id === 'etch' && result) {
+      w.oxide = result.oxide; w.resist = null;
+      if (result.stripped) { w.window = null; w.unmasked = true; ok = false; text = '산화막이 모두 깎임'; }
+      else if (!(result.width > 0)) { w.window = { width: 0, depth: 0, open: false, left: w.oxide, siliconLoss: 0 }; ok = false; text = '창이 생기지 않음'; }
+      else {
+        w.window = { width: result.width, depth: result.depth, open: result.open, left: result.left, siliconLoss: result.siliconLoss };
+        ok = result.open && result.siliconLoss <= SPEC.window.siliconLoss && Math.abs(result.width - SPEC.window.target) <= SPEC.window.tolerance;
+        text = result.open ? `창 너비 ${nm(result.width)}, 실리콘 ${nm(result.siliconLoss)} 깎임 (목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm, 실리콘 ${SPEC.window.siliconLoss} nm 이하)` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(result.left)} 남음`;
+      }
+      if (result.how) text += ` · ${result.how}`;
     } else if (id === 'etch') {
       const mask = w.resist;
       if (!mask) {                                                  // nothing protects the oxide: the etch thins all of it
