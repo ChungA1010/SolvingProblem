@@ -14,6 +14,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { buildPuller } from './process-lab/puller.js';
 import { buildFurnace } from './process-lab/furnace.js';
 import { buildTrack } from './process-lab/track.js';
 import { buildEtcher } from './process-lab/etcher.js';
@@ -22,7 +23,7 @@ import { buildPlater } from './process-lab/plater.js';
 import { buildProber } from './process-lab/prober.js';
 import { buildBonder } from './process-lab/bonder.js';
 
-const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter, plating: buildPlater, prober: buildProber, bonder: buildBonder };
+const EQUIPMENT = { crystal: buildPuller, oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter, plating: buildPlater, prober: buildProber, bonder: buildBonder };
 
 export function create({ canvas, on = {} }) {
   let renderer;

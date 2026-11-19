@@ -9,9 +9,10 @@
     "src/process-lab/parts.js",
     "src/process-lab/plater.js",
     "src/process-lab/prober.js",
+    "src/process-lab/puller.js",
     "src/process-lab/track.js"
   ],
-  "sourcesSha256": "08db589de9ef5e178abe2f34cdc8c49cb020f96319a4ff6ca69c03223bda6086",
+  "sourcesSha256": "9e3a7c9916ed09f7dd20f174a2555849b749c4110eeac7950a49f4e58ff0bfef",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }

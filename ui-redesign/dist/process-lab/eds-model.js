@@ -14,7 +14,7 @@
  *   Contact: the specific contact resistivity falls steeply with the doping at the surface, ln(rho_c) going with
  *     1 / sqrt(N) (tunnelling through the barrier). The curve is pinned at 1e-6 ohm cm2 for 1e20 per cm3 and 1e-4 for
  *     1e19, the order of magnitude textbook charts show, over a contact area of 1e-5 cm2 per chip. Representative.
- *   Assumed outright: the leak of a junction left very shallow under the window, the resistance of the copper path, the
+ *   Assumed outright: the leak of a junction left very shallow under the window or made in a dislocated crystal, the resistance of the copper path, the
  *     few per cent by which doping, window width and dishing change toward the wafer's edge, the leak of a chip with a
  *     killer defect, the probes (resistance against overdrive, 15 um of room on the pad), the test limits and the times.
  *   Which chips carry a killer defect comes from the flow model (Poisson yield model).
@@ -33,6 +33,7 @@
     contact: { high: [1e20, 1e-6], low: [1e19, 1e-4] },                  // [doping per cm3, specific contact resistivity in ohm cm2]: two points of the curve
     metal: { resistance: 0.2, burnt: 5 },                                // ohm of the copper path at full height; times this for burnt copper
     spike: { depth: 120, scale: 15 },                                    // nm: a junction left shallower than this under the window floor leaks
+    dislocated: 1e4,                                                     // times the leakage in a crystal grown without a neck
     defect: [-7, 3],                                                     // a chip with a killer defect leaks 10^(a + b u) A, u uniform in 0..1
     short: 1e-3,                                                         // A between chips that are joined (junction or copper all over)
     probe: { floor: 0.3, open: 200, scale: 8, tolerance: 15, pad: 60 },  // ohm, ohm, um of overdrive per e-fold, um off centre that is still on the pad, um of pad
@@ -98,7 +99,7 @@
       const resistance = contactResistivity(surface) / (K.contactArea * width / 1000) + copper;
       const area = K.junctionArea * (width + 1.4 * j.depth) / (1000 + 1.4 * 300);            // the junction spreads sideways by 0.7 of its depth on each side
       const spike = 1 + Math.exp(Math.min(50, (K.spike.depth - (j.depth - win.siliconLoss)) / K.spike.scale));
-      const leak = leakage(Na, area) * spike + (killed[i] ? Math.pow(10, K.defect[0] + K.defect[1] * u) : 0) + (joined ? K.short : 0);
+      const leak = leakage(Na, area) * spike * (wafer.substrate && wafer.substrate.dislocated ? K.dislocated : 1) + (killed[i] ? Math.pow(10, K.defect[0] + K.defect[1] * u) : 0) + (joined ? K.short : 0);
       const truth = { open: false, resistance, leak, voltage: forwardVoltage(K.test.forward, saturationCurrent(Na, area), resistance), defect: Boolean(killed[i]) };
       truth.good = evaluate(truth, { touching: true, resistance: K.probe.floor }).good;
       return truth;

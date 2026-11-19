@@ -15,7 +15,7 @@
   'use strict';
 
   const STEPS = [
-    { id: 'wafer', name: '웨이퍼 제조', does: '실리콘 결정을 길러 얇게 자르고 닦아 웨이퍼를 만듭니다.' },
+    { id: 'wafer', name: '웨이퍼 제조', does: '실리콘 결정을 길러 얇게 자르고 닦아 웨이퍼를 만듭니다.', equipment: true },
     { id: 'oxidation', name: '산화', does: '웨이퍼 표면에 산화막(SiO₂)을 기릅니다. 뒤 공정에서 마스크와 절연막이 됩니다.', equipment: true },
     { id: 'photo', name: '포토', does: '감광막을 바르고 빛으로 무늬를 옮깁니다.', equipment: true },
     { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.', equipment: true },
@@ -24,7 +24,8 @@
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.', equipment: true },
     { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.', equipment: true },
   ];
-  const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch, implantation and plating (nm; surface: phosphorus per cm3)
+  const SPEC = {                                                    // what the run sheet asks of each process (nm unless said; surface: phosphorus per cm3)
+    wafer: { resistivity: { target: 10, tolerance: 1 }, diameter: [300, 310] },   // ohm cm; mm of the crystal's body before it is ground to 300 mm
     oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 },
     junction: { target: 300, tolerance: 50, surface: 1e19 },
     metal: { target: 800, tolerance: 80, dishing: 50 },             // copper plated on the field; dishing after the polish that still counts as flat
@@ -118,8 +119,12 @@
     const w = { ...wafer }, by = result ? 'operator' : 'standard';
     let text, ok = null;
     if (id === 'wafer') {
-      w.substrate = { ...STANDARD.substrate };
-      text = `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${w.substrate.resistivity} Ω·cm`;
+      const W = SPEC.wafer.resistivity;                             // the operator's crystal: { resistivity, dislocated, diameter, body }
+      w.substrate = { ...STANDARD.substrate, ...(result ? { resistivity: result.resistivity, ...(result.dislocated ? { dislocated: true } : {}) } : {}) };
+      const rho = w.substrate.resistivity, shown = rho >= 100 ? Math.round(rho).toLocaleString('en-US') : rho.toFixed(1);
+      if (result) ok = !result.dislocated && Math.abs(rho - W.target) <= W.tolerance;
+      text = !result ? `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${rho} Ω·cm`
+        : `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${shown} Ω·cm (목표 ${W.target} ± ${W.tolerance})${result.dislocated ? ' · 넥이 모자라 결정에 전위가 남음' : ''} · 결정의 바디 지름 ${Math.round(result.diameter)} mm, 길이 ${Math.round(result.body)} mm${result.how ? ` · ${result.how}` : ''}`;
     } else if (id === 'oxidation') {
       w.oxide = result ? result.mean : STANDARD.oxide;
       ok = Math.abs(w.oxide - SPEC.oxide.target) <= SPEC.oxide.tolerance;
@@ -170,7 +175,8 @@
       w.metal = out.wafer.metal; ok = out.ok; text = result && result.how ? `${out.text} · ${result.how}` : out.text;
     } else if (id === 'eds') {
       const j = w.junction, open = Boolean(w.window && w.window.open && w.window.width > 0);
-      const reason = j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
+      const reason = w.substrate && w.substrate.dislocated ? '결정에 전위가 남아 접합이 샘'
+        : j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
         : !open ? '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음'
           : !j ? '접합이 생기지 않아 다이오드가 되지 않음'
             : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼'

@@ -101,7 +101,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-operate` | 웨이퍼 장착, 플래튼, 스핀들, 밸브, 구역 조절기, 컨디셔너, 가압, 휠, 연마, 헤드 올리기, 계측까지 부품을 끌어서 한 장을 처리하기. 끄는 동안의 값 표시, 장비 화면 확대, 비상 정지 |
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
 | `process-route` | 여덟 공정이 순서대로 보이는지, 중간 공정에서 시작해 공정 기록까지 가는지 (장비 없이 표준 조건으로) |
-| `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-eds`, `process-bond` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
+| `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-eds`, `process-bond` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |
 
 - 3D는 소프트웨어로 그려서 초당 3프레임쯤 나온다. 동작은 확인하지만 속도와 손맛은 확인하지 못한다. 그것은 실제 그래픽 카드에서 사람이 봐야 한다.
@@ -135,7 +135,7 @@ GitHub에 올리면(push, pull request) 두 가지가 돈다.
 |---|---|---|
 | [README.md](README.md) | 게임 소개, 실행, 규칙, 게임 쪽 개발 절차 | 2026-11-12 (게임 v45) |
 | [LAB-3D.md](LAB-3D.md) | 학습 실험실과 홈 화면. 화면 동작, 조작, 계산 모델과 근거, 숨겨 둔 것 | 현재 |
-| [PROCESS-LAB.md](PROCESS-LAB.md) | 8대 공정 실험실. 화면, 만드는 것, 산화 계산과 출처, 표준 조건의 가정값, 장비를 붙이는 법 | 현재 (실험판) |
+| [PROCESS-LAB.md](PROCESS-LAB.md) | 8대 공정 실험실. 화면, 만드는 것, 여덟 장비의 조작과 계산·출처, 표준 조건의 가정값, 장비를 붙이는 법 | 현재 (실험판) |
 | [LAB-SIM.md](LAB-SIM.md) | 숨겨 둔 장비 시뮬레이터(PHM 재생, 상태 모델) | 숨긴 상태 그대로 |
 | [MODEL_CONNECTION.md](MODEL_CONNECTION.md), [CMP_REQUIREMENTS_REVIEW.md](CMP_REQUIREMENTS_REVIEW.md) | 숨겨 둔 MRR 예측 화면의 API 연결과 요구사항 점검 | 2026-11-02 기록 |
 | [GAME-FLOW-QA.md](GAME-FLOW-QA.md), [WORKBENCH-FLOW-QA.md](WORKBENCH-FLOW-QA.md), [WORKSHOP-MODELS-QA.md](WORKSHOP-MODELS-QA.md) | 게임 QA 기록 | 2026-11-06 ~ 11-12 기록 |
@@ -146,7 +146,7 @@ GitHub에 올리면(push, pull request) 두 가지가 돈다.
 - 실제 그래픽 카드에서의 속도, Firefox와 Safari, 휴대폰에서는 확인하지 않았다.
 - 게임 3D 번들(`dist/cmp-scene.js`)에는 원본과 맞는지 지켜 주는 테스트가 없다. 학습 실험실과 8대 공정 실험실의 번들에만 있다.
 - 같은 일을 하는 코드가 두 벌인 곳이 있다. 3D 공통부(조명, 부품 집기, 시점)가 `src/lab-3d-scene.js` 안과 `src/process-lab-scene.js`에 따로 있고, 부품 카드와 계기를 그리는 코드가 `dist/lab-3d/app.js`와 `dist/process-lab/app.js`에 따로 있다. 8대 공정 실험실에 장비가 하나 더 생길 때 합친다.
-- 8대 공정 실험실에서 장비가 있는 공정은 일부다(목록은 [PROCESS-LAB.md](PROCESS-LAB.md)). 나머지는 가정한 값으로 지나간다.
+- 8대 공정 실험실은 공정마다 장비가 하나씩이다. 그 공정 안의 나머지 일은 가정한 값으로 지나가고, 계산의 근거가 약한 곳(패키징, EDS의 상수들)은 [PROCESS-LAB.md](PROCESS-LAB.md)에 적혀 있다.
 - 쓰이는 곳을 찾지 못한 게임 파일이 있다: `dist/decor-art.js`, `dist/equipment-art.js`, `dist/media/shipper/fosb-*.png`, `dist/media/customer-*-figure.svg`. 합쳐서 약 1.7 MB다. 지우지 않았다.
 - 공개 사이트(README.md 맨 위의 주소)에는 학습 실험실(3D)과 새 홈 화면이 올라가 있지 않다(2026-11-19 확인).
 - 저장소 루트의 Python 테스트는 pytest가 있어야 돈다. pytest가 없는 PC에서는 GitHub의 Integrity tests 결과로 확인한다.

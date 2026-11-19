@@ -187,6 +187,22 @@ test('the operator\'s wire bonding decides how many of the good chips are finish
   const none = F.createRun('package'); assert.equal(F.complete(none, { chips: 0, bonded: GOOD, lost: GOOD }).ok, false); assert.equal(none.wafer.packaged.chips, 0);
 });
 
+test('the operator\'s crystal decides the wafer: its resistivity, and whether the crystal is free of dislocations', () => {
+  const CR = require('../dist/process-lab/crystal-model.js'), ED = require('../dist/process-lab/eds-model.js');
+  assert.deepEqual(F.SPEC.wafer, { resistivity: CR.constants.spec.resistivity, diameter: CR.constants.spec.diameter }, 'the run sheet and the puller agree on the target');
+  const run = F.createRun('wafer'), record = F.complete(run, { resistivity: 9.79, dislocated: false, diameter: 304.3, body: 120, how: '붕소 2.9 mg' });
+  assert.ok(record.ok && record.by === 'operator' && /9\.8 Ω·cm/.test(record.text) && /304 mm/.test(record.text) && /2\.9 mg/.test(record.text), record.text);
+  assert.deepEqual(run.wafer.substrate, { ...F.STANDARD.substrate, resistivity: 9.79 }); finish(run); assert.equal(run.wafer.tested.good, GOOD);
+  const plain = F.createRun('wafer'), far = F.complete(plain, { resistivity: 13280, dislocated: false, diameter: 305, body: 120 });
+  assert.equal(far.ok, false); assert.match(far.text, /13,280 Ω·cm/);
+  const rough = F.createRun('wafer'); assert.equal(F.complete(rough, { resistivity: 10, dislocated: true, diameter: 305, body: 120 }).ok, false); finish(rough);
+  assert.ok(rough.wafer.substrate.dislocated); assert.equal(rough.wafer.tested.good, 0); assert.match(rough.wafer.tested.reason, /전위/);
+  const truth = ED.truths({ wafer: F.arriving(6), dies: F.dies(), killed: F.defects(1), seed: 5 }), leaky = ED.truths({ wafer: { ...F.arriving(6), substrate: { ...F.STANDARD.substrate, dislocated: true } }, dies: F.dies(), killed: F.defects(1), seed: 5 });
+  assert.ok(truth.some(die => die.good) && leaky.every(die => !die.good && die.leak > ED.constants.limits.leakage), 'the prober finds a dislocated wafer leaking on every chip');
+  const undoped = ED.truths({ wafer: { ...F.arriving(6), substrate: { ...F.STANDARD.substrate, resistivity: 13280 } }, dies: F.dies(), killed: [], seed: 5 });
+  assert.ok(undoped.every(die => !die.good && die.voltage < ED.constants.limits.voltage[0]), 'on an undoped wafer the diode\'s forward voltage is too low');
+});
+
 test('numbers are written as a power of ten', () => {
   assert.equal(F.sci(1.66e19), '1.7×10¹⁹'); assert.equal(F.sci(9.96e14), '1.0×10¹⁵'); assert.equal(F.sci(3.2e-15), '3.2×10⁻¹⁵'); assert.equal(F.sci(0), '0');
 });

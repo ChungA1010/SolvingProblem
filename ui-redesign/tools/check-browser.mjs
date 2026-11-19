@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -310,6 +310,7 @@ async function openProcess(t, id) {
   const lab = {
     S, layout: await b.evaluate(`${PL}.scene.layout`),
     at: async point => onPage(await b.evaluate(`${PL}.scene.project(${point[0]}, ${point[1]}, ${point[2]})`)),      // a point of the 3D scene, in page pixels
+    part: async name => onPage(await b.evaluate(`${PL}.scene.screenOf(${JSON.stringify(name)})`)),                   // where a part's card is anchored now, in page pixels
     state: expression => b.evaluate(`(() => { const s = ${S}; return ${expression}; })()`),
     card: () => b.evaluate(`document.getElementById('callout').hidden ? '' : document.getElementById('co-name').textContent`),
     pill: () => b.evaluate(`document.getElementById('pill').hidden ? '' : document.getElementById('pill').textContent`),
@@ -345,6 +346,58 @@ async function openProcess(t, id) {
     },
   };
   return { b, lab };
+}
+
+async function processCrystal(t) {
+  const { b, lab } = await openProcess(t, 'wafer'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ seed: s.seed, target: s.controls.seed, speed: s.controls.speed, dopant: s.controls.dopant, auto: s.controls.auto, attached: s.attached, ended: s.ended, doped: s.doped, length: s.length, d: 2 * s.radius, necked: s.necked, body: s.body.length, result: s.result && { valid: s.result.valid, ok: s.result.ok, d: s.result.diameter, rho: s.result.resistivity, necked: s.result.necked } })`);
+  await lab.cards();
+  let s = await state();
+  t.expect(!s.attached && s.seed === 0 && s.dopant === 0 && s.speed === 0, 'the puller starts with the seed above the melt and no boron chosen', JSON.stringify(s));
+  const speed = await lab.at(L.dials.speed), dopant = await lab.at(L.dials.dopant);
+  await b.drag(line(dopant, { x: dopant.x + 145, y: dopant.y }, 12)); await sleep(400);
+  s = await state(); t.expect(Math.abs(s.dopant - 2.9) < 1e-9, 'the boron dial is set before the seed goes in', `${s.dopant} mg`);
+  const seed = await lab.part('seed');
+  await b.drag(line(seed, { x: seed.x, y: seed.y + 240 }, 12)); await sleep(500);
+  s = await state(); t.expect(s.target === 1, 'pulling the seed down sends it into the melt', `target ${s.target}`);
+  t.expect(await lab.fast(`${S}.attached`, 300, 60000), 'the seed touches the melt');
+  for (let i = 0; i < 3; i++) { await b.wheel(dopant, -100); await sleep(50); }
+  await sleep(700); s = await state(); const refused = await lab.guide();
+  t.expect(s.dopant === 2.9 && s.doped === 2.9 && /바꿀 수 없/.test(refused), 'once the seed is in, the boron is in the melt and its dial is refused', `${s.dopant} mg | ${refused}`);
+
+  // neck: a fast pull
+  await b.drag(line(speed, { x: speed.x + 300, y: speed.y }, 14)); await sleep(400);
+  s = await state(); t.expect(Math.abs(s.speed - 9) < 1e-9, 'the pull speed dial is dragged up for the neck', `${s.speed} mm/min`);
+  t.expect(await lab.fast(`${S}.necked`, 300, 120000), 'at 9 mm/min the crystal thins to a neck and holds it long enough');
+  await sleep(700); let shown = await lab.monitor();
+  t.expect(shown.value < 6 && /넥/.test(shown.note) && shown.trend, 'the camera reads a neck a few millimetres thick', JSON.stringify(shown));
+  await b.click(await lab.at(L.buttons.auto), 450); await sleep(500);
+  t.expect(!(await state()).auto && /mm 안에/.test(await lab.guide()), 'the diameter controller is refused this far from its target, and the page says why', await lab.guide());
+  await b.evaluate(`${PL}.scene.setView('melt', true)`); await sleep(1500); await t.shot('1-neck'); await b.evaluate(`${PL}.scene.setView('home', true)`); await sleep(1500);
+
+  // shoulder: a slow pull, then the controller for the body
+  await b.drag(line(speed, { x: speed.x - 267, y: speed.y }, 14)); await sleep(400);
+  s = await state(); t.expect(Math.abs(s.speed - 1) < 1e-9, 'the pull is slowed for the shoulder', `${s.speed} mm/min`);
+  t.expect(await lab.fast(`2 * ${S}.radius > 292`, 3000, 240000), 'the crystal widens toward 300 mm');
+  await b.click(await lab.at(L.buttons.auto), 450); await sleep(700);
+  s = await state(); t.expect(s.auto && s.d > 285 && s.d < 325, 'near the target the diameter controller takes over', JSON.stringify({ auto: s.auto, d: s.d }));
+  t.expect(await lab.fast(`${S}.body.length >= 105`, 3000, 240000), 'the controller holds the diameter while the body grows');
+  await sleep(700); s = await state(); shown = await lab.monitor();
+  t.expect(s.d > 300 && s.d < 310 && Math.abs(shown.value - s.d) < 1.5 && /바디/.test(shown.note), 'the body is inside the range the run sheet asks for', JSON.stringify({ d: s.d, shown }));
+  await t.shot('2-body');
+
+  // out of the melt and measured
+  const hanging = await lab.part('seed');
+  await b.drag(line(hanging, { x: hanging.x, y: hanging.y - 220 }, 12)); await sleep(500);
+  s = await state(); t.expect(s.target === 0 && s.ended, 'pulling the seed up takes the crystal off the melt', JSON.stringify({ target: s.target, ended: s.ended }));
+  t.expect(await lab.fast(`${PL}.sim.canMeasure()`, 300, 60000), 'the crystal is lifted out');
+  await sleep(700);
+  const landed = await clickOn(b, '#guide-action', 900);
+  s = await state(); shown = await lab.monitor();
+  t.expect(landed && s.result && s.result.valid && s.result.ok && s.result.necked && Math.abs(s.result.rho - 10) < 1 && /계측값/.test(shown.note), 'the crystal is measured: a body in range, a neck, and the resistivity the run sheet asks for', JSON.stringify(s.result));
+  await t.shot('3-measured');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 1 && next.record.by === 'operator' && next.record.ok && Math.abs(next.wafer.substrate.resistivity - s.result.rho) < 1e-9 && !next.wafer.substrate.dislocated, 'the wafer cut from the crystal goes on to oxidation', JSON.stringify(next.record));
 }
 
 async function processOxidation(t) {
@@ -745,6 +798,7 @@ const CHECKS = {
   'lab-operate': { run: labOperate, minutes: 10, about: 'dist/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'dist/lab-3d.html, instrument strip, report and record over two wafers' },
   'process-route': { run: processRoute, minutes: 4, about: 'dist/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
+  'process-crystal': { run: processCrystal, minutes: 10, about: 'dist/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
   'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
   'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
   'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
