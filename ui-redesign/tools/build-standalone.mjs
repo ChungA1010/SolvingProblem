@@ -1,12 +1,12 @@
-// Build the whole CMP Lab web app (dist/index.html, game.html, lab-sim.html) as ONE self-contained HTML file that
-// opens straight from disk (file://) with no server. Nothing in dist/ is changed.
+// Build the whole CMP Lab web app (dist/index.html, game.html, lab-sim.html, lab-3d.html) as ONE self-contained HTML
+// file that opens straight from disk (file://) with no server. Nothing in dist/ is changed.
 //
 // How it works: the file is a small shell that shows one page at a time in a full-window <iframe srcdoc>. Each page
 // is the original HTML with its stylesheets and scripts inlined. What the pages share is stored once in the shell:
 // the 3D scene bundle (cmp-scene.js), the images, video and font (as data URIs) and the simulator's model and replay
 // data. Media paths that scripts build at run time are wrapped in __cmpAsset(...), which returns the embedded copy.
 // A short prelude at the top of every page defines that function and turns links between the pages into shell
-// navigation. The shell URL keeps the current page (#index, #game, #lab-sim) and the page's own fragment
+// navigation. The shell URL keeps the current page (#index, #game, #lab-sim, #lab-3d) and the page's own fragment
 // (e.g. #index/lab), so reload and the back button work.
 //
 // The output embeds the PHM 2016-derived replay data, so it is kept out of git (see .gitignore) until the data
@@ -19,7 +19,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.resolve(here, '../dist');
 const out = path.resolve(process.argv[2] || path.join(here, '../standalone/CMP-Lab.html'));
-const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html' };
+const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html', 'lab-3d': 'lab-3d.html' };   // page name = file name without .html
 const SHARED_SCRIPT_BYTES = 1 << 20; // scripts at least this large are stored once in the shell, not in every page
 const MIME = { '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff2': 'font/woff2' };
 const posix = path.posix;
@@ -126,8 +126,8 @@ function pagePrelude(page) {
   document.addEventListener('click', e => {
     const a = e.target instanceof Element && e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.button !== 0) return;
-    const m = /^\.\/(index|game|lab-sim)\.html(?:#(.*))?$/.exec(a.getAttribute('href'));
-    if (m) { e.preventDefault(); bundle.go(m[1], m[2] || ''); }
+    const m = /^\.\/([\w-]+)\.html(?:#(.*))?$/.exec(a.getAttribute('href'));
+    if (m && bundle.has(m[1])) { e.preventDefault(); bundle.go(m[1], m[2] || ''); }
     else if (/^https?:/i.test(a.getAttribute('href')) && !a.target) { e.preventDefault(); window.open(a.href, '_blank', 'noopener'); }
   });
   // The page's own fragment (tabs such as #lab) lives in the shell URL, so reload and links like index.html#lab work.
@@ -167,6 +167,7 @@ function shellMain() {
   }
   window.CMPLabBundle = Object.freeze({
     text,
+    has: page => Object.hasOwn(pages, page),
     asset: rel => assets[rel],
     innerHash: () => where().inner,
     setTitle(title) { document.title = title || 'CMP Lab'; },
@@ -221,9 +222,9 @@ const shellJs = `(${shellMain})();`;
 if (/<\/script|<!--/i.test(shellJs)) throw new Error('shell script cannot be inlined');
 
 const html = `<!doctype html>
-<!-- CMP Lab: single-file build of dist/ (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}. Home, factory game and
-     equipment simulator in one file. Contains replay data derived from the PHM 2016 data challenge; share only within
-     the team until the data publication decision. -->
+<!-- CMP Lab: single-file build of dist/ (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}. Home, factory game,
+     equipment simulator and the 3D direct-operation experiment in one file. Contains replay data derived from the
+     PHM 2016 data challenge; share only within the team until the data publication decision. -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
