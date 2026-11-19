@@ -18,8 +18,9 @@ import { buildFurnace } from './process-lab/furnace.js';
 import { buildTrack } from './process-lab/track.js';
 import { buildEtcher } from './process-lab/etcher.js';
 import { buildImplanter } from './process-lab/implanter.js';
+import { buildPlater } from './process-lab/plater.js';
 
-const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter };
+const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter, plating: buildPlater };
 
 export function create({ canvas, on = {} }) {
   let renderer;

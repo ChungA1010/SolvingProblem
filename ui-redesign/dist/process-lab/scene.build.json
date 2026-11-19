@@ -6,9 +6,10 @@
     "src/process-lab/furnace.js",
     "src/process-lab/implanter.js",
     "src/process-lab/parts.js",
+    "src/process-lab/plater.js",
     "src/process-lab/track.js"
   ],
-  "sourcesSha256": "2fdf63edf9e498eff6187da245383ece63bf774f6c3244d2994741ce175ee6ab",
+  "sourcesSha256": "caad1dde88da1c5c5fb78ca772783e5f6de1db8765f7506bd721f3cf367da64d",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }

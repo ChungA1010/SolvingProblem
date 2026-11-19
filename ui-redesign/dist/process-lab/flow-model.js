@@ -20,13 +20,14 @@
     { id: 'photo', name: '포토', does: '감광막을 바르고 빛으로 무늬를 옮깁니다.', equipment: true },
     { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.', equipment: true },
     { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.', equipment: true },
-    { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.' },
+    { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.', equipment: true },
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.' },
     { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.' },
   ];
-  const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch and implantation (nm; surface: phosphorus per cm3)
+  const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch, implantation and plating (nm; surface: phosphorus per cm3)
     oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 },
     junction: { target: 300, tolerance: 50, surface: 1e19 },
+    metal: { target: 800, tolerance: 80, dishing: 50 },             // copper plated on the field; dishing after the polish that still counts as flat
   };
   const STANDARD = {                                                // assumed results of the standard recipes
     substrate: { type: 'p', orientation: '(100)', diameter: 300, resistivity: 10 },   // mm, ohm cm
@@ -35,6 +36,7 @@
     etchReach: 600,                                                 // nm of oxide the fixed-time etch clears: 500 nm plus 20% over-etch
     selectivity: 20,                                                // oxide etched per silicon etched, once the window is open
     junction: 300, surface: 2e19, liner: 30,                        // nm; phosphorus per cm3 at the surface
+    plated: 800, polish: 880, dishRate: 0.25,                       // nm of copper plated on the field; nm of field copper the polish clears; nm of dishing per nm polished after the field is clear
     die: 20, edge: 3,                                               // mm: die size and the edge of the wafer that holds no chips
   };
   const nm = v => `${Math.round(v).toLocaleString('en-US')} nm`;
@@ -80,6 +82,22 @@
         : all ? `이온이 산화막을 뚫고 들어가 창 밖에도 n+ 접합이 생김 (깊이 ${nm(result.depth)})`
           : `n+ 접합 깊이 ${nm(result.depth)}, 표면 농도 ${sci(result.surface)} /cm³ (목표 ${J.target} ± ${J.tolerance} nm, ${sci(J.surface)} /cm³ 이상)${open ? '' : ' · 창 바닥에 산화막이 남음'}`;
     return { wafer: w, ok, text };
+  }
+
+  /**
+   * The metal after plating and the polish that follows it by the standard recipe. `plated` is what the operator's
+   * plating did: { thickness (nm of copper on the field), burnt }, or nothing for the standard recipe. The polish clears a
+   * fixed amount of field copper: more than that stays on the oxide, less than that dishes the copper in the windows.
+   */
+  function metallised(wafer, plated) {
+    const w = { ...wafer }, t = plated ? plated.thickness : STANDARD.plated, M = SPEC.metal;
+    const depth = w.window && w.window.width > 0 ? w.window.depth + w.window.siliconLoss : 0;
+    const over = Math.max(0, t - STANDARD.polish), short = Math.max(0, depth - t);                    // copper left on the oxide; how far the copper in the window was short of the top
+    const dishing = over > 0 ? 0 : Math.min(depth, short + (STANDARD.polish - t) * STANDARD.dishRate);
+    w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && dishing <= M.dishing, ...(plated && plated.burnt ? { burnt: true } : {}) } : null;
+    if (!plated) return { wafer: w, ok: null, text: '창을 금속으로 채우고 산화막 높이까지 평탄화' };
+    return { wafer: w, ok: t > 0 && !plated.burnt && Math.abs(t - M.target) <= M.tolerance,
+      text: t > 0 ? `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)${plated.burnt ? ' · 한계 전류를 넘겨 도금이 탐' : ''} · 표준 연마 뒤 ${over > 0 ? `산화막 위에 구리 ${nm(over)} 남음` : `접시 파임 ${nm(dishing)}`}` : '구리가 도금되지 않음' };
   }
 
   /** What a process leaves on the wafer. `result` is the operator's measured result, or nothing for the standard recipe. */
@@ -135,14 +153,18 @@
       text = result ? `${out.text} · 장벽막 ${nm(STANDARD.liner)}${result.how ? ` · ${result.how}` : ''}`
         : w.unmasked ? out.text : open ? `${out.text}, 창 안에 장벽막 ${nm(STANDARD.liner)}` : `${out.text} · 장벽막 ${nm(STANDARD.liner)}`;
     } else if (id === 'metal') {
-      w.metal = { planar: true };
-      text = '창을 금속으로 채우고 산화막 높이까지 평탄화';
+      const out = metallised(w, result);
+      w.metal = out.wafer.metal; ok = out.ok; text = result && result.how ? `${out.text} · ${result.how}` : out.text;
     } else if (id === 'eds') {
       const j = w.junction, open = Boolean(w.window && w.window.open && w.window.width > 0);
       const reason = j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
         : !open ? '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음'
           : !j ? '접합이 생기지 않아 다이오드가 되지 않음'
-            : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼' : null;
+            : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼'
+              : !w.metal ? '금속이 없어 전기가 통할 길이 없음'
+                : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
+                  : w.metal.burnt ? '도금이 타서 금속의 저항이 큼'
+                    : w.metal.dishing > (w.window.depth + w.window.siliconLoss) / 2 ? '금속이 깊이 파여 저항이 큼' : null;
       w.tested = { total: DIE_COUNT, good: reason ? 0 : DIE_COUNT, reason };
       ok = !reason;
       text = ok ? `칩 ${DIE_COUNT}개 모두 양품` : `칩 ${DIE_COUNT}개 모두 불량 · ${reason}`;
@@ -177,5 +199,5 @@
     return out.record;
   }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, empty, sci, implanted, apply, arriving, createRun, complete };
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, empty, sci, implanted, metallised, apply, arriving, createRun, complete };
 });

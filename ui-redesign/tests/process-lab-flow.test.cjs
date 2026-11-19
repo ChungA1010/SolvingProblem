@@ -131,6 +131,26 @@ test('the operator\'s implant decides the junction: in the windows only, deep en
   assert.ok(bare.everywhere && !bare.leaked, 'with no oxide at all it is the missing mask, not a leak');
 });
 
+test('the operator\'s plating decides the metal: enough to fill and cover the windows, not more than the polish clears', () => {
+  const PL = require('../dist/process-lab/plating-model.js');
+  assert.deepEqual({ target: F.SPEC.metal.target, tolerance: F.SPEC.metal.tolerance }, PL.constants.spec, 'the run sheet and the plating cell agree on the target');
+  assert.deepEqual(F.arriving(6).metal, { thickness: 800, over: 0, dishing: 20, planar: true }, 'the standard recipe plates 800 nm and the polish over-polishes by 80 nm');
+  const good = F.createRun('metal'), record = F.complete(good, { thickness: 790, burnt: false, how: '30 rpm' });
+  assert.ok(record.ok && record.by === 'operator' && /790 nm/.test(record.text) && /접시 파임 23 nm/.test(record.text) && /30 rpm/.test(record.text), record.text);
+  assert.deepEqual(good.wafer.metal, { thickness: 790, over: 0, dishing: 22.5, planar: true }); finish(good); assert.equal(good.wafer.tested.good, F.DIE_COUNT);
+
+  const thick = F.createRun('metal'); assert.equal(F.complete(thick, { thickness: 1000, burnt: false }).ok, false); finish(thick);
+  assert.equal(thick.wafer.metal.over, 120); assert.equal(thick.wafer.tested.good, 0); assert.match(thick.wafer.tested.reason, /산화막 위에 남아/);
+  const thin = F.createRun('metal'); assert.equal(F.complete(thin, { thickness: 600, burnt: false }).ok, false); finish(thin);
+  assert.equal(thin.wafer.metal.dishing, 70); assert.equal(thin.wafer.metal.planar, false); assert.equal(thin.wafer.tested.good, F.DIE_COUNT, 'dished, but the chips still work');
+  const short = F.createRun('metal'); F.complete(short, { thickness: 300, burnt: false }); finish(short);
+  assert.equal(short.wafer.metal.dishing, 205 + 145, 'the window was 205 nm short of full, and the polish took 145 nm more'); assert.equal(short.wafer.tested.good, 0); assert.match(short.wafer.tested.reason, /깊이 파여/);
+  const burnt = F.createRun('metal'); assert.equal(F.complete(burnt, { thickness: 800, burnt: true }).ok, false); finish(burnt);
+  assert.equal(burnt.wafer.tested.good, 0); assert.match(burnt.wafer.tested.reason, /타서/);
+  const none = F.createRun('metal'); assert.equal(F.complete(none, { thickness: 0, burnt: false }).ok, false); finish(none);
+  assert.equal(none.wafer.metal, null); assert.equal(none.wafer.tested.good, 0); assert.match(none.wafer.tested.reason, /금속이 없어/);
+});
+
 test('numbers are written as a power of ten', () => {
   assert.equal(F.sci(1.66e19), '1.7×10¹⁹'); assert.equal(F.sci(9.96e14), '1.0×10¹⁵'); assert.equal(F.sci(3.2e-15), '3.2×10⁻¹⁵'); assert.equal(F.sci(0), '0');
 });

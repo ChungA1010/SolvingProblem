@@ -13,7 +13,7 @@
  *   view(sim)            what the equipment needs to draw itself
  *   live(sim, wafer)     the wafer as it is inside the equipment right now (for the route pictures)
  *   forecast(sim, wafer) optional: the wafer as it would leave with the controls as they are (for the later stops)
- *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map } or { section, top }), value, unit, note, meter, trend, now, spec
+ *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map } or { section, top, height }), value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
  */
@@ -50,7 +50,8 @@
   /** Top of the tallest layer, in drawing units: lets a figure start just above what is on the wafer. */
   const reach = wafer => SURFACE - (wafer.oxide + (wafer.resist ? wafer.resist.thickness : 0) + (wafer.liner && wafer.window && !wafer.metal ? wafer.liner : 0)) * SY;
   function section(wafer, thumb = false, from = 0) {
-    const root = svg('svg', { viewBox: thumb ? `120 ${typeof thumb === 'number' ? thumb : 118} 480 112` : `0 ${from} ${WIDTH} ${HEIGHT - from}`,     // thumb: true, or the top of the strip to show preserveAspectRatio: thumb ? 'xMidYMid slice' : 'xMidYMid meet', role: 'img',
+    const strip = thumb === true ? { top: 118 } : thumb;          // thumb: true, or { top, height } of the strip to show
+    const root = svg('svg', { viewBox: strip ? `120 ${strip.top} 480 ${strip.height ?? 112}` : `0 ${from} ${WIDTH} ${HEIGHT - from}`, preserveAspectRatio: strip && !strip.height ? 'xMidYMid slice' : 'xMidYMid meet', role: 'img',
       'aria-label': wafer.substrate ? `웨이퍼 단면: ${layersOf(wafer).map(k => NAMES[k]).join(', ')}` : '아직 웨이퍼가 없습니다' });
     root.append(svg('rect', { x: 0, y: 0, width: WIDTH, height: HEIGHT, fill: '#f3f5f9' }));
     if (!wafer.substrate) return root;
@@ -73,11 +74,18 @@
       for (const [a, b] of lands(open)) root.append(box(a, b, top - wafer.resist.thickness * SY, top, INK.resist));
     }
     if (wafer.window && wafer.liner) {
-      const t = wafer.liner * SY;
-      if (wafer.metal) for (const [a, b] of gaps) root.append(box(a + t, b - t, top + (wafer.metal.dishing || 0) * SY, floor - t, INK.metal));
+      const t = wafer.liner * SY, m = wafer.metal, grown = m && m.conformal != null;
+      if (grown) {                                                 // as plated: the same thickness on every face, until the window has closed
+        const g = m.conformal * SY, s = m.conformal * SX;
+        root.append(box(0, WIDTH, top - t - g, top - t, INK.metal));
+        for (const [a, b] of gaps) {
+          if (2 * s >= b - a - 2 * t || g >= floor - top) { root.append(box(a + t, b - t, top - t - g, floor - t, INK.metal)); continue; }
+          root.append(box(a, b, top - t - g, top, '#f3f5f9'), box(a, a + t + s, top - t - g, floor - t, INK.metal), box(b - t - s, b, top - t - g, floor - t, INK.metal), box(a + t, b - t, floor - t - g, floor - t, INK.metal));
+        }
+      } else if (m) for (const [a, b] of gaps) root.append(box(a + t, b - t, top + (m.dishing || 0) * SY, floor - t, INK.metal));
       for (const [a, b] of gaps) root.append(svg('path', { d: `M${a + t / 2},${top} V${floor - t / 2} H${b - t / 2} V${top}`, fill: 'none', stroke: INK.liner, 'stroke-width': t }));
-      if (!wafer.metal) for (const [a, b] of lands(gaps)) root.append(box(a, b, top - t, top, INK.liner));          // the film still covers the top until it is polished off
-      else if (wafer.metal.over > 0) root.append(box(0, WIDTH, top - wafer.metal.over * SY, top, INK.metal));        // metal still lying over the oxide
+      if (!m || grown || m.over > 0) for (const [a, b] of lands(gaps)) root.append(box(a, b, top - t, top, INK.liner));   // the film still covers the top until it is polished off
+      if (m && !grown && m.over > 0) root.append(box(0, WIDTH, top - t - m.over * SY, top - t, INK.metal));              // metal still lying over the oxide
     }
     if (!thumb) root.append(svg('path', { d: `M${WIDTH - 104},${HEIGHT - 18} h80`, stroke: '#1e293b', 'stroke-width': 2 }), svg('text', { x: WIDTH - 64, y: HEIGHT - 24, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 600, fill: '#1e293b' }, '1 µm'));
     return root;
@@ -279,7 +287,7 @@
     }
     $('spec').replaceChildren(...d.spec.map(text => el('span', { text })));
     const film = d.picture.film != null; $('film').hidden = !film; $('mon-section').hidden = film;
-    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top ?? true));
+    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top != null ? { top: d.picture.top, height: d.picture.height } : true));
     renderTrend(d.trend);
     const now = performance.now(), next = F.STEPS[run.at + 1], [text, label, action, part] = station.guide(sim, next ? next.name : '공정 기록');
     $('guide-step').textContent = F.STEPS[run.at].name;

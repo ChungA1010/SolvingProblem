@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -524,6 +524,53 @@ async function processImplant(t) {
   t.expect(next.landed && next.viewing === 5 && next.record.by === 'operator' && next.record.ok && next.wafer.junction && Math.abs(next.wafer.junction.depth - s.result.junction) < 1e-9 && !next.wafer.junction.everywhere && next.wafer.liner === 30, 'the junction goes on to the next process on the same wafer, with the barrier film on it', JSON.stringify(next.record));
 }
 
+async function processPlating(t) {
+  const { b, lab } = await openProcess(t, 'metal'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ head: s.head, target: s.controls.head, current: s.controls.current, rotation: s.controls.rotation, immersed: s.immersed, plating: s.plating, over: s.over, thickness: s.thickness, burnt: s.burnt, wet: s.wet, result: s.result && { thickness: s.result.thickness, sheet: s.result.sheet, ok: s.result.ok, burnt: s.result.burnt } })`);
+  await lab.cards();
+  let s = await state();
+  t.expect(s.head === 0 && s.thickness === 0 && s.current === 0 && s.rotation === 30, 'the cell starts with the wafer face up on the raised head and no current', JSON.stringify(s));
+  const current = await lab.at(L.dials.current), rotation = await lab.at(L.dials.rotation);
+  await b.drag(line(current, { x: current.x + 200, y: current.y }, 12)); await sleep(1200);
+  s = await state(); t.expect(s.current === 20 && !s.plating && s.thickness === 0, 'with the wafer out of the bath the current has nowhere to flow', JSON.stringify(s));
+
+  const up = await lab.at(L.grip.up);
+  await b.drag(line(up, { x: up.x, y: up.y + 220 }, 12)); await sleep(500);
+  s = await state(); t.expect(s.target === 1, 'pulling the head down turns the wafer over and sends it into the bath', `target ${s.target}`);
+  t.expect(await lab.fast(`${S}.plating && ${S}.thickness > 40`, 16, 60000), 'once the wafer is in the bath the copper starts to grow');
+  const down = await lab.at(L.grip.down);
+  await b.drag(line(down, { x: down.x, y: down.y - 200 }, 10)); await sleep(1200);
+  s = await state(); const locked = await lab.guide();
+  t.expect(s.head === 1 && s.target === 1 && /전류가 흐르는/.test(locked), 'the head does not rise while current flows, and the page says why', `head ${s.head}, guide: ${locked}`);
+
+  // more current than the bath can carry at this rotation, briefly; then more rotation lifts the limit
+  await b.evaluate(`${PL}.setSpeed(1)`);
+  await b.drag(line(current, { x: current.x + 100, y: current.y }, 10)); await sleep(1500);
+  s = await state(); const warned = await lab.guide();
+  t.expect(s.current === 30 && s.over && /한계/.test(warned), 'at 30 A and 30 rpm the current is above the bath\'s limit and the page warns', `${JSON.stringify({ current: s.current, over: s.over })} | ${warned}`);
+  await t.shot('1-over-limit');
+  for (let i = 0; i < 6; i++) { await b.wheel(rotation, -100); await sleep(50); }
+  await sleep(1200);
+  s = await state(); t.expect(s.rotation === 60 && !s.over && s.plating, 'turning the wafer faster raises the limit above the current', JSON.stringify({ rotation: s.rotation, over: s.over }));
+  await b.evaluate(`${PL}.setSpeed(4)`);
+  t.expect(await reached(b, `${S}.thickness > 760`, 240000), 'the film grows toward the thickness the run sheet asks for');
+  const growing = await lab.monitor();
+  await b.drag(line(current, { x: current.x - 340, y: current.y }, 10)); await sleep(900);
+  s = await state(); const stopped = s.thickness;
+  t.expect(s.current === 0 && !s.plating && growing.trend && /계산값/.test(growing.note), 'turning the current down to zero stops the plating', JSON.stringify({ current: s.current, thickness: stopped, growing }));
+  await t.shot('2-plated');
+
+  await b.drag(line(down, { x: down.x, y: down.y - 200 }, 10)); await sleep(500);
+  t.expect(await lab.fast(`${PL}.sim.canMeasure()`, 16, 120000), 'with the current off the head comes up, and the wafer is rinsed and spun dry');
+  await sleep(700);
+  const landed = await clickOn(b, '#guide-action', 900);
+  s = await state(); const shown = await lab.monitor();
+  t.expect(landed && s.result && s.result.ok && !s.result.burnt && Math.abs(s.result.thickness - stopped) < 1e-6 && Math.abs(s.result.sheet - 1.68e-6 / (stopped * 1e-7) * 1000) < 1e-6 && /계측값/.test(shown.note), 'the sheet resistance gives the thickness, and it meets the run sheet', JSON.stringify(s.result));
+  await t.shot('3-measured');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 6 && next.record.by === 'operator' && next.record.ok && next.wafer.metal && Math.abs(next.wafer.metal.thickness - stopped) < 1e-6 && next.wafer.metal.over === 0 && next.wafer.metal.planar, 'the copper goes on, through the standard polish, to the next process on the same wafer', JSON.stringify(next.record));
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -612,6 +659,7 @@ const CHECKS = {
   'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
   'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
   'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
+  'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 
