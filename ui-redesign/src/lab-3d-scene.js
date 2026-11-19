@@ -31,7 +31,7 @@ export function create({ canvas, constants, on = {} }) {
     renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true });
   } catch { return null; }
   const travel = constants.headTravel, waferR = constants.waferRadius;
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2), frames = 0, slowFrames = 0;      // stepped down if the display cannot keep up
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2), frames = 0, slowFrames = 0, adaptive = true;      // stepped down if the display cannot keep up
   renderer.setPixelRatio(pixelRatio);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.9;
@@ -620,7 +620,7 @@ export function create({ canvas, constants, on = {} }) {
   function update(next, dt = 0.016) {
     view = next; clock += dt;
     frames++; if (dt > 0.034) slowFrames++;
-    if (frames >= 90) { if (slowFrames > 60 && pixelRatio > 1) { pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
+    if (frames >= 90) { if (adaptive && slowFrames > 60 && pixelRatio > 1) { pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
     if (pendingHover) { const ev = pendingHover; pendingHover = null; if (!drag) setHover(partAt(ev)); }
     const gap = THREE.MathUtils.clamp(next.gap, 0, travel), headY = PAD_TOP + gap;
     head.position.y = headY; headSpin.rotation.y = next.carrierAngle; spinRing.rotation.y = next.carrierAngle;
@@ -700,6 +700,10 @@ export function create({ canvas, constants, on = {} }) {
   setView('home', true); resize();
   return {
     update, render, resize, setView, setInsets, screenOf,
+    /** Places the camera freely. Used by tools/render-lab-still.mjs for the picture on the home page. */
+    lookFrom(position, target) { glide = null; camera.position.set(position[0], position[1], position[2]); controls.target.set(target[0], target[1], target[2]); controls.update(); },
+    /** Fixes the render resolution, with no automatic step-down afterwards (still pictures). */
+    holdPixelRatio(ratio) { adaptive = false; pixelRatio = ratio; renderer.setPixelRatio(ratio); resize(); },
     /** Names of every part that answers to the pointer, with its kind ('control' or 'info'). */
     parts: Object.fromEntries(Object.entries(parts).map(([name, p]) => [name, p.kind])),
     /** Name of the part under a pointer position, or null (used by the interaction tests). */

@@ -9,17 +9,23 @@
 // navigation. The shell URL keeps the current page (#index, #game, #lab-sim, #lab-3d) and the page's own fragment
 // (e.g. #index/lab), so reload and the back button work.
 //
-// The output embeds the PHM 2016-derived replay data, so it is kept out of git (see .gitignore) until the data
-// publication decision for issue #6.
-// Usage: node tools/build-standalone.mjs [output.html]   (default: standalone/CMP-Lab.html)
+// Pages that the home page has parked (their entry points carry `hidden data-parked`) are left out by default, so the
+// file holds only what a visitor can reach. `--all` puts them back in. With the lab simulator included the output
+// embeds the PHM 2016-derived replay data; the output folder is kept out of git (see .gitignore) for that case, until
+// the data publication decision for issue #6.
+// Usage: node tools/build-standalone.mjs [--all] [output.html]   (default: standalone/CMP-Lab.html)
 import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.resolve(here, '../dist');
-const out = path.resolve(process.argv[2] || path.join(here, '../standalone/CMP-Lab.html'));
+const args = process.argv.slice(2), everything = args.includes('--all');
+const out = path.resolve(args.find(a => !a.startsWith('--')) || path.join(here, '../standalone/CMP-Lab.html'));
 const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html', 'lab-3d': 'lab-3d.html' };   // page name = file name without .html
+const PARKED = ['lab-sim'];   // not linked from the home page for now; bundled only with --all
+const bundled = Object.entries(PAGES).filter(([name]) => everything || !PARKED.includes(name));
+const withSimulator = bundled.some(([name]) => name === 'lab-sim');
 const SHARED_SCRIPT_BYTES = 1 << 20; // scripts at least this large are stored once in the shell, not in every page
 const MIME = { '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff2': 'font/woff2' };
 const posix = path.posix;
@@ -209,11 +215,15 @@ async function buildPage(name, file) {
 }
 
 const pages = {};
-for (const [name, file] of Object.entries(PAGES)) pages[name] = await buildPage(name, file);
+for (const [name, file] of bundled) pages[name] = await buildPage(name, file);
 
-let replay;
-try { replay = JSON.parse(await read('lab-sim/data/replay.json')); } catch {
-  throw new Error('dist/lab-sim/data/replay.json is missing. Build it first: python -m tools.lab_sim.build_lab_data --wafer-table <wafer_table.csv> --traces <CMP-data/training>');
+let simulatorData = '';
+if (withSimulator) {
+  let replay;
+  try { replay = JSON.parse(await read('lab-sim/data/replay.json')); } catch {
+    throw new Error('dist/lab-sim/data/replay.json is missing. Build it first: python -m tools.lab_sim.build_lab_data --wafer-table <wafer_table.csv> --traces <CMP-data/training>');
+  }
+  simulatorData = `${jsonScript('cmp-data:lab-sim-model', JSON.parse(await read('lab-sim/state-model-v2.json')))}\n${jsonScript('cmp-data:lab-sim-replay', replay)}`;
 }
 const ofl = await read('fonts/OFL-pretendard.txt');
 if (ofl.includes('-->')) throw new Error('OFL text cannot go in an HTML comment');
@@ -222,9 +232,8 @@ const shellJs = `(${shellMain})();`;
 if (/<\/script|<!--/i.test(shellJs)) throw new Error('shell script cannot be inlined');
 
 const html = `<!doctype html>
-<!-- CMP Lab: single-file build of dist/ (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}. Home, factory game,
-     equipment simulator and the 3D direct-operation experiment in one file. Contains replay data derived from the
-     PHM 2016 data challenge; share only within the team until the data publication decision. -->
+<!-- CMP Lab: single-file build of dist/ (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}.
+     Pages: ${Object.keys(pages).join(', ')}.${withSimulator ? ' Contains replay data derived from the PHM 2016 data challenge; share only within\n     the team until the data publication decision.' : ' The lab simulator and its PHM-derived replay data are not included.'} -->
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -241,8 +250,7 @@ ${ofl}
 ${jsonScript('cmp-pages', pages)}
 ${jsonScript('cmp-assets', Object.fromEntries(assets))}
 ${[...shared].map(([rel, js]) => `<script type="text/plain" id="cmp-lib:${rel}">${js}</script>`).join('\n')}
-${jsonScript('cmp-data:lab-sim-model', JSON.parse(await read('lab-sim/state-model-v2.json')))}
-${jsonScript('cmp-data:lab-sim-replay', replay)}
+${simulatorData}
 <script>${shellJs}</script>
 </body>
 </html>
@@ -253,4 +261,5 @@ await writeFile(out, html, 'utf8');
 const mb = n => (n / 1048576).toFixed(1);
 const assetBytes = [...assets.values()].reduce((s, v) => s + v.length, 0);
 console.log(`wrote ${out} (${mb(Buffer.byteLength(html))} MB)`);
+console.log(`  ${withSimulator ? 'includes the lab simulator and its PHM-derived replay data' : `left out (parked): ${PARKED.join(', ')}; no replay data inside`}`);
 console.log(`  pages: ${Object.keys(pages).join(', ')}; shared scripts: ${[...shared.keys()].join(', ') || 'none'}; assets: ${assets.size} files, ${mb(assetBytes)} MB as data URIs`);

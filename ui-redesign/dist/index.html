@@ -22,6 +22,9 @@
   <script src="./mrr-state.js" defer></script>
   <script src="./workbench.js" defer></script>
   <link rel="stylesheet" href="./workbench.css">
+  <link rel="stylesheet" href="./home.css">
+  <script src="./lab-3d/process-model.js" defer></script>
+  <script src="./home.js" defer></script>
 </head>
 <body>
   <a href="#main" class="fixed left-4 top-3 z-50 -translate-y-24 rounded-[5px] bg-brand px-4 py-2 text-paper focus:translate-y-0">본문으로 바로가기</a>
@@ -52,17 +55,22 @@
       </a>
       <nav class="mt-10 space-y-1" aria-label="페이지 선택">
         <button class="nav-item" data-page="home" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>모드 선택</button>
-        <a class="nav-item" href="./game.html"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>교육용 · 팩토리 게임</a>
-        <button class="nav-item" data-page="lab"><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg>학습 실험실</button>
-        <button class="nav-item" data-page="prediction"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>데이터 기반 MRR</button>
-        <button class="nav-item" data-page="history"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>실험 기록<span id="nav-count" class="ml-auto rounded-md bg-paper px-1.5 py-0.5 text-[13px]">0</span></button>
-        <button class="nav-item" data-page="guide"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>학습 가이드</button>
+        <a class="nav-item" href="./game.html" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>교육용 · 팩토리 게임</a>
+        <a class="nav-item" href="./lab-3d.html" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg>학습 실험실</a>
+        <!-- Parked for now (hidden + data-parked): the old learning-lab workspace, data-based MRR prediction, experiment records,
+             guide, the 5-run MRR challenge and the lab simulator. Their pages are still in this file and in dist/.
+             The side-menu links to the game and the learning lab are parked too: the two cards already lead there.
+             To bring an entry back, remove the two attributes from it. -->
+        <button class="nav-item" data-page="lab" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg>학습 실험실 (예전 워크스페이스)</button>
+        <button class="nav-item" data-page="prediction" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg>데이터 기반 MRR</button>
+        <button class="nav-item" data-page="history" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>실험 기록<span id="nav-count" class="ml-auto rounded-md bg-paper px-1.5 py-0.5 text-[13px]">0</span></button>
+        <button class="nav-item" data-page="guide" hidden data-parked><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>학습 가이드</button>
       </nav>
       <p class="sidebar-source">데이터 출처 · PHM 2016 CMP</p>
     </aside>
     <div class="main-shell">
       <header class="topbar"><span id="breadcrumb" class="text-[13px] text-muted">모드 선택</span><a class="text-button" href="#home">모드 선택으로</a></header>
-      <nav class="mobile-nav hidden gap-1 border-b border-line bg-panel p-2" aria-label="모바일 페이지 선택"><a class="nav-item" href="./game.html">게임</a><button class="nav-item" data-page="lab">실험실</button><button class="nav-item" data-page="prediction">MRR 예측</button><button class="nav-item" data-page="history">기록</button><button class="nav-item" data-page="guide">가이드</button></nav>
+      <nav class="mobile-nav hidden gap-1 border-b border-line bg-panel p-2" aria-label="모바일 페이지 선택" hidden data-parked><a class="nav-item" href="./game.html">게임</a><a class="nav-item" href="./lab-3d.html">실험실</a><button class="nav-item" data-page="lab" hidden data-parked>예전 실험실</button><button class="nav-item" data-page="prediction" hidden data-parked>MRR 예측</button><button class="nav-item" data-page="history" hidden data-parked>기록</button><button class="nav-item" data-page="guide" hidden data-parked>가이드</button></nav>
       <main id="main" class="workspace px-8 py-8" tabindex="-1">
         <div class="heading-row mb-7 flex items-center justify-between gap-5">
           <div><h1 id="page-title" class="hero-heading">어떻게 시작할까요?</h1><p id="page-subtitle" class="mt-2.5 text-xs leading-6 text-muted">처음 만나는 CMP부터, 조건을 비교하는 실험까지. 나에게 맞는 방식으로 시작하세요.</p></div>
@@ -70,27 +78,55 @@
         </div>
 
         <section id="page-home" aria-label="모드 선택">
-          <div class="mode-grid bento-grid">
-            <article class="card mode-card mode-intro">
-              <div class="mode-topline"><span class="badge badge-amber">처음 만나는 CMP</span><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></div>
-              <h2>CMP 팩토리</h2><p class="mode-description">기계는 연마하고,<br>당신은 측정과 납품을 판단합니다.</p>
-              <div class="mode-visual intro-visual" aria-hidden="true"><span class="visual-wafer"></span><span class="visual-slider"><i></i></span><span class="visual-target">주문 목표 <b data-counter="150" data-counter-digits="0">150</b> nm</span></div>
-              <p class="mode-audience">CMP를 처음 접하는 학생·일반인을 위한 체험</p><ul class="mode-features"><li>일반 의뢰 5개 · 특별 손님 2명</li><li>측정비와 품질을 판단하는 운영 게임</li></ul>
-              <a class="primary-button" href="./game.html">교육용 게임 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></a>
-            </article>
-            <article class="card mode-card mode-lab">
-              <div class="mode-topline"><span class="badge badge-neutral">전문가용 · 학습 실험실</span><svg class="icon" aria-hidden="true"><use href="#i-flask"/></svg></div>
-              <h2>학습 실험실</h2><p class="mode-description">한 조건씩 바꾸고,<br>결과가 달라진 이유를 찾으세요.</p>
-              <div class="mode-visual lab-visual" aria-hidden="true"><svg viewBox="0 0 320 100"><path d="M0 25H320M0 60H320M0 95H320" stroke="#dce6f4" stroke-dasharray="3 5"/><path d="M12 80Q100 68 160 47T308 14" fill="none" stroke="#0d6efd" stroke-width="3"/><circle cx="160" cy="47" r="6" fill="#fff" stroke="#0d6efd" stroke-width="3"/></svg><span>기준 실험 <b>→</b> 변경 실험</span></div>
-              <p class="mode-audience">반도체 공정을 배우는 학부생·취업 준비생을 위한 실험</p><ul class="mode-features"><li>조건 실험·기록 리플레이·계산 근거</li><li>변수의 영향을 확인하는 학습 과제 3개</li></ul>
-              <button type="button" class="primary-button" data-page="lab">학습 실험실 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></button>
-            </article>
+          <!-- Mode selection. The two modes stand side by side, each shown by a still of its own scene:
+               media/home/factory.webp (tools/build-home-art.py) and media/home/lab.webp (tools/render-lab-still.mjs). Styles: home.css. -->
+          <div class="home">
+            <header class="home-top">
+              <a class="home-brand" href="#home" aria-label="CMP Lab">
+                <span class="logo-mark"><svg class="size-6" viewBox="0 0 32 32" fill="none" aria-hidden="true"><circle cx="16" cy="16" r="11" stroke="currentColor" stroke-width="1.3"/><ellipse cx="16" cy="16" rx="5" ry="11" stroke="currentColor" stroke-width="1.3" transform="rotate(40 16 16)"/><circle cx="16" cy="16" r="2.8" fill="currentColor"/></svg></span>
+                <span class="text-[19px] font-bold tracking-[-.06em]">CMP<span class="font-normal"> lab</span><span class="ml-0.5 text-brand">.</span></span>
+              </a>
+              <h1 class="home-thesis">CMP 공정을 게임과 실험, 두 가지 방법으로 다룹니다.</h1>
+            </header>
+            <div class="doors">
+              <a class="door door-factory" href="./game.html">
+                <div class="door-art"><img src="./media/home/factory.webp" width="1800" height="1500" alt="팩토리 게임의 접수 창구에 선 손님"></div>
+                <div class="door-cap">
+                  <div class="door-text">
+                    <p class="door-who">CMP가 처음이라면</p>
+                    <h2 class="door-name">CMP 팩토리</h2>
+                    <p class="door-what">기계는 연마하고, 당신은 측정과 납품을 판단합니다.</p>
+                    <p class="door-facts">일반 의뢰 5개 · 특별 손님 2명</p>
+                  </div>
+                  <div class="door-side">
+                    <dl class="door-detail"><dt>첫 의뢰</dt><dd>150 nm ± 8% · 원판 6장</dd></dl>
+                    <span class="door-go">게임 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                  </div>
+                </div>
+              </a>
+              <a class="door door-lab" href="./lab-3d.html">
+                <div class="door-art"><img src="./media/home/lab.webp" width="1800" height="1500" alt="학습 실험실의 3D 연마 장비"></div>
+                <div class="door-cap">
+                  <div class="door-text">
+                    <p class="door-who">공정을 배우고 있다면</p>
+                    <h2 class="door-name">학습 실험실</h2>
+                    <p class="door-what">3D 연마 장비를 직접 움직여 산화막 한 장을 연마하고 계측합니다.</p>
+                    <p class="door-facts">300 mm 웨이퍼 · 49점 계측</p>
+                  </div>
+                  <div class="door-side">
+                    <div class="door-detail"><span>산화막 두께에 따라 달라지는 색</span><canvas id="home-film" width="480" height="20" aria-hidden="true"></canvas><span class="film-ends"><span id="home-film-from">1,000 nm</span><span id="home-film-to">550 nm</span></span></div>
+                    <span class="door-go">실험실 열기<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <footer class="home-foot"><p>수식 기반 교육용 데모입니다. 목표 달성은 학습 미션의 판정이며 실제 공정 품질을 뜻하지 않습니다.</p><p>데이터 출처 · PHM 2016 CMP</p></footer>
           </div>
-          <p class="mode-footnote">게임 진행과 실험 기록은 각각 저장됩니다. <a href="#intro-tour">기존 5회 MRR 도전 →</a></p>
-          <div class="mrr-notice"><div><strong>우리 모델로 다음 웨이퍼의 MRR을 예측해보세요</strong><p>공정 조건 체험과 구분되는, 측정 이력 기반 Ridge 예측입니다.</p></div><button type="button" class="primary-button" data-page="prediction">데이터 기반 예측 열기</button></div>
-          <div class="mrr-notice"><div><strong>실제 운전 기록으로 돌아가는 연마 장비 시뮬레이터</strong><p>PHM 2016 실제 14일 운전 기록을 재생하며, 상태 추적 모델 예측을 보고 연마 시간과 계측을 결정합니다.</p></div><a class="primary-button" href="./lab-sim.html">장비 시뮬레이터 열기</a></div>
-          <div class="mrr-notice"><div><strong>3D 장비를 직접 끌어서 연마해 보는 실험판</strong><p>헤드, 플래튼, 밸브를 손으로 움직여 산화막 한 장을 연마합니다. 교과서 식으로 계산하는 실험용 화면이며 PHM 데이터는 쓰지 않습니다.</p></div><a class="primary-button" href="./lab-3d.html">직접 조작 실험판 열기</a></div>
-          <div class="info-note mt-5"><svg class="icon size-4" aria-hidden="true"><use href="#i-info"/></svg><p>수식 기반 교육용 데모입니다. 목표 달성은 학습 미션의 판정이며 실제 공정 품질을 뜻하지 않습니다. 3D의 제거·변형은 이해를 돕는 표현입니다.</p></div>
+          <button type="button" class="primary-button" data-page="lab" hidden data-parked>예전 학습 실험실 워크스페이스 열기</button>
+          <p class="mode-footnote" hidden data-parked>게임 진행과 실험 기록은 각각 저장됩니다. <a href="#intro-tour">기존 5회 MRR 도전 →</a></p>
+          <div class="mrr-notice" hidden data-parked><div><strong>우리 모델로 다음 웨이퍼의 MRR을 예측해보세요</strong><p>공정 조건 체험과 구분되는, 측정 이력 기반 Ridge 예측입니다.</p></div><button type="button" class="primary-button" data-page="prediction">데이터 기반 예측 열기</button></div>
+          <div class="mrr-notice" hidden data-parked><div><strong>실제 운전 기록으로 돌아가는 연마 장비 시뮬레이터</strong><p>PHM 2016 실제 14일 운전 기록을 재생하며, 상태 추적 모델 예측을 보고 연마 시간과 계측을 결정합니다.</p></div><a class="primary-button" href="./lab-sim.html">장비 시뮬레이터 열기</a></div>
+          <div class="mrr-notice" hidden data-parked><div><strong>3D 장비를 직접 끌어서 연마해 보는 실험판</strong><p>헤드, 플래튼, 밸브를 손으로 움직여 산화막 한 장을 연마합니다. 교과서 식으로 계산하는 실험용 화면이며 PHM 데이터는 쓰지 않습니다.</p></div><a class="primary-button" href="./lab-3d.html">직접 조작 실험판 열기</a></div>
         </section>
 
         <section id="page-intro-tour" aria-label="입문 체험 진행 안내" hidden>
