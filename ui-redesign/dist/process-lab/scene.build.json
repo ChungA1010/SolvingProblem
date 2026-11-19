@@ -2,6 +2,7 @@
   "about": "Written by tools/build-scenes.mjs. tests/scene-bundles.test.cjs compares sourcesSha256 with the source files.",
   "sources": [
     "src/process-lab-scene.js",
+    "src/process-lab/bonder.js",
     "src/process-lab/etcher.js",
     "src/process-lab/furnace.js",
     "src/process-lab/implanter.js",
@@ -10,7 +11,7 @@
     "src/process-lab/prober.js",
     "src/process-lab/track.js"
   ],
-  "sourcesSha256": "bfdc40b79595b58fcb455d10ff15671ee96007133eeda7e977bfdfad6c8c7806",
+  "sourcesSha256": "08db589de9ef5e178abe2f34cdc8c49cb020f96319a4ff6ca69c03223bda6086",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }

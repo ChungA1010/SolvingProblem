@@ -178,6 +178,15 @@ test('the operator\'s probing decides which chips count as good', () => {
   assert.equal(all.ok, false); assert.match(all.text, /모두 불량 · 이온이 산화막을 뚫고/);
 });
 
+test('the operator\'s wire bonding decides how many of the good chips are finished', () => {
+  const run = F.createRun('package'), record = F.complete(run, { chips: GOOD, bonded: GOOD, lost: 0, how: '금선 80 mW' });
+  assert.ok(run.finished && record.ok && record.by === 'operator' && new RegExp(`${GOOD}개 완성`).test(record.text) && /80 mW/.test(record.text), record.text);
+  assert.deepEqual(run.wafer.packaged, { chips: GOOD, lost: 0 });
+  const poor = F.createRun('package'), flagged = F.complete(poor, { chips: GOOD - 7, bonded: GOOD, lost: 7 });
+  assert.equal(flagged.ok, false); assert.match(flagged.text, /금선 불량 7개/); assert.deepEqual(poor.wafer.packaged, { chips: GOOD - 7, lost: 7 });
+  const none = F.createRun('package'); assert.equal(F.complete(none, { chips: 0, bonded: GOOD, lost: GOOD }).ok, false); assert.equal(none.wafer.packaged.chips, 0);
+});
+
 test('numbers are written as a power of ten', () => {
   assert.equal(F.sci(1.66e19), '1.7×10¹⁹'); assert.equal(F.sci(9.96e14), '1.0×10¹⁵'); assert.equal(F.sci(3.2e-15), '3.2×10⁻¹⁵'); assert.equal(F.sci(0), '0');
 });

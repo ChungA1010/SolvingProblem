@@ -20,8 +20,9 @@ import { buildEtcher } from './process-lab/etcher.js';
 import { buildImplanter } from './process-lab/implanter.js';
 import { buildPlater } from './process-lab/plater.js';
 import { buildProber } from './process-lab/prober.js';
+import { buildBonder } from './process-lab/bonder.js';
 
-const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter, plating: buildPlater, prober: buildProber };
+const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter, plating: buildPlater, prober: buildProber, bonder: buildBonder };
 
 export function create({ canvas, on = {} }) {
   let renderer;

@@ -22,7 +22,7 @@
     { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.', equipment: true },
     { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.', equipment: true },
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.', equipment: true },
-    { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.' },
+    { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.', equipment: true },
   ];
   const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch, implantation and plating (nm; surface: phosphorus per cm3)
     oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 },
@@ -194,9 +194,10 @@
         text = reason ? `칩 ${DIE_COUNT}개 모두 불량 · ${reason}` : `${share(good)} · 불량 ${DIE_COUNT - good}개는 결함`;
       }
     } else if (id === 'package') {
-      const good = w.tested ? w.tested.good : 0;
-      w.packaged = { chips: good }; ok = good > 0;
-      text = good ? `양품 칩 ${good}개를 잘라 패키지에 넣음` : '패키징할 양품 칩이 없음';
+      const good = w.tested ? w.tested.good : 0, made = result ? Math.min(good, result.chips) : good;      // the operator's wire bonding can lose chips
+      w.packaged = { chips: made, ...(result ? { lost: good - made } : {}) }; ok = made > 0 && made === good;
+      text = !good ? '패키징할 양품 칩이 없음' : !result ? `양품 칩 ${good}개를 잘라 패키지에 넣음`
+        : `양품 칩 ${good}개를 잘라 붙이고 금선을 이어 ${made}개 완성${good > made ? ` · 금선 불량 ${good - made}개` : ''}${result.how ? ` · ${result.how}` : ''}`;
     } else throw new Error(`unknown process: ${id}`);
     return { wafer: w, record: { step: id, by, text, ok } };
   }

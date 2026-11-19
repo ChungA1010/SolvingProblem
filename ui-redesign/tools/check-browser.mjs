@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -613,6 +613,54 @@ async function processEds(t) {
   t.expect(next.landed && next.viewing === 7 && next.record.by === 'operator' && next.record.ok && next.wafer.tested.good === clean && next.wafer.tested.dies.length === total, 'the map goes on to packaging: only the good chips will be packaged', JSON.stringify(next.record));
 }
 
+async function processBond(t) {
+  const { b, lab } = await openProcess(t, 'package'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ phase: s.phase, power: s.controls.power, force: s.controls.force, time: s.controls.time, wire: s.wire && { diameter: s.wire.diameter, pulled: s.wire.pulled }, onChip: s.onChip, tests: s.tests, at: s.at, passed: s.passed, result: s.result && { chips: s.result.chips, bonded: s.result.bonded, lost: s.result.lost } })`);
+  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const good = await b.evaluate(`${PL}.run.wafer.tested.good`);
+  await lab.cards();
+  let s = await state();
+  t.expect(s.phase === 'setup' && !s.wire && s.tests.length === 0 && good > 100, 'the bonder starts with a failed chip under the tool and no wire on it', JSON.stringify(s));
+  await press('pull'); await sleep(500);
+  t.expect(/먼저 본드/.test(await lab.guide()), 'a pull test is refused before there is a wire, and the page says why', await lab.guide());
+
+  // a test wire with the dials as they stand: it comes off
+  await press('bond');
+  t.expect(await reached(b, `${S}.phase === 'bonding'`, 20000), 'the bond button starts a test wire');
+  await b.evaluate(`${PL}.scene.setView('work')`); await sleep(2500); await t.shot('1-test-bond');
+  await b.evaluate(`${PL}.scene.setView('home', true)`); await sleep(1500);                              // the buttons are out of sight in the close view
+  t.expect(await lab.fast(`${S}.phase === 'setup' && !!${S}.wire`, 16, 90000), 'the wire is bonded from the pad to the lead');
+  await press('pull');
+  t.expect(await lab.fast(`${S}.tests.length === 1`, 16, 90000), 'the pull button pulls it until it gives');
+  await sleep(600); s = await state(); let shown = await lab.monitor(), said = await lab.guide();
+  t.expect(!s.tests[0].ok && s.tests[0].force < 3 && Math.abs(shown.value - s.tests[0].force) < 0.06 && /계측값/.test(shown.note) && /덜 됐/.test(said), 'with the dials untouched the wire comes off below the minimum, and the monitor shows where it gave', `${JSON.stringify(s.tests[0])} | ${said}`);
+
+  // more power by dragging, more force by dragging, more time with the wheel
+  const power = await lab.at(L.dials.power), force = await lab.at(L.dials.force), time = await lab.at(L.dials.time);
+  await b.drag(line(power, { x: power.x + 100, y: power.y }, 12)); await sleep(300);
+  await b.drag(line(force, { x: force.x + 50, y: force.y }, 12)); await sleep(300);
+  for (let i = 0; i < 5; i++) { await b.wheel(time, -100); await sleep(50); }
+  await sleep(400); s = await state();
+  t.expect(s.power === 80 && s.force === 30 && s.time === 15, 'the three dials are set by dragging and with the wheel', JSON.stringify({ power: s.power, force: s.force, time: s.time }));
+  await press('bond'); await lab.fast(`${S}.phase === 'setup' && ${S}.onChip === 2`, 16, 90000);
+  await press('pull'); await lab.fast(`${S}.tests.length === 2`, 16, 90000);
+  await sleep(600); s = await state(); said = await lab.guide(); shown = await lab.monitor();
+  t.expect(s.tests[1].ok && s.tests[1].mode === 'neck' && s.tests[1].force > 5 && s.wire.diameter < 60 && shown.trend && /가동/.test(said), 'now the wire itself breaks before the bonds give, and the page offers the run', `${JSON.stringify(s.tests[1])} | ${said}`);
+  await t.shot('2-pull-test');
+
+  await press('run');
+  t.expect(await reached(b, `${S}.phase === 'running' && ${S}.at >= 1`, 60000), 'the run button wires the good chips one after another');
+  await press('bond'); await sleep(500);
+  t.expect((await state()).phase === 'running' && /가동 중/.test(await lab.guide()), 'no test wire during the run', await lab.guide());
+  t.expect(await lab.fast(`${S}.phase === 'done'`, 240), 'the bonder goes through every good chip');
+  await sleep(900); s = await state();
+  t.expect(s.result && s.result.bonded === good && s.result.chips === good && s.result.lost === 0, 'with a wire that holds, every good chip is finished', JSON.stringify(s.result));
+  await t.shot('3-done');
+  const next = await lab.handOver();
+  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, sheet: !!document.querySelector('.sheet'), title: document.querySelector('.bench h2').textContent, operated: document.querySelectorAll('.sheet tbody tr:not([data-before="true"])').length })`);
+  t.expect(next.landed && next.record.by === 'operator' && next.record.ok && next.wafer.packaged.chips === good && sheet.finished && sheet.sheet && sheet.title.includes(String(good)) && sheet.operated === 1, 'the last process ends the run: the sheet shows the chips made', `${JSON.stringify(next.record)} | ${JSON.stringify(sheet)}`);
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -703,6 +751,7 @@ const CHECKS = {
   'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
   'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
   'process-eds': { run: processEds, minutes: 10, about: 'dist/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
+  'process-bond': { run: processBond, minutes: 10, about: 'dist/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 
