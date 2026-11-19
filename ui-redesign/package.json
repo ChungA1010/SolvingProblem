@@ -5,6 +5,7 @@
   "scripts": {
     "build": "npm run build:scene && tailwindcss -i ./src/input.css -o ./dist/styles.css --minify",
     "build:scene": "esbuild src/cmp-scene.js --bundle --format=iife --global-name=CMPScene --target=es2020 --loader:.glb=base64 --minify --legal-comments=eof --outfile=dist/cmp-scene.js",
+    "build:lab3d": "esbuild src/lab-3d-scene.js --bundle --format=iife --global-name=CMPLab3DScene --target=es2020 --minify --legal-comments=eof --outfile=dist/lab-3d/scene.js",
     "preview": "node server.mjs",
     "test": "node --test tests/*.test.cjs"
   },
