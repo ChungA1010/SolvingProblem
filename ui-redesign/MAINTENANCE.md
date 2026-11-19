@@ -55,7 +55,7 @@
 ```sh
 node --test tests/*.test.cjs       # 단위 테스트. 1초쯤 걸린다
 node tools/check-browser.mjs       # 브라우저 검사 전부. 10분쯤 걸린다
-node tools/check-browser.mjs home  # 일부만. 이름: home, lab-hover, lab-operate, lab-panels, process-lab, standalone ("lab"처럼 앞부분만 써도 된다)
+node tools/check-browser.mjs home  # 일부만. 이름: home, lab-hover, lab-operate, lab-panels, process-route, process-<공정>, standalone ("lab", "process"처럼 앞부분만 써도 된다)
 node tools/build-scenes.mjs        # 3D 번들 다시 만들기. 이름(lab-3d, process-lab)을 주면 그것만
 node tools/build-standalone.mjs    # 사이트 전체를 한 파일로: standalone/CMP-Lab.html
 node server.mjs                    # 미리보기: http://127.0.0.1:8510/
@@ -71,9 +71,9 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 |---|---|
 | 어디든 | 단위 테스트 |
 | `src/lab-3d-scene.js` (3D 장면, 끌기 조작) | `build-scenes lab-3d` → 단위 테스트 → `check-browser lab`. 장비 모양이 달라졌으면 `render-lab-still`로 홈 그림도 다시 찍는다 |
-| `dist/lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`나 `process-model.js`를 고쳤으면 `check-browser process-lab`도 |
-| `src/process-lab-scene.js`, `src/process-lab/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process-lab` |
-| `dist/process-lab/` (화면, 공정 흐름, 계산) | 단위 테스트 → `check-browser process-lab` |
+| `dist/lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`나 `process-model.js`를 고쳤으면 `check-browser process`도 |
+| `src/process-lab-scene.js`, `src/process-lab/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process` |
+| `dist/process-lab/` (화면, 공정 흐름, 계산) | 단위 테스트 → `check-browser process` |
 | 홈 화면(`dist/index.html`, `home.css`, `home.js`) | `check-browser home` |
 | 게임 | [README.md](README.md)의 개발 및 검증 |
 | 사이트를 파일로 내보낼 때 | `build-standalone` → `check-browser standalone` → `standalone/CMP-Lab.html` 하나를 전달 |
@@ -100,7 +100,8 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-hover` | 장면의 부품과 카드가 일대일인지, 창 크기 두 가지에서 부품마다 제 카드가 뜨고 사라지는지 |
 | `lab-operate` | 웨이퍼 장착, 플래튼, 스핀들, 밸브, 구역 조절기, 컨디셔너, 가압, 휠, 연마, 헤드 올리기, 계측까지 부품을 끌어서 한 장을 처리하기. 끄는 동안의 값 표시, 장비 화면 확대, 비상 정지 |
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
-| `process-lab` | 여덟 공정이 순서대로 보이는지, 중간 공정에서 시작해 공정 기록까지 가는지, 확산로의 부품 카드, 보트·온도·밸브를 실제로 조작해 산화막을 기르고 계측해 다음 공정으로 넘기기, 뜨거울 때의 보트 잠금 |
+| `process-route` | 여덟 공정이 순서대로 보이는지, 중간 공정에서 시작해 공정 기록까지 가는지 (장비 없이 표준 조건으로) |
+| `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-oxidation`, `process-photo` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |
 
 - 3D는 소프트웨어로 그려서 초당 3프레임쯤 나온다. 동작은 확인하지만 속도와 손맛은 확인하지 못한다. 그것은 실제 그래픽 카드에서 사람이 봐야 한다.
@@ -145,7 +146,7 @@ GitHub에 올리면(push, pull request) 두 가지가 돈다.
 - 실제 그래픽 카드에서의 속도, Firefox와 Safari, 휴대폰에서는 확인하지 않았다.
 - 게임 3D 번들(`dist/cmp-scene.js`)에는 원본과 맞는지 지켜 주는 테스트가 없다. 학습 실험실과 8대 공정 실험실의 번들에만 있다.
 - 같은 일을 하는 코드가 두 벌인 곳이 있다. 3D 공통부(조명, 부품 집기, 시점)가 `src/lab-3d-scene.js` 안과 `src/process-lab-scene.js`에 따로 있고, 부품 카드와 계기를 그리는 코드가 `dist/lab-3d/app.js`와 `dist/process-lab/app.js`에 따로 있다. 8대 공정 실험실에 장비가 하나 더 생길 때 합친다.
-- 8대 공정 실험실에서 장비가 있는 공정은 산화 하나다. 나머지는 가정한 값으로 지나간다.
+- 8대 공정 실험실에서 장비가 있는 공정은 일부다(목록은 [PROCESS-LAB.md](PROCESS-LAB.md)). 나머지는 가정한 값으로 지나간다.
 - 쓰이는 곳을 찾지 못한 게임 파일이 있다: `dist/decor-art.js`, `dist/equipment-art.js`, `dist/media/shipper/fosb-*.png`, `dist/media/customer-*-figure.svg`. 합쳐서 약 1.7 MB다. 지우지 않았다.
 - 공개 사이트(README.md 맨 위의 주소)에는 학습 실험실(3D)과 새 홈 화면이 올라가 있지 않다(2026-11-19 확인).
 - 저장소 루트의 Python 테스트는 pytest가 있어야 돈다. pytest가 없는 PC에서는 GitHub의 Integrity tests 결과로 확인한다.

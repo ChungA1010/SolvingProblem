@@ -7,7 +7,8 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-lab, standalone. A prefix selects several ("lab"); none runs them all.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, standalone.
+//   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
 // The 3D pages render in software at about 3 frames per second, so a full run takes several minutes.
@@ -269,105 +270,172 @@ async function labPanels(t) {
 }
 
 // ----- 8-process lab -----
-async function processLab(t) {
+const PL = 'window.ProcessLabDebug';
+/** The route by itself, with every process passed by the standard recipe (equipment=off). */
+async function processRoute(t) {
   const b = await t.open({ width: 1600, height: 1000 });
-  const P = 'window.ProcessLabDebug', S = `${P}.sim.state`;
-  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5`);
-  if (!(await reached(b, `!!${P}`, 30000))) throw new Error('the page did not start');
+  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&equipment=off`);
+  if (!(await reached(b, `!!${PL}`, 30000))) throw new Error('the page did not start');
   await sleep(800); await watchClicks(b);
 
   const names = await b.evaluate(`[...document.querySelectorAll('.stop .name')].map(e => e.textContent)`);
   t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route shows the eight processes in order', names.join(' '));
-  t.expect(await b.evaluate(`${P}.mode === 'bench' && !${P}.run && !!document.getElementById('start-here') && document.querySelectorAll('.stop svg').length === 8`), 'before a run every stop carries a picture of the wafer, and the first process is offered as the start');
+  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-here') && document.querySelectorAll('.stop svg').length === 8`), 'before a run every stop carries a picture of the wafer, and the first process is offered as the start');
   await t.shot('1-intro');
 
-  // start in the middle of the route
-  let landed = await clickOn(b, '.stop:nth-child(3)');
-  const intro = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, selected: ${P}.selected, run: !!${P}.run })`);
-  t.expect(landed && intro.title === '포토' && intro.selected === 2 && !intro.run, 'a click on a stop shows that process and the wafer arriving at it', JSON.stringify(intro));
+  let landed = await clickOn(b, '.stop:nth-child(4)');
+  const intro = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, selected: ${PL}.selected, run: !!${PL}.run })`);
+  t.expect(landed && intro.title === '식각' && intro.selected === 3 && !intro.run, 'a click on a stop shows that process and the wafer arriving at it', JSON.stringify(intro));
   landed = await clickOn(b, '#start-here', 1900);
-  const begun = await b.evaluate(`({ start: ${P}.run.start, before: ${P}.run.records.filter(r => r.before).length, oxide: ${P}.run.wafer.oxide, resist: !!${P}.run.wafer.resist, result: document.querySelector('.bench .result').textContent })`);
-  t.expect(landed && begun.start === 2 && begun.before === 2 && begun.oxide === 500 && begun.resist && begun.result.length > 5, 'starting there hands over a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
-  await t.shot('2-photo');
+  const begun = await b.evaluate(`({ start: ${PL}.run.start, before: ${PL}.run.records.filter(r => r.before).length, oxide: ${PL}.run.wafer.oxide, window: !!${PL}.run.wafer.window, result: document.querySelector('.bench .result').textContent })`);
+  t.expect(landed && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'starting there hands over a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
+  await t.shot('2-etch');
   for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);   // the last click opens the run sheet
-  const sheet = await b.evaluate(`({ finished: ${P}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${P}.run.wafer.packaged.chips })`);
-  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 2 && sheet.chips === 148, 'the run goes on from there to packaging and ends with the sheet of all eight processes', JSON.stringify(sheet));
+  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${PL}.run.wafer.packaged.chips })`);
+  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.chips === 148, 'the run goes on from there to packaging and ends with the sheet of all eight processes', JSON.stringify(sheet));
   await t.shot('3-run-sheet');
+  landed = await clickOn(b, '#from-first', 1900);
+  const again = await b.evaluate(`({ start: ${PL}.run.start, records: ${PL}.run.records.length, title: document.querySelector('.bench h2').textContent })`);
+  t.expect(landed && again.start === 0 && again.records === 1 && again.title === '웨이퍼 제조', 'a new run can be started from the first process', JSON.stringify(again));
+}
 
-  // the process that has equipment: the oxidation furnace, operated by hand
-  await clickOn(b, '.stop:nth-child(2)'); landed = await clickOn(b, '#start-here', 600);
-  if (!(landed && await reached(b, `${P}.mode === 'station' && !!${P}.sim`, 30000))) throw new Error('the furnace did not open');
-  await sleep(3000);
+/** Opens the 8-process lab at a process that has equipment, and returns helpers for checking that equipment. */
+async function openProcess(t, id) {
+  const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
+  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&start=${id}`);
+  if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station' && !!${PL}.sim`, 30000))) throw new Error(`the equipment of ${id} did not open`);
+  await sleep(3000); await watchClicks(b);
   const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById('scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);
   const onPage = async point => { const box = await canvasBox(); return { x: point.x + box.x, y: point.y + box.y }; };
-  const at = async (x, y, z) => onPage(await b.evaluate(`${P}.scene.project(${x}, ${y}, ${z})`));
-  const state = () => b.evaluate(`(() => { const s = ${S}; return { boat: s.boat, target: s.controls.boat, set: s.controls.setpoint, tube: s.tube, wafer: s.wafer, n2: s.controls.n2, o2: s.controls.o2, h2o: s.controls.h2o, ambient: s.ambient, sealed: s.sealed, oxide: s.oxide, growing: s.growing }; })()`);
-  const card = () => b.evaluate(`document.getElementById('callout').hidden ? '' : document.getElementById('co-name').textContent`);
-  const guide = () => b.evaluate(`document.getElementById('guide-text').textContent`);
-  const fast = async (expression, ms = 240000) => { await b.evaluate(`${P}.setSpeed(1200)`); const ok = await reached(b, expression, ms); await b.evaluate(`${P}.setSpeed(60)`); await sleep(700); return ok; };
-  const L = await b.evaluate(`${P}.scene.layout`), cards = await b.evaluate(`Object.fromEntries(Object.entries(${P}.parts).map(([key, part]) => [key, part.name]))`);
-  const scene = Object.keys(await b.evaluate(`${P}.scene.parts`));
-  t.expect(scene.length > 0 && String([...scene].sort()) === String(Object.keys(cards).sort()), `every part of the furnace has a card and every card has a part (${scene.length} parts)`, `scene: ${scene.join(' ')} | cards: ${Object.keys(cards).join(' ')}`);
-  const wrong = [];
-  for (const name of scene) {
-    const point = await onPage(await b.evaluate(`${P}.scene.screenOf(${JSON.stringify(name)})`));
-    await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(400);
-    await b.mouse('mouseMoved', { x: point.x + 1, y: point.y + 1 }); await sleep(120); await b.mouse('mouseMoved', point);
-    let under = null;
-    for (let i = 0; i < 30 && under !== name; i++) { await sleep(200); under = await b.evaluate(`${P}.scene.hovered`); }
-    await sleep(400);
-    const shown = await card();
-    if (under !== name || shown !== cards[name]) wrong.push(`${name}: under the pointer ${under}, card ${JSON.stringify(shown)}`);
-  }
-  t.expect(!wrong.length, 'each part shows its own card under the pointer', wrong.join('; '));
-  await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(600);
+  const lab = {
+    S, layout: await b.evaluate(`${PL}.scene.layout`),
+    at: async point => onPage(await b.evaluate(`${PL}.scene.project(${point[0]}, ${point[1]}, ${point[2]})`)),      // a point of the 3D scene, in page pixels
+    state: expression => b.evaluate(`(() => { const s = ${S}; return ${expression}; })()`),
+    card: () => b.evaluate(`document.getElementById('callout').hidden ? '' : document.getElementById('co-name').textContent`),
+    pill: () => b.evaluate(`document.getElementById('pill').hidden ? '' : document.getElementById('pill').textContent`),
+    guide: () => b.evaluate(`document.getElementById('guide-text').textContent`),
+    monitor: () => b.evaluate(`({ value: Number(document.getElementById('mon-mean').textContent.replace(/,/g, '')), note: document.getElementById('mon-togo').textContent, trend: !!document.querySelector('#trend path[stroke="#0d6efd"]') })`),
+    /** Runs the process faster until the expression holds, then returns to the speed it had. */
+    fast: async (expression, speed = 1200, ms = 240000) => {
+      const before = await b.evaluate(`${PL}.speed`); await b.evaluate(`${PL}.setSpeed(${speed})`);
+      const ok = await reached(b, expression, ms); await b.evaluate(`${PL}.setSpeed(${before})`); await sleep(700); return ok;
+    },
+    /** Every part of the equipment has a card and shows it under the pointer. */
+    cards: async () => {
+      const scene = Object.keys(await b.evaluate(`${PL}.scene.parts`)), cards = await b.evaluate(`Object.fromEntries(Object.entries(${PL}.parts).map(([key, part]) => [key, part.name]))`);
+      t.expect(scene.length > 0 && String([...scene].sort()) === String(Object.keys(cards).sort()), `every part of the equipment has a card and every card has a part (${scene.length} parts)`, `scene: ${scene.join(' ')} | cards: ${Object.keys(cards).join(' ')}`);
+      const wrong = [];
+      for (const name of scene) {
+        const point = await onPage(await b.evaluate(`${PL}.scene.screenOf(${JSON.stringify(name)})`));
+        await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(400);
+        await b.mouse('mouseMoved', { x: point.x + 1, y: point.y + 1 }); await sleep(120); await b.mouse('mouseMoved', point);
+        let under = null;
+        for (let i = 0; i < 30 && under !== name; i++) { await sleep(200); under = await b.evaluate(`${PL}.scene.hovered`); }
+        await sleep(400);
+        const shown = await lab.card();
+        if (under !== name || shown !== cards[name]) wrong.push(`${name}: under the pointer ${under}, card ${JSON.stringify(shown)}`);
+      }
+      t.expect(!wrong.length, 'each part shows its own card under the pointer', wrong.join('; '));
+      await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(600);
+    },
+    /** Presses the guide's button and reports what the next process received. */
+    handOver: async () => {
+      const landed = await clickOn(b, '#guide-action', 1900);
+      return { landed, ...(await b.evaluate(`({ mode: ${PL}.mode, viewing: ${PL}.viewing, wafer: ${PL}.run.wafer, record: ${PL}.run.records.find(r => r.step === ${JSON.stringify(id)}) })`)) };
+    },
+  };
+  return { b, lab };
+}
 
+async function processOxidation(t) {
+  const { b, lab } = await openProcess(t, 'oxidation'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ boat: s.boat, target: s.controls.boat, set: s.controls.setpoint, tube: s.tube, n2: s.controls.n2, o2: s.controls.o2, h2o: s.controls.h2o, ambient: s.ambient, oxide: s.oxide, growing: s.growing })`);
+  await lab.cards();
   let s = await state();
   t.expect(s.boat === 0 && s.set === 700 && s.n2 && !s.o2 && !s.h2o && s.oxide < 3, 'the furnace starts at standby with the boat down and nitrogen flowing', JSON.stringify(s));
-  const low = await at(L.boatGrip[0], L.flangeDown + L.boatGrip[1], L.boatGrip[2]);
+  const low = await lab.at([L.boatGrip[0], L.flangeDown + L.boatGrip[1], L.boatGrip[2]]);
   await b.drag(line(low, { x: low.x, y: low.y - 240 }, 12)); await sleep(500);
   s = await state(); t.expect(s.target === 1, 'pulling the boat up sends it into the tube', `target ${s.target}`);
-  t.expect(await fast(`${S}.sealed`, 60000), 'the boat closes the tube');
+  t.expect(await lab.fast(`${S}.sealed`, 1200, 60000), 'the boat closes the tube');
 
-  const dial = await at(L.dial[0], L.dial[1], L.dial[2]);
+  const dial = await lab.at(L.dial);
   await b.mouse('mouseMoved', dial); await sleep(80); await b.mouse('mousePressed', dial, 1); await sleep(60); await b.mouse('mouseMoved', { x: dial.x + 40, y: dial.y }, 1); await sleep(700);
-  const held = { pill: await b.evaluate(`document.getElementById('pill').hidden ? '' : document.getElementById('pill').textContent`), card: await card() };
+  const held = { pill: await lab.pill(), card: await lab.card() };
   for (const p of line({ x: dial.x + 40, y: dial.y }, { x: dial.x + 200, y: dial.y }, 8)) { await b.mouse('mouseMoved', p, 1); await sleep(35); }
   await b.mouse('mouseReleased', { x: dial.x + 200, y: dial.y }, 0); await sleep(400);
   s = await state(); t.expect(s.set === 1000 && /°C/.test(held.pill) && held.card === '', 'pulling the temperature dial sets the heater, and the value shows on the dial while it is held', `setpoint ${s.set}, ${JSON.stringify(held)}`);
   for (let i = 0; i < 3; i++) { await b.wheel(dial, 100); await sleep(60); }
   await sleep(300); s = await state(); t.expect(s.set === 985, 'the wheel moves the setpoint in steps of 5 C', `setpoint ${s.set}`);
 
-  for (const name of ['h2o', 'n2']) await b.click(await at(...L.valves[name]), 350);
+  for (const name of ['h2o', 'n2']) await b.click(await lab.at(L.valves[name]), 350);
   s = await state(); t.expect(s.h2o && !s.n2 && s.ambient === 'wet', 'a click on a valve opens or closes it: steam on, nitrogen off', JSON.stringify(s));
-  t.expect(await fast(`${S}.tube > 980 && ${S}.oxide > 60`), 'the tube heats up and the oxide grows in steam');
+  t.expect(await lab.fast(`${S}.tube > 980 && ${S}.oxide > 60`), 'the tube heats up and the oxide grows in steam');
   await sleep(600);
-  const live = await b.evaluate(`({ mean: document.getElementById('mon-mean').textContent, note: document.getElementById('mon-togo').textContent, trend: !!document.querySelector('#trend path[stroke="#0d6efd"]'), thumb: ${P}.run.wafer.oxide })`);
-  s = await state(); t.expect(s.growing && /계산값/.test(live.note) && live.trend && Number(live.mean.replace(/,/g, '')) > 50, 'the wafer monitor follows the growing film', JSON.stringify(live));
-  await t.shot('4-oxidising');
+  const live = await lab.monitor();
+  s = await state(); t.expect(s.growing && /계산값/.test(live.note) && live.trend && live.value > 50, 'the wafer monitor follows the growing film', JSON.stringify(live));
+  await t.shot('1-oxidising');
 
-  const high = await at(L.boatGrip[0], L.flangeDown + L.travel + L.boatGrip[1], L.boatGrip[2]);
+  const high = await lab.at([L.boatGrip[0], L.flangeDown + L.travel + L.boatGrip[1], L.boatGrip[2]]);
   await b.drag(line(high, { x: high.x, y: high.y + 200 }, 10)); await sleep(1200);
-  s = await state(); const locked = await guide();
+  s = await state(); const locked = await lab.guide();
   t.expect(s.boat === 1 && s.target === 1 && /잠겨/.test(locked), 'the boat does not move while the tube is hotter than 800 C, and the page says why', `boat ${s.boat}, guide: ${locked}`);
 
-  t.expect(await fast(`${S}.oxide > 490`), 'the film reaches the thickness the run sheet asks for');
-  for (const name of ['h2o', 'n2']) await b.click(await at(...L.valves[name]), 350);
+  t.expect(await lab.fast(`${S}.oxide > 490`), 'the film reaches the thickness the run sheet asks for');
+  for (const name of ['h2o', 'n2']) await b.click(await lab.at(L.valves[name]), 350);
   const stopped = (await state()).oxide;
   await b.drag(line(dial, { x: dial.x - 220, y: dial.y }, 12)); await sleep(300);
-  t.expect(await fast(`${S}.tube <= 800`), 'with the setpoint down the tube cools below 800 C');
+  t.expect(await lab.fast(`${S}.tube <= 800`), 'with the setpoint down the tube cools below 800 C');
   s = await state(); t.expect(!s.h2o && s.n2 && Math.abs(s.oxide - stopped) < 1, 'with the steam off the film stops growing', `${stopped.toFixed(1)} -> ${s.oxide.toFixed(1)} nm`);
   await b.drag(line(high, { x: high.x, y: high.y + 200 }, 10)); await sleep(500);
-  t.expect(await fast(`${P}.sim.canMeasure()`, 120000), 'the boat comes down and the wafers cool');
+  t.expect(await lab.fast(`${PL}.sim.canMeasure()`, 1200, 120000), 'the boat comes down and the wafers cool');
   await sleep(600);
-  landed = await clickOn(b, '#guide-action', 900);
-  const measured = await b.evaluate(`(() => { const m = ${S}.measured; return m ? { mean: m.mean, ok: m.ok, points: m.points.length, note: document.getElementById('mon-togo').textContent } : null; })()`);
-  t.expect(landed && measured && measured.points === 5 && measured.ok && /계측값/.test(measured.note), 'the thickness is measured at five points and meets the run sheet', JSON.stringify(measured));
-  await t.shot('5-measured');
-  landed = await clickOn(b, '#guide-action', 1900);
-  const handed = await b.evaluate(`({ mode: ${P}.mode, viewing: ${P}.viewing, oxide: ${P}.run.wafer.oxide, record: ${P}.run.records.find(r => r.step === 'oxidation') })`);
-  t.expect(landed && handed.mode === 'bench' && handed.viewing === 2 && measured && Math.abs(handed.oxide - measured.mean) < 1e-9 && handed.record.by === 'operator' && handed.record.ok, 'the measured film goes on to the next process on the same wafer', JSON.stringify(handed));
-  await t.shot('6-next-process');
+  const landed = await clickOn(b, '#guide-action', 900);
+  const measured = await lab.state(`s.measured ? { mean: s.measured.mean, ok: s.measured.ok, points: s.measured.points.length } : null`), shown = await lab.monitor();
+  t.expect(landed && measured && measured.points === 5 && measured.ok && /계측값/.test(shown.note), 'the thickness is measured at five points and meets the run sheet', JSON.stringify(measured));
+  await t.shot('2-measured');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 2 && measured && Math.abs(next.wafer.oxide - measured.mean) < 1e-9 && next.record.by === 'operator' && next.record.ok, 'the measured film goes on to the next process on the same wafer', JSON.stringify(next.record));
+}
+
+async function processPhoto(t) {
+  const { b, lab } = await openProcess(t, 'photo'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ phase: s.phase, spin: s.controls.spin, dose: s.controls.dose, focus: s.controls.focus, best: s.bestFocus, thickness: s.thickness, reworks: s.reworks, result: s.result && { opening: s.result.opening, ok: s.result.ok } })`);
+  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  await lab.cards();
+  let s = await state();
+  t.expect(s.phase === 'bare' && s.thickness === 0, 'the cell starts with a bare wafer on the coater', JSON.stringify(s));
+  await press('expose'); await sleep(500);
+  t.expect((await state()).phase === 'bare' && /먼저 감광막/.test(await lab.guide()), 'exposure is refused before the resist is on, and the page says why', await lab.guide());
+
+  // first pass with the dials as they stand: this wafer's best focus is not at zero, so the opening misses
+  await press('coat');
+  t.expect(await lab.fast(`${S}.phase === 'coated'`, 96), 'the coat button spins the resist on and bakes it');
+  s = await state(); t.expect(Math.abs(s.thickness - 1000) < 1, 'at 4,000 rpm the resist is 1,000 nm thick', `${s.thickness} nm`);
+  await press('expose'); await lab.fast(`${S}.phase === 'exposed'`, 96); await press('develop');
+  t.expect(await lab.fast(`${S}.phase === 'developed'`, 96), 'expose and develop run in turn and the opening is measured');
+  s = await state();
+  t.expect(s.result && !s.result.ok && /재작업/.test(await lab.guide()), 'with the dials untouched the opening misses the target, and the page offers the rework', JSON.stringify(s.result));
+  await t.shot('1-first-pass');
+  await press('strip'); await sleep(400);
+  s = await state(); t.expect(s.phase === 'bare' && s.reworks === 1 && !s.result, 'the rework button strips the resist for another try', JSON.stringify(s));
+
+  // second pass: dose by dragging its dial, focus by the wheel, read from the wafer monitor before exposing
+  await press('coat'); await lab.fast(`${S}.phase === 'coated'`, 96);
+  const before = await lab.monitor(), dose = await lab.at(L.dials.dose), focus = await lab.at(L.dials.focus);
+  await b.drag(line(dose, { x: dose.x + 140, y: dose.y }, 12)); await sleep(300);
+  for (let i = 0; i < Math.round(Math.abs(s.best) * 10); i++) { await b.wheel(focus, s.best > 0 ? -100 : 100); await sleep(50); }
+  await sleep(1300);
+  s = await state(); const after = await lab.monitor();
+  t.expect(s.dose === 240 && Math.abs(s.focus - s.best) < 0.05, 'the dose dial is dragged and the focus dial is turned with the wheel', JSON.stringify(s));
+  t.expect(after.trend && /계산값/.test(after.note) && after.value > before.value && Math.abs(after.value - 1000) <= 50, 'the wafer monitor shows the image for the dials as they are, and the opening it would give', `${before.value} -> ${after.value} nm`);
+  await t.shot('2-tuned');
+  await press('expose'); await sleep(1200); await t.shot('3-exposing');
+  await lab.fast(`${S}.phase === 'exposed'`, 96); await press('develop'); await lab.fast(`${S}.phase === 'developed'`, 96);
+  s = await state(); const shown = await lab.monitor();
+  t.expect(s.result && s.result.ok && Math.abs(s.result.opening - after.value) < 10 && /계측값/.test(shown.note), 'the developed opening is the one the image predicted and meets the run sheet', JSON.stringify(s.result));
+  const next = await lab.handOver();
+  const carried = next.wafer.resist ? next.wafer.resist.opening : next.wafer.window.width;                    // still resist if the etch has equipment, a window if it was passed
+  t.expect(next.landed && next.viewing === 3 && next.record.by === 'operator' && next.record.ok && s.result && Math.abs(carried - s.result.opening) < 1e-9, 'the resist pattern goes on to the etch on the same wafer', JSON.stringify(next.record));
 }
 
 // ----- single-file build -----
@@ -453,7 +521,9 @@ const CHECKS = {
   'lab-hover': { run: labHover, minutes: 8, about: 'dist/lab-3d.html, a card for every part' },
   'lab-operate': { run: labOperate, minutes: 10, about: 'dist/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'dist/lab-3d.html, instrument strip, report and record over two wafers' },
-  'process-lab': { run: processLab, minutes: 12, about: 'dist/process-lab.html, the route of eight processes and the oxidation furnace' },
+  'process-route': { run: processRoute, minutes: 4, about: 'dist/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
+  'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
+  'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

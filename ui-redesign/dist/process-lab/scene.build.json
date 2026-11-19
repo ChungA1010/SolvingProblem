@@ -3,9 +3,10 @@
   "sources": [
     "src/process-lab-scene.js",
     "src/process-lab/furnace.js",
-    "src/process-lab/parts.js"
+    "src/process-lab/parts.js",
+    "src/process-lab/track.js"
   ],
-  "sourcesSha256": "5e041a143151dda6b5cf699218b3e1c61b2865a6f4cda7c3d463937c09a5a69f",
+  "sourcesSha256": "1c7b67d596881c8159a4940e98c1b98688a4093b01fb3df664b0be3291f0e8b6",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }

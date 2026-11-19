@@ -68,6 +68,32 @@ test('an oxide thinner than standard is cleared early and the over-etch bites in
   assert.equal(run.wafer.window.siliconLoss, (F.STANDARD.etchReach - 300) / F.STANDARD.selectivity);
 });
 
+test('the operator\'s resist pattern decides the window the etch makes', () => {
+  const printed = F.createRun('photo');
+  const record = F.complete(printed, { thickness: 1000, opening: 1030, how: '4,000 rpm' });
+  assert.equal(record.by, 'operator'); assert.equal(record.ok, true); assert.match(record.text, /1,030 nm/);
+  F.complete(printed);
+  assert.equal(printed.wafer.window.width, 1030); assert.ok(printed.wafer.window.open); assert.equal(printed.wafer.resist, null);
+  assert.equal(F.apply('photo', F.arriving(2), { thickness: 1000, opening: 1100 }).record.ok, false, 'outside 1,000 ± 50 nm');
+});
+
+test('a resist that did not open leaves the oxide whole, and the chips fail at EDS', () => {
+  const run = F.createRun('photo');
+  assert.equal(F.complete(run, { thickness: 1200, opening: 0 }).ok, false);
+  finish(run);
+  assert.equal(run.wafer.window.open, false); assert.equal(run.wafer.oxide, 500); assert.equal(run.wafer.junction, null);
+  assert.equal(run.wafer.tested.good, 0);
+});
+
+test('with no resist left the etch takes the oxide off, the implant goes in everywhere, and the chips fail', () => {
+  const run = F.createRun('photo');
+  F.complete(run, { thickness: 0, opening: 0 });
+  assert.equal(run.wafer.resist, null);
+  finish(run);
+  assert.equal(run.wafer.oxide, 0); assert.ok(run.wafer.unmasked && run.wafer.junction.everywhere);
+  assert.equal(run.wafer.tested.good, 0); assert.match(run.wafer.tested.reason, /전면/);
+});
+
 test('applying a process does not change the wafer it was given', () => {
   const before = F.arriving(3), copy = JSON.parse(JSON.stringify(before));
   F.apply('etch', before);

@@ -4,7 +4,7 @@
  *
  * A process with equipment has a station object in window.ProcessLabStations (station-<process>.js):
  *   equipment            key of its 3D equipment in src/process-lab-scene.js
- *   views, speeds        [[view, label] ...] and [[process seconds per second, label] ...]; the first speed is the default
+ *   views, speeds        [[view, label] ...] and [[process seconds per second, label] ...]; defaultSpeed, or the first speed, is used at the start
  *   create(wafer, seed)  its process model: { state, step(dt), setControl(name, value), ... }
  *   parts                card of every part: { name, role, how, basis, rows(state), pill(state) }
  *   control(sim, name, value)   passes a move to the model; returns a message when the move is refused
@@ -12,6 +12,7 @@
  *   guide(sim, nextName) [text, action label, action, part to point at]; action is a function of sim, or 'finish'
  *   view(sim)            what the equipment needs to draw itself
  *   live(sim, wafer)     the wafer as it is inside the equipment right now (for the route pictures)
+ *   forecast(sim, wafer) optional: the wafer as it would leave with the controls as they are (for the later stops)
  *   monitor(sim)         the wafer monitor: picture, value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
@@ -58,6 +59,7 @@
     const box = (x0, x1, y0, y1, fill) => svg('rect', { x: x0, y: y0, width: Math.max(0, x1 - x0), height: Math.max(0, y1 - y0), fill });
     root.append(box(0, WIDTH, SURFACE, HEIGHT, INK.silicon));
     if (wafer.window && wafer.window.siliconLoss > 4) for (const [a, b] of gaps) root.append(box(a, b, SURFACE, SURFACE + wafer.window.siliconLoss * SY, '#f3f5f9'));   // the over-etch bit into the silicon
+    if (wafer.junction && wafer.junction.everywhere) root.append(box(0, WIDTH, SURFACE, SURFACE + wafer.junction.depth * SY, INK.junction));     // no oxide mask: implanted all over
     if (wafer.junction) for (const [a, b] of gaps) {
       const d = wafer.junction.depth * SY, side = wafer.junction.depth * 0.7 * SX, x0 = a - side, x1 = b + side, r = Math.min(d, 14), y = SURFACE + d;
       root.append(svg('path', { d: `M${x0},${SURFACE} V${y - r} Q${x0},${y} ${x0 + r},${y} H${x1 - r} Q${x1},${y} ${x1},${y - r} V${SURFACE} Z`, fill: INK.junction }));
@@ -111,10 +113,11 @@
   }
 
   // ----- state -----
-  const seed = Number(new URLSearchParams(location.search).get('seed')) || (Date.now() % 100000);
+  const query = new URLSearchParams(location.search), seed = Number(query.get('seed')) || (Date.now() % 100000);
+  const passAll = query.get('equipment') === 'off';             // ?equipment=off passes every process by the standard recipe (the route alone)
   let run = null, after = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];
   let station = null, sim = null, scene = null, mountedEquipment = null, timeScale = 60, hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
-  const stationOf = i => scene && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null;
+  const stationOf = i => scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null;
   const stationLive = () => Boolean(run && !run.finished && sim && station);
 
   // ----- route -----
@@ -123,7 +126,7 @@
     if (!run) return F.arriving(i + 1);
     if (i < run.at) return after[i];
     let wafer = run.wafer, k = run.at;
-    if (stationLive()) { wafer = station.live(sim, wafer); k += 1; }           // what is in the equipment right now
+    if (stationLive()) { wafer = i === k || !station.forecast ? station.live(sim, wafer) : station.forecast(sim, wafer); k += 1; }   // in the equipment now; for the later stops, what it is heading for
     for (; k <= i; k++) wafer = F.apply(F.STEPS[k].id, wafer).wafer;
     return wafer;
   }
@@ -223,7 +226,7 @@
     if (mountedEquipment !== station.equipment) { scene.mount(station.equipment); mountedEquipment = station.equipment; for (const name of Object.keys(scene.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`); }
     $('views').replaceChildren(...station.views.map(([view, text]) => el('button', { type: 'button', 'data-view': view, 'aria-pressed': 'false', text })));
     $('speed').replaceChildren(...station.speeds.map(([speed, text]) => el('button', { type: 'button', 'data-speed': speed, 'aria-pressed': 'false', text })));
-    timeScale = station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
+    timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
     scene.setView('home', true); pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
     setMode('station');
@@ -320,7 +323,14 @@
     const stage = $('stage').getBoundingClientRect(), canvas = $('scene').getBoundingClientRect();
     const place = (node, name) => { const p = name && scene.screenOf(name); if (!p || !p.visible) return false; node.style.left = `${p.x + canvas.left - stage.left}px`; node.style.top = `${p.y + canvas.top - stage.top}px`; return p; };
     const box = $('callout');
-    if (!box.hidden) { const p = place(box, hovered); if (!p) box.hidden = true; else { box.dataset.side = p.x > canvas.width - 320 ? 'left' : 'right'; box.dataset.vert = p.y < 230 ? 'down' : 'up'; } }
+    if (!box.hidden) {
+      const p = place(box, hovered), monitor = $('monitor').getBoundingClientRect();
+      if (!p) box.hidden = true;
+      else {
+        const up = p.y >= 230, covers = p.x + canvas.left + 280 > monitor.left && (up ? p.y + canvas.top - 240 : p.y + canvas.top) < monitor.bottom + 8;     // the card would lie over the wafer monitor
+        box.dataset.side = p.x > canvas.width - 320 || covers ? 'left' : 'right'; box.dataset.vert = up ? 'up' : 'down';
+      }
+    }
     const pill = $('pill'), part = dragging && station.parts[dragging];
     if (part && part.pill && place(pill, dragging)) { pill.textContent = part.pill(sim.state); pill.hidden = false; } else pill.hidden = true;
     const focus = $('focus'); focus.hidden = !focusPart || hovered === focusPart || Boolean(dragging) || !place(focus, focusPart);
@@ -363,7 +373,7 @@
     $('trend').addEventListener('pointerleave', () => { tip.hidden = true; });
     if (!scene) console.warn('process-lab: WebGL 2 is not available, so the equipment views are passed by the standard recipe');
 
-    const from = new URLSearchParams(location.search).get('start'), index = F.STEPS.findIndex(step => step.id === from);
+    const from = query.get('start'), index = F.STEPS.findIndex(step => step.id === from);
     if (index >= 0) start(index); else showIntro(0);
     window.ProcessLabDebug = {
       flow: F, scene, stations: STATIONS, start, enter, select, finishStation,
