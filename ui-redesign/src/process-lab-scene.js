@@ -17,8 +17,9 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { buildFurnace } from './process-lab/furnace.js';
 import { buildTrack } from './process-lab/track.js';
 import { buildEtcher } from './process-lab/etcher.js';
+import { buildImplanter } from './process-lab/implanter.js';
 
-const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher };
+const EQUIPMENT = { oxidation: buildFurnace, photo: buildTrack, etch: buildEtcher, implant: buildImplanter };
 
 export function create({ canvas, on = {} }) {
   let renderer;

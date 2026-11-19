@@ -4,10 +4,11 @@
     "src/process-lab-scene.js",
     "src/process-lab/etcher.js",
     "src/process-lab/furnace.js",
+    "src/process-lab/implanter.js",
     "src/process-lab/parts.js",
     "src/process-lab/track.js"
   ],
-  "sourcesSha256": "95098946cc33b8429760dda812ceb9804f5286b60b595f5436d8d01159cf93fa",
+  "sourcesSha256": "2fdf63edf9e498eff6187da245383ece63bf774f6c3244d2994741ce175ee6ab",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }

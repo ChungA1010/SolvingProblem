@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-oxidation, process-photo, process-etch, process-implant, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -475,6 +475,55 @@ async function processEtch(t) {
   t.expect(next.landed && next.viewing === 4 && next.record.by === 'operator' && next.record.ok && next.wafer.window.open && s.result && Math.abs(next.wafer.window.width - s.result.width) < 1e-9 && !next.wafer.resist, 'the window goes on to the next process on the same wafer', JSON.stringify(next.record));
 }
 
+async function processImplant(t) {
+  const { b, lab } = await openProcess(t, 'deposition'), S = lab.S, L = lab.layout;
+  const state = () => lab.state(`({ phase: s.phase, energy: s.controls.energy, dose: s.controls.dose, temperature: s.controls.temperature, minutes: s.controls.minutes, counted: s.counted, beam: s.beam, hot: s.hot, anneals: s.anneals.length, result: s.result && { junction: s.result.junction, surface: s.result.surface, ok: s.result.ok, masked: s.result.masked } })`);
+  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  await lab.cards();
+  let s = await state();
+  t.expect(s.phase === 'ready' && s.counted === 0 && s.energy === 100 && s.dose === 14, 'the implanter starts with the wafer flat in the end station and no ion in it', JSON.stringify(s));
+  await press('anneal'); await sleep(500);
+  t.expect((await state()).phase === 'ready' && /먼저 이온/.test(await lab.guide()), 'the anneal is refused before the implant, and the page says why', await lab.guide());
+
+  // energy by dragging its dial, dose by the wheel; the wafer monitor shows the profile these dials would give
+  const before = await lab.monitor(), energy = await lab.at(L.dials.energy), dose = await lab.at(L.dials.dose);
+  await b.drag(line(energy, { x: energy.x - 80, y: energy.y }, 12)); await sleep(300);
+  for (let i = 0; i < 10; i++) { await b.wheel(dose, -100); await sleep(50); }
+  await sleep(1300);
+  s = await state(); const tuned = await lab.monitor();
+  t.expect(s.energy === 60 && s.dose === 15, 'the energy dial is dragged and the dose dial is turned with the wheel', JSON.stringify(s));
+  t.expect(tuned.trend && /계산값/.test(tuned.note) && tuned.value < before.value - 20, 'the wafer monitor shows the doping profile for the dials as they are: a lower energy gives a shallower junction', `${before.value} -> ${tuned.value} nm`);
+
+  await press('implant');
+  t.expect(await reached(b, `${S}.beam && ${S}.counted > 1e14`, 30000), 'the implant button stands the wafer in the beam and the dose is counted up');
+  await sleep(1500); await t.shot('1-implanting');
+  t.expect(await lab.fast(`${S}.phase === 'implanted'`, 240), 'the beam stops when the dose on the dial has been counted');
+  s = await state(); t.expect(Math.abs(s.counted - 1e15) < 1e9 && !s.beam, 'the wafer holds the dose that was set', `${s.counted}`);
+  await press('implant'); await sleep(500);
+  t.expect((await state()).phase === 'implanted' && /되돌릴 수 없/.test(await lab.guide()), 'a second implant is refused: implantation cannot be undone', await lab.guide());
+
+  // a short anneal leaves the junction too shallow; a second anneal adds to it
+  const temperature = await lab.at(L.dials.temperature), minutes = await lab.at(L.dials.minutes);
+  await b.drag(line(temperature, { x: temperature.x + 50, y: temperature.y }, 12)); await sleep(300);
+  s = await state(); t.expect(s.temperature === 950 && s.minutes === 10, 'the anneal temperature is set on its dial', JSON.stringify(s));
+  await press('anneal');
+  t.expect(await reached(b, `${S}.hot === 950`, 30000), 'the anneal button moves the wafer under the lamps and heats it');
+  await sleep(1500); await t.shot('2-annealing');
+  t.expect(await lab.fast(`${S}.phase === 'done'`, 1200), 'the anneal ends after the time on the dial and the junction is measured');
+  s = await state(); const first = s.result, offered = await lab.guide();
+  t.expect(first && !first.ok && first.junction < 250 && /더 할 수 있/.test(offered), 'ten minutes leave the junction too shallow, and the page says the anneal can be repeated', `${JSON.stringify(first)} | ${offered}`);
+  await b.drag(line(minutes, { x: minutes.x + 50, y: minutes.y }, 12)); await sleep(300);
+  s = await state(); t.expect(s.minutes === 20, 'the anneal time is set on its dial', `${s.minutes} min`);
+  await press('anneal');
+  t.expect(await lab.fast(`${S}.phase === 'done' && ${S}.anneals.length === 2`, 1200), 'a second anneal runs on the same wafer');
+  s = await state(); const shown = await lab.monitor();
+  t.expect(s.result && s.result.ok && s.result.junction > first.junction + 30 && s.result.surface >= 1e19 && /계측값/.test(shown.note) && Math.abs(shown.value - s.result.junction) < 1, 'the two anneals add up: the junction is deeper, inside the target, and the surface is doped enough', JSON.stringify(s.result));
+  t.expect(Math.abs(s.result.junction - tuned.value) > 20, 'the first outlook was for the dials as they stood then (ten minutes at 900 C), not for what was done', `outlook ${tuned.value}, measured ${s.result.junction.toFixed(0)} nm`);
+  await t.shot('3-measured');
+  const next = await lab.handOver();
+  t.expect(next.landed && next.viewing === 5 && next.record.by === 'operator' && next.record.ok && next.wafer.junction && Math.abs(next.wafer.junction.depth - s.result.junction) < 1e-9 && !next.wafer.junction.everywhere && next.wafer.liner === 30, 'the junction goes on to the next process on the same wafer, with the barrier film on it', JSON.stringify(next.record));
+}
+
 // ----- single-file build -----
 function newerThan(file, folder) {                                                             // files under folder changed after file was written
   const built = statSync(file).mtimeMs, newer = [];
@@ -562,6 +611,7 @@ const CHECKS = {
   'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
   'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
   'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
+  'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

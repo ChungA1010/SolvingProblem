@@ -13,7 +13,7 @@
  *   view(sim)            what the equipment needs to draw itself
  *   live(sim, wafer)     the wafer as it is inside the equipment right now (for the route pictures)
  *   forecast(sim, wafer) optional: the wafer as it would leave with the controls as they are (for the later stops)
- *   monitor(sim)         the wafer monitor: picture, value, unit, note, meter, trend, now, spec
+ *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map } or { section, top }), value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
  */
@@ -50,7 +50,7 @@
   /** Top of the tallest layer, in drawing units: lets a figure start just above what is on the wafer. */
   const reach = wafer => SURFACE - (wafer.oxide + (wafer.resist ? wafer.resist.thickness : 0) + (wafer.liner && wafer.window && !wafer.metal ? wafer.liner : 0)) * SY;
   function section(wafer, thumb = false, from = 0) {
-    const root = svg('svg', { viewBox: thumb ? '120 118 480 112' : `0 ${from} ${WIDTH} ${HEIGHT - from}`, preserveAspectRatio: thumb ? 'xMidYMid slice' : 'xMidYMid meet', role: 'img',
+    const root = svg('svg', { viewBox: thumb ? `120 ${typeof thumb === 'number' ? thumb : 118} 480 112` : `0 ${from} ${WIDTH} ${HEIGHT - from}`,     // thumb: true, or the top of the strip to show preserveAspectRatio: thumb ? 'xMidYMid slice' : 'xMidYMid meet', role: 'img',
       'aria-label': wafer.substrate ? `웨이퍼 단면: ${layersOf(wafer).map(k => NAMES[k]).join(', ')}` : '아직 웨이퍼가 없습니다' });
     root.append(svg('rect', { x: 0, y: 0, width: WIDTH, height: HEIGHT, fill: '#f3f5f9' }));
     if (!wafer.substrate) return root;
@@ -279,7 +279,7 @@
     }
     $('spec').replaceChildren(...d.spec.map(text => el('span', { text })));
     const film = d.picture.film != null; $('film').hidden = !film; $('mon-section').hidden = film;
-    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, true));
+    if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top ?? true));
     renderTrend(d.trend);
     const now = performance.now(), next = F.STEPS[run.at + 1], [text, label, action, part] = station.guide(sim, next ? next.name : '공정 기록');
     $('guide-step').textContent = F.STEPS[run.at].name;

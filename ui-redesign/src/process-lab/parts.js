@@ -34,15 +34,16 @@ export function makeParts(kit) {
     return { canvas, refresh() { texture.needsUpdate = true; }, at: [x, y, z + 0.02] };
   }
 
-  /** Rotary dial with a printed scale (270 degrees from min to max) and a readout above it. Registers the control `name`. */
-  function dial(name, x, y, z, { min, max, major, minor, unit, perPixel, wheel, title = 'SET', format = v => String(Math.round(v)) }) {
+  /** Rotary dial with a printed scale (270 degrees from min to max) and a readout above it. Registers the control `name`.
+   *  `format` writes a value; `tick` (on the scale) and `readout` (above the dial) can each write it differently. */
+  function dial(name, x, y, z, { min, max, major, minor, unit, perPixel, wheel, title = 'SET', format = v => String(Math.round(v)), tick = format, readout = v => `${format(v)} ${unit}` }) {
     const g = new THREE.Group(); g.position.set(x, y, z); root.add(g);
     plate(0.19, 0.19, (c, w) => {
       c.fillStyle = '#f3f4f6'; c.fillRect(0, 0, w, w); c.translate(w / 2, w / 2); c.strokeStyle = '#1f2933'; c.fillStyle = '#1f2933'; c.textAlign = 'center'; c.textBaseline = 'middle';
       for (let t = min; t <= max + 1e-9; t += minor) {
         const a = (-225 + (t - min) / (max - min) * 270) * Math.PI / 180, big = Math.abs(t / major - Math.round(t / major)) < 1e-6, r1 = w * 0.36, r2 = w * (big ? 0.42 : 0.395);
         c.lineWidth = big ? w * 0.014 : w * 0.008; c.beginPath(); c.moveTo(Math.cos(a) * r1, Math.sin(a) * r1); c.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); c.stroke();
-        if (big) { c.font = `600 ${w * 0.058}px "Segoe UI", Arial, sans-serif`; c.fillText(format(t), Math.cos(a) * w * 0.455, Math.sin(a) * w * 0.455 + (Math.abs(t - min) < 1e-6 || Math.abs(t - max) < 1e-6 ? w * 0.03 : 0)); }
+        if (big) { c.font = `600 ${w * 0.058}px "Segoe UI", Arial, sans-serif`; c.fillText(tick(t), Math.cos(a) * w * 0.455, Math.sin(a) * w * 0.455 + (Math.abs(t - min) < 1e-6 || Math.abs(t - max) < 1e-6 ? w * 0.03 : 0)); }
       }
       c.font = `700 ${w * 0.058}px "Segoe UI", Arial, sans-serif`; c.fillText(unit, 0, w * 0.43);
     }, g, [0, 0, 0.0012]);
@@ -63,7 +64,7 @@ export function makeParts(kit) {
         shown = value;
         const c = canvas.getContext('2d'); c.fillStyle = '#0f172a'; c.fillRect(0, 0, 256, 80);
         c.fillStyle = '#7dd3fc'; c.font = '600 22px "Segoe UI", Arial, sans-serif'; c.textBaseline = 'middle'; c.textAlign = 'left'; c.fillText(title, 12, 42);
-        c.fillStyle = '#f8fafc'; c.font = '700 40px "Segoe UI", Arial, sans-serif'; c.textAlign = 'right'; c.fillText(`${format(value)} ${unit}`, 246, 43);
+        c.fillStyle = '#f8fafc'; c.font = '700 40px "Segoe UI", Arial, sans-serif'; c.textAlign = 'right'; c.fillText(readout(value), 246, 43);
         texture.needsUpdate = true;
       },
     };

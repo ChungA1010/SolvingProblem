@@ -106,6 +106,35 @@ test('the operator\'s etch decides the window: open and shallow passes, closed o
   assert.ok(gone.wafer.unmasked && gone.wafer.junction.everywhere); assert.equal(gone.wafer.tested.good, 0);
 });
 
+test('the operator\'s implant decides the junction: in the windows only, deep enough and doped enough at the surface', () => {
+  const IM = require('../dist/process-lab/implant-model.js');
+  assert.deepEqual(F.SPEC.junction, { ...IM.constants.spec.junction, surface: IM.constants.spec.surface }, 'the run sheet and the implanter agree on the target');
+  const good = F.createRun('deposition'), record = F.complete(good, { depth: 284, surface: 1.66e19, masked: true, how: 'P⁺ 60 keV' });
+  assert.ok(record.ok && record.by === 'operator' && /284 nm/.test(record.text) && /1\.7×10¹⁹/.test(record.text) && /장벽막 30 nm/.test(record.text) && /60 keV/.test(record.text), record.text);
+  assert.deepEqual(good.wafer.junction, { depth: 284, surface: 1.66e19, species: 'P' }); assert.equal(good.wafer.liner, 30);
+  finish(good); assert.equal(good.wafer.tested.good, F.DIE_COUNT);
+
+  const deep = F.apply('deposition', F.arriving(4), { depth: 420, surface: 3e19, masked: true });
+  assert.equal(deep.record.ok, false, 'a junction off the target depth is marked on the sheet');
+  const weak = F.createRun('deposition'); assert.equal(F.complete(weak, { depth: 322, surface: 1.2e17, masked: true }).ok, false); finish(weak);
+  assert.equal(weak.wafer.tested.good, 0); assert.match(weak.wafer.tested.reason, /접촉 저항/);
+  const leaked = F.createRun('deposition'); assert.equal(F.complete(leaked, { depth: 700, surface: 5e19, masked: false }).ok, false); finish(leaked);
+  assert.ok(leaked.wafer.junction.everywhere && leaked.wafer.junction.leaked); assert.equal(leaked.wafer.tested.good, 0); assert.match(leaked.wafer.tested.reason, /뚫고/);
+  const none = F.createRun('deposition'); F.complete(none, { depth: 0, surface: 1e12, masked: true }); finish(none);
+  assert.equal(none.wafer.junction, null); assert.equal(none.wafer.tested.good, 0); assert.match(none.wafer.tested.reason, /접합이 생기지/);
+
+  const closed = F.apply('etch', F.arriving(3), { oxide: 500, width: 1000, depth: 460, open: false, left: 40, siliconLoss: 0 }).wafer;      // a thin oxide left in the window: the ions pass it, the metal does not
+  const through = F.apply('deposition', closed, { depth: 250, surface: 2e19, masked: true });
+  assert.ok(through.wafer.junction && !through.wafer.junction.everywhere); assert.equal(through.record.ok, false); assert.match(through.record.text, /산화막이 남음/);
+  assert.match(F.apply('eds', F.apply('metal', through.wafer).wafer).record.text, /접촉 창이 열리지/);
+  const bare = F.implanted({ ...F.arriving(4), oxide: 0, window: null, unmasked: true }, { depth: 300, surface: 2e19, masked: false }).wafer.junction;
+  assert.ok(bare.everywhere && !bare.leaked, 'with no oxide at all it is the missing mask, not a leak');
+});
+
+test('numbers are written as a power of ten', () => {
+  assert.equal(F.sci(1.66e19), '1.7×10¹⁹'); assert.equal(F.sci(9.96e14), '1.0×10¹⁵'); assert.equal(F.sci(3.2e-15), '3.2×10⁻¹⁵'); assert.equal(F.sci(0), '0');
+});
+
 test('applying a process does not change the wafer it was given', () => {
   const before = F.arriving(3), copy = JSON.parse(JSON.stringify(before));
   F.apply('etch', before);

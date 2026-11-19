@@ -5,7 +5,7 @@
  * a p-type wafer, an n+ junction implanted through them, the windows lined and filled with metal and polished flat.
  *
  * A process that has its own equipment in the lab is run by the operator, and its measured result goes onto the wafer
- * (so far: oxidation). Every other process is passed with the STANDARD recipe below. Those numbers are assumed, typical
+ * (see `equipment` in STEPS). Every other process is passed with the STANDARD recipe below. Those numbers are assumed, typical
  * values that keep the route going; they are not computed from a model, and the page says so wherever it shows them.
  */
 (function (root, factory) {
@@ -19,22 +19,33 @@
     { id: 'oxidation', name: '산화', does: '웨이퍼 표면에 산화막(SiO₂)을 기릅니다. 뒤 공정에서 마스크와 절연막이 됩니다.', equipment: true },
     { id: 'photo', name: '포토', does: '감광막을 바르고 빛으로 무늬를 옮깁니다.', equipment: true },
     { id: 'etch', name: '식각', does: '감광막이 열린 자리의 산화막을 깎아 창을 냅니다.', equipment: true },
-    { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.' },
+    { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.', equipment: true },
     { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.' },
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.' },
     { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.' },
   ];
-  const SPEC = { oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 } };   // nm: what the run sheet asks of oxidation, photo and etch
+  const SPEC = {                                                    // what the run sheet asks of oxidation, photo, etch and implantation (nm; surface: phosphorus per cm3)
+    oxide: { target: 500, tolerance: 25 }, opening: { target: 1000, tolerance: 50 }, window: { target: 1000, tolerance: 100, siliconLoss: 20 },
+    junction: { target: 300, tolerance: 50, surface: 1e19 },
+  };
   const STANDARD = {                                                // assumed results of the standard recipes
     substrate: { type: 'p', orientation: '(100)', diameter: 300, resistivity: 10 },   // mm, ohm cm
     oxide: 500,                                                     // nm
     resist: 1000, opening: 1000, pitch: 3000,                       // nm
     etchReach: 600,                                                 // nm of oxide the fixed-time etch clears: 500 nm plus 20% over-etch
     selectivity: 20,                                                // oxide etched per silicon etched, once the window is open
-    junction: 300, liner: 30,                                       // nm
+    junction: 300, surface: 2e19, liner: 30,                        // nm; phosphorus per cm3 at the surface
     die: 20, edge: 3,                                               // mm: die size and the edge of the wafer that holds no chips
   };
   const nm = v => `${Math.round(v).toLocaleString('en-US')} nm`;
+  const SUPERSCRIPT = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
+  /** A number as 3.2×10¹⁵. */
+  function sci(v) {
+    if (!(v > 0)) return '0';
+    let e = Math.floor(Math.log10(v)), m = v / 10 ** e;
+    if (m >= 9.95) { m = 1; e += 1; }
+    return `${m.toFixed(1)}×10${String(e).split('').map(d => SUPERSCRIPT[d]).join('')}`;
+  }
 
   /** Centres (mm) of the whole dies that fit on the wafer. */
   function dies() {
@@ -48,6 +59,28 @@
   const DIE_COUNT = dies().length;
 
   const empty = () => ({ substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
+
+  /**
+   * The junction an implant and its anneal leave on the wafer (no film on it yet). `result` is what the operator's
+   * implant did: { depth (nm of junction where the ions entered the silicon; 0 for none), surface (phosphorus per cm3 at
+   * the surface), masked (the oxide kept the ions out) }, or nothing for the standard recipe.
+   */
+  function implanted(wafer, result) {
+    const w = { ...wafer }, windows = Boolean(w.window && w.window.width > 0), open = windows && w.window.open, J = SPEC.junction;
+    if (!result) {
+      w.junction = w.unmasked ? { depth: STANDARD.junction, surface: STANDARD.surface, species: 'P', everywhere: true } : open ? { depth: STANDARD.junction, surface: STANDARD.surface, species: 'P' } : null;
+      return { wafer: w, ok: w.unmasked ? false : w.window ? open : null,
+        text: w.unmasked ? `산화막 마스크가 없어 웨이퍼 전면에 n+ 접합이 생김 (깊이 ${nm(STANDARD.junction)})` : open ? `n+ 접합 깊이 ${nm(STANDARD.junction)}` : '산화막이 이온을 막아 접합이 생기지 않음' };
+    }
+    const all = w.unmasked || !result.masked || !windows;           // where the ions got into the silicon, they got in everywhere
+    w.junction = result.depth > 0 ? { depth: result.depth, surface: result.surface, species: 'P', ...(all ? { everywhere: true, leaked: !w.unmasked } : {}) } : null;
+    const ok = Boolean(w.junction) && !all && open && Math.abs(result.depth - J.target) <= J.tolerance && result.surface >= J.surface;
+    const text = !w.junction ? (windows && !open ? '창 바닥의 산화막이 이온을 막아 접합이 생기지 않음' : windows ? '주입량이 모자라 접합이 생기지 않음' : '산화막이 이온을 막아 접합이 생기지 않음')
+      : w.unmasked ? `산화막 마스크가 없어 웨이퍼 전면에 n+ 접합이 생김 (깊이 ${nm(result.depth)})`
+        : all ? `이온이 산화막을 뚫고 들어가 창 밖에도 n+ 접합이 생김 (깊이 ${nm(result.depth)})`
+          : `n+ 접합 깊이 ${nm(result.depth)}, 표면 농도 ${sci(result.surface)} /cm³ (목표 ${J.target} ± ${J.tolerance} nm, ${sci(J.surface)} /cm³ 이상)${open ? '' : ' · 창 바닥에 산화막이 남음'}`;
+    return { wafer: w, ok, text };
+  }
 
   /** What a process leaves on the wafer. `result` is the operator's measured result, or nothing for the standard recipe. */
   function apply(id, wafer, result) {
@@ -97,19 +130,22 @@
       }
       w.resist = null;
     } else if (id === 'deposition') {
-      const open = Boolean(w.window && w.window.open && w.window.width > 0);
-      w.junction = w.unmasked ? { depth: STANDARD.junction, species: 'P', everywhere: true } : open ? { depth: STANDARD.junction, species: 'P' } : null;
-      w.liner = STANDARD.liner; ok = w.unmasked ? false : w.window ? open : null;
-      text = w.unmasked ? `산화막 마스크가 없어 웨이퍼 전면에 n+ 접합이 생김 (깊이 ${nm(STANDARD.junction)})`
-        : open ? `n+ 접합 깊이 ${nm(STANDARD.junction)}, 창 안에 장벽막 ${nm(STANDARD.liner)}` : `산화막이 이온을 막아 접합이 생기지 않음 · 장벽막 ${nm(STANDARD.liner)}`;
+      const out = implanted(w, result), open = Boolean(w.window && w.window.open && w.window.width > 0);
+      w.junction = out.wafer.junction; w.liner = STANDARD.liner; ok = out.ok;          // the barrier film goes on by the standard recipe
+      text = result ? `${out.text} · 장벽막 ${nm(STANDARD.liner)}${result.how ? ` · ${result.how}` : ''}`
+        : w.unmasked ? out.text : open ? `${out.text}, 창 안에 장벽막 ${nm(STANDARD.liner)}` : `${out.text} · 장벽막 ${nm(STANDARD.liner)}`;
     } else if (id === 'metal') {
       w.metal = { planar: true };
       text = '창을 금속으로 채우고 산화막 높이까지 평탄화';
     } else if (id === 'eds') {
-      const connected = Boolean(w.junction) && !w.junction.everywhere;
-      w.tested = { total: DIE_COUNT, good: connected ? DIE_COUNT : 0, reason: connected ? null : w.junction ? '산화막 마스크가 없어 접합이 전면에 이어짐' : '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음' };
-      ok = connected;
-      text = connected ? `칩 ${DIE_COUNT}개 모두 양품` : `칩 ${DIE_COUNT}개 모두 불량 · ${w.tested.reason}`;
+      const j = w.junction, open = Boolean(w.window && w.window.open && w.window.width > 0);
+      const reason = j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
+        : !open ? '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음'
+          : !j ? '접합이 생기지 않아 다이오드가 되지 않음'
+            : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼' : null;
+      w.tested = { total: DIE_COUNT, good: reason ? 0 : DIE_COUNT, reason };
+      ok = !reason;
+      text = ok ? `칩 ${DIE_COUNT}개 모두 양품` : `칩 ${DIE_COUNT}개 모두 불량 · ${reason}`;
     } else if (id === 'package') {
       const good = w.tested ? w.tested.good : 0;
       w.packaged = { chips: good }; ok = good > 0;
@@ -141,5 +177,5 @@
     return out.record;
   }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, empty, apply, arriving, createRun, complete };
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, empty, sci, implanted, apply, arriving, createRun, complete };
 });
