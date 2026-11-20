@@ -153,3 +153,16 @@ test('setpoints stay inside the furnace range and move in steps of 5 C', () => {
   sim.setControl('setpoint', 1003); assert.equal(sim.state.controls.setpoint, 1005);
   assert.equal(sim.setControl('door', 1), false);
 });
+
+test('Massoud\'s time constants read with +E/kT: minutes long, and shorter in a hotter furnace, as for any thermally activated step', () => {
+  // Hollauer (2007) and Filipovic, both TU Wien, print tau = tau0 exp(-E/kT) with tau0 = 4.14e-6 and 2.71e-7 min, E = 1.38 and 1.88 eV.
+  // Read that way, the constants come out at 1e-11 min or less and grow with temperature; with +E/kT they are minutes and shrink.
+  const kT = c => KB * (c + 273.15), printed = c => 4.14e-6 * Math.exp(-1.38 / kT(c));
+  assert.ok(printed(900) < 1e-10 && printed(1000) > printed(800), 'the printed sign: vanishing, and slower when hotter');
+  let previous = Infinity;
+  for (const celsius of [800, 850, 900, 950, 1000]) {
+    const r = M.dryRates(celsius);
+    near(r.tau1, 4.14e-6 * Math.exp(1.38 / kT(celsius)), 1e-9, `tau1 at ${celsius} C`); near(r.tau2, 2.71e-7 * Math.exp(1.88 / kT(celsius)), 1e-9, `tau2 at ${celsius} C`);
+    assert.ok(r.tau1 < previous && r.tau1 > 0.5 && r.tau2 > r.tau1, `${celsius} C: ${r.tau1.toFixed(2)} and ${r.tau2.toFixed(2)} min`); previous = r.tau1;
+  }
+});
