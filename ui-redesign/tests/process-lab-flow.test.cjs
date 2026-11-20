@@ -203,6 +203,16 @@ test('the operator\'s crystal decides the wafer: its resistivity, and whether th
   assert.ok(undoped.every(die => !die.good && die.voltage < ED.constants.limits.voltage[0]), 'on an undoped wafer the diode\'s forward voltage is too low');
 });
 
+test('a run can be taken back to a process it has been through, keeping what came before it', () => {
+  const run = F.createRun('oxidation');
+  F.complete(run, { mean: 510 }); const atPhoto = F.snapshot(run);
+  F.complete(run); F.complete(run); assert.equal(run.at, 4); assert.ok(run.wafer.window);
+  F.restore(run, atPhoto);
+  assert.equal(run.at, 2); assert.equal(run.records.length, 2); assert.equal(run.wafer.oxide, 510); assert.equal(run.wafer.resist, null); assert.equal(run.wafer.window, null);
+  F.complete(run, { thickness: 1000, opening: 1010 }); assert.equal(atPhoto.records.length, 2, 'going on does not change the snapshot'); assert.equal(run.wafer.resist.opening, 1010);
+  finish(run); assert.ok(run.finished); F.restore(run, atPhoto); assert.equal(run.finished, false); assert.equal(run.at, 2); assert.equal(run.records.length, 2);
+});
+
 test('numbers are written as a power of ten', () => {
   assert.equal(F.sci(1.66e19), '1.7×10¹⁹'); assert.equal(F.sci(9.96e14), '1.0×10¹⁵'); assert.equal(F.sci(3.2e-15), '3.2×10⁻¹⁵'); assert.equal(F.sci(0), '0');
 });

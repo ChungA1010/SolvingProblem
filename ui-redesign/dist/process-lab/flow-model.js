@@ -231,5 +231,10 @@
     return out.record;
   }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, defects, empty, sci, implanted, metallised, apply, arriving, createRun, complete };
+  /** What a run needs to come back to the process it is at now. Wafers are never changed in place, so this is cheap. */
+  const snapshot = run => ({ at: run.at, wafer: run.wafer, records: run.records.slice() });
+  /** Takes a run back to a snapshot: the processes from there on are open again. */
+  function restore(run, snap) { run.at = snap.at; run.wafer = snap.wafer; run.records = snap.records.slice(); run.finished = false; return run; }
+
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, defects, empty, snapshot, restore, sci, implanted, metallised, apply, arriving, createRun, complete };
 });

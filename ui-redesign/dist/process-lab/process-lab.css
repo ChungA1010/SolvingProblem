@@ -66,3 +66,11 @@
 
 /* the chips of the run sheet go onto a second line when they do not fit side by side */
 .spec { flex-wrap: wrap; }
+
+/* What the process on show does: one line under the view buttons. */
+.about { position: absolute; left: 16px; top: 58px; max-width: min(340px, 40%); font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; pointer-events: none; }
+/* Run sheet: the quiet button that takes the run back to a process. */
+.sheet .again { width: 1%; white-space: nowrap; text-align: right; }
+.link { border: 0; background: none; padding: 2px 4px; font: inherit; font-size: 12.5px; font-weight: 650; color: var(--brand); border-radius: 4px; }
+.link:hover { text-decoration: underline; } .link:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.bench-actions { flex-wrap: wrap; justify-content: flex-end; }

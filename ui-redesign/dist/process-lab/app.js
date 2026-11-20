@@ -5,7 +5,8 @@
  * A process with equipment has a station object in window.ProcessLabStations (station-<process>.js):
  *   equipment            key of its 3D equipment in src/process-lab-scene.js
  *   views, speeds        [[view, label] ...] and [[process seconds per second, label] ...]; defaultSpeed, or the first speed, is used at the start
- *   create(wafer, seed)  its process model: { state, step(dt), setControl(name, value), ... }
+ *   title                optional: name of this piece when the process has two (the page then lists them as an array, in the order they are used)
+ *   create(wafer, seed, context)  its process model: { state, step(dt), setControl(name, value), ... }. context: { base: the wafer the process began with, results: what the earlier pieces of this process measured }
  *   parts                card of every part: { name, role, how, basis, rows(state), pill(state) }
  *   control(sim, name, value)   passes a move to the model; returns a message when the move is refused
  *   dragEnd(sim, name), tick(sim)   optional
@@ -16,6 +17,7 @@
  *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map }, { section, top, height } or { custom: an SVG element }), value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
+ *   interim(wafer, result)  for a piece that is not the last of its process: the wafer as it goes on to the next piece
  */
 (function () {
   'use strict';
@@ -124,9 +126,11 @@
   // ----- state -----
   const query = new URLSearchParams(location.search), seed = Number(query.get('seed')) || (Date.now() % 100000);
   const passAll = query.get('equipment') === 'off';             // ?equipment=off passes every process by the standard recipe (the route alone)
-  let run = null, after = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];
-  let station = null, sim = null, scene = null, mountedEquipment = null, timeScale = 60, hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
-  const stationOf = i => scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null;
+  let run = null, after = [], entries = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];   // entries[i]: the run as it was when it came to process i
+  let station = null, sim = null, stage = 0, staged = [], stageWafer = null;      // a process with two pieces of equipment: which one is in use, the results so far, the wafer between them
+  let scene = null, mountedEquipment = null, timeScale = 60, hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
+  /** The equipment of process i in the order it is used. Most processes have one piece, some have two. */
+  const stationsOf = i => { const s = scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null; return !s ? [] : Array.isArray(s) ? s : [s]; };
   const stationLive = () => Boolean(run && !run.finished && sim && station);
 
   // ----- route -----
@@ -135,7 +139,7 @@
     if (!run) return F.arriving(i + 1);
     if (i < run.at) return after[i];
     let wafer = run.wafer, k = run.at;
-    if (stationLive()) { wafer = i === k || !station.forecast ? station.live(sim, wafer) : station.forecast(sim, wafer); k += 1; }   // in the equipment now; for the later stops, what it is heading for
+    if (stationLive()) { wafer = i === k || !station.forecast ? station.live(sim, stageWafer) : station.forecast(sim, stageWafer); k += 1; }   // in the equipment now; for the later stops, what it is heading for
     for (; k <= i; k++) wafer = F.apply(F.STEPS[k].id, wafer).wafer;
     return wafer;
   }
@@ -162,20 +166,52 @@
 
   // ----- bench: a process as pictures of the wafer -----
   function setMode(next) {
-    mode = next; $('stage').dataset.mode = next; $('speed').hidden = next !== 'station';
+    mode = next; $('stage').dataset.mode = next; $('speed').hidden = $('redo').hidden = $('skip').hidden = next !== 'station';
     if (next === 'station') { last = performance.now(); hudClock = 0; scene.resize(); }
   }
   function showBench(nodes) { $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); setMode('bench'); }
   const head = (i, actions) => el('div', { class: 'bench-head' },
     el('div', {}, el('p', { class: 'no', text: `공정 ${i + 1}` }), el('h2', { text: F.STEPS[i].name }), el('p', { text: F.STEPS[i].does })), el('div', { class: 'bench-actions' }, actions));
-  function showIntro(i) {
-    selected = i;
-    const incoming = F.arriving(i === 0 ? 1 : i);
+  /** The finished chip in cross-section, with every layer named after the process that makes it. */
+  function goalPicture() {
+    const root = section(F.arriving(6), false, 96);
+    root.setAttribute('aria-label', '완성된 칩의 단면: p형 실리콘 웨이퍼, 산화막, 산화막의 창, 창 아래의 n+ 접합, 창 안쪽의 장벽막, 창을 채운 구리');
+    const note = (x, y, tx, ty, text, anchor = 'middle') => root.append(
+      svg('path', { d: `M${x},${y} L${tx},${ty}`, stroke: '#1e293b', 'stroke-width': 1.1, fill: 'none' }), svg('circle', { cx: x, cy: y, r: 2.4, fill: '#1e293b' }),
+      svg('text', { x: tx + (anchor === 'start' ? 6 : 0), y: ty + (anchor === 'start' ? 4 : -6), 'text-anchor': anchor, 'font-size': 13, 'font-weight': 650, fill: '#1e293b' }, text));
+    note(120, 160, 120, 128, '창 · 3 포토, 4 식각'); note(360, 182, 360, 128, '구리 · 6 금속배선'); note(480, 186, 486, 128, '산화막 · 2 산화'); note(562, 192, 614, 128, '장벽막 · 5 증착');
+    note(360, 240, 412, 268, 'n+ 접합 · 5 이온주입', 'start');
+    root.append(svg('text', { x: 22, y: 286, 'font-size': 13, 'font-weight': 650, fill: '#1e293b' }, 'p형 실리콘 웨이퍼 · 1 웨이퍼 제조'));
+    return root;
+  }
+  /** Where the lab opens: what the eight processes make between them. */
+  function showOverview() {
+    selected = -1;
     showBench([
-      head(i, el('button', { type: 'button', class: 'btn primary', id: 'start-here', text: '여기서 시작', onclick: () => start(i) })),
-      el('div', { class: 'figure' }, picture(i === 0 ? 0 : i - 1, incoming, false, frameTop(incoming))),
-      i <= 6 ? legend(incoming) : null,
-      el('p', { class: 'assumed', text: `${i === 0 ? '이 공정에서 웨이퍼가 만들어집니다.' : `들어오는 웨이퍼입니다. 앞의 공정 ${i}개는 표준 조건으로 끝낸 상태입니다.`} ${stationOf(i) ? '이 공정은 장비를 직접 조작합니다.' : '이 공정의 장비는 아직 없어 표준 조건으로 지나갑니다.'}` }),
+      el('div', { class: 'bench-head' },
+        el('div', {}, el('p', { class: 'no', text: '만드는 것' }), el('h2', { text: '웨이퍼 한 장으로 다이오드 칩을 만듭니다' }), el('p', { text: '위에서 공정을 누르면 그 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다.' })),
+        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn primary', id: 'start-first', text: `${F.STEPS[0].name}부터 시작`, onclick: () => start(0) }))),
+      el('div', { class: 'figure' }, goalPicture()),
+      el('p', { class: 'assumed', text: '완성된 칩은 다이오드입니다. 구리가 산화막의 창을 통해 n+ 영역에 닿아 있습니다. 7번 EDS에서 칩마다 이 접촉의 저항, 거꾸로 건 전압에서 새는 전류, 바로 건 전압을 재서 양품을 가리고, 8번 패키징에서 양품만 금선으로 잇습니다.' }),
+    ]);
+    renderRoute();
+  }
+  /** A process picked while a run is in hand (or over): do it again on the wafer this run brought to it, or start a new run there. */
+  function showChoice(i) {
+    selected = i;
+    const mine = entries[i], done = Boolean(mine) && (run.finished || i < run.at), record = done ? run.records.find(r => r.step === F.STEPS[i].id) : null;
+    const incoming = mine ? mine.wafer : F.arriving(i === 0 ? 1 : i), from = done ? frameTop(incoming, after[i]) : frameTop(incoming), same = i <= 5;
+    showBench([
+      head(i, [
+        el('button', { type: 'button', class: 'btn', id: 'back', text: run.finished ? '공정 기록으로' : '하던 공정으로', onclick: () => { if (run.finished) { selected = F.STEPS.length - 1; showFinished(); renderRoute(); } else select(viewing); } }),
+        el('button', { type: 'button', class: mine ? 'btn' : 'btn primary', id: 'start-here', text: '표준 웨이퍼로 새로 시작', onclick: () => start(i) }),
+        mine ? el('button', { type: 'button', class: 'btn primary', id: 'redo-here', text: '이 웨이퍼로 다시 하기', onclick: () => redo(i) }) : null,
+      ]),
+      el('div', { class: 'figure' }, !done ? picture(i === 0 ? 0 : i - 1, incoming, false, from) : same ? section(incoming, false, from) : picture(i, after[i]), done && same ? el('div', { class: 'after' }, section(after[i], false, from)) : null),
+      i <= 6 ? legend(done ? after[i] : incoming) : null,
+      record ? el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }) : null,
+      el('p', { class: 'assumed', text: mine ? '이 웨이퍼로 다시 하면 앞 공정에서 만든 것은 그대로 두고 이 공정부터 다시 합니다. 이 공정과 그 뒤 공정의 결과는 지워집니다. 표준 웨이퍼로 새로 시작하면 지금 웨이퍼는 버립니다.'
+        : `표준 웨이퍼로 새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 끝낸 것으로 치고, 지금 웨이퍼는 버립니다.` }),
     ]);
     renderRoute();
   }
@@ -195,54 +231,72 @@
     runBench = [
       el('div', { class: 'bench-head' },
         el('div', {}, el('p', { class: 'no', text: '공정 기록' }), el('h2', { text: chips ? `칩 ${fmt(chips)}개를 만들었습니다` : '완성된 칩이 없습니다' }), el('p', { text: `${F.STEPS[startIndex].name}에서 시작해 패키징까지 지났습니다.` })),
-        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn', id: 'again', text: `${F.STEPS[startIndex].name}부터 다시`, onclick: () => start(startIndex) }), el('button', { type: 'button', class: 'btn primary', id: 'from-first', text: '처음부터', onclick: () => start(0) }))),
+        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn', id: 'again', text: `새 웨이퍼로 ${F.STEPS[startIndex].name}부터`, onclick: () => start(startIndex) }), el('button', { type: 'button', class: 'btn primary', id: 'from-first', text: '새 웨이퍼로 처음부터', onclick: () => start(0) }))),
       el('table', { class: 'sheet' },
-        el('thead', {}, el('tr', {}, ['', '공정', '한 일', '방식', '판정'].map(text => el('th', { text })))),
+        el('thead', {}, el('tr', {}, ['', '공정', '한 일', '방식', '판정', ''].map(text => el('th', { text })))),
         el('tbody', {}, run.records.map((record, i) => el('tr', { 'data-before': String(Boolean(record.before)) },
           el('td', { class: 'no', text: String(i + 1) }), el('td', { class: 'name', text: F.STEPS[i].name }), el('td', { class: 'text', text: record.text }),
           el('td', { class: 'who', text: record.before ? '시작 전 · 표준' : record.by === 'operator' ? '직접 조작' : '표준 조건' }),
-          el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '', text: record.ok === false ? '✕ 불량' : record.ok ? '✓ 통과' : '—' }))))),
-      el('p', { class: 'assumed', text: '표준 조건으로 지나간 공정의 수치는 가정한 값입니다. 직접 조작한 공정의 결과만 계산한 값입니다.' }),
+          el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '', text: record.ok === false ? '✕ 불량' : record.ok ? '✓ 통과' : '—' }),
+          el('td', { class: 'again' }, entries[i] ? el('button', { type: 'button', class: 'link', 'data-redo': String(i), 'aria-label': `${F.STEPS[i].name}부터 이 웨이퍼로 다시`, text: '다시', onclick: () => redo(i) }) : null))))),
+      el('p', { class: 'assumed', text: '표준 조건으로 지나간 공정의 수치는 가정한 값입니다. 직접 조작한 공정의 결과만 계산한 값입니다. 표의 "다시"는 그 공정에 들어갈 때의 웨이퍼로 돌아가 거기서부터 다시 합니다.' }),
     ];
     showBench(runBench);
   }
 
   // ----- run -----
+  /** A new run on a new wafer, from process i. The processes before it are taken as done by the standard recipe. */
   function start(i) {
-    run = F.createRun(F.STEPS[i].id, seed); after = []; sim = null; station = null;
+    run = F.createRun(F.STEPS[i].id, seed); after = []; entries = []; sim = null; station = null;
     let wafer = F.empty(seed);
     for (let k = 0; k < i; k++) { wafer = F.apply(F.STEPS[k].id, wafer).wafer; after[k] = wafer; }
     enter();
   }
+  /** Comes to the process the run is at: opens its equipment, or passes it by the standard recipe where there is none. */
   function enter() {
-    if (run.finished) { viewing = selected = F.STEPS.length - 1; showFinished(); renderRoute(); return; }
-    const i = run.at; viewing = selected = i;
-    if (stationOf(i)) openStation(stationOf(i));
-    else { const before = run.wafer, record = F.complete(run); after[i] = run.wafer; showPass(i, before, record); }
+    if (run.finished) { viewing = selected = F.STEPS.length - 1; sim = null; station = null; showFinished(); renderRoute(); return; }
+    const i = run.at, list = stationsOf(i); viewing = selected = i;
+    entries[i] = F.snapshot(run); stage = 0; staged = []; stageWafer = run.wafer;
+    if (list.length) openStation(list[0]); else pass();
     renderRoute();
   }
+  /** Finishes the process the run is at by the standard recipe. What its equipment had already measured (the first of two pieces) is kept. */
+  function pass() {
+    const i = run.at, before = run.wafer, record = F.complete(run, staged.length ? Object.assign({}, ...staged) : undefined);
+    after[i] = run.wafer; sim = null; station = null; showPass(i, before, record);
+  }
+  /** Back to process i with the wafer this run brought to it: what the earlier processes made stays, the rest is done again. */
+  function redo(i) {
+    if (!run || !entries[i]) return;
+    F.restore(run, entries[i]); after.length = i; entries.length = i; sim = null; station = null;
+    enter();
+  }
+  function skip() { if (stationLive()) { pass(); renderRoute(); } }
   function select(i) {
-    if (run && !run.finished && i === viewing) { selected = i; if (stationLive()) setMode('station'); else showBench(runBench); renderRoute(); return; }
-    if (run && run.finished && i === F.STEPS.length - 1) { selected = i; showBench(runBench); renderRoute(); return; }
-    showIntro(i);
+    if (!run) { start(i); return; }                               // nothing in hand: the equipment of that process opens at once
+    if (!run.finished && i === viewing) { selected = i; if (stationLive()) setMode('station'); else showBench(runBench); renderRoute(); return; }
+    showChoice(i);
   }
 
   // ----- station: one piece of equipment, operated -----
   const pressed = (group, key, value) => { for (const b of group.children) b.setAttribute('aria-pressed', String(b.dataset[key] === String(value))); };
   function showView(name) { scene.setView(name); pressed($('views'), 'view', name); }
   function openStation(next) {
-    station = next; sim = station.create(run.wafer, seed);
+    station = next; sim = station.create(stageWafer, seed, { base: run.wafer, results: staged });
     if (mountedEquipment !== station.equipment) { scene.mount(station.equipment); mountedEquipment = station.equipment; for (const name of Object.keys(scene.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`); }
     $('views').replaceChildren(...station.views.map(([view, text]) => el('button', { type: 'button', 'data-view': view, 'aria-pressed': 'false', text })));
     $('speed').replaceChildren(...station.speeds.map(([speed, text]) => el('button', { type: 'button', 'data-speed': speed, 'aria-pressed': 'false', text })));
     timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
     scene.setView('home', true); pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
+    $('about').textContent = F.STEPS[run.at].does;
     setMode('station');
   }
   function finishStation() {
     const result = station.result(sim); if (!result) return;
-    const i = run.at; F.complete(run, result); after[i] = run.wafer; sim = null; station = null;
+    const i = run.at, list = stationsOf(i);
+    if (stage < list.length - 1) { staged.push(result); stageWafer = station.interim(stageWafer, result); stage += 1; openStation(list[stage]); renderRoute(); return; }   // on to the second piece of this process
+    F.complete(run, Object.assign({}, ...staged, result)); after[i] = run.wafer; sim = null; station = null;
     enter();
   }
   function flash(text, seconds = 3.5) { notice = text; noticeUntil = performance.now() + seconds * 1000; hudClock = 0; }
@@ -290,8 +344,9 @@
     const film = d.picture.film != null; $('film').hidden = !film; $('mon-section').hidden = film;
     if (film) paintFilm(d.picture.film, d.picture.hot ?? 25); else $('mon-section').replaceChildren(d.picture.custom ? d.picture.custom : d.picture.map ? waferMap(d.picture.map, true) : section(d.picture.section, d.picture.top != null ? { top: d.picture.top, height: d.picture.height } : true));
     renderTrend(d.trend);
-    const now = performance.now(), next = F.STEPS[run.at + 1], [text, label, action, part] = station.guide(sim, next ? next.name : '공정 기록');
-    $('guide-step').textContent = F.STEPS[run.at].name;
+    const list = stationsOf(run.at), following = stage < list.length - 1 ? list[stage + 1].title : F.STEPS[run.at + 1] ? F.STEPS[run.at + 1].name : '공정 기록';
+    const now = performance.now(), [text, label, action, part] = station.guide(sim, following);
+    $('guide-step').textContent = station.title ? `${F.STEPS[run.at].name} · ${station.title}` : F.STEPS[run.at].name;
     $('guide-text').textContent = notice && now < noticeUntil ? notice : text;
     guideAction = action === 'finish' ? finishStation : action ? () => { action(sim); hudClock = 0; } : null;
     focusPart = part; $('guide-action').hidden = !label; if (label) $('guide-action').textContent = label;
@@ -371,6 +426,8 @@
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); pressed($('speed'), 'speed', timeScale); });
     $('guide-action').addEventListener('click', () => guideAction?.());
     $('help-open').addEventListener('click', () => $('help').showModal());
+    $('redo').addEventListener('click', () => { if (run && !run.finished) redo(run.at); });
+    $('skip').addEventListener('click', skip);
     const tip = $('viz-tip');
     $('trend').addEventListener('pointermove', ev => {
       const t = trendNow; if (!t || !t.tip || !t.points.length) return;
@@ -383,9 +440,10 @@
     if (!scene) console.warn('process-lab: WebGL 2 is not available, so the equipment views are passed by the standard recipe');
 
     const from = query.get('start'), index = F.STEPS.findIndex(step => step.id === from);
-    if (index >= 0) start(index); else showIntro(0);
+    if (index >= 0) start(index); else showOverview();
     window.ProcessLabDebug = {
-      flow: F, scene, stations: STATIONS, start, enter, select, finishStation,
+      flow: F, scene, stations: STATIONS, start, enter, select, finishStation, redo, skip,
+      get stage() { return stage; }, get entries() { return entries; },
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },
       get mode() { return mode; }, get viewing() { return viewing; }, get selected() { return selected; },

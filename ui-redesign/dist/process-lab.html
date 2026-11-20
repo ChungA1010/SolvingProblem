@@ -41,6 +41,8 @@
       <p>공정 하나를 고르면 거기서부터 패키징까지 같은 웨이퍼로 진행합니다</p>
     </div>
     <div class="top-actions">
+      <button type="button" class="btn" id="redo" hidden>이 공정 다시</button>
+      <button type="button" class="btn" id="skip" hidden>표준 조건으로 넘기기</button>
       <div class="seg" id="speed" role="group" aria-label="시간 배속" hidden></div>
       <button type="button" class="btn" id="help-open">조작법</button>
     </div>
@@ -56,6 +58,7 @@
       <div class="bench" id="bench"></div>
       <div class="hud" id="hud">
         <div class="views"><div class="seg" id="views" role="group" aria-label="시점"></div></div>
+        <p class="about" id="about"></p>
         <div class="alarms" id="alarms" aria-live="assertive"></div>
 
         <!-- Wafer monitor: filled by the station of the process on show. -->
@@ -95,13 +98,14 @@
   <dialog id="help" aria-labelledby="help-title">
     <h2 id="help-title">조작법</h2>
     <ul>
-      <li><b>공정 고르기</b>: 위쪽 줄에서 공정을 누르면 그 공정에 들어오는 웨이퍼가 보입니다. <b>여기서 시작</b>을 누르면 그 공정부터 패키징까지 이어집니다.</li>
+      <li><b>공정 고르기</b>: 위쪽 줄에서 공정을 누르면 그 공정의 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다. 하던 도중에 다른 공정을 누르면, 지금 웨이퍼로 그 공정을 다시 할지 새 웨이퍼로 시작할지 고릅니다.</li>
+      <li><b>다시 하기, 넘기기</b>: 오른쪽 위의 <b>이 공정 다시</b>는 같은 웨이퍼로 이 공정을 처음부터 다시 합니다. <b>표준 조건으로 넘기기</b>는 이 공정을 표준 조건으로 지나갑니다.</li>
       <li><b>장비 조작</b>: 장비의 부품을 끌거나 눌러 조작합니다. 부품에 마우스를 올리면 그 부품이 하는 일, 지금 값, 조작법이 나옵니다.</li>
       <li><b>웨이퍼 모니터</b>: 오른쪽 위에 지금 웨이퍼의 상태가 나옵니다. 그래프에 마우스를 올리면 그 시점의 값이 나옵니다.</li>
       <li><b>시간</b>: 오른쪽 위 단추로 시간을 빨리 흐르게 할 수 있습니다.</li>
       <li><b>시점</b>: 빈 곳을 끌면 시점이 돌고, 휠로 확대합니다. 왼쪽 위 단추는 정해 둔 시점으로 갑니다.</li>
     </ul>
-    <p class="scope" id="scope-note">계산은 공개된 식과 상수를 쓰고, 어떤 식인지는 부품 카드에 적혀 있습니다. 장비의 속도 같은 값은 대표값이며 특정 장비의 실측값이 아닙니다. 장비가 아직 없는 공정은 표준 조건으로 지나가며, 그 수치는 가정입니다.</p>
+    <p class="scope" id="scope-note">계산은 공개된 식과 상수를 쓰고, 어떤 식인지는 부품 카드에 적혀 있습니다. 장비의 속도 같은 값은 대표값이며 특정 장비의 실측값이 아닙니다. 표준 조건으로 넘긴 공정의 수치는 가정입니다.</p>
     <form method="dialog"><button class="btn primary">닫기</button></form>
   </dialog>
 </body>

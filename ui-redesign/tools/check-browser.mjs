@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, process-all, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, process-all, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -277,26 +277,88 @@ async function processRoute(t) {
   await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&equipment=off`);
   if (!(await reached(b, `!!${PL}`, 30000))) throw new Error('the page did not start');
   await sleep(800); await watchClicks(b);
+  const bench = () => b.evaluate(`({ title: document.querySelector('.bench h2').textContent, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0, finished: !!${PL}.run && ${PL}.run.finished,
+    redo: !!document.getElementById('redo-here'), fresh: !!document.getElementById('start-here'), back: !!document.getElementById('back') })`);
 
   const names = await b.evaluate(`[...document.querySelectorAll('.stop .name')].map(e => e.textContent)`);
   t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route shows the eight processes in order', names.join(' '));
-  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-here') && document.querySelectorAll('.stop svg').length === 8`), 'before a run every stop carries a picture of the wafer, and the first process is offered as the start');
-  await t.shot('1-intro');
+  const landing = await b.evaluate(`({ mode: ${PL}.mode, run: !!${PL}.run, first: !!document.getElementById('start-first'), stops: document.querySelectorAll('.stop svg').length, labels: [...document.querySelectorAll('.figure svg text')].map(e => e.textContent) })`);
+  t.expect(landing.mode === 'bench' && !landing.run && landing.first && landing.stops === 8 && ['구리', '산화막', 'n+ 접합', '장벽막', '창', '실리콘'].every(word => landing.labels.some(text => text.includes(word))),
+    'the lab opens on what it makes: the finished chip, every layer named after the process that makes it', JSON.stringify(landing));
+  await t.shot('1-overview');
 
-  let landed = await clickOn(b, '.stop:nth-child(4)');
-  const intro = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, selected: ${PL}.selected, run: !!${PL}.run })`);
-  t.expect(landed && intro.title === '식각' && intro.selected === 3 && !intro.run, 'a click on a stop shows that process and the wafer arriving at it', JSON.stringify(intro));
-  landed = await clickOn(b, '#start-here', 1900);
-  const begun = await b.evaluate(`({ start: ${PL}.run.start, before: ${PL}.run.records.filter(r => r.before).length, oxide: ${PL}.run.wafer.oxide, window: !!${PL}.run.wafer.window, result: document.querySelector('.bench .result').textContent })`);
-  t.expect(landed && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'starting there hands over a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
+  let landed = await clickOn(b, '.stop:nth-child(4)', 1900);
+  const begun = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, start: ${PL}.run.start, before: ${PL}.run.records.filter(r => r.before).length, oxide: ${PL}.run.wafer.oxide, window: !!${PL}.run.wafer.window, result: document.querySelector('.bench .result').textContent })`);
+  t.expect(landed && begun.title === '식각' && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'a click on a stop starts there at once, on a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
   await t.shot('2-etch');
   for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);   // the last click opens the run sheet
-  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, chips: ${PL}.run.wafer.packaged.chips, good: ${PL}.run.wafer.tested.good, clean: ${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length, title: document.querySelector('.bench h2').textContent })`);
-  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.chips === sheet.good && sheet.good === sheet.clean && sheet.good > 100 && sheet.good < 148 && sheet.title.includes(String(sheet.chips)), 'the run goes on from there to packaging and ends with the sheet of all eight processes; the chips without a defect are the ones packaged', JSON.stringify(sheet));
+  const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, again: document.querySelectorAll('.sheet [data-redo]').length, chips: ${PL}.run.wafer.packaged.chips, good: ${PL}.run.wafer.tested.good, clean: ${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length, title: document.querySelector('.bench h2').textContent })`);
+  t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.again === 5 && sheet.chips === sheet.good && sheet.good === sheet.clean && sheet.good > 100 && sheet.good < 148 && sheet.title.includes(String(sheet.chips)), 'the run goes on from there to packaging and ends with the sheet of all eight processes; the chips without a defect are the ones packaged', JSON.stringify(sheet));
   await t.shot('3-run-sheet');
-  landed = await clickOn(b, '#from-first', 1900);
-  const again = await b.evaluate(`({ start: ${PL}.run.start, records: ${PL}.run.records.length, title: document.querySelector('.bench h2').textContent })`);
-  t.expect(landed && again.start === 0 && again.records === 1 && again.title === '웨이퍼 제조', 'a new run can be started from the first process', JSON.stringify(again));
+
+  landed = await clickOn(b, '.stop:nth-child(6)', 1500);
+  let page = await bench();
+  t.expect(landed && page.title === '금속배선' && page.redo && page.fresh && page.back && page.finished, 'after the run, a click on a stop offers that process again on this run\'s wafer, or a new run from there', JSON.stringify(page));
+  landed = await clickOn(b, '#redo-here', 1900); page = await bench();
+  t.expect(landed && page.title === '금속배선' && !page.finished && page.at === 6 && page.records === 6 && page.start === 3, 'doing it again takes the run back to that process and keeps what came before it', JSON.stringify(page));
+  for (let i = 0; i < 4 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);
+  landed = landed && await clickOn(b, '.sheet [data-redo="3"]', 1900); page = await bench();
+  t.expect(landed && page.title === '식각' && page.at === 4 && page.records === 4 && page.start === 3, 'the sheet\'s own "again" does the same from its row', JSON.stringify(page));
+  landed = await clickOn(b, '.stop:nth-child(7)', 1500); page = await bench();
+  t.expect(landed && page.title === 'EDS' && !page.redo && page.fresh && page.back && page.at === 4, 'a process the run has not reached yet can only be the start of a new run', JSON.stringify(page));
+  landed = await clickOn(b, '#back', 1500); page = await bench();
+  t.expect(landed && page.title === '식각' && page.at === 4, 'and the run in hand can be gone back to', JSON.stringify(page));
+  for (let i = 0; i < 6 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);
+  landed = landed && await clickOn(b, '#from-first', 1900); page = await bench();
+  t.expect(landed && page.start === 0 && page.records === 1 && page.title === '웨이퍼 제조', 'a new run can be started from the first process', JSON.stringify(page));
+}
+
+/**
+ * The same route with the equipment on: a click on a process opens its equipment at once, the process in hand can be
+ * done again on the same wafer or passed by the standard recipe, and an earlier process of the run can be gone back to.
+ */
+async function processFlow(t) {
+  const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
+  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5`);
+  if (!(await reached(b, `!!${PL}`, 30000))) throw new Error('the page did not start');
+  await sleep(1200); await watchClicks(b);
+  const at = () => b.evaluate(`({ mode: ${PL}.mode, equipment: ${PL}.station ? ${PL}.station.equipment : null, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0,
+    redo: !!document.getElementById('redo-here'), fresh: !!document.getElementById('start-here') })`);
+  const opens = equipment => reached(b, `${PL}.mode === 'station' && !!${PL}.station && ${PL}.station.equipment === '${equipment}' && Object.keys(${PL}.scene.parts).length > 5`, 30000);
+  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-first') && document.getElementById('redo').hidden && document.getElementById('skip').hidden`), 'with nothing in hand the lab shows what it makes');
+
+  let landed = await clickOn(b, '.stop:nth-child(4)', 2500);
+  const opened = await opens('etch'), top = await b.evaluate(`({ about: document.getElementById('about').textContent, redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run.start })`);
+  t.expect(landed && opened && top.start === 3 && /산화막을 깎아/.test(top.about) && top.redo && top.skip, 'a click on a process opens its equipment at once, with a line on what the process does', JSON.stringify(top));
+  await sleep(2500); await t.shot('1-opened');
+
+  await b.evaluate(`(() => { const d = ${PL}; for (const [name, value] of [['chf3', true], ['power', 300], ['load', true]]) d.station.control(d.sim, name, value); d.setSpeed(240); })()`);
+  t.expect(await reached(b, `${S}.etched > 30`, 60000), 'the etch is under way');
+  const incoming = await b.evaluate(`JSON.stringify(${PL}.run.wafer)`);
+  landed = await clickOn(b, '#redo', 1800);
+  const fresh = await b.evaluate(`({ etched: ${S}.etched, inside: ${S}.inside, power: ${S}.controls.power, same: JSON.stringify(${PL}.run.wafer) === ${JSON.stringify(incoming)}, at: ${PL}.run.at, records: ${PL}.run.records.length })`);
+  t.expect(landed && fresh.etched === 0 && fresh.inside === 0 && fresh.power === 0 && fresh.same && fresh.at === 3 && fresh.records === 3, '"this process again" puts the same incoming wafer on a fresh machine', JSON.stringify(fresh));
+
+  landed = await clickOn(b, '#skip', 1800);
+  const passed = await b.evaluate(`({ mode: ${PL}.mode, record: ${PL}.run.records.at(-1), at: ${PL}.run.at, open: ${PL}.run.wafer.window && ${PL}.run.wafer.window.open })`);
+  t.expect(landed && passed.mode === 'bench' && passed.record.step === 'etch' && passed.record.by === 'standard' && passed.at === 4 && passed.open, 'the process in hand can be passed by the standard recipe', JSON.stringify(passed.record));
+  landed = await clickOn(b, '#next-step', 2500);
+  t.expect(landed && await opens('implant'), 'and the run goes on to the next equipment');
+
+  landed = await clickOn(b, '.stop:nth-child(4)', 1500); let page = await at();
+  t.expect(landed && page.mode === 'bench' && page.redo && page.fresh && page.at === 4, 'a click on an earlier process of the run asks which wafer to do it on', JSON.stringify(page));
+  landed = await clickOn(b, '#back', 1500); page = await at();
+  t.expect(landed && page.mode === 'station' && page.equipment === 'implant' && page.at === 4, 'going back returns to the equipment in hand', JSON.stringify(page));
+  landed = await clickOn(b, '.stop:nth-child(4)', 1500); landed = landed && await clickOn(b, '#redo-here', 2500);
+  const back = await opens('etch'); page = await at();
+  t.expect(landed && back && page.at === 3 && page.records === 3 && page.start === 3 && await b.evaluate(`JSON.stringify(${PL}.run.wafer) === ${JSON.stringify(incoming)}`), 'doing the earlier process again opens its equipment on the wafer the run brought to it', JSON.stringify(page));
+
+  landed = await clickOn(b, '.stop:nth-child(7)', 1500); page = await at();
+  t.expect(landed && page.mode === 'bench' && !page.redo && page.fresh, 'a process further on can only be the start of a new run', JSON.stringify(page));
+  landed = await clickOn(b, '#start-here', 2500);
+  const later = await opens('prober'); page = await at();
+  t.expect(landed && later && page.start === 6 && page.at === 6 && page.records === 6, 'and starting there opens that equipment on a standard wafer', JSON.stringify(page));
+  await sleep(2000); await t.shot('2-new-run');
 }
 
 /** Opens the 8-process lab at a process that has equipment, and returns helpers for checking that equipment. */
@@ -863,6 +925,7 @@ const CHECKS = {
   'lab-operate': { run: labOperate, minutes: 10, about: 'dist/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'dist/lab-3d.html, instrument strip, report and record over two wafers' },
   'process-route': { run: processRoute, minutes: 4, about: 'dist/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
+  'process-flow': { run: processFlow, minutes: 6, about: 'dist/process-lab.html, with the equipment on: open at a click, the same process again, pass by the standard recipe, go back' },
   'process-crystal': { run: processCrystal, minutes: 10, about: 'dist/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
   'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
   'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
