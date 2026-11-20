@@ -278,10 +278,20 @@ async function labPanels(t) {
   for (const [name, selector, fx] of [['thickness trend', '#plot-trend', 0.55], ['radial profile', '#plot-profile', 0.8], ['rate factor', '#factors .frow:nth-child(5)', 0.5], ['model note', '#model-note', 0.5]]) { await lab.hover(await lab.centre(selector, fx)); tips[name] = await lab.tip(); }
   t.expect(Object.values(tips).every(text => text.length > 0), 'the charts, the factors and the note show their values under the pointer', JSON.stringify(tips).slice(0, 300));
   await b.mouse('mouseMoved', { x: 300, y: 300 }); await sleep(300);
+  const factorRows = await b.evaluate(`[...document.querySelectorAll('#factors .frow')].map(row => row.innerText.replace(/\\s+/g, ' ').trim())`);
+  const live = await b.evaluate(`(() => { const s = ${LAB}.sim.state; return { level: s.level, factor: s.factors.level, wafers: ${LAB}.sim.tool.status.wafers }; })()`);
+  t.expect(factorRows.length === 7 && /^장비 ×\d\.\d\d$/.test(factorRows[6]) && live.wafers === 1 && live.level === live.factor && Math.abs(live.level - 1) < 0.25,
+    'the seventh factor is the state of the tool, set by the data model when the wafer was pressed', `${JSON.stringify(factorRows)} ${JSON.stringify(live)}`);
 
   await lab.polishTo(566); await lab.liftAndMeasure(1);
   p = await lab.panels(); t.expect(!p.strip && p.drawer.open && p.drawer.tab === 'report' && p.right > 0 && p.wafers.length === 1, 'after metrology the strip goes down, the report opens and the 3D view makes room for it', JSON.stringify(p));
   await lab.shot('2-report');
+  const toolText = () => b.evaluate(`(document.querySelector('#report .tool-state')?.innerText || '').replace(/\\n+/g, ' | ')`);
+  const firstTool = await toolText(), firstSeen = await b.evaluate(`${LAB}.attempts[0].m.tool`);
+  t.expect(/장비 상태/.test(firstTool) && /데이터 모델/.test(firstTool) && /이 웨이퍼에서 본 값 \| ×\d\.\d\d/.test(firstTool) && /연마 전 모델의 예상 \| 계측 기록 없음/.test(firstTool) && /다음 웨이퍼 예상 \| ×\d\.\d\d \(\d\.\d\d~\d\.\d\d\)/.test(firstTool),
+    'the report says what this wafer showed of the tool and what the model now expects of the next one', firstTool);
+  t.expect(firstSeen && Math.abs(firstSeen.observed - live.level) < 0.01 && firstSeen.next.low < firstSeen.next.ratio && firstSeen.next.ratio < firstSeen.next.high,
+    'what the wafer showed is the state it met, and the expectation is a range around a value', JSON.stringify(firstSeen));
   await lab.hover(await lab.centre('.wafer-map', 0.5, 0.25));
   t.expect((await lab.tip()).length > 0, 'a point of the 49-point map shows its thickness under the pointer');
   await b.mouse('mouseMoved', { x: 300, y: 300 }); await sleep(200);
@@ -293,6 +303,20 @@ async function labPanels(t) {
   p = await lab.panels();
   t.note(`wafers: ${p.wafers.map(w => `#${w.id} ${Math.round(w.mean)} nm ${w.pass ? 'passed' : 'did not pass'}`).join(', ')}`);
   await lab.shot('3-second-report');
+  const secondTool = await toolText();
+  t.expect(/연마 전 모델의 예상 \| ×\d\.\d\d \(\d\.\d\d~\d\.\d\d\)/.test(secondTool) && (await b.evaluate(`${LAB}.sim.tool.status.measured`)) === 2,
+    'for the second wafer the report also shows what the model expected before it was polished', secondTool);
+
+  // The pad is changed on a tool that stands still, and the model then knows the next wafer is the first on a new pad.
+  await b.evaluate(`(() => { const d = ${LAB}; d.sim.setControl('platen', 90); })()`); await sleep(1500);
+  let padClick = await lab.clickOn('#pad-change'); await sleep(400);
+  const refused = await b.evaluate(`({ text: document.getElementById('alarms').innerText, isNew: ${LAB}.sim.tool.status.padIsNew })`);
+  t.expect(padClick && /세운 뒤/.test(refused.text) && !refused.isNew, 'the pad cannot be changed while the platen turns, and the page says why', JSON.stringify(refused));
+  await b.evaluate(`(() => { const d = ${LAB}; for (const name of ['platen', 'carrier', 'slurry']) d.sim.setControl(name, 0); d.sim.setControl('conditioner', false); })()`);
+  await reached(b, `${LAB}.sim.state.platenRpm < 1`, 30000);
+  padClick = await lab.clickOn('#pad-change'); await sleep(400);
+  const changed = await b.evaluate(`(() => { const d = ${LAB}; return { ...d.sim.tool.status, text: document.getElementById('alarms').innerText, expects: d.sim.tool.predict() }; })()`);
+  t.expect(padClick && changed.padIsNew && changed.padUsage === 0 && changed.padChanges === 1 && /새 패드/.test(changed.text), 'on a tool that stands still the pad is changed, and its usage starts again', JSON.stringify(changed));
 
   let landed = await lab.clickOn('#drawer-tabs button[data-tab="log"]');
   const rows = await b.evaluate(`document.querySelectorAll('#log .log-row').length`);

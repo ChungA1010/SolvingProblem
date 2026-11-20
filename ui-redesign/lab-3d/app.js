@@ -4,7 +4,7 @@
  * the process instruments while a wafer is being polished, the metrology report when a measurement finishes. */
 (function () {
   'use strict';
-  const P = window.Lab3DProcess, Scene = window.CMPLab3DScene, C = P.constants;
+  const P = window.Lab3DProcess, Tool = window.Lab3DTool, Scene = window.CMPLab3DScene, C = P.constants;
   const $ = id => document.getElementById(id);
   const RPM = 2 * Math.PI / 60, FILM = 256;
   const fmt = (v, d = 0) => Number(v).toLocaleString('ko-KR', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -21,7 +21,7 @@
     node.append(...children); return node;
   }
 
-  const SCOPE = '대표적인 300 mm 산화막 CMP 조건을 가정한 값이며 이 장비의 실측값이 아닙니다. PHM 2016 데이터로 학습한 장비 모델은 아직 연결하지 않았습니다.';
+  const SCOPE = '압력, 속도, 슬러리, 패드, 온도, 접촉은 대표적인 300 mm 산화막 CMP 조건을 가정한 값이며 이 장비의 실측값이 아닙니다. 장비 상태만 PHM 2016 기록으로 학습한 모델에서 옵니다. 그 기록은 단위를 알 수 없어 평균에 대한 비율만 가져왔습니다.';
   const FACTORS = [
     ['pressure', '압력', 'Preston 식: 제거 속도는 압력에 비례합니다. 웨이퍼 가장자리는 패드가 되튀어 더 세게 눌립니다.', 'book'],
     ['speed', '속도', '플래튼과 헤드의 회전에서 나오는 상대 속도입니다. 두 회전수가 다르면 가장자리가 더 빨리 지나갑니다.', 'book'],
@@ -29,10 +29,14 @@
     ['pad', '패드', '연마할수록 패드 표면이 무뎌지고, 컨디셔너가 다시 거칠게 만듭니다.', 'simple'],
     ['temp', '온도', '마찰열(마찰계수 × 압력 × 속도)로 패드가 데워지면 Arrhenius 식만큼 빨라집니다.', 'book'],
     ['contact', '접촉', '속도에 비해 압력이 낮으면 웨이퍼가 슬러리 막 위에 떠서 거의 깎이지 않습니다.', 'simple'],
+    ['level', '장비', '같은 조건에서도 장비는 웨이퍼마다 조금씩 다릅니다. 서서히 흘러갔다가 돌아오고, 새 패드의 첫 웨이퍼와 쉬고 난 뒤의 첫 웨이퍼에서 조금 빨라집니다. PHM 2016 기록으로 학습한 모델이 정합니다.', 'data'],
   ];
   const FACTOR = Object.fromEntries(FACTORS.map(f => [f[0], f]));
   const FACTOR_MAX = 2.5;                                            // multiplier at the right end of a factor bar
-  const BASIS = { book: '교과서 식', simple: '단순화 가정' };
+  const BASIS = { book: '교과서 식', simple: '단순화 가정', data: '데이터 모델' };
+  const times = v => `×${fmt(v, 2)}`;
+  /** A prediction of the tool model as text: the ratio and its 90 % range. */
+  const rangeText = p => p ? `${times(p.ratio)} (${fmt(p.low, 2)}~${fmt(p.high, 2)})` : '계측 기록 없음';
   const pct = v => `${fmt(v * 100)}%`;
   const zoneText = z => { const p = Math.round(z * 100); return p === 0 ? '균등' : `${p > 0 ? '가운데' : '가장자리'} +${Math.abs(p)}%`; };
   /** Card row for the factor a part sets in the removal-rate product. Shown only while the wafer is pressed on the pad. */
@@ -55,7 +59,8 @@
     },
     platen: {
       name: '플래튼 · 패드', role: '패드를 붙인 회전 테이블입니다. 웨이퍼가 이 위에서 깎입니다.', how: '원을 그리듯 끌어 돌립니다. 시계 반대 방향이 가속입니다.',
-      rows: s => [['플래튼 회전', `${fmt(s.platenRpm)} rpm`], ['패드 온도', `${fmt(s.temp)} ℃`], ['패드 젖음', pct(s.coverage)], ...factorRow('speed', s), ...factorRow('temp', s)],
+      rows: s => [['플래튼 회전', `${fmt(s.platenRpm)} rpm`], ['패드 온도', `${fmt(s.temp)} ℃`], ['패드 젖음', pct(s.coverage)],
+        ...(sim.tool ? [['패드 사용', pct(sim.tool.status.padShare), 'data']] : []), ...factorRow('speed', s), ...factorRow('temp', s), ...(sim.tool ? factorRow('level', s) : [])],
       pill: s => `${fmt(s.controls.platen)} rpm`,
     },
     zone: {
@@ -282,7 +287,7 @@
     $('factors').style.setProperty('--base', `${100 / FACTOR_MAX}%`);
     $('eq-ref').textContent = fmt(C.rateRef);
     $('spec').replaceChildren(...[`${fmt(C.target)} ± ${fmt(C.targetTol)} nm`, `균일도 ≤ ${fmt(C.wiwnuMax)}%`, '스크래치 0'].map(text => el('span', { text })));
-    $('scope-note').textContent = `계산 근거: 제거 속도는 기준 ${fmt(C.rateRef)} nm/min에 압력, 속도, 슬러리, 패드, 온도, 접촉 여섯 요인을 곱한 값입니다. ${SCOPE}`;
+    $('scope-note').textContent = `계산 근거: 제거 속도는 기준 ${fmt(C.rateRef)} nm/min에 압력, 속도, 슬러리, 패드, 온도, 접촉, 장비 상태 일곱 요인을 곱한 값입니다. ${SCOPE}`;
     onChart($('plot-trend'), timeTip); onChart($('plot-rate'), timeTip); onChart($('plot-temp'), timeTip); onChart($('plot-profile'), profileTip);
   }
 
@@ -382,6 +387,10 @@
     else notes.push(`가장자리가 가운데보다 ${fmt(edge)} nm 두껍게 남았습니다. 구역 압력 조절기를 가장자리 쪽(왼쪽)으로 돌리면 가장자리를 더 깎습니다.`);
     if (m.scratches) notes.push(`스크래치 ${m.scratches}개: 슬러리가 거의 없는 패드에 닿았거나 패드가 과열됐습니다.`);
     if (m.maxTemp > C.tempAlarm) notes.push(`패드 온도가 ${fmt(m.maxTemp)}℃까지 올랐습니다. 압력과 속도의 곱이 클수록 마찰열이 커집니다.`);
+    if (m.tool && Math.abs(m.tool.observed - 1) >= 0.03) {
+      const slow = m.tool.observed < 1;
+      notes.push(`이 웨이퍼에서 장비는 평소보다 ${fmt(Math.abs(m.tool.observed - 1) * 100)}% ${slow ? '느렸습니다' : '빨랐습니다'}. 같은 조건으로 같은 시간 연마해도 그만큼 ${slow ? '덜' : '더'} 깎입니다.`);
+    }
     return notes;
   }
   /** State is never colour alone: a mark and a word go with it. */
@@ -428,6 +437,14 @@
   const pairs = list => list.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { class: 'num', text: v })]);
   const conditionsOf = e => e.cond ? [['다운포스', `${fmt(e.m.meanPressure, 1)} psi`], ['플래튼', `${fmt(e.cond.platen)} rpm`], ['헤드', `${fmt(e.cond.carrier)} rpm`], ['슬러리', `${fmt(e.cond.flow)} mL/min`],
     ['구역 압력', zoneText(e.cond.zone)], ['컨디셔너', e.cond.conditioner > 0.95 ? '계속 사용' : e.cond.conditioner < 0.05 ? '사용 안 함' : `시간의 ${pct(e.cond.conditioner)}`]] : [];
+  /** What this wafer showed of the tool, what the model expected before it, and what it expects of the next one. */
+  function toolSection(t) {
+    const first = [t.afterPadChange ? '새 패드의 첫 웨이퍼' : null, t.rested ? '쉬고 난 뒤의 첫 웨이퍼' : null].filter(Boolean);
+    return el('section', { class: 'tool-state' }, el('h4', {}, '장비 상태', el('span', { class: 'src data', text: BASIS.data })),
+      el('p', { class: 'sub', text: '평소(×1)에 대한 제거 속도의 비율 · 괄호는 90% 범위' }),
+      el('dl', { class: 'stats' }, ...pairs([['이 웨이퍼에서 본 값', times(t.observed)], ['연마 전 모델의 예상', rangeText(t.predicted)], ['다음 웨이퍼 예상', rangeText(t.next)], ['패드 사용', pct(t.padShare)]])),
+      ...(first.length ? [el('p', { class: 'sub', text: first.join(' · ') })] : []));
+  }
   function renderReport() {
     const host = $('report'), e = attempts.find(a => a.id === drawer.selected) || attempts[0];
     if (!e) { host.replaceChildren(el('p', { class: 'empty', text: '연마한 웨이퍼를 계측기에 올리면 리포트가 나옵니다.' })); return; }
@@ -458,6 +475,7 @@
         ...(conditions.length ? [el('p', { class: 'sub', text: '연마하는 동안의 평균 조건' }), el('dl', { class: 'stats' }, ...pairs(conditions))] : []),
         el('p', { class: 'sub', text: '결과' }),
         el('dl', { class: 'stats' }, ...pairs([['깎은 양', `${fmt(m.removed)} nm`], ['평균 제거 속도', `${fmt(m.meanRate)} nm/min`], ['두께 범위', `${fmt(m.range)} nm`], ['슬러리 사용량', `${fmt(m.slurryUsed)} mL`], ['최고 패드 온도', `${fmt(m.maxTemp)} ℃`]]))),
+      ...(m.tool ? [toolSection(m.tool)] : []),
       el('footer', {}, again, next));
     draw();
   }
@@ -471,7 +489,7 @@
         el('span', { class: 'cell' }, el('b', { class: 'num', text: `${fmt(m.mean)} nm` }), targetTrack(m.mean)),
         el('span', { class: 'cell' }, el('b', { class: 'num', text: `${fmt(m.wiwnu, 1)}%` }), limitMeter(m.wiwnu)),
         verdict(m.pass, '합격', '불합격'),
-        el('span', { class: 'cond' }, ...[...conditionsOf(e).slice(0, 5).map(([k, v]) => `${k} ${v}`), `연마 ${fmt(m.polishTime)}초`, ...(m.scratches ? [`스크래치 ${m.scratches}개`] : [])].map(text => el('span', { text }))));
+        el('span', { class: 'cond' }, ...[...conditionsOf(e).slice(0, 5).map(([k, v]) => `${k} ${v}`), `연마 ${fmt(m.polishTime)}초`, ...(m.tool ? [`장비 ${times(m.tool.observed)}`] : []), ...(m.scratches ? [`스크래치 ${m.scratches}개`] : [])].map(text => el('span', { text }))));
       row.addEventListener('click', () => { drawer.selected = e.id; showDrawer('report'); });
       return row;
     }));
@@ -506,11 +524,16 @@
     sim.setControl('head', 0); measureAt = 0; hover.t = hover.r = null;
     sim.newWafer(); paintFilm(); if (drawer.open) closeDrawer(); hudClock = 1;
   }
+  function changePad() {
+    if (!sim.replacePad()) { flash('패드는 장비를 세운 뒤에 교체합니다. 웨이퍼를 내리고 플래튼을 멈추세요.', 4); return; }
+    flash('새 패드를 붙였습니다.', 4); hudClock = 1;
+  }
   function showView(name) { scene.setView(name); for (const b of $('views').children) b.setAttribute('aria-pressed', String(b.dataset.view === name)); }
   function bind() {
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); for (const x of $('speed').children) x.setAttribute('aria-pressed', String(x === b)); });
     $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b) showView(b.dataset.view); });
     $('new-wafer').addEventListener('click', newWafer);
+    $('pad-change').addEventListener('click', changePad);
     $('guide-action').addEventListener('click', () => guideAction?.());
     $('help-open').addEventListener('click', () => $('help').showModal());
     $('strip-open').addEventListener('click', () => { stripMode = 'open'; hudClock = 1; });
@@ -518,7 +541,7 @@
     $('log-open').addEventListener('click', () => { if (drawer.open) closeDrawer(); else showDrawer(attempts.length > 1 ? 'log' : 'report'); });
     $('drawer-close').addEventListener('click', closeDrawer);
     $('drawer-tabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-tab]'); if (b) showDrawer(b.dataset.tab); });
-    const note = $('model-note'), noteTip = () => { const r = note.getBoundingClientRect(); showTip({ clientX: r.left, clientY: r.top }, '제거 속도 계산', [], `기준 ${fmt(C.rateRef)} nm/min에 아래 여섯 요인을 곱합니다. 가운데 선이 기준(×1)이고, 파랑은 느려지는 쪽, 주황은 빨라지는 쪽입니다. ${SCOPE}`); };
+    const note = $('model-note'), noteTip = () => { const r = note.getBoundingClientRect(); showTip({ clientX: r.left, clientY: r.top }, '제거 속도 계산', [], `기준 ${fmt(C.rateRef)} nm/min에 아래 일곱 요인을 곱합니다. 가운데 선이 기준(×1)이고, 파랑은 느려지는 쪽, 주황은 빨라지는 쪽입니다. ${SCOPE}`); };
     note.addEventListener('pointerenter', noteTip); note.addEventListener('focus', noteTip); note.addEventListener('pointerleave', hideTip); note.addEventListener('blur', hideTip);
   }
 
@@ -551,7 +574,7 @@
 
   function init() {
     const seed = Number(new URLSearchParams(location.search).get('seed')) || (Date.now() % 100000) + 1;
-    sim = P.create({ seed }); sim.newWafer();
+    sim = P.create({ seed, tool: Tool.create({ seed }) }); sim.newWafer();
     scene = Scene.create({
       canvas: $('scene'), constants: C,
       on: {
@@ -563,7 +586,7 @@
     for (const name of Object.keys(scene.parts)) if (!PARTS[name]) console.warn(`lab-3d: no card for part "${name}"`);
     build(); bind(); renderReport(); renderLog(); paintFilm();
     window.Lab3DDebug = {
-      sim, scene, constants: C, parts: PARTS, newWafer, onWafer, measureNow: finishMeasure, showDrawer, closeDrawer,
+      sim, scene, constants: C, parts: PARTS, newWafer, onWafer, changePad, measureNow: finishMeasure, showDrawer, closeDrawer,
       setSpeed: v => { timeScale = v; }, setStrip: mode => { stripMode = mode; hudClock = 1; },
       get speed() { return timeScale; }, get attempts() { return attempts; }, get drawer() { return { ...drawer }; }, get strip() { return $('strip').dataset.open === 'true'; },
     };

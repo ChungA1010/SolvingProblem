@@ -8,8 +8,10 @@
   <title>CMP Lab — 학습 실험실</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='14' fill='%230d6efd'/%3E%3Ccircle cx='24' cy='24' r='15' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='30' cy='20' r='6' fill='white'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./lab-3d.css">
-  <!-- Process model (textbook equations), 3D scene built from src/lab-3d-scene.js, and the page logic. Classic scripts: opens from file://. -->
+  <!-- Process model (textbook equations), the tool's state from wafer to wafer (learned from data), 3D scene built from src/lab-3d-scene.js,
+       and the page logic. Classic scripts: opens from file://. -->
   <script src="./process-model.js" defer></script>
+  <script src="./tool-model.js" defer></script>
   <script src="./scene.js" defer></script>
   <script src="./app.js" defer></script>
 </head>
@@ -25,6 +27,7 @@
         <button type="button" data-speed="1" aria-pressed="false">1×</button><button type="button" data-speed="4" aria-pressed="true">4×</button><button type="button" data-speed="16" aria-pressed="false">16×</button>
       </div>
       <button type="button" class="btn" id="new-wafer">새 웨이퍼</button>
+      <button type="button" class="btn" id="pad-change">패드 교체</button>
       <button type="button" class="btn" id="help-open">조작법</button>
     </div>
   </header>
@@ -68,7 +71,7 @@
           <div class="tile rate">
             <h3>제거 속도 <b class="value" id="rate-value">0</b><span class="unit">nm/min = 기준 <span id="eq-ref">—</span> ×</span>
               <button type="button" class="info-btn" id="model-note" aria-label="계산 근거와 한계">i</button></h3>
-            <div class="factors" id="factors" aria-label="제거 속도를 정하는 여섯 요인. 가운데 선이 기준(×1)입니다."></div>
+            <div class="factors" id="factors" aria-label="제거 속도를 정하는 일곱 요인. 가운데 선이 기준(×1)입니다."></div>
           </div>
           <div class="tile profile">
             <h3>반경별 두께 <span class="unit">균일도</span><b class="value" id="wiwnu-value">—</b></h3>
@@ -124,6 +127,8 @@
       <li>부품에 마우스를 올리면 이름과 현재 값이 나옵니다. 부품 위에서 휠을 굴리면 값을 조금씩 바꿉니다.</li>
       <li>빈 곳을 끌면 시점이 돌고, 휠로 확대합니다. 장비 화면을 누르면 가까이에서 볼 수 있습니다.</li>
       <li>연마가 시작되면 아래에 공정 계기가 올라오고, 계측이 끝나면 오른쪽에 리포트가 열립니다.</li>
+      <li><b>장비 상태</b>: 같은 조건에서도 장비는 웨이퍼마다 조금씩 다르게 깎습니다. 계측할 때마다 리포트가 이 웨이퍼에서 본 값과 다음 웨이퍼의 예상 범위를 알려 줍니다.</li>
+      <li><b>패드 교체(위쪽 버튼)</b>: 웨이퍼를 내리고 플래튼을 멈춘 뒤에 누릅니다. 패드를 얼마나 썼는지는 플래튼에 마우스를 올리면 나옵니다.</li>
     </ul>
     <p class="scope" id="scope-note"></p>
     <form method="dialog"><button class="btn primary" value="close">닫기</button></form>

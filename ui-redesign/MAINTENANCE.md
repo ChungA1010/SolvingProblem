@@ -94,6 +94,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 ### 학습 실험실을 고칠 때
 
 - **부품을 더하거나 뺀다.** 장면(`lab-3d/src/lab-3d-scene.js`의 `register(...)`)과 부품 카드(`lab-3d/app.js`의 `PARTS`) 양쪽에 같은 이름으로 있어야 한다. 어긋나면 `check-browser lab-hover`가 알려 준다.
+- **장비 상태 모델을 다시 학습했다.** `lab-sim/state-model-v2.json`의 숫자가 바뀌면 `lab-3d/tool-model.js`의 `MODEL`에 같은 숫자를 옮겨 적는다. 옮기지 않으면 `tests/tool-model.test.cjs`가 실패한다. 손으로 푼 기대값이 든 `lab-3d/tests/lab-3d-tool.test.cjs`도 새 숫자로 다시 푼다.
 - **계산을 바꾼다.** `lab-3d/process-model.js`를 고친다. 화면과 무관한 계산이고 `lab-3d/tests/lab-3d-process.test.cjs`가 지킨다. 식의 근거를 적은 [LAB-3D.md](lab-3d/LAB-3D.md#계산)의 표도 함께 고친다.
 - **검사용 연결 고리.** `lab-3d/app.js`는 `window.Lab3DDebug`를 남긴다. 브라우저 검사와 홈 그림 찍기가 이것으로 상태를 읽고 장면의 좌표를 얻는다. 여기의 이름을 바꾸면 `tools/check-browser.mjs`와 `tools/render-lab-still.mjs`도 고친다.
 

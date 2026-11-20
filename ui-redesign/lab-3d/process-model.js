@@ -1,8 +1,9 @@
 /* CMP direct-operation experiment: process model.
  *
  * Real-time model of one oxide polish on a rotary polisher. Everything here is a textbook equation or a
- * stated simplification; nothing is fitted to the PHM 2016 record yet (`level` is the hook for the learned
- * tool state). Nominal values are typical 300 mm oxide CMP numbers, not this tool's.
+ * stated simplification. Nominal values are typical 300 mm oxide CMP numbers, not this tool's.
+ * One factor can come from data: `level`. Given a tool (tool-model.js, learned from the PHM 2016 record), each
+ * wafer meets the state the tool is in when it is first pressed on the pad. Without a tool, `level` stays put.
  *
  *   removal rate(r) = rateRef * level * P(r)/Pref * v(r)/Vref * slurry(r) * pad * temperature * contact
  *
@@ -45,6 +46,7 @@
   const MU_WET = 0.30, MU_DRY = 0.25;
   const HYDRO_S = 3, HYDRO_POWER = 5;
   const RINGS = Object.freeze([[0, 1], [0.049, 8], [0.098, 16], [0.147, 24]]);   // 49-point pattern
+  const TOOL_MIN_REMOVED = 20;        // nm; a wafer polished less than this says nothing about the tool
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const lag = (h, tau) => 1 - Math.exp(-h / tau);
@@ -130,14 +132,14 @@
   }
 
   function create(options = {}) {
-    const rand = mulberry32(options.seed ?? 1);
+    const rand = mulberry32(options.seed ?? 1), tool = options.tool || null, baseLevel = options.level ?? 1;
     const N = C.nodes, radius = Float64Array.from({ length: N }, (_, i) => C.waferRadius * i / (N - 1));
     const areaWeight = Float64Array.from({ length: N }, (_, i) => {
       const d = 1 / (N - 1), lo = Math.max(0, i * d - d / 2), hi = Math.min(1, i * d + d / 2);
       return hi * hi - lo * lo;
     });
     const s = {
-      t: 0, level: options.level ?? 1,
+      t: 0, level: baseLevel, lastPolish: null,
       controls: { head: 0, platen: 0, carrier: 0, slurry: 0, zone: 0, conditioner: false },
       gap: C.headTravel, pressure: 0, platenRpm: 0, carrierRpm: 0, flow: 0,
       platenAngle: 0, carrierAngle: 0, sweepPhase: 0,
@@ -183,7 +185,9 @@
         id: ++s.waferCount, where: 'pedestal', film, start: Float64Array.from(film), tilt: 0, tiltAngle: rand() * 2 * Math.PI,
         scratches: [], polishTime: 0, clock: 0, slurryUsed: 0, maxTemp: C.ambient, peakPressure: 0, pressureTime: 0,
         incoming: { mean: areaMean(film), edgeMinusCentre: film[N - 1] - film[0] }, measured: null,
+        tool: null, nominal: 0,           // the tool state this wafer met, and what the same polish would have removed at level 1
       };
+      s.level = baseLevel;
       s.history = []; lastSample = -1;
       s.monitor = reading(true);
       event('wafer', `웨이퍼 ${s.wafer.id} 준비`);
@@ -228,7 +232,7 @@
 
       const vCentre = meanSpeed(s.platenRpm, s.carrierRpm, 0), speedRatio = vCentre / V_REF, pressureRatio = s.pressure / C.pressureRef;
       const f = s.factors;
-      f.pressure = pressureRatio; f.speed = speedRatio; f.level = s.level;
+      f.pressure = pressureRatio; f.speed = speedRatio;
       f.slurry = slurryFactor(s.coverage) / SLURRY_REF;
       f.pad = (PAD_FLOOR + (1 - PAD_FLOOR) * s.glaze) / PAD_REF;
       f.temp = arrhenius(s.temp);
@@ -236,6 +240,11 @@
       const mu = MU_WET + MU_DRY * (1 - s.coverage) ** 2;
 
       s.polishing = s.contact && !!w && w.where === 'head' && s.pressure > 0.02;
+      if (s.polishing && tool && !w.tool) {                                   // the wafer meets the tool as it is now
+        w.tool = tool.next({ rested: s.lastPolish !== null && s.t - s.lastPolish > tool.model.restGap });
+        s.level = baseLevel * w.tool.ratio;
+      }
+      f.level = s.level;
       let rate = 0;
       if (s.polishing) {
         const edge = edgeGain(pressureRatio), common = C.rateRef / 60 * f.level * f.pressure * f.pad * f.temp * f.contact;
@@ -250,6 +259,7 @@
         // A wafer that does not turn is polished faster on its outboard side: a wedge, not a ring.
         w.tilt += rate * (C.waferRadius / C.centerDistance) / (1 + (s.carrierRpm / 1.5) ** 2) * h;
         w.polishTime += h; w.slurryUsed += s.flow / 60 * h; w.pressureTime += s.pressure * h;
+        w.nominal += rate * h / Math.max(s.level / baseLevel, 1e-6); s.lastPolish = s.t;
         w.peakPressure = Math.max(w.peakPressure, s.pressure); w.maxTemp = Math.max(w.maxTemp, s.temp);
         if (s.platenRpm > 5) {
           const dry = Math.max(0, 0.16 - s.coverage) / 0.16;
@@ -306,9 +316,24 @@
         ok: { thickness: Math.abs(st.mean - C.target) <= C.targetTol, uniformity: st.wiwnu <= C.wiwnuMax, defects: w.scratches.length === 0 },
       };
       result.pass = result.ok.thickness && result.ok.uniformity && result.ok.defects;
+      if (tool && w.tool && w.nominal >= TOOL_MIN_REMOVED) {
+        // What this wafer says about the tool: removed against what the same polish removes on a tool at its mean.
+        const observed = (w.incoming.mean - areaMean(w.film)) / w.nominal, context = { rested: w.tool.rested, afterPadChange: w.tool.afterPadChange };
+        tool.observe(w.tool.wafer, observed, context);
+        result.tool = { wafer: w.tool.wafer, observed, predicted: w.tool.predicted, next: tool.predict(), ...context, padShare: w.tool.padUsage / tool.model.padUsageSeen };
+      }
       w.measured = result;
       event('measure', `계측: 평균 ${st.mean.toFixed(0)} nm, 균일도 ${st.wiwnu.toFixed(1)}%`);
       return result;
+    }
+
+    /** Fits a new pad. The tool must stand still with the head up; false when it does not. */
+    function replacePad() {
+      if (s.contact || s.gap < C.headTravel * 0.5 || s.platenRpm > 1 || (s.wafer && s.wafer.where === 'head')) return false;
+      s.glaze = GLAZE_REF; s.coverage = 0; s.padWear = 0; s.temp = C.ambient;   // broken in, dry, at room temperature
+      if (tool) tool.replacePad();
+      event('pad', '패드 교체');
+      return true;
     }
 
     function setControl(name, value) {
@@ -323,7 +348,7 @@
     }
 
     return {
-      state: s, radius, step, setControl, newWafer, moveWafer, measure,
+      state: s, radius, step, setControl, newWafer, moveWafer, measure, replacePad, tool,
       filmAt: (r, theta = 0) => s.wafer ? Math.max(0, interp(s.wafer.film, r) - s.wafer.tilt * (r / C.waferRadius) * Math.cos(theta - s.wafer.tiltAngle)) : 0,
       meanThickness: () => s.wafer ? areaMean(s.wafer.film) : 0,
       liveWiwnu: () => s.wafer ? stats(pattern(s.wafer.film, s.wafer.tilt, s.wafer.tiltAngle, 0)).wiwnu : 0,

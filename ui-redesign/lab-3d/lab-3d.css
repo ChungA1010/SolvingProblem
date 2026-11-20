@@ -201,6 +201,7 @@ td.num, th.num { text-align: right; }
 .callout .how b { font-size: 10.5px; font-weight: 700; color: var(--grip); margin-right: 7px; }
 .src { font-size: 10.5px; font-weight: 700; border-radius: 6px; padding: 1px 6px; margin-left: 6px; white-space: nowrap; }
 .src.book { background: var(--brand-soft); color: var(--brand); } .src.simple { background: var(--warning-soft); color: var(--warning); }
+.src.data { background: var(--success-soft); color: var(--success-ink); }
 .fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); padding: 24px; text-align: center; }
 
 dialog { border: 0; border-radius: var(--radius-panel); padding: 22px 24px; max-width: 580px; box-shadow: 0 24px 64px #1e293b40; color: var(--ink); }
