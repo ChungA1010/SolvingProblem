@@ -87,7 +87,7 @@ test('the implanter counts the dose, anneals, and the junction is measured', () 
   const sim = M.create({ wafer: { oxide: 500, windows: true, left: 0, resistivity: 10 } }), s = sim.state;
   assert.equal(sim.setControl('anneal', true), false, 'nothing to anneal yet'); assert.equal(sim.now(), null);
   sim.setControl('energy', 62); sim.setControl('dose', 15.04); sim.setControl('temperature', 951); sim.setControl('minutes', 30.4);
-  assert.deepEqual(s.controls, { energy: 60, dose: 15, temperature: 950, minutes: 30 });
+  assert.deepEqual(s.controls, { field: M.fieldFor(30.974), energy: 60, dose: 15, temperature: 950, minutes: 30 }, 'the analyser starts on the P+ peak');
   near(M.implantSeconds(1e15), 113.3, 0.01, 'seconds for 1e15 per cm2 at 1 mA on a 300 mm wafer');
   const planned = sim.outlook();
   assert.equal(sim.setControl('implant', true), true); run(sim, 50);
@@ -125,4 +125,57 @@ test('a thin oxide lets a fast implant through, a bare wafer is doped all over, 
   assert.ok(whole.masked && !whole.reached, 'without windows nothing reaches the silicon');
   const screened = M.create({ wafer: { oxide: 500, windows: true, left: 300, resistivity: 10 } }).outcome({ keV: 60, dose: 1e15 });
   assert.ok(!screened.reached, '300 nm left in the window stops a 60 keV implant');
+});
+
+test('the analyser passes m/q = e B² rho² / 2V: P+ at 0.347 T with 30 kV of extraction and a 0.40 m bend', () => {
+  const expected = Math.sqrt(2 * 30.974 * 1.66053906660e-27 * 30000 / 1.602176634e-19) / 0.4;           // T, from B rho = sqrt(2 m V / q)
+  near(M.fieldFor(30.974), expected, 1e-12, 'field for P+'); near(expected, 0.34696, 1e-4, 'by hand');
+  near(M.massAt(M.fieldFor(61.948)), 61.948, 1e-12, 'and back');
+  near(M.fieldFor(30.974 / 2) / M.fieldFor(30.974), Math.SQRT1_2, 1e-12, 'a doubly charged ion needs 1/sqrt 2 of the field');
+});
+
+test('on the P+ peak the beam is phosphorus ions alone; half way to PH+ little passes; a scan shows P+ as the tallest peak near 31', () => {
+  const beam = M.beamAt(M.fieldFor(30.974)), total = beam.reduce((sum, ion) => sum + ion.current, 0);
+  near(total, 1e-3, 1e-4, 'A on the P+ peak'); assert.ok(beam.find(ion => ion.name === 'P⁺').current / total > 0.9999);
+  assert.ok(M.beamCurrent(M.fieldFor((30.974 + 31.982) / 2)) < 0.15 * total, 'between the peaks');
+  assert.deepEqual(M.ionsAt(M.fieldFor(31.982)).map(ion => ion.name), ['PH⁺']);
+  const top = M.spectrum().filter(p => p.mass > 25 && p.mass < 40).reduce((a, b) => (b.current > a.current ? b : a));
+  assert.ok(Math.abs(top.mass - 30.974) < 0.05, `the tallest peak near 31 is P+: ${top.mass}`);
+});
+
+test('what each ion carries: PH+ one atom at 31/32 of the energy, P2+ two atoms at half, doubly charged P one atom at twice', () => {
+  const at = mq => M.delivered(M.fieldFor(mq), 60, 1e15)[0];
+  const ph = at(31.982), p2 = at(61.948), pp = at(30.974 / 2);
+  near(ph.keV, 60 * 30.974 / 31.982, 1e-9, 'PH+, keV per atom'); near(ph.dose, 1e15, 1e-6, 'PH+, atoms per cm2');
+  near(p2.keV, 30, 1e-9, 'P2+, keV per atom'); near(p2.dose, 2e15, 1e-6, 'P2+: two atoms per counted charge');
+  near(pp.keV, 120, 1e-9, 'P to the 2+, keV'); near(pp.dose, 5e14, 1e-6, 'one atom per two counted charges');
+  assert.deepEqual(M.delivered(M.fieldFor(1.008), 60, 1e15), [], 'hydrogen carries no phosphorus');
+});
+
+test('a mass scan sweeps the magnet in 8 s and records the beam; then the magnet is back on its dial and must be put on a peak', () => {
+  const sim = M.create({ field: 0.2 }), s = sim.state;
+  assert.ok(s.current < C.beam.least); assert.equal(sim.setControl('implant', true), false, 'no beam to implant with');
+  assert.equal(sim.setControl('scan', true), true); run(sim, 4);
+  assert.ok(s.scan && s.spectrum.length > 100 && s.field > 0.25 && s.field < 0.40, `${s.field}`);
+  assert.equal(sim.setControl('field', 0.3), false, 'not during a scan'); assert.equal(sim.setControl('implant', true), false);
+  run(sim, 5);
+  assert.ok(!s.scan && s.spectrum.length === M.spectrum().length && s.field === 0.2);
+  assert.equal(sim.setControl('field', M.fieldFor(30.974)), true); run(sim, 1); near(s.current, 1e-3, 0.01, 'A on the peak');
+  assert.equal(sim.setControl('implant', true), true); assert.equal(sim.setControl('field', 0.3), false, 'not during the implant');
+});
+
+test('tuned to the wrong peak the wafer gets the wrong implant: P2+ goes in at half the energy with twice the phosphorus, hydrogen leaves no junction', () => {
+  const implant = mq => {
+    const sim = M.create({ wafer: { oxide: 500, windows: true, left: 0, resistivity: 10 }, field: M.fieldFor(mq) }), s = sim.state;
+    for (const [name, value] of [['energy', 60], ['dose', 15], ['temperature', 950], ['minutes', 30]]) sim.setControl(name, value);
+    assert.equal(sim.setControl('implant', true), true);
+    while (s.phase === 'implanting') sim.step(5);
+    sim.setControl('anneal', true); while (s.phase === 'annealing') sim.step(5);
+    return s.result;
+  };
+  const right = implant(30.974), molecule = implant(61.948), hydrogen = implant(1.008), Dt = M.diffusivity(950) * 1800;
+  near(right.junction, M.profile({ keV: 60, dose: 1e15, Dt, substrate: M.substrateDoping(10) }).junction, 1e-6, 'P+: the junction as before');
+  near(molecule.junction, M.profile({ keV: 30, dose: 2e15, Dt, substrate: M.substrateDoping(10) }).junction, 1e-6, 'P2+: 2e15 atoms at 30 keV');
+  assert.ok(molecule.surface > right.surface, 'more phosphorus nearer the surface');
+  assert.ok(!hydrogen.reached && !hydrogen.ok && hydrogen.ions[0].name === 'H⁺');
 });

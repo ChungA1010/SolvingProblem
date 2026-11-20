@@ -607,13 +607,36 @@ async function processEtch(t) {
 
 async function processImplant(t) {
   const { b, lab } = await openProcess(t, 'deposition'), S = lab.S, L = lab.layout;
-  const state = () => lab.state(`({ phase: s.phase, energy: s.controls.energy, dose: s.controls.dose, temperature: s.controls.temperature, minutes: s.controls.minutes, counted: s.counted, beam: s.beam, hot: s.hot, anneals: s.anneals.length, result: s.result && { junction: s.result.junction, surface: s.result.surface, ok: s.result.ok, masked: s.result.masked } })`);
+  const state = () => lab.state(`({ phase: s.phase, field: s.controls.field, current: s.current, scanning: !!s.scan, scanned: s.spectrum.length, energy: s.controls.energy, dose: s.controls.dose, temperature: s.controls.temperature, minutes: s.controls.minutes, counted: s.counted, beam: s.beam, hot: s.hot, anneals: s.anneals.length, result: s.result && { junction: s.result.junction, surface: s.result.surface, ok: s.result.ok, masked: s.result.masked } })`);
   const press = async name => b.click(await lab.at(L.buttons[name]), 450);
   await lab.cards();
   let s = await state();
   t.expect(s.phase === 'ready' && s.counted === 0 && s.energy === 100 && s.dose === 14, 'the implanter starts with the wafer flat in the end station and no ion in it', JSON.stringify(s));
   await press('anneal'); await sleep(500);
   t.expect((await state()).phase === 'ready' && /먼저 이온/.test(await lab.guide()), 'the anneal is refused before the implant, and the page says why', await lab.guide());
+
+  // the beam first: with the magnet on no peak nothing reaches the wafer; a mass scan, then the magnet onto the P+ peak
+  let tuning = await lab.monitor();
+  const scanOffered = await reached(b, "/질량 스캔/.test(document.getElementById('guide-text').textContent)", 8000);       // once the notice about the anneal has gone
+  t.expect(s.current < 5e-6 && /패러데이/.test(tuning.note) && scanOffered, 'with the analyser on no peak there is no beam, and the page offers the mass scan', JSON.stringify({ current: s.current, note: tuning.note }));
+  await press('implant'); await sleep(500);
+  t.expect((await state()).phase === 'ready' && /빔 전류가 거의 없/.test(await lab.guide()), 'the implant is refused without a beam, and the page says why', await lab.guide());
+  await press('scan');
+  t.expect(await reached(b, `!!${S}.scan`, 5000), 'the scan button sweeps the magnet');
+  t.expect(await lab.fast(`!${S}.scan && ${S}.spectrum.length > 1000`, 1, 30000), 'the scan records the beam current over the whole field');
+  await sleep(900); tuning = await lab.monitor(); await t.shot('1-mass-scan');
+  const peaks = await b.evaluate(`(() => { const points = [...document.querySelectorAll('#trend path')].map(p => p.getAttribute('d') || ''); return { paths: points.length, marker: points.some(d => /^M[\\d.]+,[\\d.]+ V/.test(d)) }; })()`);
+  t.expect(tuning.trend && peaks.marker && /패러데이/.test(tuning.note), 'the monitor plots the scan with a mark where the magnet stands', JSON.stringify(peaks));
+  const field = await lab.at(L.dials.field);
+  await b.drag(line(field, { x: field.x + 294, y: field.y }, 14)); await sleep(900);
+  for (let i = 0; i < 6; i++) {                                                                // the last touch: a notch either way while the current rises
+    const here = (await state()).current;
+    await b.wheel(field, -100); await sleep(500); if ((await state()).current > here * 1.001) continue;
+    await b.wheel(field, 100); await sleep(150); await b.wheel(field, 100); await sleep(500); if ((await state()).current > here * 1.001) continue;
+    await b.wheel(field, -100); await sleep(500); break;
+  }
+  s = await state();
+  t.expect(s.current > 0.9e-3 && Math.abs(s.field - 0.347) < 0.0008, 'the magnet dial dragged onto the tallest peak near 31 gives a beam of about 1 mA: P+', JSON.stringify({ field: s.field, current: s.current }));
 
   // energy by dragging its dial, dose by the wheel; the wafer monitor shows the profile these dials would give
   const before = await lab.monitor(), energy = await lab.at(L.dials.energy), dose = await lab.at(L.dials.dose);
@@ -626,7 +649,7 @@ async function processImplant(t) {
 
   await press('implant');
   t.expect(await reached(b, `${S}.beam && ${S}.counted > 1e14`, 30000), 'the implant button stands the wafer in the beam and the dose is counted up');
-  await sleep(1500); await t.shot('1-implanting');
+  await sleep(1500); await t.shot('2-implanting');
   t.expect(await lab.fast(`${S}.phase === 'implanted'`, 240), 'the beam stops when the dose on the dial has been counted');
   s = await state(); t.expect(Math.abs(s.counted - 1e15) < 1e9 && !s.beam, 'the wafer holds the dose that was set', `${s.counted}`);
   await press('implant'); await sleep(500);
@@ -638,7 +661,7 @@ async function processImplant(t) {
   s = await state(); t.expect(s.temperature === 950 && s.minutes === 10, 'the anneal temperature is set on its dial', JSON.stringify(s));
   await press('anneal');
   t.expect(await reached(b, `${S}.hot === 950`, 30000), 'the anneal button moves the wafer under the lamps and heats it');
-  await sleep(1500); await t.shot('2-annealing');
+  await sleep(1500); await t.shot('3-annealing');
   t.expect(await lab.fast(`${S}.phase === 'done'`, 1200), 'the anneal ends after the time on the dial and the junction is measured');
   s = await state(); const first = s.result, offered = await lab.guide();
   t.expect(first && !first.ok && first.junction < 250 && /더 할 수 있/.test(offered), 'ten minutes leave the junction too shallow, and the page says the anneal can be repeated', `${JSON.stringify(first)} | ${offered}`);
@@ -896,7 +919,7 @@ async function processAll(t) {
   await set([['power', 0]]); await sleep(600); await set([['load', false]]); await until(`!!${S}.result && ${S}.inside <= 0`, 30);
   passed('4 etch: the windows are opened, and the implanter opens on them', await handOver(3, 'implant'));
 
-  await set([['energy', 60], ['dose', 15], ['implant', true]]); await until(`${S}.phase === 'implanted'`, 600);
+  await set([['field', 0.347], ['energy', 60], ['dose', 15], ['implant', true]]); await until(`${S}.phase === 'implanted'`, 600);          // the analyser onto the P+ peak first
   await set([['temperature', 950], ['minutes', 30], ['anneal', true]]); await until(`${S}.phase === 'done'`, 3000);
   passed('5 implantation: the junction is made in the windows, and the plating cell opens on it', await handOver(4, 'plating'));
 

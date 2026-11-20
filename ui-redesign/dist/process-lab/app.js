@@ -344,7 +344,7 @@
     const glow = clamp((celsius - 550) / 500, 0, 1); if (glow > 0) { x.fillStyle = `rgba(255,112,26,${0.75 * glow})`; x.fillRect(0, 0, n, n); }      // hot wafers glow; the film colour shows when they cool
     x.restore(); x.fillStyle = '#f8f9fc'; x.beginPath(); x.moveTo(n / 2 - 6, n); x.lineTo(n / 2, n - 9); x.lineTo(n / 2 + 6, n); x.fill();
   }
-  /** Small chart of the monitor: one series over the run, an optional band for the target and an optional level line. */
+  /** Small chart of the monitor: one series over the run, an optional band for the target, an optional level line and an optional upright marker. */
   function renderTrend(t) {
     trendNow = t; $('trend').hidden = !t; if (!t) return;
     const w = 218, h = 56, pad = 2, X = v => pad + (w - 2 * pad) * clamp(v / t.xMax, 0, 1), Y = v => h - 12 - (h - 16) * clamp(v / t.yMax, 0, 1.04);
@@ -353,6 +353,7 @@
       t.band ? svg('rect', { x: pad, y: Y(t.band[1]), width: w - 2 * pad, height: Math.max(1, Y(t.band[0]) - Y(t.band[1])), fill: '#10b98133' }) : null,
       svg('path', { d: `M${pad},${h - 12} H${w - pad}`, stroke: '#cbd3df', 'stroke-width': 1 }),
       t.level != null ? svg('path', { d: `M${pad},${Y(t.level)} H${w - pad}`, stroke: '#f26a1b', 'stroke-width': 1.2, 'stroke-dasharray': '4 3' }) : null,
+      t.marker != null ? svg('path', { d: `M${X(t.marker).toFixed(1)},${pad} V${h - 12}`, stroke: '#f26a1b', 'stroke-width': 1.2, 'stroke-dasharray': '3 2' }) : null,
       line ? svg('path', { d: line, fill: 'none', stroke: '#0d6efd', 'stroke-width': 2, 'stroke-linejoin': 'round' }) : null,
       end && !t.noDot ? svg('circle', { cx: X(t.x(end)), cy: Y(t.y(end)), r: 3.2, fill: '#0d6efd', stroke: '#fff', 'stroke-width': 1.5 }) : null,
       svg('text', { x: pad, y: h - 1, 'font-size': 10, fill: '#8b98ab' }, t.xStart ?? '0'), svg('text', { x: w - pad, y: h - 1, 'font-size': 10, fill: '#8b98ab', 'text-anchor': 'end' }, t.xLabel)));

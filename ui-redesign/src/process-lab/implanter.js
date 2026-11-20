@@ -1,6 +1,6 @@
 // Ion implanter of the process lab: ion source, analyser magnet, acceleration column, beam scanner and the end station
 // where the wafer is tilted into the beam, with an anneal chamber beside it. Proportions only; the label IM-01 is made up.
-// Controls: energy, dose, temperature, minutes (dials) and implant, anneal (push buttons).
+// Controls: field (the analyser magnet), energy, dose, temperature, minutes (dials) and scan, implant, anneal (push buttons).
 // Info parts: source, magnet, column, scanner, chamber, annealer, wafer, hmi, tower.
 // State comes from dist/process-lab/implant-model.js.
 import { makeParts } from './parts.js';
@@ -105,12 +105,13 @@ export function buildImplanter(kit) {
   const hmi = parts.screen(c.x, 1.31, c.front);
   const doseText = v => `${(10 ** (v - Math.floor(v + 1e-9))).toFixed(1)}E${Math.floor(v + 1e-9)}`;
   const dials = {
-    energy: parts.dial('energy', c.x - 0.39, 0.99, c.front, { min: 20, max: 200, major: 20, minor: 5, unit: 'keV', perPixel: 0.5, wheel: 5, title: 'E' }),
-    dose: parts.dial('dose', c.x - 0.13, 0.99, c.front, { min: 13, max: 16, major: 1, minor: 0.1, unit: 'cm⁻²', perPixel: 0.01, wheel: 0.1, title: 'DOSE', tick: v => `1E${Math.round(v)}`, readout: doseText }),
-    temperature: parts.dial('temperature', c.x + 0.13, 0.99, c.front, { min: 800, max: 1100, major: 100, minor: 10, unit: '°C', perPixel: 1, wheel: 10, title: 'TEMP' }),
-    minutes: parts.dial('minutes', c.x + 0.39, 0.99, c.front, { min: 1, max: 60, major: 10, minor: 1, unit: 'min', perPixel: 0.2, wheel: 1, title: 'TIME' }),
+    field: parts.dial('field', c.x - 0.42, 0.99, c.front, { min: 0.05, max: 0.60, major: 0.1, minor: 0.01, unit: 'T', perPixel: 0.0005, wheel: 0.0005, title: 'MAGNET', tick: v => v.toFixed(1), readout: v => `${v.toFixed(3)} T` }),
+    energy: parts.dial('energy', c.x - 0.21, 0.99, c.front, { min: 20, max: 200, major: 20, minor: 5, unit: 'keV', perPixel: 0.5, wheel: 5, title: 'E' }),
+    dose: parts.dial('dose', c.x, 0.99, c.front, { min: 13, max: 16, major: 1, minor: 0.1, unit: 'cm⁻²', perPixel: 0.01, wheel: 0.1, title: 'DOSE', tick: v => `1E${Math.round(v)}`, readout: doseText }),
+    temperature: parts.dial('temperature', c.x + 0.21, 0.99, c.front, { min: 800, max: 1100, major: 100, minor: 10, unit: '°C', perPixel: 1, wheel: 10, title: 'TEMP' }),
+    minutes: parts.dial('minutes', c.x + 0.42, 0.99, c.front, { min: 1, max: 60, major: 10, minor: 1, unit: 'min', perPixel: 0.2, wheel: 1, title: 'TIME' }),
   };
-  const buttons = { implant: parts.button('implant', 'IMPLANT', c.x - 0.26, 0.70, c.front, 0x38bdf8), anneal: parts.button('anneal', 'ANNEAL', c.x + 0.26, 0.70, c.front, 0xf59e0b) };
+  const buttons = { scan: parts.button('scan', 'MASS SCAN', c.x - 0.38, 0.70, c.front, 0xa78bfa), implant: parts.button('implant', 'IMPLANT', c.x - 0.12, 0.70, c.front, 0x38bdf8), anneal: parts.button('anneal', 'ANNEAL', c.x + 0.31, 0.70, c.front, 0xf59e0b) };
   const tower = parts.tower(c.x + 0.44, 1.50, c.front - 0.30);
 
   let drawn = '', lift = 0, heat = 25;
@@ -124,7 +125,7 @@ export function buildImplanter(kit) {
     if (view.windows) { x.fillStyle = 'rgba(150,160,176,.85)'; const cell = n / 10; for (let i = 0; i < 64; i++) x.fillRect((i % 8 + 1) * cell + 4, (Math.floor(i / 8) + 1) * cell + 4, cell - 8, cell - 8); }   // fields of windows
     filmTexture.needsUpdate = true;
   }
-  /** `view`: phase, beam, hot (C), controls { energy, dose, temperature, minutes }, filmColor, windows, alarm. */
+  /** `view`: phase, beam, scanning, hot (C), controls { field, energy, dose, temperature, minutes }, filmColor, windows, alarm. */
   function update(view, dt, clock) {
     const away = view.phase === 'annealing' || view.phase === 'done';
     lift += ((view.phase === 'implanting' ? 1 : 0) - lift) * Math.min(1, dt * 3.5);                                   // 0: flat on the platen, 1: lifted and tilted into the beam
@@ -144,7 +145,7 @@ export function buildImplanter(kit) {
     glowMaterial.opacity = Math.abs(holder.position.x - ANNEAL) < 0.03 ? strength * 0.7 : 0;
     paintWafer(view);
     for (const [name, dial] of Object.entries(dials)) dial.set(view.controls[name]);
-    buttons.implant.set(view.phase === 'ready', dt, false); buttons.anneal.set(view.phase === 'implanted' || view.phase === 'done', dt, false);
+    buttons.scan.set(view.phase === 'ready' && !view.scanning, dt, false); buttons.implant.set(view.phase === 'ready' && !view.scanning, dt, false); buttons.anneal.set(view.phase === 'implanted' || view.phase === 'done', dt, false);
     tower.set(view.alarm ? 2 : view.phase === 'implanting' || view.phase === 'annealing' ? 0 : 1, dt, clock);
   }
 
