@@ -288,5 +288,5 @@
   /** Takes a run back to a snapshot: the processes from there on are open again. */
   function restore(run, snap) { run.at = snap.at; run.wafer = snap.wafer; run.records = snap.records.slice(); run.finished = false; return run; }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, dies, defects, empty, snapshot, restore, sci, implanted, metallised, apply, arriving, createRun, complete };
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, BIN_NAMES, dies, defects, empty, snapshot, restore, sci, implanted, metallised, apply, arriving, createRun, complete };
 });

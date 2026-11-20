@@ -95,13 +95,31 @@
     if (!thumb) root.append(svg('path', { d: `M${WIDTH - 104},${HEIGHT - 18} h80`, stroke: '#1e293b', 'stroke-width': 2 }), svg('text', { x: WIDTH - 64, y: HEIGHT - 24, 'text-anchor': 'middle', 'font-size': 12, 'font-weight': 600, fill: '#1e293b' }, '1 µm'));
     return root;
   }
+  /**
+   * What failed a chip, for the colours of the large wafer map: in the route's own test, the process behind it; on the
+   * prober, the test it failed. The four colours with the good one were checked for colour-blind separation on the map's
+   * grey, every pair against every other (the dataviz validator); failed chips also carry a cross, and the legend counts them.
+   */
+  const CAUSE = { defect: 'defect', closed: 'etch', residue: 'metal', scratch: 'metal', burnt: 'metal', dish: 'metal', process: 'process', contact: 'contact', leak: 'leak', voltage: 'voltage' };
+  const CAUSE_INK = { defect: '#e34948', etch: '#2a78d6', metal: '#eda100', process: '#e34948', contact: '#2a78d6', leak: '#e34948', voltage: '#eda100' };
+  const CAUSE_NAME = { defect: '결함', etch: '식각 (창 막힘)', metal: '금속배선', process: '공정 불량', contact: '접촉', leak: '누설', voltage: '전압' };
+  const causeOf = entry => entry && CAUSE[entry.bin];
+  /** The large wafer map's key: good chips and each cause of failure on this wafer, with how many. */
+  function mapLegend(tested) {
+    if (!tested || !tested.dies) return null;
+    const counts = new Map();
+    for (const die of tested.dies) if (die.good === false) { const cause = causeOf(die) || 'process'; counts.set(cause, (counts.get(cause) || 0) + 1); }
+    return el('p', { class: 'legend' }, el('span', {}, el('i', { style: `background:${INK.good}` }), `양품 ${fmt(tested.good)}`),
+      [...counts].map(([cause, n]) => el('span', {}, el('i', { style: `background:${CAUSE_INK[cause]}` }), `${CAUSE_NAME[cause]} ${fmt(n)}`)));
+  }
   function waferMap(tested, thumb = false) {
     const root = svg('svg', { viewBox: '-162 -162 324 324', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': tested ? `웨이퍼 맵: 양품 ${tested.good}개, 불량 ${tested.total - tested.good}개` : '웨이퍼 맵' });
     root.append(svg('circle', { cx: 0, cy: 0, r: 150, fill: '#dfe4ec', stroke: '#b8c1ce', 'stroke-width': thumb ? 3 : 1.5 }), svg('path', { d: 'M-5,150 L0,143 L5,150 Z', fill: '#f3f5f9' }));
     F.dies().forEach((die, i) => {
       const entry = tested && tested.dies ? tested.dies[i] : null, good = !tested ? null : entry ? entry.good : tested.good > 0;
-      const tip = thumb || good == null ? null : entry && entry.text ? entry.text : good ? '양품' : entry && entry.bin === 'defect' ? '불량 · 결함' : '불량';
-      root.append(svg('rect', { x: die.x - 9.2, y: -die.y - 9.2, width: 18.4, height: 18.4, rx: 1.5, fill: good == null ? '#aeb8c6' : good ? INK.good : INK.bad }, tip ? svg('title', {}, tip) : null));   // the title shows under the pointer
+      const tip = thumb || good == null ? null : entry && entry.text ? entry.text : good ? '양품' : `불량 · ${(entry && F.BIN_NAMES[entry.bin]) || (tested.reason ? tested.reason : '공정')}`;
+      const failed = thumb ? INK.bad : CAUSE_INK[causeOf(entry) || 'process'];                                               // a thumbnail only tells good from bad
+      root.append(svg('rect', { x: die.x - 9.2, y: -die.y - 9.2, width: 18.4, height: 18.4, rx: 1.5, fill: good == null ? '#aeb8c6' : good ? INK.good : failed }, tip ? svg('title', {}, tip) : null));   // the title shows under the pointer
       if (good === false && !thumb) root.append(svg('path', { d: `M${die.x - 5},${-die.y - 5} l10,10 m0,-10 l-10,10`, stroke: '#fff', 'stroke-width': 1.6, 'stroke-linecap': 'round' }));   // not by colour alone
     });
     return root;
@@ -213,7 +231,7 @@
         mine ? el('button', { type: 'button', class: 'btn primary', id: 'redo-here', text: '이 웨이퍼로 다시 하기', onclick: () => redo(i) }) : null,
       ]),
       el('div', { class: 'figure' }, !done ? picture(i === 0 ? 0 : i - 1, incoming, false, from) : same ? section(incoming, false, from) : picture(i, after[i]), done && same ? el('div', { class: 'after' }, section(after[i], false, from)) : null),
-      i <= 6 ? legend(done ? after[i] : incoming) : null,
+      i === 6 && done ? mapLegend(after[i].tested) : i <= 6 ? legend(done ? after[i] : incoming) : null,
       record ? el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }) : null,
       el('p', { class: 'assumed', text: mine ? '이 웨이퍼로 다시 하면 앞 공정에서 만든 것은 그대로 두고 이 공정부터 다시 합니다. 이 공정과 그 뒤 공정의 결과는 지워집니다. 표준 웨이퍼로 새로 시작하면 지금 웨이퍼는 버립니다.'
         : `표준 웨이퍼로 새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 끝낸 것으로 치고, 지금 웨이퍼는 버립니다.` }),
@@ -225,7 +243,7 @@
     runBench = [
       head(i, el('button', { type: 'button', class: 'btn primary', id: 'next-step', text: next ? `다음: ${next.name}` : '공정 기록 보기', onclick: enter })),
       el('div', { class: 'figure' }, same ? section(before, false, from) : picture(i, run.wafer), same ? el('div', { class: 'after' }, section(run.wafer, false, from)) : null),
-      same ? legend(run.wafer) : null,
+      same ? legend(run.wafer) : i === 6 ? mapLegend(run.wafer.tested) : null,
       el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }),
       el('p', { class: 'assumed', text: '표준 조건으로 처리했습니다. 위 수치는 가정한 값이며 계산한 결과가 아닙니다.' }),
     ];
