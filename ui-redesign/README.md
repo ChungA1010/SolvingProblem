@@ -94,4 +94,13 @@ node tools/build-standalone.mjs    # 사이트 전체를 한 파일로: standalo
 | `dist/lab-sim.html`, `dist/lab-sim/`, `LAB-SIM.md` | `lab-sim/` |
 | `dist/styles.css`, `dist/fonts/`, `src/input.css` | `shared/` |
 
-옮기기 전의 자리에서 하던 작업이 있으면, 먼저 커밋한 뒤에 이 변경을 병합한다. 고치던 파일은 git이 새 자리로 따라가 합쳐 준다. 옛 자리에 새로 만든 파일은 따라오지 않으므로 손으로 새 폴더에 옮긴다.
+### 옮기기 전의 자리에서 하던 작업이 있으면
+
+먼저 커밋한 뒤에 이 변경을 병합한다(`git merge`). 예전 구조에서 게임 파일을 고친 커밋을 만들어 병합해 본 결과는 이렇다.
+
+- **고치던 파일**은 git이 새 자리로 따라가 합쳐 준다. `game.js`, CSS, 테스트, 3D 원본, 그리고 `game.html`의 대부분이 그랬다.
+- **`game.html`에서 주소를 고친 줄**을 같이 고쳤으면 충돌이 난다. 머리 부분이 통째로 든 둘째 줄, 설정 메뉴의 `모드 선택`·`학습 실험실` 링크와 그 바로 옆 줄, `index.html#intro` 링크가 든 줄이다. 자기 쪽 내용을 살리고 주소 넷만 새 것으로 둔다: `../shared/styles.css`, `../index.html#home`, `../lab-3d/lab-3d.html`, `../index.html#intro`.
+- **`dist/`에 새로 만든 파일**은 git이 `factory/`로 옮겨 놓고 한 번 묻는다(`CONFLICT (file location)`). 그 자리가 맞으면 `git add`로 받아들인다.
+- **`tests/`에 새로 만든 테스트**는 그 자리에 남는다. `factory/tests/`로 옮기고 `require('../dist/…')`를 `require('../…')`로 고친다.
+
+병합한 뒤 단위 테스트를 돌리면, 어긋난 주소가 남아 있을 때 `tests/site-layout.test.cjs`가 어느 파일인지 알려 준다.
