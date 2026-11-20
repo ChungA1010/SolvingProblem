@@ -11,8 +11,9 @@
  *     the heat coming up from the melt leave through the crystal). The heat the crystal can take away goes with
  *     1 / sqrt(radius), and the heat from the melt with its superheat dT above the melting point, which adds to the pull
  *     speed as v + c dT. So the radius settles at 150 mm x ((1 + 5 c) / (v + c dT))^2, v in mm/min: pull faster or heat
- *     the melt more and the crystal thins. c = 0.03 mm/min per K is k_l / (rho L delta) for liquid silicon (k_l = 64
- *     W/m K, rho L = 4.2e9 J/m3) over a thermal layer of delta = 3 cm (assumed). That 300 mm holds at 1 mm/min with
+ *     the melt more and the crystal thins. c = 0.03 mm/min per K is k_l / (rho L delta): molten silicon conducts
+ *     k_l = 45.6 W/m K (Minagawa, Nagai et al., Jpn. J. Appl. Phys. 39, 1405 (2000)); rho L = 2.33 g/cm3 x 1.8 kJ/g =
+ *     4.2e9 J/m3 (the heat of fusion is 1.79 to 1.85 kJ/g in the literature); the thermal layer delta = 2 cm is assumed. That 300 mm holds at 1 mm/min with
  *     5 K of superheat is a representative value. The radius closes on its equilibrium over about 30 mm of pulled length
  *     and cannot change by more than 1.2 mm per mm pulled: assumed.
  *   Heater: the melt's superheat follows the heater with a time constant of 10 minutes, 1 K per kW above the 100 kW
