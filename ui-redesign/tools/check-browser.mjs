@@ -1,30 +1,36 @@
-// Browser checks of what a visitor can reach: the home page, the learning lab (the 3D CMP tool), the 8-process lab and
-// the single-file build.
+// Browser checks of what a visitor can reach: the home page, the game page as far as its files and links go, the
+// learning lab (the 3D CMP tool), the 8-process lab and the single-file build.
 //
 // Each check opens the page in a headless Chrome or Edge, uses it with real mouse and keyboard input and compares
-// what the page shows with what it should show. The unit tests (node --test tests/*.test.cjs) cover the calculations;
+// what the page shows with what it should show. The unit tests (npm test) cover the calculations;
 // these checks cover what only a browser can tell: layout, hover cards, dragging the parts, panels that open and close,
 // links between the pages, and that nothing is fetched from the internet.
 //
-// Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
+// Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html] [--site folder]
+//   checks: home, game, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
+//   The pages are opened from this folder, or from the copy of the site given with --site (tools/export-site.mjs makes one).
 // The 3D pages render in software at about 3 frames per second, so a full run takes several minutes.
 // Needs Node 22 or newer and Chrome or Edge (see tools/headless-browser.mjs). The exit code is 1 if anything failed.
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { openBrowser, sleep } from './headless-browser.mjs';
+import layout from './site-files.cjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'), dist = path.join(root, 'dist');
-const fileUrl = (...parts) => pathToFileURL(path.join(...parts)).href;
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');   // the site root
+let site = root;                                                                  // where the pages are opened from; --site changes it
+/** Address of a page of the site, by its name in tools/site-files.cjs: index, game, lab-3d, process-lab. */
+const pageUrl = name => pathToFileURL(path.join(site, layout.PAGES[name])).href;
+/** What the home page has to offer and nothing else: the game, the learning lab and the tab of the 8-process lab. */
+const DOORS = ['game', 'lab-3d', 'process-lab'].map(name => `./${layout.PAGES[name]}`).sort().join(',');
 const same = (a, b, tolerance = 1) => Math.abs(a - b) <= tolerance;
 const line = (a, b, steps = 10) => Array.from({ length: steps + 1 }, (_, i) => ({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps }));
 const reached = (browser, expression, ms) => browser.until(expression, ms).then(() => true, () => false);
 let standaloneFile = path.join(root, 'standalone/CMP-Lab.html');   // --file changes it
-const LAB = 'window.Lab3DDebug';   // the hooks dist/lab-3d/app.js leaves for these checks
+const LAB = 'window.Lab3DDebug';   // the hooks lab-3d/app.js leaves for these checks
 const leavesHome = entry => !['#home', '#main'].includes(entry);   // the brand link, the current tab and the skip link stay on the home page
 /** Notes every click that reaches the page, with whether it landed on the element a check was aiming at (see clickOn). */
 const watchClicks = b => b.evaluate(`(() => { window.__clicks = 0; window.__onTarget = false; document.addEventListener('click', event => { window.__clicks++; window.__onTarget = !!event.target.closest('[data-check-target]'); }, true); })()`);
@@ -45,12 +51,12 @@ async function clickOn(b, selector, settle = 900) {
 async function home(t) {
   const b = await t.open({ width: 1600, height: 1000, room: [2040, 1300] });
   const shown = selector => b.evaluate(`[...document.querySelectorAll(${JSON.stringify(selector)})].some(e => e.getClientRects().length > 0)`);
-  await b.goto(fileUrl(dist, 'index.html'));
+  await b.goto(pageUrl('index'));
   await b.until(`document.readyState === 'complete' && document.querySelectorAll('.door-art img').length === 2 && [...document.querySelectorAll('.door-art img')].every(i => i.complete)`);
   await sleep(1500);
 
   const entries = await b.evaluate(`[...document.querySelectorAll('a[href], button')].filter(e => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden').map(e => e.getAttribute('href') || '#' + (e.dataset.page || ''))`);
-  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html,./process-lab.html', 'the page offers the factory game, the learning lab and the tab of the 8-process lab, and nothing else', entries.join(' '));
+  t.expect(String(entries.filter(leavesHome).sort()) === DOORS, 'the page offers the factory game, the learning lab and the tab of the 8-process lab, and nothing else', entries.join(' '));
   const parked = await b.evaluate(`[...document.querySelectorAll('[data-parked]')].map(e => e.getClientRects().length > 0)`);
   t.expect(parked.length > 0 && !parked.includes(true), `the ${parked.length} parked entries stay out of sight`);
   t.expect(!(await shown('.sidebar')) && !(await shown('.topbar')), 'the workspace frame (side menu, top bar) is hidden on the home page');
@@ -85,10 +91,41 @@ async function home(t) {
   t.expect(await reached(b, `location.pathname.endsWith('lab-3d.html') && !!(${LAB} && ${LAB}.scene)`, 60000), 'a click on the learning-lab picture opens the 3D tool');
 }
 
+// ----- game page -----
+// The game has its own tests and play records (factory/README.md). This only looks at what the folder split can break:
+// that the page, opened from its own folder, gets every file it asks for, and that its links reach the other pages.
+async function game(t) {
+  const b = await t.open({ width: 1600, height: 1000 });
+  await b.goto(pageUrl('game'));
+  await b.until(`document.readyState === 'complete' && !!document.querySelector('.settings-actions')`, 120000);
+  await sleep(5000);                                                                           // the 3D bundle is 23 MB
+  const page = await b.evaluate(`(async () => { await document.fonts.ready; return {
+    scene: typeof window.CMPScene,
+    tokens: getComputedStyle(document.documentElement).getPropertyValue('--dp-color-accent').trim(),
+    font: [...document.fonts].filter(face => /Pretendard/.test(face.family)).map(face => face.status).join(','),
+    pictures: [...document.images].filter(image => image.currentSrc).map(image => image.complete && image.naturalWidth > 0),
+    figure: getComputedStyle(document.getElementById('shop-figure')).backgroundImage }; })()`);
+  t.expect(page.scene === 'object', 'the game page loads its 3D bundle from its own folder', JSON.stringify(page.scene));
+  t.expect(page.tokens !== '' && page.font.includes('loaded'), 'the shared stylesheet and the font beside it arrive from shared/', JSON.stringify({ tokens: page.tokens, font: page.font }));
+  t.expect(page.pictures.length >= 4 && !page.pictures.includes(false), `its ${page.pictures.length} pictures load`, JSON.stringify(page.pictures));
+  t.expect(/media\/counter-art\/[a-z]+-expressions\.png/.test(page.figure), 'the customer, whose picture path a script builds, is drawn from the game\'s own media', page.figure);
+  await t.shot('1-counter');
+
+  await b.evaluate(`document.querySelector('.settings-actions a[href="../index.html#home"]').click()`);
+  t.expect(await reached(b, `location.pathname.endsWith('/index.html') && location.hash === '#home' && document.querySelectorAll('.door').length === 2`, 60000), 'its menu link leads to the mode selection');
+  await b.evaluate(`document.querySelector('a.door-factory').click()`);
+  t.expect(await reached(b, `location.pathname.endsWith('/factory/game.html') && !!document.querySelector('.settings-actions')`, 120000), 'and the home page leads back to the game');
+  await sleep(1500);
+  await b.evaluate(`document.querySelector('.settings-actions a[href="../lab-3d/lab-3d.html"]').click()`);
+  t.expect(await reached(b, `location.pathname.endsWith('/lab-3d/lab-3d.html') && !!(${LAB} && ${LAB}.scene)`, 90000), 'its other menu link opens the learning lab');
+  await b.goto(pathToFileURL(path.join(site, 'game.html')).href);
+  t.expect(await reached(b, `location.pathname.endsWith('/factory/game.html') && !!document.querySelector('.settings-actions')`, 120000), 'the old address of the game (game.html beside index.html) is sent on to it');
+}
+
 // ----- learning lab -----
 async function openLab(t, width = 1600, height = 1000) {
   const b = await t.open({ width, height });
-  await b.goto(`${fileUrl(dist, 'lab-3d.html')}?seed=11`);                                   // a fixed seed: the same incoming wafers every run
+  await b.goto(`${pageUrl('lab-3d')}?seed=11`);                                   // a fixed seed: the same incoming wafers every run
   if (!(await reached(b, `!!(${LAB} && ${LAB}.scene)`, 60000))) throw new Error(await b.evaluate(`!document.getElementById('fallback').hidden`).catch(() => false) ? 'the page could not start WebGL in this browser' : 'the 3D tool did not start');
   await sleep(2500);
   await watchClicks(b);
@@ -274,7 +311,7 @@ const PL = 'window.ProcessLabDebug';
 /** The route by itself, with every process passed by the standard recipe (equipment=off). */
 async function processRoute(t) {
   const b = await t.open({ width: 1600, height: 1000 });
-  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&equipment=off`);
+  await b.goto(`${pageUrl('process-lab')}?seed=5&equipment=off`);
   if (!(await reached(b, `!!${PL}`, 30000))) throw new Error('the page did not start');
   await sleep(800); await watchClicks(b);
   const bench = () => b.evaluate(`({ title: document.querySelector('.bench h2').textContent, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0, finished: !!${PL}.run && ${PL}.run.finished,
@@ -324,7 +361,7 @@ async function processRoute(t) {
  */
 async function processFlow(t) {
   const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
-  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5`);
+  await b.goto(`${pageUrl('process-lab')}?seed=5`);
   if (!(await reached(b, `!!${PL}`, 30000))) throw new Error('the page did not start');
   await sleep(1200); await watchClicks(b);
   const at = () => b.evaluate(`({ mode: ${PL}.mode, equipment: ${PL}.station ? ${PL}.station.equipment : null, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0,
@@ -369,7 +406,7 @@ async function processFlow(t) {
 /** Opens the 8-process lab at a process that has equipment, and returns helpers for checking that equipment. */
 async function openProcess(t, id) {
   const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
-  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&start=${id}`);
+  await b.goto(`${pageUrl('process-lab')}?seed=5&start=${id}`);
   if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station' && !!${PL}.sim`, 30000))) throw new Error(`the equipment of ${id} did not open`);
   await sleep(3000); await watchClicks(b);
   const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById(document.getElementById('stage').dataset.view === 'cmp' ? 'scene-cmp' : 'scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);   // the canvas on show
@@ -897,7 +934,7 @@ async function processBond(t) {
  */
 async function processAll(t) {
   const b = await t.open({ width: 1600, height: 1000 }), S = `${PL}.sim.state`;
-  await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&start=wafer`);
+  await b.goto(`${pageUrl('process-lab')}?seed=5&start=wafer`);
   if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station' && !!${PL}.sim`, 30000))) throw new Error('the first equipment did not open');
   await sleep(2500);
   const set = pairs => b.evaluate(`(() => { const d = ${PL}; return ${JSON.stringify(pairs)}.map(([name, value]) => d.station.control(d.sim, name, value)); })()`);
@@ -962,20 +999,15 @@ async function processAll(t) {
 }
 
 // ----- single-file build -----
-function newerThan(file, folder) {                                                             // files under folder changed after file was written
-  const built = statSync(file).mtimeMs, newer = [];
-  for (const entry of readdirSync(folder, { recursive: true, withFileTypes: true })) {
-    if (!entry.isFile()) continue;
-    const at = path.join(entry.parentPath ?? entry.path, entry.name);
-    if (statSync(at).mtimeMs > built) newer.push(path.relative(folder, at));
-  }
-  return newer;
+function newerThan(file) {                                                                     // files of the site changed after file was written
+  const built = statSync(file).mtimeMs;
+  return layout.siteFiles(root).filter(name => statSync(path.join(root, name)).mtimeMs > built);
 }
 
 async function standalone(t) {
   const file = standaloneFile;
-  const stale = newerThan(file, dist);
-  if (stale.length) t.note(`dist/ has ${stale.length} file(s) changed after this file was built (for example ${stale[0]}): rebuild before handing it out`);
+  const stale = newerThan(file);
+  if (stale.length) t.note(`the site has ${stale.length} file(s) changed after this file was built (for example ${stale[0]}): rebuild before handing it out`);
   const b = await t.open({ width: 1600, height: 1000 });
   await b.offline();                                                                           // the file has to work with the network cut off
   const F = `document.querySelector('iframe').contentWindow`, D = `${F}.Lab3DDebug`;
@@ -990,7 +1022,7 @@ async function standalone(t) {
   t.expect(String(pages) === 'index,game,lab-3d,process-lab', 'the file holds the home page, the game, the learning lab and the 8-process lab', pages.join(' '));
   t.expect(!(await b.evaluate(`!!document.getElementById('cmp-data:lab-sim-replay')`)), 'no PHM replay data is embedded (a file built with --all holds it and must not be handed out)');
   const entries = await visible('#page-home a, #page-home button');
-  t.expect(String(entries.filter(leavesHome).sort()) === './game.html,./lab-3d.html,./process-lab.html' && !(await parkedShown()), 'the home page offers the game, the learning lab and the 8-process lab only', entries.join(' '));
+  t.expect(String(entries.filter(leavesHome).sort()) === DOORS && !(await parkedShown()), 'the home page offers the game, the learning lab and the 8-process lab only', entries.join(' '));
   t.expect(await b.evaluate(`[...${F}.document.querySelectorAll('.door-art img')].every(i => i.complete && i.naturalWidth > 0)`), 'the home pictures are inside the file');
   await t.shot('1-home');
 
@@ -1019,9 +1051,9 @@ async function standalone(t) {
   t.expect(gameOpen, 'the game opens inside the file');
   if (gameOpen) {
     await sleep(4000);
-    t.expect(await b.evaluate(`(() => { const a = ${F}.document.querySelector('a[href="./index.html#intro"]'); return !a || ${F}.getComputedStyle(a).display === 'none'; })()`), 'the game\'s link to the parked 5-run challenge is hidden');
+    t.expect(await b.evaluate(`(() => { const a = ${F}.document.querySelector('a[href="../index.html#intro"]'); return !a || ${F}.getComputedStyle(a).display === 'none'; })()`), 'the game\'s link to the parked 5-run challenge is hidden');
     await t.shot('3-game');
-    await b.evaluate(`${F}.document.querySelector('.settings-actions a[href="./lab-3d.html"]').click()`);
+    await b.evaluate(`${F}.document.querySelector('.settings-actions a[href="../lab-3d/lab-3d.html"]').click()`);
     t.expect(await reached(b, `location.hash === '#lab-3d' && !!(${D} && ${D}.scene)`, 90000), 'the game\'s menu link opens the learning lab');
   }
 
@@ -1049,22 +1081,23 @@ async function standalone(t) {
 
 // ----- runner -----
 const CHECKS = {
-  home: { run: home, minutes: 4, about: 'dist/index.html, the mode selection' },
-  'lab-hover': { run: labHover, minutes: 8, about: 'dist/lab-3d.html, a card for every part' },
-  'lab-operate': { run: labOperate, minutes: 10, about: 'dist/lab-3d.html, one wafer polished and measured by dragging the parts' },
-  'lab-panels': { run: labPanels, minutes: 12, about: 'dist/lab-3d.html, instrument strip, report and record over two wafers' },
-  'process-route': { run: processRoute, minutes: 4, about: 'dist/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
-  'process-flow': { run: processFlow, minutes: 6, about: 'dist/process-lab.html, with the equipment on: open at a click, the same process again, pass by the standard recipe, go back' },
-  'process-crystal': { run: processCrystal, minutes: 10, about: 'dist/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
-  'process-oxidation': { run: processOxidation, minutes: 10, about: 'dist/process-lab.html, the oxidation furnace operated to a measured film' },
-  'process-photo': { run: processPhoto, minutes: 8, about: 'dist/process-lab.html, the coat, expose and develop cell with a rework' },
-  'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
-  'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
-  'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
-  'process-cmp': { run: processCmp, minutes: 10, about: 'dist/process-lab.html, the polisher of the CMP lab as the second equipment of metallization: clear the copper, scan' },
-  'process-eds': { run: processEds, minutes: 10, about: 'dist/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
-  'process-bond': { run: processBond, minutes: 10, about: 'dist/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
-  'process-all': { run: processAll, minutes: 10, about: 'dist/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
+  home: { run: home, minutes: 4, about: 'index.html, the mode selection' },
+  game: { run: game, minutes: 8, about: 'factory/game.html, opened from its own folder: its files load and its links reach the other pages' },
+  'lab-hover': { run: labHover, minutes: 8, about: 'lab-3d/lab-3d.html, a card for every part' },
+  'lab-operate': { run: labOperate, minutes: 10, about: 'lab-3d/lab-3d.html, one wafer polished and measured by dragging the parts' },
+  'lab-panels': { run: labPanels, minutes: 12, about: 'lab-3d/lab-3d.html, instrument strip, report and record over two wafers' },
+  'process-route': { run: processRoute, minutes: 4, about: 'process-lab/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
+  'process-flow': { run: processFlow, minutes: 6, about: 'process-lab/process-lab.html, with the equipment on: open at a click, the same process again, pass by the standard recipe, go back' },
+  'process-crystal': { run: processCrystal, minutes: 10, about: 'process-lab/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
+  'process-oxidation': { run: processOxidation, minutes: 10, about: 'process-lab/process-lab.html, the oxidation furnace operated to a measured film' },
+  'process-photo': { run: processPhoto, minutes: 8, about: 'process-lab/process-lab.html, the coat, expose and develop cell with a rework' },
+  'process-etch': { run: processEtch, minutes: 8, about: 'process-lab/process-lab.html, the etch chamber stopped at the endpoint' },
+  'process-implant': { run: processImplant, minutes: 8, about: 'process-lab/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
+  'process-plating': { run: processPlating, minutes: 10, about: 'process-lab/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
+  'process-cmp': { run: processCmp, minutes: 10, about: 'process-lab/process-lab.html, the polisher of the CMP lab as the second equipment of metallization: clear the copper, scan' },
+  'process-eds': { run: processEds, minutes: 10, about: 'process-lab/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
+  'process-bond': { run: processBond, minutes: 10, about: 'process-lab/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
+  'process-all': { run: processAll, minutes: 10, about: 'process-lab/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 
@@ -1073,12 +1106,15 @@ for (let i = 2; i < process.argv.length; i++) {
   const arg = process.argv[i];
   if (arg === '--out') outDir = path.resolve(process.argv[++i] ?? '');
   else if (arg === '--file') standaloneFile = path.resolve(process.argv[++i] ?? '');
-  else if (arg.startsWith('-')) { console.log(`Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]\nchecks: ${Object.keys(CHECKS).join(', ')} (a prefix selects several; none runs them all)`); process.exit(arg === '--help' || arg === '-h' ? 0 : 2); }
+  else if (arg === '--site') site = path.resolve(process.argv[++i] ?? '');
+  else if (arg.startsWith('-')) { console.log(`Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html] [--site folder]\nchecks: ${Object.keys(CHECKS).join(', ')} (a prefix selects several; none runs them all)`); process.exit(arg === '--help' || arg === '-h' ? 0 : 2); }
   else wanted.push(arg);
 }
 const selected = Object.keys(CHECKS).filter(name => !wanted.length || wanted.some(w => name.startsWith(w)));
 const unknown = wanted.filter(w => !Object.keys(CHECKS).some(name => name.startsWith(w)));
 if (unknown.length) { console.error(`No check is called ${unknown.join(', ')}. Checks: ${Object.keys(CHECKS).join(', ')}`); process.exit(2); }
+if (!existsSync(path.join(site, layout.PAGES.index))) { console.error(`${site} holds no index.html: not a copy of the site`); process.exit(2); }
+if (site !== root) console.log(`pages are opened from ${site}`);
 
 async function runCheck(name) {
   const check = CHECKS[name], started = Date.now();

@@ -13,6 +13,10 @@ DEPLOYMENT.md
 dist/design-notes.html
 
 # Issue #6: PHM replay data stays local until the data publication decision.
+lab-sim/data/
+# The same data where it used to be, before the folders were split by part: a copy still lying there stays out of git too.
 dist/lab-sim/data/
-# Single-file simulator build (tools/build-standalone.mjs) embeds the PHM replay data.
+# Single-file build (tools/build-standalone.mjs). A build with --all embeds the PHM replay data.
 standalone/
+# The site as it is uploaded (tools/export-site.mjs).
+site/

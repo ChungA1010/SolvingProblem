@@ -1,9 +1,0 @@
-{
-  "about": "Written by tools/build-scenes.mjs. tests/scene-bundles.test.cjs compares sourcesSha256 with the source files.",
-  "sources": [
-    "src/lab-3d-scene.js"
-  ],
-  "sourcesSha256": "6b8e099dc6e3c7242e9c159d38f1a07d2f9e0aaa9dc915f6cd80aec2376ba1bf",
-  "esbuild": "0.28.2",
-  "three": "0.187.0"
-}

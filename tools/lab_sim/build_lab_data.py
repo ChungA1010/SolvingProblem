@@ -1,10 +1,10 @@
 """Build the lab simulator's model file, replay data and JS parity fixture (issue #6).
 
-* model   ui-redesign/dist/lab-sim/state-model-v2.json   C2 parameters fitted on folds 1..4 only (committed)
-* replay  ui-redesign/dist/lab-sim/data/replay.json      fold 5 (A456+B456, 327 wafers) with real sensor traces,
+* model   ui-redesign/lab-sim/state-model-v2.json        C2 parameters fitted on folds 1..4 only (committed)
+* replay  ui-redesign/lab-sim/data/replay.json           fold 5 (A456+B456, 327 wafers) with real sensor traces,
                                                           plus the tracker state at the end of fold 4 (NOT committed
                                                           until the data publication decision in issue #6)
-* parity  ui-redesign/tests/fixtures/lab-sim-parity.json synthetic sequence + Python predictions (no PHM values)
+* parity  ui-redesign/lab-sim/tests/fixtures/lab-sim-parity.json  synthetic sequence + Python predictions (no PHM values)
 
 Fold 5 is never used for fitting, so every prediction a student sees is out-of-sample for the parameters.
 Sealed official validation/test data is not read.
@@ -212,7 +212,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--wafer-table", type=Path, required=True)
     ap.add_argument("--traces", type=Path, required=True)
-    ap.add_argument("--out", type=Path, default=WEB / "dist" / "lab-sim")
-    ap.add_argument("--fixture", type=Path, default=WEB / "tests" / "fixtures" / "lab-sim-parity.json")
+    ap.add_argument("--out", type=Path, default=WEB / "lab-sim")
+    ap.add_argument("--fixture", type=Path, default=WEB / "lab-sim" / "tests" / "fixtures" / "lab-sim-parity.json")
     a = ap.parse_args()
     build(a.wafer_table, a.traces, a.out, a.fixture)

@@ -1,6 +1,7 @@
 // Builds the 3D scene bundles (three.js inside) that the pages load as classic scripts:
-//   lab-3d        src/lab-3d-scene.js       -> dist/lab-3d/scene.js        the CMP learning lab
-//   process-lab   src/process-lab-scene.js  -> dist/process-lab/scene.js   the 8-process lab (with src/process-lab/*.js)
+//   lab-3d        lab-3d/src/lab-3d-scene.js            -> lab-3d/scene.js        the CMP learning lab
+//   process-lab   process-lab/src/process-lab-scene.js  -> process-lab/scene.js   the 8-process lab (with the equipment modules beside it)
+// The game's bundle (factory/cmp-scene.js) is not built here: see "build:scene" in package.json.
 //
 // The bundles are committed so that the site runs without a build step. To keep them from going stale, each build also
 // writes scene.build.json beside the bundle with a fingerprint of the source files it was made from, and
@@ -23,8 +24,8 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BUNDLES = {
-  'lab-3d': { entry: 'src/lab-3d-scene.js', output: 'dist/lab-3d/scene.js', global: 'CMPLab3DScene' },
-  'process-lab': { entry: 'src/process-lab-scene.js', output: 'dist/process-lab/scene.js', global: 'CMPProcessLabScene' },
+  'lab-3d': { entry: 'lab-3d/src/lab-3d-scene.js', output: 'lab-3d/scene.js', global: 'CMPLab3DScene' },
+  'process-lab': { entry: 'process-lab/src/process-lab-scene.js', output: 'process-lab/scene.js', global: 'CMPProcessLabScene' },
 };
 const FLAGS = ['--bundle', '--format=iife', '--target=es2020', '--minify', '--legal-comments=eof'];
 const pkg = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -71,7 +72,7 @@ try {
     const bundle = BUNDLES[name], meta = path.join(scratch, `${name}.json`);
     const built = run([bundle.entry, ...FLAGS, `--global-name=${bundle.global}`, `--outfile=${bundle.output}`, `--metafile=${meta}`]);
     if (built.error || built.status !== 0) fail(`esbuild stopped on ${bundle.entry}:\n${built.error?.message || built.stderr}`);
-    const sources = Object.keys(JSON.parse(readFileSync(meta, 'utf8')).inputs).map(file => file.replace(/\\/g, '/')).filter(file => file.startsWith('src/')).sort();
+    const sources = Object.keys(JSON.parse(readFileSync(meta, 'utf8')).inputs).map(file => file.replace(/\\/g, '/')).filter(file => file.startsWith(`${path.posix.dirname(bundle.entry)}/`)).sort();   // the lab's own sources, not three.js
     const record = {
       about: 'Written by tools/build-scenes.mjs. tests/scene-bundles.test.cjs compares sourcesSha256 with the source files.',
       sources, sourcesSha256: fingerprint(sources), esbuild: used.esbuild, three: used.three,

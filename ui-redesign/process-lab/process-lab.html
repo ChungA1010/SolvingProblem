@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="반도체 8대 공정을 웨이퍼 한 장으로 따라가는 실험실. 원하는 공정에서 시작해 패키징까지 진행합니다.">
+  <title>CMP Lab — 8대 공정 실험실</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='14' fill='%230d6efd'/%3E%3Ccircle cx='24' cy='24' r='15' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='30' cy='20' r='6' fill='white'/%3E%3C/svg%3E">
+  <!-- Shares the look of the CMP learning lab (lab-3d.css) and its film-colour calculation (lab-3d/process-model.js).
+       Route and wafer: flow-model.js. One model and one station file per process that has equipment. 3D equipment:
+       scene.js, built from src/process-lab-scene.js. Classic scripts, so the page opens from file://. -->
+  <link rel="stylesheet" href="../lab-3d/lab-3d.css">
+  <link rel="stylesheet" href="./process-lab.css">
+  <script src="../lab-3d/process-model.js" defer></script>
+  <script src="./flow-model.js" defer></script>
+  <script src="./crystal-model.js" defer></script>
+  <script src="./station-crystal.js" defer></script>
+  <script src="./oxidation-model.js" defer></script>
+  <script src="./station-oxidation.js" defer></script>
+  <script src="./photo-model.js" defer></script>
+  <script src="./station-photo.js" defer></script>
+  <script src="./etch-model.js" defer></script>
+  <script src="./station-etch.js" defer></script>
+  <script src="./implant-model.js" defer></script>
+  <script src="./station-implant.js" defer></script>
+  <script src="./plating-model.js" defer></script>
+  <script src="./station-plating.js" defer></script>
+  <script src="./cmp-model.js" defer></script>
+  <script src="./station-cmp.js" defer></script>
+  <script src="./eds-model.js" defer></script>
+  <script src="./station-eds.js" defer></script>
+  <script src="./bond-model.js" defer></script>
+  <script src="./station-bond.js" defer></script>
+  <script src="./scene.js" defer></script>
+  <script src="./two-scenes.js" defer></script>
+  <script src="../lab-3d/scene.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" href="../index.html" aria-label="CMP Lab 홈으로">‹ CMP Lab</a>
+    <div class="title">
+      <h1>8대 공정 실험실</h1>
+      <p>공정 하나를 고르면 거기서부터 패키징까지 같은 웨이퍼로 진행합니다</p>
+    </div>
+    <div class="top-actions">
+      <button type="button" class="btn" id="redo" hidden>이 공정 다시</button>
+      <button type="button" class="btn" id="redo-piece" hidden>이 장비만 다시</button>
+      <button type="button" class="btn" id="skip" hidden>표준 조건으로 넘기기</button>
+      <div class="seg" id="speed" role="group" aria-label="시간 배속" hidden></div>
+      <button type="button" class="btn" id="help-open">조작법</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- The eight processes in order. Each stop shows the wafer as it leaves that process. -->
+    <nav class="route" id="route" aria-label="8대 공정"></nav>
+
+    <section class="stage" id="stage" data-mode="bench" aria-label="공정 화면">
+      <canvas id="scene" tabindex="0" aria-label="공정 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
+      <!-- The polisher of the CMP learning lab, drawn by that lab's own scene when the route comes to the polish. -->
+      <canvas id="scene-cmp" tabindex="0" aria-label="CMP 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
+      <!-- Shown instead of the equipment: where a run starts, a process passed by the standard recipe, the run sheet at the end. -->
+      <div class="bench" id="bench"></div>
+      <div class="hud" id="hud">
+        <div class="views"><div class="seg" id="views" role="group" aria-label="시점"></div></div>
+        <p class="about" id="about"></p>
+        <div class="alarms" id="alarms" aria-live="assertive"></div>
+
+        <!-- Wafer monitor: filled by the station of the process on show. -->
+        <div class="monitor" id="monitor" aria-label="웨이퍼 모니터">
+          <div class="row">
+            <canvas id="film" width="176" height="176" aria-label="웨이퍼 표면의 막 색"></canvas>
+            <div id="mon-section" hidden></div>
+            <div class="readout">
+              <div class="big"><span id="mon-mean">—</span><small id="mon-unit"></small></div>
+              <p class="to-go" id="mon-togo">—</p>
+            </div>
+          </div>
+          <div class="meter" id="meter" aria-hidden="true"><i id="mon-band"></i><u id="mon-bar"></u></div>
+          <div class="trend" id="trend"></div>
+          <p class="now" id="mon-now">—</p>
+          <div class="spec" id="spec" aria-label="작업 지시"></div>
+        </div>
+
+        <div class="guide" aria-live="polite"><span class="step" id="guide-step"></span><p id="guide-text">불러오는 중입니다.</p><button type="button" id="guide-action" hidden></button></div>
+        <div class="focus" id="focus" hidden></div>
+        <div class="pill num" id="pill" hidden></div>
+        <div class="callout" id="callout" hidden>
+          <div class="info">
+            <h3 id="co-name"></h3>
+            <p class="role" id="co-role"></p>
+            <dl id="co-values"></dl>
+            <p class="how" id="co-how"></p>
+          </div>
+        </div>
+      </div>
+      <p class="fallback" id="fallback" hidden>이 브라우저에서는 3D 화면을 표시할 수 없습니다. WebGL 2를 지원하는 브라우저에서 열어 주세요.</p>
+    </section>
+  </main>
+
+  <div class="viz-tip" id="viz-tip" hidden></div>
+
+  <dialog id="help" aria-labelledby="help-title">
+    <h2 id="help-title">조작법</h2>
+    <ul>
+      <li><b>공정 고르기</b>: 위쪽 줄에서 공정을 누르면 그 공정의 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다. 하던 도중에 다른 공정을 누르면, 지금 웨이퍼로 그 공정을 다시 할지 새 웨이퍼로 시작할지 고릅니다.</li>
+      <li><b>다시 하기, 넘기기</b>: 오른쪽 위의 <b>이 공정 다시</b>는 같은 웨이퍼로 이 공정을 처음부터 다시 합니다. <b>표준 조건으로 넘기기</b>는 이 공정을 표준 조건으로 지나갑니다.</li>
+      <li><b>장비 조작</b>: 장비의 부품을 끌거나 눌러 조작합니다. 부품에 마우스를 올리면 그 부품이 하는 일, 지금 값, 조작법이 나옵니다.</li>
+      <li><b>웨이퍼 모니터</b>: 오른쪽 위에 지금 웨이퍼의 상태가 나옵니다. 그래프에 마우스를 올리면 그 시점의 값이 나옵니다.</li>
+      <li><b>시간</b>: 오른쪽 위 단추로 시간을 빨리 흐르게 할 수 있습니다.</li>
+      <li><b>시점</b>: 빈 곳을 끌면 시점이 돌고, 휠로 확대합니다. 왼쪽 위 단추는 정해 둔 시점으로 갑니다.</li>
+    </ul>
+    <p class="scope" id="scope-note">계산은 공개된 식과 상수를 쓰고, 어떤 식인지는 부품 카드에 적혀 있습니다. 장비의 속도 같은 값은 대표값이며 특정 장비의 실측값이 아닙니다. 표준 조건으로 넘긴 공정의 수치는 가정입니다.</p>
+    <form method="dialog"><button class="btn primary">닫기</button></form>
+  </dialog>
+</body>
+</html>

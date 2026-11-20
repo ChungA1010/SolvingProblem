@@ -1,7 +1,7 @@
 """Compose the factory-game picture of the home page from the game's own art.
 
 The home page shows each mode by a still of its real scene. This one layers the game's counter scene the way the
-game does: room, customer, counter. Output: dist/media/home/factory.webp.
+game does: room, customer, counter. Output: home/media/factory.webp.
 
 Usage: python tools/build-home-art.py            (needs Pillow)
 """
@@ -10,8 +10,8 @@ from pathlib import Path
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
-ART = ROOT / "dist" / "media" / "counter-art"
-OUT = ROOT / "dist" / "media" / "home" / "factory.webp"
+ART = ROOT / "factory" / "media" / "counter-art"
+OUT = ROOT / "home" / "media" / "factory.webp"
 W, H = 1800, 1500                      # a little wider than tall: the page crops it to the panel
 COUNTER_TOP = 0.70                     # height of the counter's top edge in the picture
 ROOM_LEFT = 300                        # left edge of the room crop, in scaled pixels: board at the left, window at the right

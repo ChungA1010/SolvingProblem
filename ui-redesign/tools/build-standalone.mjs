@@ -1,10 +1,12 @@
-// Build the whole CMP Lab web app (dist/index.html, game.html, lab-sim.html, lab-3d.html, process-lab.html) as ONE self-contained HTML
-// file that opens straight from disk (file://) with no server. Nothing in dist/ is changed.
+// Build the whole CMP Lab web app (index.html and the pages of its parts: factory/game.html, lab-3d/lab-3d.html,
+// process-lab/process-lab.html, lab-sim/lab-sim.html) as ONE self-contained HTML file that opens straight from disk
+// (file://) with no server. Nothing in the site's folders is changed.
 //
 // How it works: the file is a small shell that shows one page at a time in a full-window <iframe srcdoc>. Each page
 // is the original HTML with its stylesheets and scripts inlined. What the pages share is stored once in the shell:
 // the 3D scene bundle (cmp-scene.js), the images, video and font (as data URIs) and the simulator's model and replay
 // data. Media paths that scripts build at run time are wrapped in __cmpAsset(...), which returns the embedded copy.
+// A page's references are relative to its own folder; in here every file goes by its path from the site root.
 // A short prelude at the top of every page defines that function and turns links between the pages into shell
 // navigation. The shell URL keeps the current page (#index, #game, #lab-sim, #lab-3d) and the page's own fragment
 // (e.g. #index/lab), so reload and the back button work.
@@ -14,22 +16,30 @@
 // embeds the PHM 2016-derived replay data; the output folder is kept out of git (see .gitignore) for that case, until
 // the data publication decision for issue #6.
 // Usage: node tools/build-standalone.mjs [--all] [output.html]   (default: standalone/CMP-Lab.html)
-import { readFile, readdir, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import layout from './site-files.cjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const dist = path.resolve(here, '../dist');
+const site = path.resolve(here, '..');   // the site root: index.html and the folders of its parts
 const args = process.argv.slice(2), everything = args.includes('--all');
 const out = path.resolve(args.find(a => !a.startsWith('--')) || path.join(here, '../standalone/CMP-Lab.html'));
-const PAGES = { index: 'index.html', game: 'game.html', 'lab-sim': 'lab-sim.html', 'lab-3d': 'lab-3d.html', 'process-lab': 'process-lab.html' };   // page name = file name without .html
-const PARKED = ['lab-sim'];   // not linked from the home page for now; bundled only with --all
+const PAGES = layout.PAGES;   // page name = file name without .html
+const PARKED = Object.keys(PAGES).filter(name => layout.PARTS[layout.partOf(PAGES[name])].parked);   // not linked from the home page for now; bundled only with --all
+for (const [name, file] of Object.entries(PAGES)) if (path.posix.basename(file, '.html') !== name) throw new Error(`${file}: a page is found by its file name, which has to be ${name}.html`);
 const bundled = Object.entries(PAGES).filter(([name]) => everything || !PARKED.includes(name));
 const withSimulator = bundled.some(([name]) => name === 'lab-sim');
 const SHARED_SCRIPT_BYTES = 1 << 20; // scripts at least this large are stored once in the shell, not in every page
 const MIME = { '.png': 'image/png', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.mp4': 'video/mp4', '.webm': 'video/webm', '.woff2': 'font/woff2' };
 const posix = path.posix;
-const read = (rel, enc = 'utf8') => readFile(path.join(dist, rel), enc);
+const read = (rel, enc = 'utf8') => readFile(path.join(site, rel), enc);
+/** A reference found in a file of the site, as a path from the site root. */
+function resolve(from, ref) {
+  const rel = posix.normalize(posix.join(posix.dirname(from), ref));
+  if (rel.startsWith('..')) throw new Error(`${from}: ${ref} points outside the site`);
+  return rel;
+}
 
 function replaceOnce(text, from, to, where) {
   const n = text.split(from).length - 1;
@@ -55,8 +65,7 @@ async function asset(rel) {
   }
   return `cmp-asset:${rel}`;
 }
-const mediaFiles = (await readdir(path.join(dist, 'media'), { recursive: true }))
-  .map(f => posix.join('media', f.split(path.sep).join('/'))).filter(f => MIME[posix.extname(f)]);
+const mediaFiles = layout.siteFiles(site, { parked: everything }).filter(f => MIME[posix.extname(f)]);
 // End index of the string or template literal opening at src[start] (template expressions may nest literals).
 function literalEnd(src, start) {
   const q = src[start];
@@ -78,13 +87,13 @@ function literalEnd(src, start) {
 }
 // Scripts build some media paths at run time, e.g. `./media/counter-art/${person}-expressions.png`. Wrap each such
 // literal in __cmpAsset(...) (defined by the page prelude), which returns the embedded copy, and embed every file
-// under the literal's fixed prefix.
-async function wrapMediaLiterals(rel, js) {
+// under the literal's fixed prefix. Such a path is the page's, so it is resolved from the page that loads the script.
+async function wrapMediaLiterals(rel, js, page) {
   let out = '', last = 0;
   for (const m of js.matchAll(/[`'"]\.\/(media\/[^`'"$]*)/g)) {
     if (m.index < last) continue;
-    const hits = mediaFiles.filter(f => f.startsWith(m[1]));
-    if (!hits.length) throw new Error(`${rel}: no media file matches ./${m[1]}`);
+    const prefix = resolve(page, `./${m[1]}`), hits = mediaFiles.filter(f => f.startsWith(prefix));
+    if (!hits.length) throw new Error(`${rel}: no media file matches ./${m[1]} from ${page}`);
     for (const f of hits) await asset(f);
     const end = literalEnd(js, m.index);
     out += `${js.slice(last, m.index)}__cmpAsset(${js.slice(m.index, end)})`;
@@ -98,11 +107,12 @@ async function wrapMediaLiterals(rel, js) {
 
 // ---------- shared scripts and data, stored once in the shell ----------
 const shared = new Map();
-async function inlineScript(rel) {
-  const js = await wrapMediaLiterals(rel, await read(rel));
+async function inlineScript(rel, page) {
+  const js = await wrapMediaLiterals(rel, await read(rel), page);
   if (js.includes('<!--')) throw new Error(`${rel} contains "<!--", which is unsafe inside an inline script`);
   if (Buffer.byteLength(js) >= SHARED_SCRIPT_BYTES) {
     if (/<\/script/i.test(js)) throw new Error(`${rel} contains "</script" and cannot be stored as text`);
+    if (shared.has(rel) && shared.get(rel) !== js) throw new Error(`${rel} is stored once for all pages, but its media paths differ between them`);
     shared.set(rel, js);
     return `<script>/* ${rel} (shared) */ __cmpRunShared(${JSON.stringify(rel)});</script>`;
   }
@@ -117,11 +127,12 @@ async function inlineCss(rel) {
 }
 
 // ---------- runs first in every page (serialized into the page) ----------
-function pagePrelude(page) {
+function pagePrelude(page, folder) {
   'use strict';
   const bundle = parent.CMPLabBundle;
   // Media paths that scripts build at run time arrive here (the build wraps them); return the embedded copy.
-  window.__cmpAsset = url => { const m = /^\.\/(media\/[^?#]+)$/.exec(url); return (m && bundle.asset(m[1])) || url; };
+  // They are relative to the page: `folder` is the page's folder from the site root ('' or, say, 'factory/').
+  window.__cmpAsset = url => { const m = /^\.\/(media\/[^?#]+)$/.exec(url); return (m && bundle.asset(folder + m[1])) || url; };
   // Large shared scripts are kept once in the shell; run one in place of its original <script> tag.
   window.__cmpRunShared = rel => {
     const s = document.createElement('script');
@@ -132,7 +143,7 @@ function pagePrelude(page) {
   document.addEventListener('click', e => {
     const a = e.target instanceof Element && e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.button !== 0) return;
-    const m = /^\.\/([\w-]+)\.html(?:#(.*))?$/.exec(a.getAttribute('href'));
+    const m = /^\.{1,2}\/(?:[\w-]+\/)*([\w-]+)\.html(?:#(.*))?$/.exec(a.getAttribute('href'));   // ./factory/game.html, ../index.html#home: a page goes by its file name
     if (m && bundle.has(m[1])) { e.preventDefault(); bundle.go(m[1], m[2] || ''); }
     else if (/^https?:/i.test(a.getAttribute('href')) && !a.target) { e.preventDefault(); window.open(a.href, '_blank', 'noopener'); }
   });
@@ -192,24 +203,26 @@ function shellMain() {
 // ---------- pages ----------
 async function buildPage(name, file) {
   let html = await read(file);
-  html = await replaceAsync(html, /<link rel="stylesheet" href="\.\/([^"]+)">/g, (all, rel) => inlineCss(rel));
+  const folder = posix.dirname(file) === '.' ? '' : `${posix.dirname(file)}/`;
+  html = await replaceAsync(html, /<link rel="stylesheet" href="(\.\.?\/[^"]+)">/g, (all, ref) => inlineCss(resolve(file, ref)));
   // All page scripts are deferred <script src> tags in <head>; inline them in order at the end of <body>, where the
   // DOM they expect already exists, as with defer.
-  const tag = /\s*<script src="\.\/([^"]+)" defer><\/script>/g;
-  const sources = [...html.matchAll(tag)].map(m => m[1]);
+  const tag = /\s*<script src="(\.\.?\/[^"]+)" defer><\/script>/g;
+  const sources = [...html.matchAll(tag)].map(m => resolve(file, m[1]));
   html = html.replace(tag, '');
   if (!sources.length || /<script[^>]*\ssrc=/i.test(html)) throw new Error(`${file}: expected only deferred <script src> tags`);
   const scripts = [];
-  for (const rel of sources) scripts.push(await inlineScript(rel));
+  for (const rel of sources) scripts.push(await inlineScript(rel, file));
   if (name === 'lab-sim') scripts.unshift(`<script>window.LabSimEmbeddedData = Object.freeze({
     model: JSON.parse(parent.CMPLabBundle.text('cmp-data:lab-sim-model')),
     replay: JSON.parse(parent.CMPLabBundle.text('cmp-data:lab-sim-replay')) });</script>`);
   html = replaceOnce(html, '</body>', `${scripts.join('\n')}\n</body>`, file);
   // Embedded media needs no preload (the browser would warn that a data: preload goes unused).
-  html = html.replace(/<link rel="preload"[^>]*href="\.\/media\/[^"]*"[^>]*>/g, '');
-  html = await replaceAsync(html, /(\s(?:src|poster|href)=")\.\/((?:media\/|favicon\.svg)[^"]*)"/g, async (all, attr, rel) => `${attr}${await asset(rel)}"`);
-  html = replaceOnce(html, '<head>', `<head><script>(${pagePrelude})(${JSON.stringify(name)});</script>`, file);
-  const left = [...html.matchAll(/(?:src|href|poster)="\.\/([^"#]*)/g)].map(m => m[1]).filter(r => !Object.values(PAGES).includes(r));
+  const media = ref => !!MIME[posix.extname(ref)];
+  html = html.replace(/<link rel="preload"[^>]*href="(\.\.?\/[^"]*)"[^>]*>/g, (all, ref) => media(ref) ? '' : all);
+  html = await replaceAsync(html, /(\s(?:src|poster|href)=")(\.\.?\/[^"#?]+)"/g, async (all, attr, ref) => media(ref) ? `${attr}${await asset(resolve(file, ref))}"` : all);
+  html = replaceOnce(html, '<head>', `<head><script>(${pagePrelude})(${JSON.stringify(name)}, ${JSON.stringify(folder)});</script>`, file);
+  const left = [...html.matchAll(/(?:src|href|poster)="(\.\.?\/[^"#]*)/g)].map(m => m[1]).filter(ref => !Object.values(PAGES).includes(resolve(file, ref)));   // links between the pages stay: the prelude follows them
   if (left.length) throw new Error(`${file}: relative references left: ${[...new Set(left)].join(', ')}`);
   return html;
 }
@@ -221,18 +234,18 @@ let simulatorData = '';
 if (withSimulator) {
   let replay;
   try { replay = JSON.parse(await read('lab-sim/data/replay.json')); } catch {
-    throw new Error('dist/lab-sim/data/replay.json is missing. Build it first: python -m tools.lab_sim.build_lab_data --wafer-table <wafer_table.csv> --traces <CMP-data/training>');
+    throw new Error('lab-sim/data/replay.json is missing. Build it first: python -m tools.lab_sim.build_lab_data --wafer-table <wafer_table.csv> --traces <CMP-data/training>');
   }
   simulatorData = `${jsonScript('cmp-data:lab-sim-model', JSON.parse(await read('lab-sim/state-model-v2.json')))}\n${jsonScript('cmp-data:lab-sim-replay', replay)}`;
 }
-const ofl = await read('fonts/OFL-pretendard.txt');
+const ofl = await read('shared/fonts/OFL-pretendard.txt');
 if (ofl.includes('-->')) throw new Error('OFL text cannot go in an HTML comment');
 const icon = /<link rel="icon" href="data:[^"]+">/.exec(await read('index.html'))?.[0] ?? '';
 const shellJs = `(${shellMain})();`;
 if (/<\/script|<!--/i.test(shellJs)) throw new Error('shell script cannot be inlined');
 
 const html = `<!doctype html>
-<!-- CMP Lab: single-file build of dist/ (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}.
+<!-- CMP Lab: single-file build of the site (tools/build-standalone.mjs), ${new Date().toISOString().slice(0, 10)}.
      Pages: ${Object.keys(pages).join(', ')}.${withSimulator ? ' Contains replay data derived from the PHM 2016 data challenge; share only within\n     the team until the data publication decision.' : ' The lab simulator and its PHM-derived replay data are not included.'} -->
 <html lang="ko">
 <head>
