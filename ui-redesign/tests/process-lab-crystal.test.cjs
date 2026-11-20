@@ -19,10 +19,26 @@ function grown(dopant = 2.9, body = 120) {
   return sim;
 }
 
-test('pull faster and the crystal thins: the radius goes with one over the speed squared', () => {
-  assert.equal(M.equilibrium(1), 150); assert.equal(M.equilibrium(2), 37.5); near(M.equilibrium(9), 1.852, 0.001, 'mm at 9 mm/min');
+test('pull faster or heat the melt more and the crystal thins: the heat balance at the freezing front', () => {
+  // radius = 150 x ((1 + 0.03 x 5) / (v + 0.03 dT))^2, worked by hand
+  assert.equal(M.equilibrium(1), 150); near(M.equilibrium(2), 150 * (1.15 / 2.15) ** 2, 1e-12, 'mm at 2 mm/min'); near(M.equilibrium(9), 2.3694, 0.001, 'mm at 9 mm/min');
   assert.equal(M.equilibrium(0), C.radius.widest); assert.equal(M.equilibrium(0.5), C.radius.widest, 'no wider than the crucible allows');
-  near(M.equilibrium(M.speedFor(152.5)), 152.5, 1e-12, 'the speed for a radius gives that radius'); assert.ok(M.equilibrium(13) < C.radius.lost, 'at 13 mm/min the crystal cannot hold on');
+  near(M.equilibrium(M.speedFor(152.5)), 152.5, 1e-12, 'the speed for a radius gives that radius'); near(M.equilibrium(M.speedFor(152.5, 20), 20), 152.5, 1e-12, 'and on a hotter melt');
+  assert.ok(M.equilibrium(14) < C.radius.lost, 'at 14 mm/min the crystal cannot hold on');
+  near(M.equilibrium(1, 25), 150 * (1.15 / 1.75) ** 2, 1e-12, '20 K hotter: 65 mm at 1 mm/min'); assert.equal(M.equilibrium(1, -3), C.radius.widest, 'below the melting point it spreads');
+  assert.ok(M.speedFor(152.5, 20) < M.speedFor(152.5) - 0.4, 'a hotter melt has to be pulled slower for the same diameter');
+});
+
+test('the melt follows the heater over ten minutes; too hot, it melts a dipped seed away', () => {
+  const sim = M.create(), s = sim.state;
+  near(s.superheat, 5, 1e-12, 'K at the start'); assert.equal(M.steadySuperheat(125), 25);
+  sim.setControl('heater', 125.2); assert.equal(s.controls.heater, 125); run(sim, 600, 10);
+  near(s.superheat, 25 - 20 * Math.exp(-1), 1e-9, 'one time constant later');
+  run(sim, 6000, 10); near(s.superheat, 25, 1e-3, 'settled');
+  const hot = dipped(2.9); hot.setControl('heater', 140); run(hot, 3600, 10);
+  assert.ok(!hot.state.attached && hot.state.lost && hot.state.meltedBack && hot.state.controls.seed === 0, 'the seed melted away');
+  const right = dipped(2.9); right.setControl('heater', 120); run(right, 3600, 10);
+  assert.ok(right.state.attached && !right.state.lost, '20 K is not too hot to dip into');
 });
 
 test('2.9 mg of boron in 250 kg of silicon makes a 10 ohm cm crystal, and the crystal grows richer along its length', () => {
@@ -35,14 +51,14 @@ test('2.9 mg of boron in 250 kg of silicon makes a 10 ohm cm crystal, and the cr
 
 test('the seed goes down in 20 s; with no pull nothing grows; a fast pull draws a neck', () => {
   const sim = M.create(), s = sim.state;
-  sim.setControl('dopant', 2.94); sim.setControl('speed', 9.04); assert.deepEqual(s.controls, { seed: 0, speed: 9, dopant: 2.9, auto: false });
+  sim.setControl('dopant', 2.94); sim.setControl('speed', 9.04); assert.deepEqual(s.controls, { seed: 0, speed: 9, dopant: 2.9, auto: false, heater: 105 });
   sim.setControl('speed', 0); run(sim, 30); assert.equal(s.attached, false); assert.equal(s.doped, null);
   sim.setControl('seed', 1); run(sim, 10); assert.ok(s.seed > 0.45 && s.seed < 0.55 && !s.attached); run(sim, 11);
   assert.ok(s.attached && s.doped === 2.9 && s.radius === C.radius.seed); assert.equal(sim.setControl('dopant', 5), false, 'the boron is in the melt');
   run(sim, 60); assert.equal(s.length, 0);
   sim.setControl('speed', 9); run(sim, 60); near(s.length, 9, 1e-9, 'mm pulled in a minute'); assert.ok(s.radius < C.radius.seed);
-  until(sim, x => x.length >= 100);
-  near(s.radius, M.equilibrium(9) + (C.radius.seed - M.equilibrium(9)) * Math.exp(-s.length / C.relax), 0.02, 'radius 100 mm on: closing on its equilibrium over 30 mm');
+  until(sim, x => x.length >= 160);                              // at 9 mm/min the neck settles near 4.7 mm and is under 5 mm from about 100 mm on
+  near(s.radius, M.equilibrium(9) + (C.radius.seed - M.equilibrium(9)) * Math.exp(-s.length / C.relax), 0.02, 'radius 160 mm on: closing on its equilibrium over 30 mm');
   assert.ok(s.necked && s.thin >= C.neck.length && !s.shouldered, `thin for ${s.thin.toFixed(0)} mm`);
 });
 
@@ -83,7 +99,7 @@ test('without a neck the crystal is dislocated; with no boron it is far from 10 
 
 test('pulled too fast, the crystal comes off the melt and the seed goes up', () => {
   const sim = dipped(2.9), s = sim.state;
-  sim.setControl('speed', 13); until(sim, x => x.lost);
+  sim.setControl('speed', 14); until(sim, x => x.lost);
   assert.ok(!s.attached && !sim.growing() && s.controls.seed === 0 && s.radius < C.radius.lost); run(sim, 25); assert.equal(s.seed, 0); assert.equal(sim.measure(), null, 'there is nothing to measure');
 });
 

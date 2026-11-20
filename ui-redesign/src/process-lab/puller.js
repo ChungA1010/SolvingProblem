@@ -1,7 +1,7 @@
 // Czochralski crystal puller of the process lab, drawn cut open at the front: the crucible of molten silicon in its
 // heater, the pull chamber above it, the seed on its rod and the crystal that grows from it, at their real proportions.
 // The label CZ-01 is made up.
-// Controls: seed (pulled down into the melt and up out of it; the crystal hangs from it), speed, dopant (dials), auto (push button).
+// Controls: seed (pulled down into the melt and up out of it; the crystal hangs from it), power (the heater), speed, dopant (dials), auto (push button).
 // Info parts: crucible, heater, gauge, hmi, tower. State comes from dist/process-lab/crystal-model.js.
 import { makeParts } from './parts.js';
 
@@ -64,20 +64,22 @@ export function buildPuller(kit) {
   const crystal = add(new THREE.LatheGeometry([new THREE.Vector2(0.006, 0), new THREE.Vector2(0.006, -0.001)], 8), std(0x9aa3b2, 0.85, 0.28, { side: THREE.DoubleSide }), lift); crystal.visible = false;
   control('seed', lift, new THREE.Vector3(0, MELT + SEED_UP + 0.13, 0.09), { drag: 'lift', travel: -0.5, value: view => view?.controls?.seed ?? 0 });
 
-  // ----- console: screen, two dials, the button of the diameter controller -----
+  // ----- console: screen, the heater, pull and boron dials, the button of the diameter controller -----
   const c = CONSOLE;
-  parts.cabinet(c.x, c.front, { w: 0.66 });
+  parts.cabinet(c.x, c.front, { w: 0.86 });
   const hmi = parts.screen(c.x, 1.31, c.front);
   const dials = {
-    speed: parts.dial('speed', c.x - 0.16, 0.99, c.front, { min: 0, max: 14, major: 2, minor: 0.5, unit: 'mm/min', perPixel: 0.03, wheel: 0.1, title: 'PULL', tick: v => String(Math.round(v)), readout: v => v.toFixed(2) }),
-    dopant: parts.dial('dopant', c.x + 0.16, 0.99, c.front, { min: 0, max: 10, major: 2, minor: 0.5, unit: 'mg', perPixel: 0.02, wheel: 0.1, title: 'BORON', tick: v => String(Math.round(v)), readout: v => `${v.toFixed(1)} mg` }),
+    power: parts.dial('power', c.x - 0.26, 0.99, c.front, { min: 90, max: 140, major: 10, minor: 2, unit: 'kW', perPixel: 0.1, wheel: 0.5, title: 'HEATER', tick: v => String(Math.round(v)), readout: v => `${v.toFixed(1)} kW` }),
+    speed: parts.dial('speed', c.x, 0.99, c.front, { min: 0, max: 14, major: 2, minor: 0.5, unit: 'mm/min', perPixel: 0.03, wheel: 0.1, title: 'PULL', tick: v => String(Math.round(v)), readout: v => v.toFixed(2) }),
+    dopant: parts.dial('dopant', c.x + 0.26, 0.99, c.front, { min: 0, max: 10, major: 2, minor: 0.5, unit: 'mg', perPixel: 0.02, wheel: 0.1, title: 'BORON', tick: v => String(Math.round(v)), readout: v => `${v.toFixed(1)} mg` }),
   };
   const auto = parts.button('auto', 'AUTO DIA', c.x, 0.70, c.front, 0x22c55e);
   const tower = parts.tower(c.x + 0.24, 1.50, c.front - 0.30);
 
   let drawn = '';
-  /** `view`: seed (0 up .. 1 in the melt), hanging (a crystal is on the seed), growing, length (mm), radius (mm), profile [{ z, r }], stamp, controls { seed, speed, dopant, auto }, alarm. */
+  /** `view`: seed (0 up .. 1 in the melt), hanging (a crystal is on the seed), growing, length (mm), radius (mm), profile [{ z, r }], stamp, superheat (K), controls { seed, power, speed, dopant, auto }, alarm. */
   function update(view, dt, clock) {
+    heaterMaterial.emissiveIntensity = Math.max(0.3, 0.6 + 0.02 * (view.superheat ?? 5));                                 // the heater glows brighter as it is turned up
     const tip = MELT + (1 - view.seed) * SEED_UP + (view.hanging ? view.length / 1000 : 0);
     lift.position.y = tip; rod.scale.y = Math.max(0.01, TUBE.top - (tip + 0.18)); rod.position.y = (TUBE.top + tip + 0.18) / 2;
     kit.partAnchor('seed').set(0, tip + 0.13, 0.09);

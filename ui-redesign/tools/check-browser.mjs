@@ -424,10 +424,19 @@ async function openProcess(t, id) {
 
 async function processCrystal(t) {
   const { b, lab } = await openProcess(t, 'wafer'), S = lab.S, L = lab.layout;
-  const state = () => lab.state(`({ seed: s.seed, target: s.controls.seed, speed: s.controls.speed, dopant: s.controls.dopant, auto: s.controls.auto, attached: s.attached, ended: s.ended, doped: s.doped, length: s.length, d: 2 * s.radius, necked: s.necked, body: s.body.length, result: s.result && { valid: s.result.valid, ok: s.result.ok, d: s.result.diameter, rho: s.result.resistivity, necked: s.result.necked } })`);
+  const state = () => lab.state(`({ seed: s.seed, target: s.controls.seed, speed: s.controls.speed, dopant: s.controls.dopant, auto: s.controls.auto, heater: s.controls.heater, superheat: s.superheat, attached: s.attached, ended: s.ended, doped: s.doped, length: s.length, d: 2 * s.radius, necked: s.necked, body: s.body.length, result: s.result && { valid: s.result.valid, ok: s.result.ok, d: s.result.diameter, rho: s.result.resistivity, necked: s.result.necked } })`);
   await lab.cards();
   let s = await state();
   t.expect(!s.attached && s.seed === 0 && s.dopant === 0 && s.speed === 0, 'the puller starts with the seed above the melt and no boron chosen', JSON.stringify(s));
+  // the heater: the melt follows it over minutes, then it goes back to where it was
+  const power = await lab.at(L.dials.power);
+  await b.evaluate(`${PL}.setSpeed(30)`);                                                // half a minute a second while the dial is turned
+  for (let i = 0; i < 10; i++) { await b.wheel(power, -100); await sleep(60); }
+  await sleep(400); s = await state();
+  t.expect(s.heater === 110 && s.superheat < 7.5, 'the heater dial turns in steps of 0.5 kW; the melt has not followed yet', JSON.stringify({ heater: s.heater, superheat: s.superheat }));
+  t.expect(await lab.fast(`${S}.superheat > 9`, 300, 60000), 'over the next minutes the melt warms toward its new temperature');
+  for (let i = 0; i < 10; i++) { await b.wheel(power, 100); await sleep(60); }
+  t.expect(await lab.fast(`${S}.superheat < 5.2`, 900, 60000) && (await state()).heater === 105, 'turned back, the melt cools to where it was');
   const speed = await lab.at(L.dials.speed), dopant = await lab.at(L.dials.dopant);
   await b.drag(line(dopant, { x: dopant.x + 145, y: dopant.y }, 12)); await sleep(400);
   s = await state(); t.expect(Math.abs(s.dopant - 2.9) < 1e-9, 'the boron dial is set before the seed goes in', `${s.dopant} mg`);
