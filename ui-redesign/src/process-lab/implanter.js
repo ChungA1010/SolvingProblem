@@ -74,6 +74,8 @@ export function buildImplanter(kit) {
   plate(0.2, 0.045, label(['END STATION'], { bg: '#f3f4f6', fg: '#1f2933', size: 0.55 }), chamber, [0, 0.535, 0.2812]);
   const beamMaterial = new THREE.MeshBasicMaterial({ color: 0x93c5fd, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
   ghost(facing(add(cyl(0.012, 0.13, 0.225, 24, true), beamMaterial, chamber, [-0.135, 0.30, 0]), 'x'));              // the scanned beam, widening toward the wafer
+  const setupMaterial = beamMaterial.clone();
+  ghost(facing(add(cyl(0.009, 0.009, 0.48, 12, true), setupMaterial, chamber, [-0.01, 0.30, 0]), 'x'));               // while the beam is set up it runs past the lowered platen into the Faraday cup
   info('chamber', chamber, new THREE.Vector3(STATION, DECK + 0.552, BEAM_Z + 0.2));
 
   // ----- anneal chamber: the wafer on pins under a bank of lamps -----
@@ -125,7 +127,7 @@ export function buildImplanter(kit) {
     if (view.windows) { x.fillStyle = 'rgba(150,160,176,.85)'; const cell = n / 10; for (let i = 0; i < 64; i++) x.fillRect((i % 8 + 1) * cell + 4, (Math.floor(i / 8) + 1) * cell + 4, cell - 8, cell - 8); }   // fields of windows
     filmTexture.needsUpdate = true;
   }
-  /** `view`: phase, beam, scanning, hot (C), controls { field, energy, dose, temperature, minutes }, filmColor, windows, alarm. */
+  /** `view`: phase, beam, scanning, setup (beam current on the Faraday cup while it is set up, as a share of 1 mA), hot (C), controls { field, energy, dose, temperature, minutes }, filmColor, windows, alarm. */
   function update(view, dt, clock) {
     const away = view.phase === 'annealing' || view.phase === 'done';
     lift += ((view.phase === 'implanting' ? 1 : 0) - lift) * Math.min(1, dt * 3.5);                                   // 0: flat on the platen, 1: lifted and tilted into the beam
@@ -138,7 +140,9 @@ export function buildImplanter(kit) {
     const top = REST_Y - DECK + raised - 0.015; stem.scale.y = Math.max(0.005, top - 0.11); stem.position.y = (top + 0.11) / 2;
     kit.partAnchor('wafer').set(holder.position.x, holder.position.y + 0.02, BEAM_Z);
     const beam = view.beam && lift > 0.8 ? 0.26 + 0.07 * Math.sin(clock * 31) : 0;
-    beamMaterial.opacity += (beam - beamMaterial.opacity) * Math.min(1, dt * 10); beamLamp.material.emissiveIntensity = view.beam ? 1.6 : 0.05;
+    beamMaterial.opacity += (beam - beamMaterial.opacity) * Math.min(1, dt * 10); beamLamp.material.emissiveIntensity = view.beam || view.setup > 0.02 ? 1.6 : 0.05;
+    const setup = !view.beam && lift < 0.2 ? 0.45 * Math.min(1, view.setup || 0) : 0;
+    setupMaterial.opacity += (setup - setupMaterial.opacity) * Math.min(1, dt * 12);
     heat += (view.hot - heat) * Math.min(1, dt * 1.6);
     const strength = parts.heat(heat, heatColor);
     lampMaterial.emissive.copy(heatColor); lampMaterial.emissiveIntensity = strength * 2.2; heatLight.intensity = strength * 2.0;

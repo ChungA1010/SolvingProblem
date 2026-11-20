@@ -78,7 +78,7 @@
       const which = main && main.name !== 'P⁺' ? ` 빔은 ${ionText(r.ions)}이었습니다.` : '';
       return [`${text}${which}${more ? ' 열처리는 더 할 수 있습니다.' : ''}`, `다음: ${next}`, 'finish', more ? 'anneal' : null];
     },
-    view(sim) { const s = sim.state; return { phase: s.phase, beam: s.beam, scanning: Boolean(s.scan), hot: s.hot, controls: s.controls, filmColor: FILM.filmColor(sim.wafer.oxide), windows: sim.incoming.windows }; },
+    view(sim) { const s = sim.state; return { phase: s.phase, beam: s.beam, scanning: Boolean(s.scan), setup: s.phase === 'ready' ? s.current / C.beam.current : 0, hot: s.hot, controls: s.controls, filmColor: FILM.filmColor(sim.wafer.oxide), windows: sim.incoming.windows }; },
     live(sim, wafer) { const o = sim.now(); return o ? F.implanted(wafer, handed(o)).wafer : wafer; },
     /** The wafer as it would leave with the dials as they are: lets the route show what follows from them. */
     forecast(sim, wafer) { return F.apply('deposition', wafer, handed(sim.state.result || sim.outlook())).wafer; },
