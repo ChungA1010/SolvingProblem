@@ -275,3 +275,20 @@ test('the operator\'s plating goes on with its profile: a heavy edge keeps coppe
   const all = F.createRun('metal'); F.complete(all, { thickness: 802.5, profile: profile(760, 845), scorched: new Array(N).fill(true), burnt: true }); finish(all);
   assert.equal(all.wafer.tested.good, 0); assert.match(all.wafer.tested.reason, /타서/);
 });
+
+test('an etch stopped before the centre opened: the chips there fail as closed windows, and the prober agrees', () => {
+  const ET = require('../dist/process-lab/etch-model.js'), ED = require('../dist/process-lab/eds-model.js'), f = ET.across(), E = ET.constants.nodes - 1;
+  const sim = ET.create({ wafer: { oxide: 500, resist: { thickness: 1000, opening: 1000 } }, seed: 3 });
+  sim.setControl('load', true); sim.step(5); sim.setControl('chf3', true); sim.setControl('pressure', 10); sim.setControl('power', 300);
+  const stop = Math.round((500 / (64.8 * f[E]) + 500 / (64.8 * f[0])) / 2 * 60);                    // half way between the edge and the centre opening
+  for (let t = 0; t < stop; t++) sim.step(1);
+  const run = F.createRun('etch'), record = F.complete(run, { ...sim.measure(), how: 'CHF3' });
+  assert.ok(!record.ok && /에서만 뚫림/.test(record.text) && run.wafer.window.open && run.wafer.window.profile, record.text);
+  finish(run);
+  const tested = run.wafer.tested, closed = tested.dies.filter(die => die.bin === 'closed').length;
+  assert.ok(tested.reason === null && closed > 20 && tested.good > 20, JSON.stringify({ closed, good: tested.good }));
+  F.dies().forEach((die, i) => { if (tested.dies[i].bin === 'closed') assert.ok(Math.hypot(die.x, die.y) < 120, 'closed toward the centre'); });
+  const truth = ED.truths({ wafer: run.wafer, dies: F.dies(), killed: F.defects(1), seed: 5 });
+  truth.forEach((t, i) => { if (tested.dies[i].bin === 'closed') assert.ok(t.closed && !t.good); });
+  assert.equal(truth.filter(t => t.good).length, tested.good, 'the prober and the standard test agree on which chips are good');
+});

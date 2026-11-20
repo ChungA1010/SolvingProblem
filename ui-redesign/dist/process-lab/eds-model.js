@@ -86,6 +86,9 @@
    * which carry a killer defect. The same seed gives the same wafer.
    */
   function truths({ wafer, dies, killed = [], seed = 1 }) {
+    /** `values` at even steps along the radius from the centre to the edge, read at `r` mm; the middle and four corners of a chip (mm from the centre). */
+    const along = (values, r) => { const n = values.length, x = clamp(r / K.radius, 0, 1) * (n - 1), k = Math.min(n - 2, Math.floor(x)); return values[k] + (x - k) * (values[k + 1] - values[k]); };
+    const corners = die => [[0, 0], [-8, -8], [8, -8], [8, 8], [-8, 8]].map(([dx, dy]) => Math.hypot(die.x + dx, die.y + dy));
     let s = (Math.imul(Math.floor(seed) || 1, 40503) >>> 0) || 1;
     const random = () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296, normal = () => (random() + random() + random() - 1.5) * 2;
     const win = wafer.window, j = wafer.junction, m = wafer.metal, Na = acceptors(wafer.substrate ? wafer.substrate.resistivity : 10);
@@ -93,15 +96,18 @@
     return dies.map((die, i) => {
       const r2 = (Math.hypot(die.x, die.y) / K.radius) ** 2, a = normal(), b = normal(), u = random();
       if (!path) return { open: true, good: false };
+      const places = corners(die), etched = win.profile;                                      // etched: the window place by place, as the operator's etch left it
+      if (etched && places.some(r => along(etched.left, r) > 1)) return { open: true, good: false, closed: true };   // oxide left in the window: the metal does not reach the silicon
       const local = chips ? chips[i] : { over: m.over || 0, dishing: (m.dishing || 0) * (1 + K.spread.dishing * r2), scratched: false, burnt: false };
       if (local.scratched) return { open: true, good: false, scratched: true };                // a scratch across the copper cuts the path
       const joined = Boolean(j.everywhere) || local.over > 1;                                  // copper left on the oxide joins the chip to its neighbours
-      const width = win.width * (1 - K.spread.width[0] * r2 + K.spread.width[1] * a), surface = j.surface * (1 - K.spread.surface[0] * r2 + K.spread.surface[1] * b);
-      const depth = win.depth + win.siliconLoss, left = depth - Math.min(depth, local.dishing);
+      const width = etched ? places.reduce((sum, r) => sum + along(etched.width, r), 0) / places.length * (1 + K.spread.width[1] * a) : win.width * (1 - K.spread.width[0] * r2 + K.spread.width[1] * a);
+      const surface = j.surface * (1 - K.spread.surface[0] * r2 + K.spread.surface[1] * b), loss = etched ? Math.max(...places.map(r => along(etched.siliconLoss, r))) : win.siliconLoss;
+      const depth = win.depth + loss, left = depth - Math.min(depth, local.dishing);
       const copper = left > 0 ? K.metal.resistance * depth / left * (m.burnt || local.burnt ? K.metal.burnt : 1) : Infinity;
       const resistance = contactResistivity(surface) / (K.contactArea * width / 1000) + copper;
       const area = K.junctionArea * (width + 1.4 * j.depth) / (1000 + 1.4 * 300);            // the junction spreads sideways by 0.7 of its depth on each side
-      const spike = 1 + Math.exp(Math.min(50, (K.spike.depth - (j.depth - win.siliconLoss)) / K.spike.scale));
+      const spike = 1 + Math.exp(Math.min(50, (K.spike.depth - (j.depth - loss)) / K.spike.scale));
       const leak = leakage(Na, area) * spike * (wafer.substrate && wafer.substrate.dislocated ? K.dislocated : 1) + (killed[i] ? Math.pow(10, K.defect[0] + K.defect[1] * u) : 0) + (joined ? K.short : 0);
       const truth = { open: false, resistance, leak, voltage: forwardVoltage(K.test.forward, saturationCurrent(Na, area), resistance), defect: Boolean(killed[i]) };
       truth.good = evaluate(truth, { touching: true, resistance: K.probe.floor }).good;

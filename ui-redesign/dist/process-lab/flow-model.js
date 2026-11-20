@@ -73,7 +73,7 @@
     for (let i = 0; i < 8; i++) random();
     return dies().map(die => random() < 1 - Math.exp(-area * STANDARD.defects * (1 + 1.5 * (Math.hypot(die.x, die.y) / R) ** 4)));
   }
-  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함', residue: '구리 잔류', scratch: '스크래치', burnt: '도금 탐', dish: '접시 파임' };
+  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함', closed: '창 막힘', residue: '구리 잔류', scratch: '스크래치', burnt: '도금 탐', dish: '접시 파임' };
 
   const empty = (lot = 1) => ({ lot, substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
 
@@ -185,10 +185,12 @@
       w.oxide = result.oxide; w.resist = null;
       if (result.stripped) { w.window = null; w.unmasked = true; ok = false; text = '산화막이 모두 깎임'; }
       else if (!(result.width > 0)) { w.window = { width: 0, depth: 0, open: false, left: w.oxide, siliconLoss: 0 }; ok = false; text = '창이 생기지 않음'; }
-      else {
-        w.window = { width: result.width, depth: result.depth, open: result.open, left: result.left, siliconLoss: result.siliconLoss };
-        ok = result.open && result.siliconLoss <= SPEC.window.siliconLoss && Math.abs(result.width - SPEC.window.target) <= SPEC.window.tolerance;
-        text = result.open ? `창 너비 ${nm(result.width)}, 실리콘 ${nm(result.siliconLoss)} 깎임 (목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm, 실리콘 ${SPEC.window.siliconLoss} nm 이하)` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(result.left)} 남음`;
+      else {                                                        // with a profile the windows are open where they reached silicon; the chips elsewhere are judged at EDS
+        const profile = result.profile && Array.isArray(result.profile.left) ? result.profile : null, opened = profile ? (result.opened ?? (result.open ? 1 : 0)) : result.open ? 1 : 0;
+        w.window = { width: result.width, depth: result.depth, open: opened > 0, left: result.left, siliconLoss: result.siliconLoss, ...(profile ? { profile } : {}) };
+        ok = result.open && result.siliconLoss <= SPEC.window.siliconLoss && (profile ? profile.width : [result.width]).every(width => Math.abs(width - SPEC.window.target) <= SPEC.window.tolerance);
+        text = result.open ? `창 너비 ${nm(result.width)}, 실리콘 ${profile ? '최대 ' : ''}${nm(result.siliconLoss)} 깎임 (목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm, 실리콘 ${SPEC.window.siliconLoss} nm 이하)`
+          : opened > 0 ? `창이 웨이퍼 면적의 ${Math.round(opened * 100)}%에서만 뚫림 · 가장 많이 남은 곳에 산화막 ${nm(result.left)}` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(result.left)} 남음`;
       }
       if (result.how) text += ` · ${result.how}`;
     } else if (id === 'etch') {
@@ -230,6 +232,8 @@
                       : w.metal.dishing > deep ? '창 안의 금속이 거의 남지 않아 저항이 큼' : null;      // what fails every chip of the wafer
       /** Where the operator polished the wafer, the bin a chip fails in for what the polish left on it (or null). */
       const polished = i => !chips ? null : chips[i].over > 1 ? 'residue' : chips[i].scratched ? 'scratch' : chips[i].burnt ? 'burnt' : chips[i].dishing > deep ? 'dish' : null;
+      const opening = open && w.window.profile, closed = i => Boolean(opening) && reach(DIES[i]).some(r => along(opening.left, r) > 1);   // oxide left in the window where the chip is: the metal never touches the silicon
+      const judged = i => closed(i) ? 'closed' : polished(i);
       const share = good => `칩 ${DIE_COUNT}개 중 양품 ${good}개 (수율 ${Math.round(good / DIE_COUNT * 100)}%)`;
       if (result) {                                                 // the operator's probing: one entry per chip
         const good = result.dies.filter(die => die.good).length, missed = result.missed || 0, bins = {};
@@ -240,7 +244,7 @@
         text = (good ? `${share(good)}${sorted ? ` · 불량: ${sorted}` : ''}` : `칩 ${DIE_COUNT}개 모두 불량${reason ? ` · ${reason}` : ''}`)
           + (missed ? ` · 탐침이 제대로 닿지 않아 양품 ${missed}개를 불량으로 가림` : '') + (result.how ? ` · ${result.how}` : '');
       } else {
-        const dies = defects(w.lot).map((hit, i) => { const bin = reason ? 'process' : polished(i) || (hit ? 'defect' : 'good'); return { good: bin === 'good', bin }; });
+        const dies = defects(w.lot).map((hit, i) => { const bin = reason ? 'process' : judged(i) || (hit ? 'defect' : 'good'); return { good: bin === 'good', bin }; });
         const good = dies.filter(die => die.good).length, bins = {};
         for (const die of dies) if (!die.good) bins[die.bin] = (bins[die.bin] || 0) + 1;
         w.tested = { total: DIE_COUNT, good, reason, dies };

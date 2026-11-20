@@ -1,13 +1,14 @@
-// Etch model of the process lab (dist/process-lab/etch-model.js): the representative rates, and the bookkeeping of the shape.
+// Etch model of the process lab (dist/process-lab/etch-model.js): the representative rates, the bookkeeping of the shape
+// (on a tool that etches the same everywhere), and what the faster edge of the real tool does to the endpoint and the over-etch.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const M = require('../dist/process-lab/etch-model.js');
 
 const C = M.constants;
 const near = (actual, expected, relative, what) => assert.ok(Math.abs(actual - expected) <= Math.abs(expected) * relative + 1e-9, `${what}: ${actual} is not within ${relative * 100}% of ${expected}`);
-/** A chamber with the wafer inside and the given recipe running. */
-function running(recipe, wafer) {
-  const sim = M.create({ wafer, seed: 2 });
+/** A chamber with the wafer inside and the given recipe running; `uniformity` 0 is a tool that etches the same everywhere. */
+function running(recipe, wafer, uniformity = 0) {
+  const sim = M.create({ wafer, seed: 2, uniformity });
   sim.setControl('load', true); sim.step(C.door + 1);
   for (const [name, value] of Object.entries(recipe)) sim.setControl(name, value);
   return sim;
@@ -117,4 +118,43 @@ test('dials stay inside their ranges', () => {
   sim.setControl('power', 9999); assert.equal(sim.state.controls.power, C.power.max);
   sim.setControl('pressure', 1); assert.equal(sim.state.controls.pressure, C.pressure.min);
   assert.equal(sim.setControl('lid', 1), false);
+});
+
+test('across the wafer the edge etches 10% faster than the centre, and the mean over the area is the measured rate', () => {
+  const f = M.across(), E = C.nodes - 1;
+  near(f.reduce((sum, v, j) => sum + v * M.weights[j], 0), 1, 1e-12, 'mean over the area');
+  near(f[E] - f[0], C.uniformity, 1e-12, 'edge minus centre'); near(f[0], 0.95, 0.002, 'centre'); near(f[E], 1.05, 0.002, 'edge');
+  for (let j = 1; j <= E; j++) assert.ok(f[j] > f[j - 1], 'faster toward the edge');
+  assert.ok(M.across(0).every(v => v === 1));
+});
+
+test('the edge opens first, so the endpoint light falls over the time between the edge and the centre opening', () => {
+  const sim = running({ chf3: true, power: 300, pressure: 10 }, STANDARD, C.uniformity), f = M.across(), E = C.nodes - 1;
+  const edge = 500 / (64.8 * f[E]) * 60, centre = 500 / (64.8 * f[0]) * 60, first = Math.floor(edge) - 5, middle = Math.round((edge + centre) / 2);   // s: 441 and 487
+  run(sim, first); const high = sim.state.signal; assert.equal(sim.state.opened, 0);
+  run(sim, middle - first); const half = sim.state.signal, share = sim.state.opened;
+  run(sim, Math.ceil(centre) + 5 - middle); const low = sim.state.signal;
+  assert.ok(share > 0.2 && share < 0.8, `open over ${share}`); assert.equal(sim.state.opened, 1);
+  assert.ok(high > half * 1.2 && half > low * 1.2 && low < C.glow * 1.3, `${high.toFixed(3)} > ${half.toFixed(3)} > ${low.toFixed(3)}`);
+  assert.ok(sim.state.history.some(p => p.opened > 0 && p.opened < 1), 'the record has the part-open stretch');
+});
+
+test('stopped as the light starts to fall, the centre still has 48 nm of oxide in its windows', () => {
+  const sim = running({ chf3: true, power: 300, pressure: 10 }, STANDARD, C.uniformity), f = M.across(), E = C.nodes - 1;
+  run(sim, Math.ceil(500 / (64.8 * f[E]) * 60));
+  const m = sim.measure();
+  assert.ok(!m.open && m.opened > 0 && m.opened < 0.1 && !m.ok, JSON.stringify({ opened: m.opened }));
+  near(m.left, 500 * (1 - f[0] / f[E]), 0.03, 'nm left at the centre');                                     // 500 x (1 - 0.95 / 1.05) = 47.6 nm
+  near(m.profile.left[0], m.left, 1e-12, 'the most is left at the centre'); assert.equal(m.profile.left[E], 0);
+});
+
+test('clearing the centre costs the edge silicon: 3 nm with CHF3 (16:1), 44 nm with CF4 (1.2:1)', () => {
+  for (const [gas, rate, selectivity, ok] of [['chf3', 64.8, 16, true], ['cf4', 105.6, 1.2, false]]) {
+    const sim = running({ [gas]: true, power: 300, pressure: 10 }, STANDARD, C.uniformity), f = M.across(), E = C.nodes - 1;
+    run(sim, Math.ceil(500 / (rate * f[0]) * 60));
+    const m = sim.measure(), expected = 500 * (f[E] / f[0] - 1) / selectivity;                               // the over-etch the edge gets while the centre finishes
+    assert.ok(m.open && m.opened === 1, gas);
+    near(m.siliconLoss, expected, 0.06, `${gas}: nm of silicon at the edge`); near(m.profile.siliconLoss[E], m.siliconLoss, 1e-12, 'the edge loses the most');
+    assert.ok(m.profile.siliconLoss[0] < 2, 'the centre hardly any'); assert.equal(m.ok, ok, gas);
+  }
 });

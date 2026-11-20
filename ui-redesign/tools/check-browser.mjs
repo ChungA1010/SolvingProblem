@@ -567,7 +567,7 @@ async function processPhoto(t) {
 
 async function processEtch(t) {
   const { b, lab } = await openProcess(t, 'etch'), S = lab.S, L = lab.layout;
-  const state = () => lab.state(`({ inside: s.inside, plasma: s.plasma, power: s.controls.power, pressure: s.controls.pressure, chf3: s.controls.chf3, floor: s.floor, signal: s.signal, result: s.result && { open: s.result.open, ok: s.result.ok, width: s.result.width, silicon: s.result.siliconLoss } })`);
+  const state = () => lab.state(`({ inside: s.inside, plasma: s.plasma, power: s.controls.power, pressure: s.controls.pressure, chf3: s.controls.chf3, floor: s.floor, signal: s.signal, opened: s.opened, result: s.result && { open: s.result.open, ok: s.result.ok, width: s.result.width, silicon: s.result.siliconLoss } })`);
   await lab.cards();
   let s = await state();
   t.expect(s.inside === 0 && !s.plasma && s.floor === 500, 'the wafer waits on the load arm with its resist pattern on', JSON.stringify(s));
@@ -587,7 +587,10 @@ async function processEtch(t) {
   const during = await state(), shown = await lab.monitor();
   t.expect(during.signal > 0.2 && shown.trend && /계산값/.test(shown.note), 'while the oxide is etched the endpoint light is high and the monitor follows the opening', JSON.stringify({ signal: during.signal, shown }));
   await t.shot('1-etching');
-  t.expect(await lab.fast(`${S}.floor <= 0 && ${S}.siliconLoss > 1`, 240), 'the opening reaches the silicon');
+  t.expect(await lab.fast(`${S}.opened > 0.2 && ${S}.opened < 0.8`, 10, 240000), 'the edge opens first: for a while only part of the wafer is through');
+  const partly = await state(), told = await lab.guide();
+  t.expect(partly.signal < during.signal * 0.95 && partly.signal > 0.14 && /가장자리부터/.test(told), 'meanwhile the endpoint light is falling but not yet at the bottom, and the page says the edge opens first', JSON.stringify({ during: during.signal, partly: partly.signal, opened: partly.opened, told }));
+  t.expect(await lab.fast(`${S}.floor <= 0 && ${S}.siliconLoss > 1`, 240), 'the opening reaches the silicon everywhere');
   await sleep(700);
   const through = await state();
   t.expect(through.signal < during.signal * 0.6, 'the endpoint light drops when the oxide is through', `${during.signal.toFixed(2)} -> ${through.signal.toFixed(2)}`);

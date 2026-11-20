@@ -72,16 +72,22 @@ export function buildEtcher(kit) {
 
   let drawn = '';
   function paintWafer(view) {
-    const key = `${view.filmColor.join(',')}|${Math.round(view.resist * 20)}|${Math.round(view.open * 20)}|${view.windows}`;
+    const key = `${view.filmColor.join(',')}|${Math.round(view.resist * 20)}|${view.open.map(v => Math.round(v * 10)).join('')}|${view.windows}`;
     if (key === drawn) return;
     drawn = key;
     const x = film.getContext('2d'), n = film.width, [r, g, b] = view.filmColor;
     x.fillStyle = `rgb(${r},${g},${b})`; x.fillRect(0, 0, n, n);
     if (view.resist > 0) { x.fillStyle = `rgba(176,92,26,${0.72 * view.resist})`; x.fillRect(0, 0, n, n); }                  // resist thinning away
-    if (view.windows) { x.fillStyle = `rgba(150,160,176,${0.25 + 0.6 * view.open})`; const cell = n / 10; for (let i = 0; i < 64; i++) x.fillRect((i % 8 + 1) * cell + 4, (Math.floor(i / 8) + 1) * cell + 4, cell - 8, cell - 8); }   // fields of windows, clearer as they open
+    if (view.windows) {                                                                                              // fields of windows, clearer as they open: the edge first
+      const cell = n / 10, last = view.open.length - 1;
+      for (let i = 0; i < 64; i++) {
+        const left = (i % 8 + 1) * cell, top = (Math.floor(i / 8) + 1) * cell, r = Math.min(1, Math.hypot(left + cell / 2 - n / 2, top + cell / 2 - n / 2) / (n / 2));
+        x.fillStyle = `rgba(150,160,176,${0.25 + 0.6 * view.open[Math.round(r * last)]})`; x.fillRect(left + 4, top + 4, cell - 8, cell - 8);
+      }
+    }
     filmTexture.needsUpdate = true;
   }
-  /** `view`: inside (0..1), plasma, controls { power, pressure, chf3, cf4, load }, filmColor, resist (0..1 left), open (0..1), windows, alarm. */
+  /** `view`: inside (0..1), plasma, controls { power, pressure, chf3, cf4, load }, filmColor, resist (0..1 left), open (0..1 at each place from the centre to the edge), windows, alarm. */
   function update(view, dt, clock) {
     const k = view.inside * view.inside * (3 - 2 * view.inside);
     holder.position.x = LOAD + (CHAMBER - LOAD) * k;
