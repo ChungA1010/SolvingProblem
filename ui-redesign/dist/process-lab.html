@@ -26,11 +26,15 @@
   <script src="./process-lab/station-implant.js" defer></script>
   <script src="./process-lab/plating-model.js" defer></script>
   <script src="./process-lab/station-plating.js" defer></script>
+  <script src="./process-lab/cmp-model.js" defer></script>
+  <script src="./process-lab/station-cmp.js" defer></script>
   <script src="./process-lab/eds-model.js" defer></script>
   <script src="./process-lab/station-eds.js" defer></script>
   <script src="./process-lab/bond-model.js" defer></script>
   <script src="./process-lab/station-bond.js" defer></script>
   <script src="./process-lab/scene.js" defer></script>
+  <script src="./process-lab/two-scenes.js" defer></script>
+  <script src="./lab-3d/scene.js" defer></script>
   <script src="./process-lab/app.js" defer></script>
 </head>
 <body>
@@ -42,6 +46,7 @@
     </div>
     <div class="top-actions">
       <button type="button" class="btn" id="redo" hidden>이 공정 다시</button>
+      <button type="button" class="btn" id="redo-piece" hidden>이 장비만 다시</button>
       <button type="button" class="btn" id="skip" hidden>표준 조건으로 넘기기</button>
       <div class="seg" id="speed" role="group" aria-label="시간 배속" hidden></div>
       <button type="button" class="btn" id="help-open">조작법</button>
@@ -54,6 +59,8 @@
 
     <section class="stage" id="stage" data-mode="bench" aria-label="공정 화면">
       <canvas id="scene" tabindex="0" aria-label="공정 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
+      <!-- The polisher of the CMP learning lab, drawn by that lab's own scene when the route comes to the polish. -->
+      <canvas id="scene-cmp" tabindex="0" aria-label="CMP 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
       <!-- Shown instead of the equipment: where a run starts, a process passed by the standard recipe, the run sheet at the end. -->
       <div class="bench" id="bench"></div>
       <div class="hud" id="hud">

@@ -15,7 +15,7 @@
 
 숨긴 화면은 지우지 않았다. 들어가는 단추와 링크에 `hidden data-parked` 두 속성을 붙여 가렸고, 주소로는 여전히 열린다. 목록과 되살리는 법은 [LAB-3D.md](LAB-3D.md#홈-화면에서-숨겨-둔-것)에 있다.
 
-학습 실험실은 게임과 코드를 나눠 쓰지 않는다. 홈 화면은 실험실의 계산 모델(`dist/lab-3d/process-model.js`)을 불러 산화막 색 눈금을 그린다. 8대 공정 실험실은 학습 실험실의 스타일(`dist/lab-3d/lab-3d.css`)과 막 색 계산(`process-model.js`의 `filmColor`)을 같이 쓴다. 이 둘을 고치면 8대 공정 실험실도 확인한다.
+학습 실험실은 게임과 코드를 나눠 쓰지 않는다. 홈 화면은 실험실의 계산 모델(`dist/lab-3d/process-model.js`)을 불러 산화막 색 눈금을 그린다. 8대 공정 실험실은 학습 실험실의 스타일(`dist/lab-3d/lab-3d.css`)과 막 색 계산(`process-model.js`의 `filmColor`)을 같이 쓰고, 금속배선의 평탄화에서는 학습 실험실의 3D 장면(`dist/lab-3d/scene.js`)과 계산 모델(`process-model.js`) 전체를 불러 쓴다. 학습 실험실의 이 파일들을 고치면 8대 공정 실험실도 확인한다(`check-browser process-cmp`).
 
 ## 폴더
 
@@ -71,7 +71,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 |---|---|
 | 어디든 | 단위 테스트 |
 | `src/lab-3d-scene.js` (3D 장면, 끌기 조작) | `build-scenes lab-3d` → 단위 테스트 → `check-browser lab`. 장비 모양이 달라졌으면 `render-lab-still`로 홈 그림도 다시 찍는다 |
-| `dist/lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`나 `process-model.js`를 고쳤으면 `check-browser process`도 |
+| `dist/lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`, `process-model.js`, `scene.js`를 고쳤으면 `check-browser process`도 (특히 `process-cmp`) |
 | `src/process-lab-scene.js`, `src/process-lab/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process` |
 | `dist/process-lab/` (화면, 공정 흐름, 계산) | 단위 테스트 → `check-browser process` |
 | 홈 화면(`dist/index.html`, `home.css`, `home.js`) | `check-browser home` |
@@ -102,7 +102,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
 | `process-route` | 첫 화면, 공정을 눌러 바로 시작해 공정 기록까지, 앞 공정을 같은 웨이퍼로 다시 하기 (장비 없이 표준 조건으로) |
 | `process-flow` | 같은 흐름을 장비를 켠 채로: 누르면 장비가 열리는지, 이 공정 다시, 표준 조건으로 넘기기, 앞 공정으로 돌아가기 |
-| `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-eds`, `process-bond` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
+| `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-cmp`, `process-eds`, `process-bond` ([PROCESS-LAB.md](PROCESS-LAB.md)) |
 | `process-all` | 웨이퍼 한 장을 여덟 장비로 처음부터 끝까지 (마우스 대신 각 장비의 조작 함수로). 장비 사이의 넘겨주기 |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |
 

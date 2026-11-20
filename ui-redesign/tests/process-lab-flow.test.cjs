@@ -147,7 +147,9 @@ test('the operator\'s plating decides the metal: enough to fill and cover the wi
   const thin = F.createRun('metal'); assert.equal(F.complete(thin, { thickness: 600, burnt: false }).ok, false); finish(thin);
   assert.equal(thin.wafer.metal.dishing, 70); assert.equal(thin.wafer.metal.planar, false); assert.equal(thin.wafer.tested.good, GOOD, 'dished, but the chips still work');
   const short = F.createRun('metal'); F.complete(short, { thickness: 300, burnt: false }); finish(short);
-  assert.equal(short.wafer.metal.dishing, 205 + 145, 'the window was 205 nm short of full, and the polish took 145 nm more'); assert.equal(short.wafer.tested.good, 0); assert.match(short.wafer.tested.reason, /깊이 파여/);
+  assert.equal(short.wafer.metal.dishing, 205 + 145, 'the window was 205 nm short of full, and the polish took 145 nm more'); assert.equal(short.wafer.tested.good, GOOD, 'a window a third full still conducts');
+  const bare = F.createRun('metal'); F.complete(bare, { thickness: 60, burnt: false }); finish(bare);
+  assert.equal(bare.wafer.metal.dishing, 505, 'nothing is left in the window'); assert.equal(bare.wafer.tested.good, 0); assert.match(bare.wafer.tested.reason, /거의 남지 않아/);
   const burnt = F.createRun('metal'); assert.equal(F.complete(burnt, { thickness: 800, burnt: true }).ok, false); finish(burnt);
   assert.equal(burnt.wafer.tested.good, 0); assert.match(burnt.wafer.tested.reason, /타서/);
   const none = F.createRun('metal'); assert.equal(F.complete(none, { thickness: 0, burnt: false }).ok, false); finish(none);
@@ -211,6 +213,28 @@ test('a run can be taken back to a process it has been through, keeping what cam
   assert.equal(run.at, 2); assert.equal(run.records.length, 2); assert.equal(run.wafer.oxide, 510); assert.equal(run.wafer.resist, null); assert.equal(run.wafer.window, null);
   F.complete(run, { thickness: 1000, opening: 1010 }); assert.equal(atPhoto.records.length, 2, 'going on does not change the snapshot'); assert.equal(run.wafer.resist.opening, 1010);
   finish(run); assert.ok(run.finished); F.restore(run, atPhoto); assert.equal(run.finished, false); assert.equal(run.at, 2); assert.equal(run.records.length, 2);
+});
+
+test('a wafer the operator polished is judged chip by chip on what the polish left', () => {
+  const ED = require('../dist/process-lab/eds-model.js'), dies = F.dies(), killed = F.defects(1);
+  const scan = chips => ({ chips, centre: { over: chips[70].over, dishing: chips[70].dishing }, cleared: chips.every(c => c.over <= 1), residue: Math.max(...chips.map(c => c.over)), dishingMax: Math.max(...chips.map(c => c.dishing)), scratches: chips.filter(c => c.scratched).length, ok: chips.every(c => c.over <= 1 && c.dishing <= 50 && !c.scratched) });
+  const clean = dies.map(() => ({ over: 0, dishing: 12, scratched: false }));
+  const good = F.createRun('metal'), record = F.complete(good, { thickness: 800, burnt: false, polish: scan(clean), how: '연마 100초' });
+  assert.ok(record.ok && /연마 뒤 접시 파임 최대 12 nm/.test(record.text) && /연마 100초/.test(record.text), record.text);
+  assert.equal(good.wafer.metal.chips, clean); assert.ok(good.wafer.metal.planar && good.wafer.metal.over === 0); finish(good); assert.equal(good.wafer.tested.good, GOOD);
+
+  const ring = dies.map(die => ({ over: Math.hypot(die.x, die.y) > 110 ? 40 : 0, dishing: 12, scratched: false })), outer = ring.filter(c => c.over > 0).length;   // copper left toward the edge
+  ring[70] = { over: 0, dishing: 500, scratched: false }; ring[71] = { over: 0, dishing: 12, scratched: true };
+  const flawed = F.createRun('metal'), marked = F.complete(flawed, { thickness: 800, burnt: false, polish: scan(ring) });
+  assert.equal(marked.ok, false); assert.match(marked.text, /가장 두꺼운 곳에 40 nm 남음/); assert.match(marked.text, /스크래치 1개/); assert.equal(flawed.wafer.metal.planar, false);
+  F.complete(flawed);
+  const tested = flawed.wafer.tested, bins = bin => tested.dies.filter(die => die.bin === bin).length;
+  assert.ok(outer > 20 && bins('residue') === outer && bins('dish') === 1 && bins('scratch') === 1 && tested.reason === null, JSON.stringify({ outer, residue: bins('residue') }));
+  assert.equal(tested.good, tested.dies.filter((die, i) => !killed[i] && ring[i].over === 0 && i !== 70 && i !== 71).length); assert.match(flawed.records.at(-1).text, /구리 잔류/);
+  const truth = ED.truths({ wafer: flawed.wafer, dies, killed, seed: 5 });
+  truth.forEach((t, i) => { if (ring[i].over > 0) assert.ok(!t.good && t.leak >= ED.constants.short, 'copper left on a chip joins it to its neighbours'); });
+  assert.ok(truth[71].open && truth[71].scratched && !truth[70].good && truth[70].resistance > 10, 'a scratch cuts the path, deep dishing raises its resistance');
+  assert.equal(truth.filter(t => t.good).length, tested.good, 'the prober and the standard test agree on which chips are good');
 });
 
 test('numbers are written as a power of ten', () => {

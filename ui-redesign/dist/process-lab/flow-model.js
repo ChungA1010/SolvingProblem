@@ -38,6 +38,7 @@
     selectivity: 20,                                                // oxide etched per silicon etched, once the window is open
     junction: 300, surface: 2e19, liner: 30,                        // nm; phosphorus per cm3 at the surface
     plated: 800, polish: 880, dishRate: 0.25,                       // nm of copper plated on the field; nm of field copper the polish clears; nm of dishing per nm polished after the field is clear
+    dishLimit: 0.95,                                                // share of the window's depth beyond which the copper path counts as broken (the prober's 10 ohm limit, about)
     die: 20, edge: 3,                                               // mm: die size and the edge of the wafer that holds no chips
     defects: 0.03,                                                  // killer defects per cm2 at the centre of the wafer; (1 + 1.5 r^4) times that toward the edge
   };
@@ -72,7 +73,7 @@
     for (let i = 0; i < 8; i++) random();
     return dies().map(die => random() < 1 - Math.exp(-area * STANDARD.defects * (1 + 1.5 * (Math.hypot(die.x, die.y) / R) ** 4)));
   }
-  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함' };
+  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함', residue: '구리 잔류', scratch: '스크래치', dish: '접시 파임' };
 
   const empty = (lot = 1) => ({ lot, substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
 
@@ -99,19 +100,27 @@
   }
 
   /**
-   * The metal after plating and the polish that follows it by the standard recipe. `plated` is what the operator's
-   * plating did: { thickness (nm of copper on the field), burnt }, or nothing for the standard recipe. The polish clears a
-   * fixed amount of field copper: more than that stays on the oxide, less than that dishes the copper in the windows.
+   * The metal after plating and polishing. `plated` is what the operator's plating did: { thickness (nm of copper on the
+   * field), burnt }, or nothing for the standard recipe. If the operator also polished it, `plated.polish` is the
+   * polisher's scan: { chips: [{ over, dishing, scratched }] in the order of dies(), centre: { over, dishing }, cleared,
+   * residue, dishingMax, scratches, ok }. Otherwise the polish goes by the standard recipe, which clears a fixed amount of
+   * field copper: more than that stays on the oxide, less than that dishes the copper in the windows.
    */
   function metallised(wafer, plated) {
-    const w = { ...wafer }, t = plated ? plated.thickness : STANDARD.plated, M = SPEC.metal;
+    const w = { ...wafer }, t = plated ? plated.thickness : STANDARD.plated, M = SPEC.metal, polish = plated && plated.polish, burnt = plated && plated.burnt ? { burnt: true } : {};
     const depth = w.window && w.window.width > 0 ? w.window.depth + w.window.siliconLoss : 0;
+    const plating = t > 0 ? `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)${plated && plated.burnt ? ' · 한계 전류를 넘겨 도금이 탐' : ''}` : '구리가 도금되지 않음';
+    if (polish && t > 0) {                                          // polished by the operator: the polisher's scan, chip by chip
+      w.metal = { thickness: t, over: polish.centre.over, dishing: polish.centre.dishing, planar: polish.cleared && polish.dishingMax <= M.dishing, chips: polish.chips, ...burnt };
+      return { wafer: w, ok: !plated.burnt && Math.abs(t - M.target) <= M.tolerance && Boolean(polish.ok),
+        text: `${plating} · 연마 뒤 ${polish.cleared ? `접시 파임 최대 ${nm(polish.dishingMax)}` : `구리가 가장 두꺼운 곳에 ${nm(polish.residue)} 남음`}${polish.scratches ? ` · 스크래치 ${polish.scratches}개` : ''}` };
+    }
     const over = Math.max(0, t - STANDARD.polish), short = Math.max(0, depth - t);                    // copper left on the oxide; how far the copper in the window was short of the top
     const dishing = over > 0 ? 0 : Math.min(depth, short + (STANDARD.polish - t) * STANDARD.dishRate);
-    w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && dishing <= M.dishing, ...(plated && plated.burnt ? { burnt: true } : {}) } : null;
+    w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && dishing <= M.dishing, ...burnt } : null;
     if (!plated) return { wafer: w, ok: null, text: '창을 금속으로 채우고 산화막 높이까지 평탄화' };
     return { wafer: w, ok: t > 0 && !plated.burnt && Math.abs(t - M.target) <= M.tolerance,
-      text: t > 0 ? `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)${plated.burnt ? ' · 한계 전류를 넘겨 도금이 탐' : ''} · 표준 연마 뒤 ${over > 0 ? `산화막 위에 구리 ${nm(over)} 남음` : `접시 파임 ${nm(dishing)}`}` : '구리가 도금되지 않음' };
+      text: t > 0 ? `${plating} · 표준 연마 뒤 ${over > 0 ? `산화막 위에 구리 ${nm(over)} 남음` : `접시 파임 ${nm(dishing)}`}` : plating };
   }
 
   /** What a process leaves on the wafer. `result` is the operator's measured result, or nothing for the standard recipe. */
@@ -175,15 +184,19 @@
       w.metal = out.wafer.metal; ok = out.ok; text = result && result.how ? `${out.text} · ${result.how}` : out.text;
     } else if (id === 'eds') {
       const j = w.junction, open = Boolean(w.window && w.window.open && w.window.width > 0);
+      const chips = w.metal && w.metal.chips, deep = open ? (w.window.depth + w.window.siliconLoss) * STANDARD.dishLimit : 0;
       const reason = w.substrate && w.substrate.dislocated ? '결정에 전위가 남아 접합이 샘'
         : j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
         : !open ? '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음'
           : !j ? '접합이 생기지 않아 다이오드가 되지 않음'
             : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼'
               : !w.metal ? '금속이 없어 전기가 통할 길이 없음'
-                : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
-                  : w.metal.burnt ? '도금이 타서 금속의 저항이 큼'
-                    : w.metal.dishing > (w.window.depth + w.window.siliconLoss) / 2 ? '금속이 깊이 파여 저항이 큼' : null;      // what fails every chip of the wafer
+                : w.metal.burnt ? '도금이 타서 금속의 저항이 큼'
+                  : chips ? null
+                    : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
+                      : w.metal.dishing > deep ? '창 안의 금속이 거의 남지 않아 저항이 큼' : null;      // what fails every chip of the wafer
+      /** Where the operator polished the wafer, the bin a chip fails in for what the polish left on it (or null). */
+      const polished = i => !chips ? null : chips[i].over > 1 ? 'residue' : chips[i].scratched ? 'scratch' : chips[i].dishing > deep ? 'dish' : null;
       const share = good => `칩 ${DIE_COUNT}개 중 양품 ${good}개 (수율 ${Math.round(good / DIE_COUNT * 100)}%)`;
       if (result) {                                                 // the operator's probing: one entry per chip
         const good = result.dies.filter(die => die.good).length, missed = result.missed || 0, bins = {};
@@ -194,10 +207,12 @@
         text = (good ? `${share(good)}${sorted ? ` · 불량: ${sorted}` : ''}` : `칩 ${DIE_COUNT}개 모두 불량${reason ? ` · ${reason}` : ''}`)
           + (missed ? ` · 탐침이 제대로 닿지 않아 양품 ${missed}개를 불량으로 가림` : '') + (result.how ? ` · ${result.how}` : '');
       } else {
-        const killed = defects(w.lot), good = reason ? 0 : killed.filter(hit => !hit).length;
-        w.tested = { total: DIE_COUNT, good, reason, dies: killed.map(hit => ({ good: !reason && !hit, bin: reason ? 'process' : hit ? 'defect' : 'good' })) };
-        ok = !reason;
-        text = reason ? `칩 ${DIE_COUNT}개 모두 불량 · ${reason}` : `${share(good)} · 불량 ${DIE_COUNT - good}개는 결함`;
+        const dies = defects(w.lot).map((hit, i) => { const bin = reason ? 'process' : polished(i) || (hit ? 'defect' : 'good'); return { good: bin === 'good', bin }; });
+        const good = dies.filter(die => die.good).length, bins = {};
+        for (const die of dies) if (!die.good) bins[die.bin] = (bins[die.bin] || 0) + 1;
+        w.tested = { total: DIE_COUNT, good, reason, dies };
+        ok = !reason && good > 0;
+        text = reason ? `칩 ${DIE_COUNT}개 모두 불량 · ${reason}` : `${share(good)} · 불량: ${Object.entries(bins).map(([bin, n]) => `${BIN_NAMES[bin] || bin} ${n}`).join(', ') || '없음'}`;
       }
     } else if (id === 'package') {
       const good = w.tested ? w.tested.good : 0, made = result ? Math.min(good, result.chips) : good;      // the operator's wire bonding can lose chips

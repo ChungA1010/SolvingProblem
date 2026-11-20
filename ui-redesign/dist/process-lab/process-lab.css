@@ -74,3 +74,8 @@
 .link { border: 0; background: none; padding: 2px 4px; font: inherit; font-size: 12.5px; font-weight: 650; color: var(--brand); border-radius: 4px; }
 .link:hover { text-decoration: underline; } .link:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 .bench-actions { flex-wrap: wrap; justify-content: flex-end; }
+
+/* The polisher of the CMP lab has a canvas of its own; one of the two canvases shows at a time. */
+#scene-cmp { position: absolute; inset: 0; width: 100%; height: 100%; display: none; outline: none; touch-action: none; }
+.stage[data-mode="station"][data-view="cmp"] #scene-cmp { display: block; }
+.stage[data-view="cmp"] #scene { display: none; }

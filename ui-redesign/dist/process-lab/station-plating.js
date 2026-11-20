@@ -11,7 +11,7 @@
   const handed = (thickness, burnt) => ({ thickness, burnt });
 
   (window.ProcessLabStations = window.ProcessLabStations || {}).metal = {
-    equipment: 'plating',
+    equipment: 'plating', title: '구리 도금',
     views: [['home', '전체'], ['cell', '도금조'], ['panel', '조작반']],
     speeds: [[1, '1×'], [4, '4×'], [16, '16×']], defaultSpeed: 4,
     create(wafer) { const sim = PL.create({ wafer: { seed: wafer.liner > 0 } }); sim.wafer = wafer; sim.rotation = null; return sim; },
@@ -80,6 +80,8 @@
         chips: [['IN BATH', s.immersed], ['DC ON', s.plating]],
       };
     },
+    /** The wafer as it goes on to the polisher: copper of the same thickness on every face. */
+    interim(wafer, result) { return result.thickness > 0 ? { ...wafer, metal: { conformal: result.thickness } } : wafer; },
     result(sim) {
       const r = sim.state.result; if (!r) return null;
       return { ...handed(r.thickness, r.burnt), how: r.thickness > 0 ? `${fmt(sim.rotation ?? sim.state.controls.rotation)} rpm, 최대 ${r.peak.toFixed(1)} A, ${clock(r.seconds)}` : '도금하지 않음' };

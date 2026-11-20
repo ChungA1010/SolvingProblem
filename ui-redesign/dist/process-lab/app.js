@@ -1,9 +1,12 @@
 /* Page logic of the 8-process lab: the route, the run, the bench views and the host of the equipment stations.
- * Route and wafer: flow-model.js. 3D: scene.js (built from src/process-lab-scene.js).
+ * Route and wafer: flow-model.js. 3D: scene.js (built from src/process-lab-scene.js), and for the polish the scene of
+ * the CMP learning lab itself (../lab-3d/scene.js) on a canvas of its own.
  * window.ProcessLabDebug at the end is what tools/check-browser.mjs drives the page with.
  *
  * A process with equipment has a station object in window.ProcessLabStations (station-<process>.js):
  *   equipment            key of its 3D equipment in src/process-lab-scene.js
+ *   scene                'cmp' when the piece is the polisher of the CMP learning lab, shown by that lab's own scene. Such a station may also have
+ *                        wafer(sim, target) for a wafer dropped on a place of the machine, frame(sim, dt, timeScale) once per frame, paint(sim, canvas) for the wafer's face
  *   views, speeds        [[view, label] ...] and [[process seconds per second, label] ...]; defaultSpeed, or the first speed, is used at the start
  *   title                optional: name of this piece when the process has two (the page then lists them as an array, in the order they are used)
  *   create(wafer, seed, context)  its process model: { state, step(dt), setControl(name, value), ... }. context: { base: the wafer the process began with, results: what the earlier pieces of this process measured }
@@ -128,7 +131,8 @@
   const passAll = query.get('equipment') === 'off';             // ?equipment=off passes every process by the standard recipe (the route alone)
   let run = null, after = [], entries = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];   // entries[i]: the run as it was when it came to process i
   let station = null, sim = null, stage = 0, staged = [], stageWafer = null;      // a process with two pieces of equipment: which one is in use, the results so far, the wafer between them
-  let scene = null, mountedEquipment = null, timeScale = 60, hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
+  let scene = null, polisher = null, view3d = null, scanning = false, mountedEquipment = null, timeScale = 60,   // scene: this lab's own; polisher: the CMP lab's, made when first needed; view3d: the one in use
+      hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
   /** The equipment of process i in the order it is used. Most processes have one piece, some have two. */
   const stationsOf = i => { const s = scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null; return !s ? [] : Array.isArray(s) ? s : [s]; };
   const stationLive = () => Boolean(run && !run.finished && sim && station);
@@ -167,7 +171,8 @@
   // ----- bench: a process as pictures of the wafer -----
   function setMode(next) {
     mode = next; $('stage').dataset.mode = next; $('speed').hidden = $('redo').hidden = $('skip').hidden = next !== 'station';
-    if (next === 'station') { last = performance.now(); hudClock = 0; scene.resize(); }
+    $('redo-piece').hidden = next !== 'station' || stage === 0;       // only on the second piece of a process: the first one is 'this process again'
+    if (next === 'station') { last = performance.now(); hudClock = 0; view3d.resize(); }
   }
   function showBench(nodes) { $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); setMode('bench'); }
   const head = (i, actions) => el('div', { class: 'bench-head' },
@@ -271,6 +276,8 @@
     F.restore(run, entries[i]); after.length = i; entries.length = i; sim = null; station = null;
     enter();
   }
+  /** The piece of equipment in use again, on the wafer as the piece before it handed it over. Of a process with two pieces, the second can be done again alone. */
+  function restage() { if (stationLive() && stage > 0) { openStation(stationsOf(run.at)[stage]); renderRoute(); } }
   function skip() { if (stationLive()) { pass(); renderRoute(); } }
   function select(i) {
     if (!run) { start(i); return; }                               // nothing in hand: the equipment of that process opens at once
@@ -280,16 +287,36 @@
 
   // ----- station: one piece of equipment, operated -----
   const pressed = (group, key, value) => { for (const b of group.children) b.setAttribute('aria-pressed', String(b.dataset[key] === String(value))); };
-  function showView(name) { scene.setView(name); pressed($('views'), 'view', name); }
+  function showView(name) { view3d.setView(name); pressed($('views'), 'view', name); }
+  const sceneEvents = {
+    control: onControl,
+    hover: name => { hovered = name; },
+    drag: (name, ended) => { dragging = name; if (!name && ended && sim) { station.dragEnd?.(sim, ended); hudClock = 0; } },
+    press: name => { if (name === 'hmi') showView('screen'); },
+    wafer: target => { if (!sim || !station.wafer) return; const refused = station.wafer(sim, target); if (refused) flash(refused); hudClock = 0; },
+    refuse: () => flash('헤드를 끝까지 올린 뒤에 웨이퍼를 꺼낼 수 있습니다.'),
+  };
+  /** The 3D view a station is shown in: this lab's scene with the station's equipment mounted, or the polisher of the CMP lab. Null if it cannot be made. */
+  function sceneOf(next) {
+    const cmp = next.scene === 'cmp';
+    if (cmp && !polisher && window.CMPLab3DScene) polisher = window.CMPLab3DScene.create({ canvas: $('scene-cmp'), constants: FILM.constants, on: sceneEvents });
+    if (cmp && !polisher) return null;
+    $('stage').dataset.view = cmp ? 'cmp' : 'own';
+    if (!cmp && mountedEquipment !== next.equipment) { scene.mount(next.equipment); mountedEquipment = next.equipment; }
+    return cmp ? polisher : scene;
+  }
   function openStation(next) {
-    station = next; sim = station.create(stageWafer, seed, { base: run.wafer, results: staged });
-    if (mountedEquipment !== station.equipment) { scene.mount(station.equipment); mountedEquipment = station.equipment; for (const name of Object.keys(scene.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`); }
+    const target = sceneOf(next);
+    if (!target) { console.warn('process-lab: the polisher could not be shown, so the polish goes by the standard recipe'); pass(); return; }
+    station = next; view3d = target; scanning = false; sim = station.create(stageWafer, seed, { base: run.wafer, results: staged });
+    for (const name of Object.keys(view3d.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`);
     $('views').replaceChildren(...station.views.map(([view, text]) => el('button', { type: 'button', 'data-view': view, 'aria-pressed': 'false', text })));
     $('speed').replaceChildren(...station.speeds.map(([speed, text]) => el('button', { type: 'button', 'data-speed': speed, 'aria-pressed': 'false', text })));
     timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
-    scene.setView('home', true); pressed($('views'), 'view', 'home');
+    view3d.setView('home', true); pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
     $('about').textContent = F.STEPS[run.at].does;
+    $('redo-piece').textContent = station.title ? `${station.title}만 다시` : '이 장비만 다시';
     setMode('station');
   }
   function finishStation() {
@@ -353,7 +380,7 @@
   }
   /** The equipment's touch screen, from the station's description: name, title, state, one big value, cells, chips, a bar. */
   function drawScreen() {
-    const c = scene.screenCanvas; if (!c) return;
+    const c = view3d.screenCanvas; if (!c) return;
     const d = station.screen(sim), x = c.getContext('2d'), W = c.width, H = c.height, font = (weight, size) => { x.font = `${weight} ${size}px "Segoe UI", Arial, sans-serif`; };
     x.fillStyle = '#0b1220'; x.fillRect(0, 0, W, H); x.textBaseline = 'middle'; x.textAlign = 'left';
     x.fillStyle = '#e2e8f0'; font(700, 40); x.fillText(d.name, 44, 62); const nameWidth = x.measureText(d.name).width;
@@ -371,7 +398,7 @@
       x.fillStyle = on ? '#f0fdf4' : '#64748b'; font(700, 40); x.textAlign = 'center'; x.fillText(name, gx + chip / 2, 546, chip - 12); x.textAlign = 'left';
     });
     if (d.bar) { x.fillStyle = '#94a3b8'; font(600, 26); x.fillText(d.bar[0], 720, 520); x.fillStyle = '#1e293b'; x.fillRect(720, 546, 260, 18); x.fillStyle = '#38bdf8'; x.fillRect(720, 546, 260 * clamp(d.bar[1], 0, 1), 18); }
-    scene.refreshScreen();
+    view3d.refreshScreen();
   }
   function renderCallout() {
     const box = $('callout'), part = hovered && !dragging ? station.parts[hovered] : null;
@@ -384,8 +411,8 @@
     box.hidden = false;
   }
   function positionOverlays() {
-    const stage = $('stage').getBoundingClientRect(), canvas = $('scene').getBoundingClientRect();
-    const place = (node, name) => { const p = name && scene.screenOf(name); if (!p || !p.visible) return false; node.style.left = `${p.x + canvas.left - stage.left}px`; node.style.top = `${p.y + canvas.top - stage.top}px`; return p; };
+    const stage = $('stage').getBoundingClientRect(), canvas = stage;                 // both canvases fill the stage
+    const place = (node, name) => { const p = name && view3d.screenOf(name); if (!p || !p.visible) return false; node.style.left = `${p.x + canvas.left - stage.left}px`; node.style.top = `${p.y + canvas.top - stage.top}px`; return p; };
     const box = $('callout');
     if (!box.hidden) {
       const p = place(box, hovered), monitor = $('monitor').getBoundingClientRect();
@@ -403,9 +430,16 @@
   function frame(now) {
     const elapsed = Math.max(0, (now - last) / 1000), dt = Math.min(0.05, elapsed); last = now;      // the process never jumps more than 0.05 s of screen time
     if (mode === 'station' && sim) {
-      sim.step(dt * timeScale); station.tick?.(sim);
-      scene.update({ ...station.view(sim), alarm: Boolean(notice) && now < noticeUntil }, dt); scene.render();
-      hudClock -= elapsed; if (hudClock <= 0) { hudClock = 0.25; renderHud(); drawScreen(); renderRoute(); }   // by the clock, so the readouts keep up on a slow display
+      sim.step(dt * timeScale); station.tick?.(sim); station.frame?.(sim, dt, timeScale);
+      const shown = station.view(sim);
+      if (shown.measuring && !scanning) view3d.startMeasuring?.(1.4);              // the thickness stage of the polisher sweeps its sensor
+      scanning = Boolean(shown.measuring);
+      view3d.update({ ...shown, alarm: Boolean(shown.alarm) || (Boolean(notice) && now < noticeUntil) }, dt); view3d.render();
+      hudClock -= elapsed;
+      if (hudClock <= 0) {                                                        // by the clock, so the readouts keep up on a slow display
+        hudClock = 0.25; renderHud(); drawScreen(); renderRoute();
+        if (view3d.filmCanvas && station.paint) { station.paint(sim, view3d.filmCanvas); view3d.refreshFilm(); }
+      }
       renderCallout(); positionOverlays();
     }
     requestAnimationFrame(frame);
@@ -413,20 +447,13 @@
 
   function init() {
     buildRoute();
-    scene = window.CMPProcessLabScene.create({
-      canvas: $('scene'),
-      on: {
-        control: onControl,
-        hover: name => { hovered = name; },
-        drag: (name, ended) => { dragging = name; if (!name && ended && sim) { station.dragEnd?.(sim, ended); hudClock = 0; } },
-        press: name => { if (name === 'hmi') showView('screen'); },
-      },
-    });
-    $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b && scene) showView(b.dataset.view); });
+    scene = window.CMPProcessLabScene.create({ canvas: $('scene'), on: sceneEvents });
+    $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b && view3d) showView(b.dataset.view); });
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); pressed($('speed'), 'speed', timeScale); });
     $('guide-action').addEventListener('click', () => guideAction?.());
     $('help-open').addEventListener('click', () => $('help').showModal());
     $('redo').addEventListener('click', () => { if (run && !run.finished) redo(run.at); });
+    $('redo-piece').addEventListener('click', restage);
     $('skip').addEventListener('click', skip);
     const tip = $('viz-tip');
     $('trend').addEventListener('pointermove', ev => {
@@ -442,7 +469,8 @@
     const from = query.get('start'), index = F.STEPS.findIndex(step => step.id === from);
     if (index >= 0) start(index); else showOverview();
     window.ProcessLabDebug = {
-      flow: F, scene, stations: STATIONS, start, enter, select, finishStation, redo, skip,
+      flow: F, stations: STATIONS, start, enter, select, finishStation, redo, restage, skip,
+      get scene() { return view3d || scene; },                    // the 3D view in use: the checks project points and read parts through it
       get stage() { return stage; }, get entries() { return entries; },
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },

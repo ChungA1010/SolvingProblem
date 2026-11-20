@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html]
-//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-eds, process-bond, process-all, standalone.
+//   checks: home, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -367,7 +367,7 @@ async function openProcess(t, id) {
   await b.goto(`${fileUrl(dist, 'process-lab.html')}?seed=5&start=${id}`);
   if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station' && !!${PL}.sim`, 30000))) throw new Error(`the equipment of ${id} did not open`);
   await sleep(3000); await watchClicks(b);
-  const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById('scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);
+  const canvasBox = () => b.evaluate(`(() => { const r = document.getElementById(document.getElementById('stage').dataset.view === 'cmp' ? 'scene-cmp' : 'scene').getBoundingClientRect(); return { x: r.x, y: r.y }; })()`);   // the canvas on show
   const onPage = async point => { const box = await canvasBox(); return { x: point.x + box.x, y: point.y + box.y }; };
   const lab = {
     S, layout: await b.evaluate(`${PL}.scene.layout`),
@@ -383,12 +383,12 @@ async function openProcess(t, id) {
       const before = await b.evaluate(`${PL}.speed`); await b.evaluate(`${PL}.setSpeed(${speed})`);
       const ok = await reached(b, expression, ms); await b.evaluate(`${PL}.setSpeed(${before})`); await sleep(700); return ok;
     },
-    /** Every part of the equipment has a card and shows it under the pointer. */
-    cards: async () => {
+    /** Every part of the equipment has a card and shows it under the pointer. Parts in `later` are covered by something now and are left for lab.card(). */
+    cards: async (later = []) => {
       const scene = Object.keys(await b.evaluate(`${PL}.scene.parts`)), cards = await b.evaluate(`Object.fromEntries(Object.entries(${PL}.parts).map(([key, part]) => [key, part.name]))`);
       t.expect(scene.length > 0 && String([...scene].sort()) === String(Object.keys(cards).sort()), `every part of the equipment has a card and every card has a part (${scene.length} parts)`, `scene: ${scene.join(' ')} | cards: ${Object.keys(cards).join(' ')}`);
       const wrong = [];
-      for (const name of scene) {
+      for (const name of scene.filter(part => !later.includes(part))) {
         const point = await onPage(await b.evaluate(`${PL}.scene.screenOf(${JSON.stringify(name)})`));
         await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(400);
         await b.mouse('mouseMoved', { x: point.x + 1, y: point.y + 1 }); await sleep(120); await b.mouse('mouseMoved', point);
@@ -400,6 +400,18 @@ async function openProcess(t, id) {
       }
       t.expect(!wrong.length, 'each part shows its own card under the pointer', wrong.join('; '));
       await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(600);
+    },
+    /** One part: what is under the pointer at its place, and the card that shows. */
+    hover: async name => {
+      const point = await onPage(await b.evaluate(`${PL}.scene.screenOf(${JSON.stringify(name)})`));
+      await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(400);
+      await b.mouse('mouseMoved', { x: point.x + 1, y: point.y + 1 }); await sleep(120); await b.mouse('mouseMoved', point);
+      let under = null;
+      for (let i = 0; i < 30 && under !== name; i++) { await sleep(200); under = await b.evaluate(`${PL}.scene.hovered`); }
+      await sleep(400);
+      const shown = await lab.card();
+      await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(500);
+      return { under, shown };
     },
     /** Presses the guide's button and reports what the next process received. */
     handOver: async () => {
@@ -682,8 +694,70 @@ async function processPlating(t) {
   s = await state(); const shown = await lab.monitor();
   t.expect(landed && s.result && s.result.ok && !s.result.burnt && Math.abs(s.result.thickness - stopped) < 1e-6 && Math.abs(s.result.sheet - 1.68e-6 / (stopped * 1e-7) * 1000) < 1e-6 && /계측값/.test(shown.note), 'the sheet resistance gives the thickness, and it meets the run sheet', JSON.stringify(s.result));
   await t.shot('3-measured');
+  const handed = await clickOn(b, '#guide-action', 2500);
+  const polisher = await reached(b, `${PL}.stage === 1 && ${PL}.station.scene === 'cmp' && document.getElementById('stage').dataset.view === 'cmp'`, 30000);
+  const carried = await b.evaluate(`({ viewing: ${PL}.viewing, at: ${PL}.run.at, thickness: ${PL}.sim.incoming.thickness, step: document.getElementById('guide-step').textContent })`);
+  t.expect(handed && polisher && carried.viewing === 5 && carried.at === 5 && Math.abs(carried.thickness - stopped) < 1e-6 && /평탄화/.test(carried.step), 'the plated wafer goes on to the polisher, the second piece of equipment of the same process', JSON.stringify(carried));
+}
+
+/** The second piece of equipment of metallization: the polisher of the CMP lab, on the wafer the plating cell made. */
+async function processCmp(t) {
+  const { b, lab } = await openProcess(t, 'metal'), S = lab.S, K = `${PL}.sim.stack`;
+  const set = pairs => b.evaluate(`(() => { const d = ${PL}; return ${JSON.stringify(pairs)}.map(([name, value]) => d.station.control(d.sim, name, value)); })()`);
+  const until = (expression, speed, ms = 120000) => b.evaluate(`${PL}.setSpeed(${speed})`).then(() => reached(b, expression, ms));
+  // the plating cell has its own check: here it is run by its controls to get to the polisher
+  await set([['head', 1]]); await until(`${S}.immersed`, 16);
+  await set([['rotation', 60], ['current', 20]]); await until(`${S}.thickness > 775`, 16);
+  await set([['current', 0]]); await sleep(500); await set([['head', 0]]); await until(`${PL}.sim.canMeasure()`, 16); await b.evaluate(`${PL}.sim.measure()`);
+  const plated = await b.evaluate(`${S}.result.thickness`);
+  await sleep(700); let landed = await clickOn(b, '#guide-action', 2500);
+  t.expect(landed && await reached(b, `${PL}.stage === 1 && ${PL}.station.scene === 'cmp' && Object.keys(${PL}.scene.parts).length === 14`, 30000), 'after the plating the polisher of the CMP lab opens, with its fourteen parts');
+  await sleep(3500);
+  const state = () => b.evaluate(`(() => { const s = ${S}, k = ${K}; return { where: s.wafer.where, gap: s.gap, contact: s.contact, pressure: s.pressure, polishing: s.polishing, platen: s.platenRpm, covered: k.covered, mean: k.mean, centre: k.centre, edge: k.edge, alarms: Object.keys(s.alarms), result: k.result && { cleared: k.result.cleared, ok: k.result.ok, residue: k.result.residue, dishing: k.result.dishingMax, scratches: k.result.scratches.length } }; })()`);
+  await lab.cards(['pedestal']);                                                                 // the wafer lies on the load position for now
+  let s = await state();
+  t.expect(s.where === 'pedestal' && Math.abs(s.mean - plated) < 1e-6 && s.covered === 1, 'the wafer waits on the load position with the copper the plating cell put on it', JSON.stringify(s));
+  await t.shot('1-polisher');
+
+  landed = await clickOn(b, '#guide-action', 1500); s = await state();
+  t.expect(landed && s.where === 'head', 'the guide\'s button puts the wafer on the head', s.where);
+  await sleep(1200); const bare = await lab.hover('pedestal');
+  t.expect(bare.under === 'pedestal' && bare.shown === '로드 위치', 'with the wafer gone, the load position shows its own card', JSON.stringify(bare));
+  // platen, spindle, slurry and conditioner are set by their controls here; dragging them is what the CMP lab's own check does on this same machine
+  await set([['platen', 90], ['carrier', 87], ['slurry', 200], ['conditioner', true]]); await until(`${S}.coverage > 0.3 && ${S}.platenRpm > 85`, 4);
+  const head = await lab.part('head');
+  await b.drag(line(head, { x: head.x, y: head.y + 110 }, 14)); await sleep(1500);
+  s = await state(); const pill = await lab.guide();
+  t.expect(s.contact && s.pressure > 0.5, 'pulling the head down presses the wafer on the pad', JSON.stringify({ contact: s.contact, pressure: s.pressure }));
+  await set([['head', 1 + 3 / 7]]);
+  t.expect(await until(`${S}.polishing && ${K}.mean < ${plated} - 60`, 16), 'the copper starts to come off');
+  await b.evaluate(`${PL}.setSpeed(1)`); await sleep(600);
+  const again = await b.evaluate(`(() => { const e = document.getElementById('redo-piece'); return { shown: !e.hidden && e.getClientRects().length > 0, text: e.textContent }; })()`);
+  landed = await clickOn(b, '#redo-piece', 2500); await sleep(1500); s = await state();
+  const back = await b.evaluate(`({ stage: ${PL}.stage, scene: ${PL}.station.scene, at: ${PL}.run.at, records: ${PL}.run.records.length })`);
+  t.expect(again.shown && again.text === '평탄화만 다시' && landed && back.stage === 1 && back.scene === 'cmp' && back.at === 5 && s.where === 'pedestal' && s.covered === 1 && Math.abs(s.mean - plated) < 1e-6 && !s.contact, 'the polish alone can be started again: the plated wafer is back on the load position, the plating is kept', JSON.stringify({ again, back, where: s.where, mean: s.mean }));
+  await b.evaluate(`${PL}.sim.moveWafer('head')`); await set([['platen', 90], ['carrier', 87], ['slurry', 200], ['conditioner', true]]); await until(`${S}.coverage > 0.3 && ${S}.platenRpm > 85`, 4);
+  await set([['head', 1 + 3 / 7]]); await until(`${S}.polishing && ${K}.mean < ${plated} - 60`, 16);
+  await b.evaluate(`${PL}.setSpeed(2)`); await sleep(900); const during = await lab.monitor();
+  t.expect(during.trend && /장비 계측/.test(during.note) && during.value < plated, 'the monitor follows the copper that is left', JSON.stringify(during));
+  t.expect(await until(`${K}.covered < 1`, 30), 'the copper clears somewhere first');
+  await b.evaluate(`${PL}.setSpeed(2)`); await sleep(400); await b.evaluate(`${PL}.scene.setView('top', true)`); await sleep(1800);
+  s = await state();
+  t.expect(s.covered > 0 && s.covered < 1 && Math.abs(s.centre - s.edge) > 5, 'it does not clear everywhere at once: centre and edge differ', JSON.stringify({ covered: s.covered, centre: s.centre, edge: s.edge }));
+  const ahead = await b.evaluate(`(() => { const d = ${PL}, map = d.station.forecast(d.sim).tested; return map ? null : d.flow.apply('eds', d.station.forecast(d.sim)).wafer.tested.dies.filter(die => die.bin === 'residue').length; })()`);
+  t.expect(ahead > 0, 'stopped now, the chips still under copper would fail at EDS as joined', `${ahead} chips`);
+  await t.shot('2-clearing'); await b.evaluate(`${PL}.scene.setView('home', true)`); await sleep(1500);
+  t.expect(await until(`${K}.covered === 0`, 16), 'polishing on clears the rest');
+  const up = await lab.part('head');
+  await b.drag(line(up, { x: up.x, y: up.y - 240 }, 14)); await sleep(500);
+  t.expect(await until(`${S}.gap >= 0.117`, 8, 60000), 'pulling the head up stops the polish and lifts the wafer');
+  landed = await clickOn(b, '#guide-action', 1500);
+  t.expect(landed && await until(`!!${K}.result`, 4, 60000), 'on the thickness stage the wafer is scanned');
+  await sleep(900); s = await state(); const shown = await lab.monitor();
+  t.expect(s.where === 'stage' && s.result && s.result.cleared && s.result.ok && s.result.dishing > 0 && s.result.dishing <= 50 && s.result.scratches === 0 && /계측값/.test(shown.note), 'no copper is left over the oxide, the dishing is within the run sheet and there is no scratch', JSON.stringify(s.result));
+  await t.shot('3-scanned');
   const next = await lab.handOver();
-  t.expect(next.landed && next.viewing === 6 && next.record.by === 'operator' && next.record.ok && next.wafer.metal && Math.abs(next.wafer.metal.thickness - stopped) < 1e-6 && next.wafer.metal.over === 0 && next.wafer.metal.planar, 'the copper goes on, through the standard polish, to the next process on the same wafer', JSON.stringify(next.record));
+  t.expect(next.landed && next.viewing === 6 && next.record.by === 'operator' && next.record.ok && next.wafer.metal && next.wafer.metal.chips.length === 148 && next.wafer.metal.planar && Math.abs(next.wafer.metal.thickness - plated) < 1e-6 && /연마/.test(next.record.text), 'plating and polish go on as one record to the next process, chip by chip', JSON.stringify(next.record));
 }
 
 async function processEds(t) {
@@ -826,7 +900,13 @@ async function processAll(t) {
   await set([['head', 1]]); await until(`${S}.immersed`, 16);
   await set([['rotation', 60], ['current', 20]]); await until(`${S}.thickness > 775`, 16);
   await set([['current', 0]]); await sleep(500); await set([['head', 0]]); await until(`${PL}.sim.canMeasure()`, 16); await b.evaluate(`${PL}.sim.measure()`);
-  passed('6 metallization: the copper is plated, and the prober opens on the polished wafer', await handOver(5, 'prober'));
+  await b.evaluate(`${PL}.finishStation()`);
+  t.expect(await reached(b, `${PL}.stage === 1 && ${PL}.station.scene === 'cmp' && ${PL}.viewing === 5`, 30000), '6 metallization: the copper is plated, and the polisher of the CMP lab opens on it');
+  await sleep(2500);
+  await b.evaluate(`(() => { const d = ${PL}; d.sim.moveWafer('head'); for (const [name, value] of [['platen', 90], ['carrier', 87], ['slurry', 200], ['conditioner', true]]) d.station.control(d.sim, name, value); })()`);
+  await until(`${S}.coverage > 0.3 && ${S}.platenRpm > 85`, 4); await set([['head', 1 + 3 / 7]]); await until(`${PL}.sim.stack.covered === 0`, 8);
+  await set([['head', 0]]); await until(`${S}.gap >= 0.117`, 8); await b.evaluate(`${PL}.sim.moveWafer('stage')`); await until(`!!${PL}.sim.stack.result`, 4);
+  passed('6 metallization: the copper is polished back to the oxide, and the prober opens on that wafer', await handOver(5, 'prober'));
 
   await b.evaluate(`(() => { const d = ${PL}, o = d.sim.state.offset; for (const [name, value] of [['x', -o.x], ['y', -o.y], ['z', 50], ['contact', true], ['probe', true]]) d.station.control(d.sim, name, value); })()`);
   await until(`${S}.phase === 'done'`, 240);
@@ -912,6 +992,15 @@ async function standalone(t) {
     await b.evaluate(`${PL}.start(1)`);
     t.expect(await reached(b, `${PL}.mode === 'station' && Object.keys(${PL}.scene.parts).length > 5`, 60000), 'its oxidation furnace starts inside the file');
     await sleep(2500); await t.shot('4-process-lab');
+    // the polisher is drawn by the learning lab's 3D bundle, which this page takes from another folder: plate a wafer and see that it opens
+    const PS = `${PL}.sim.state`, drive = pairs => b.evaluate(`(() => { const d = ${PL}; for (const [name, value] of ${JSON.stringify(pairs)}) d.station.control(d.sim, name, value); })()`);
+    await b.evaluate(`${PL}.start(5)`); await reached(b, `${PL}.mode === 'station' && ${PL}.station.equipment === 'plating'`, 60000); await b.evaluate(`${PL}.setSpeed(16)`);
+    await drive([['head', 1]]); await reached(b, `${PS}.immersed`, 60000);
+    await drive([['rotation', 60], ['current', 20]]); await reached(b, `${PS}.thickness > 775`, 120000);
+    await drive([['current', 0]]); await sleep(500); await drive([['head', 0]]); await reached(b, `${PL}.sim.canMeasure()`, 60000);
+    await b.evaluate(`(() => { const d = ${PL}; d.sim.measure(); d.finishStation(); })()`);
+    t.expect(await reached(b, `${PL}.stage === 1 && ${PL}.station.scene === 'cmp' && Object.keys(${PL}.scene.parts).length === 14`, 60000), 'after the plating, the polisher of the learning lab opens inside the file');
+    await sleep(3000); await t.shot('5-process-lab-polisher');
   }
 
   await b.evaluate(`location.hash = '#lab-sim'`);
@@ -932,6 +1021,7 @@ const CHECKS = {
   'process-etch': { run: processEtch, minutes: 8, about: 'dist/process-lab.html, the etch chamber stopped at the endpoint' },
   'process-implant': { run: processImplant, minutes: 8, about: 'dist/process-lab.html, the implanter: one implant and two anneals to a measured junction' },
   'process-plating': { run: processPlating, minutes: 10, about: 'dist/process-lab.html, the copper plating cell: past the limit and back, stopped at the thickness' },
+  'process-cmp': { run: processCmp, minutes: 10, about: 'dist/process-lab.html, the polisher of the CMP lab as the second equipment of metallization: clear the copper, scan' },
   'process-eds': { run: processEds, minutes: 10, about: 'dist/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
   'process-bond': { run: processBond, minutes: 10, about: 'dist/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
   'process-all': { run: processAll, minutes: 10, about: 'dist/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
