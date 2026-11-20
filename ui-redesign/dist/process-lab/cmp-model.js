@@ -12,6 +12,7 @@
  *   Where the copper over the oxide has cleared, the polish goes on on the barrier film at a fifth of the copper rate,
  *   then on the oxide at a hundredth, and the copper in the windows is dished by a quarter of what the copper rate would
  *   have removed. A window the plating did not fill stays short by what was missing.
+ *   The copper comes in as the plating cell left it: thicker at the edge than at the centre (`wafer.profile`).
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory(require('../lab-3d/process-model.js'));
@@ -42,19 +43,27 @@
     };
   }
 
+  /** `values` along the radius (any number of places, centre to edge) at the N places this model uses. */
+  function along(values) {
+    const n = values.length;
+    return Float64Array.from({ length: N }, (_, i) => { const x = i / (N - 1) * (n - 1), k = Math.min(n - 2, Math.floor(x)); return n === 1 ? values[0] : values[k] + (x - k) * (values[k + 1] - values[k]); });
+  }
+
   /**
-   * A polisher with the plated wafer on its load position. `wafer`: { thickness (nm of copper over the oxide), depth (nm
+   * A polisher with the plated wafer on its load position. `wafer`: { thickness (nm of copper over the oxide), profile
+   * (the same at each place from the centre to the edge, where the plating was not even), depth (nm
    * from the oxide's top to the window floor), liner (nm of barrier film) }. Controls, alarms and the polishing state are
    * the CMP lab model's own (`state`); `stack` is what this file keeps beside it. Times are seconds.
    */
   function create(options = {}) {
     const incoming = { thickness: 800, depth: 505, liner: 30, ...(options.wafer || {}) };
     const model = P.create({ seed: options.seed ?? 1, level: K.copper }), state = model.state, w = model.newWafer();
-    for (let i = 0; i < N; i++) w.film[i] = w.start[i] = incoming.thickness + K.under;
-    w.incoming = { mean: incoming.thickness, edgeMinusCentre: 0 };
+    const plated = incoming.profile && incoming.profile.length ? along(incoming.profile) : new Float64Array(N).fill(incoming.thickness);      // nm of copper over the oxide at each place
+    for (let i = 0; i < N; i++) w.film[i] = w.start[i] = plated[i] + K.under;
+    w.incoming = { mean: areaMean(plated), edgeMinusCentre: plated[N - 1] - plated[0] };
     const stack = {
-      copper: new Float64Array(N).fill(incoming.thickness), dishing: new Float64Array(N), liner: new Float64Array(N).fill(incoming.liner), erosion: new Float64Array(N),
-      covered: 1, mean: incoming.thickness, centre: incoming.thickness, edge: incoming.thickness,     // share of the wafer still under copper; copper left: mean, at the centre, at the edge
+      copper: Float64Array.from(plated), dishing: new Float64Array(N), liner: new Float64Array(N).fill(incoming.liner), erosion: new Float64Array(N),
+      covered: 1, mean: areaMean(plated), centre: plated[0], edge: plated[N - 1],     // share of the wafer still under copper; copper left: mean, at the centre, at the edge
       measuring: 0, history: [], result: null,
     };
     let sampled = -1;
@@ -63,12 +72,12 @@
     function at(r, theta = 0) {
       const x = clamp(r / C.waferRadius, 0, 1) * (N - 1), i = Math.min(N - 2, Math.floor(x)), f = x - i;
       const removed = removedAt(i) + f * (removedAt(i + 1) - removedAt(i)) + w.tilt * (r / C.waferRadius) * Math.cos(theta - w.tiltAngle);
-      return stackAt(removed, incoming.thickness, incoming.depth, incoming.liner);
+      return stackAt(removed, plated[i] + f * (plated[i + 1] - plated[i]), incoming.depth, incoming.liner);
     }
     function refresh() {
       let covered = 0;
       for (let i = 0; i < N; i++) {
-        const s = stackAt(removedAt(i), incoming.thickness, incoming.depth, incoming.liner);
+        const s = stackAt(removedAt(i), plated[i], incoming.depth, incoming.liner);
         stack.copper[i] = s.copper; stack.dishing[i] = s.dishing; stack.liner[i] = s.liner; stack.erosion[i] = s.erosion;
         if (s.copper > K.cleared) covered += weights[i];
       }
@@ -86,7 +95,7 @@
       refresh();
       let residue = 0, deepest = 0;
       for (let i = 0; i < N; i++) for (const side of [-1, 1]) {                                        // the thick side and the thin side of a wedge
-        const s = stackAt(removedAt(i) + side * Math.abs(w.tilt) * (i / (N - 1)), incoming.thickness, incoming.depth, incoming.liner);
+        const s = stackAt(removedAt(i) + side * Math.abs(w.tilt) * (i / (N - 1)), plated[i], incoming.depth, incoming.liner);
         residue = Math.max(residue, s.copper); deepest = Math.max(deepest, s.dishing);
       }
       stack.result = {
@@ -107,8 +116,8 @@
     /** Emergency stop: every rotation and the slurry off, the head up. */
     function stop() { for (const [name, value] of [['head', 0], ['platen', 0], ['carrier', 0], ['slurry', 0], ['conditioner', false]]) model.setControl(name, value); }
     refresh();
-    return { state, stack, constants, incoming, radius: model.radius, setControl: model.setControl, step, moveWafer, stop, at };
+    return { state, stack, constants, incoming, profile: plated, radius: model.radius, setControl: model.setControl, step, moveWafer, stop, at };
   }
 
-  return { constants, stackAt, create, weights };
+  return { constants, stackAt, along, create, weights };
 });

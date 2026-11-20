@@ -79,13 +79,18 @@ export function buildPlater(kit) {
     if (key === drawn) return;
     drawn = key;
     const x = film.getContext('2d'), n = film.width, mix = (a, b) => Math.round(a + (b - a) * grown);
-    x.fillStyle = view.burnt ? '#4a3226' : `rgb(${mix(138, 222)},${mix(92, 140)},${mix(64, 88)})`; x.fillRect(0, 0, n, n);           // dull seed film to bright copper
+    x.fillStyle = `rgb(${mix(138, 222)},${mix(92, 140)},${mix(64, 88)})`; x.fillRect(0, 0, n, n);           // dull seed film to bright copper
     if (view.windows && grown < 1) { x.fillStyle = `rgba(60,40,30,${0.4 * (1 - grown)})`; const cell = n / 10; for (let i = 0; i < 64; i++) x.fillRect((i % 8 + 1) * cell + 4, (Math.floor(i / 8) + 1) * cell + 4, cell - 8, cell - 8); }   // the windows show until the copper covers them
-    if (view.burnt) { x.fillStyle = 'rgba(20,12,8,.5)'; for (let i = 0; i < 500; i++) x.fillRect((i * 97) % n, (i * 57) % n, 2, 2); }
+    if (view.burnt > 0) {                                                                                             // burnt from the edge in: the share of the area is a ring
+      const R = n / 2, inner = R * Math.sqrt(Math.max(0, 1 - view.burnt));
+      x.save(); x.beginPath(); x.arc(R, R, R, 0, 2 * Math.PI); x.arc(R, R, inner, 0, 2 * Math.PI, true); x.clip('evenodd');
+      x.fillStyle = '#4a3226'; x.fillRect(0, 0, n, n); x.fillStyle = 'rgba(20,12,8,.5)'; for (let i = 0; i < 500; i++) x.fillRect((i * 97) % n, (i * 57) % n, 2, 2);
+      x.restore();
+    }
     filmTexture.needsUpdate = true;
   }
   const smooth = v => v * v * (3 - 2 * v), clamp01 = v => Math.min(1, Math.max(0, v));
-  /** `view`: head (0 up .. 1 in the bath), spin (rpm), plating, over, thickness (nm), burnt, windows, controls { current, rotation }, alarm. */
+  /** `view`: head (0 up .. 1 in the bath), spin (rpm), plating, over, thickness (nm), burnt (share of the wafer, from the edge in), windows, controls { current, rotation }, alarm. */
   function update(view, dt, clock) {
     const turn = Math.PI * smooth(clamp01(view.head / FLIP)), down = clamp01((view.head - FLIP) / (1 - FLIP));
     lift.position.y = HEAD_UP - TRAVEL * down; flipper.rotation.z = turn;

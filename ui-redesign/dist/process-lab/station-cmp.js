@@ -24,7 +24,7 @@
   const COPPER = [214, 140, 92], BARRIER = [118, 110, 104], BARE = [132, 141, 154];
   let grid = null;
   function paint(sim, canvas) {
-    const n = canvas.width, ctx = canvas.getContext('2d'), w = sim.state.wafer, plated = sim.incoming.thickness, linerFull = sim.incoming.liner;
+    const n = canvas.width, ctx = canvas.getContext('2d'), w = sim.state.wafer, plated = sim.profile, linerFull = sim.incoming.liner;
     if (!grid || grid.n !== n) {
       const radius = new Float32Array(n * n), cos = new Float32Array(n * n), sin = new Float32Array(n * n);
       for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const dx = (x + 0.5 - n / 2) / (n / 2 - 1), dy = -(y + 0.5 - n / 2) / (n / 2 - 1), r = Math.hypot(dx, dy), i = y * n + x; radius[i] = r; cos[i] = r ? dx / r : 1; sin[i] = r ? dy / r : 0; }
@@ -35,10 +35,10 @@
       const r = grid.radius[i], o = i * 4; let c = BARE;
       if (r <= 1) {
         const x = r * (N - 1), k = Math.min(N - 2, x | 0), f = x - k, a = w.start[k] - w.film[k], b = w.start[k + 1] - w.film[k + 1];
-        const removed = a + f * (b - a) + w.tilt * r * (grid.cos[i] * ct + grid.sin[i] * st), copper = plated - removed;
+        const top = plated[k] + f * (plated[k + 1] - plated[k]), removed = a + f * (b - a) + w.tilt * r * (grid.cos[i] * ct + grid.sin[i] * st), copper = top - removed;
         if (copper > K.cleared) { const t = Math.min(1, copper / 80); data[o] = BARRIER[0] + (COPPER[0] - BARRIER[0]) * t; data[o + 1] = BARRIER[1] + (COPPER[1] - BARRIER[1]) * t; data[o + 2] = BARRIER[2] + (COPPER[2] - BARRIER[2]) * t; data[o + 3] = 255; continue; }
         const px = i % n, py = (i / n) | 0;
-        c = (px % 10 < 5 && py % 10 < 5) ? COPPER : linerFull - (removed - plated) * K.barrier > 0 ? BARRIER : oxide;      // windows filled with copper show through once the field is clear
+        c = (px % 10 < 5 && py % 10 < 5) ? COPPER : linerFull - (removed - top) * K.barrier > 0 ? BARRIER : oxide;      // windows filled with copper show through once the field is clear
       }
       data[o] = c[0]; data[o + 1] = c[1]; data[o + 2] = c[2]; data[o + 3] = 255;
     }
@@ -80,7 +80,7 @@
     speeds: [[1, '1×'], [2, '2×'], [4, '4×'], [8, '8×']], defaultSpeed: 2,
     create(wafer, seed, context) {
       const base = context.base, win = base.window && base.window.width > 0 ? base.window : null, plated = context.results[0];
-      const sim = CM.create({ wafer: { thickness: plated.thickness, depth: win ? win.depth + win.siliconLoss : 0, liner: base.liner }, seed });
+      const sim = CM.create({ wafer: { thickness: plated.thickness, profile: plated.profile, depth: win ? win.depth + win.siliconLoss : 0, liner: base.liner }, seed });
       sim.base = base; sim.plated = plated; sim.oxide = base.oxide; sim.spin = { platen: 0, carrier: 0, sweep: 0 }; sim.state.stack = sim.stack;
       return sim;
     },

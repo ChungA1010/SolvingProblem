@@ -88,3 +88,14 @@ test('a dry pad scratches the wafer, and a scratched wafer does not pass', () =>
   lift(sim); sim.moveWafer('stage'); run(sim, 1.5);
   assert.ok(sim.stack.result.scratches.length > 0 && !sim.stack.result.ok); assert.ok(sim.stack.result.scratches.every(s => s.r >= 0 && s.r <= 150));
 });
+
+test('the copper comes in as the plating left it: where it is thicker it clears later', () => {
+  const N = R.nodes, ramp = Array.from({ length: N }, (_, j) => 700 + 200 * j / (N - 1));
+  const even = polishing(R.pressureRef, { thickness: 800 }), heavy = polishing(R.pressureRef, { thickness: 800, profile: ramp });
+  near(heavy.stack.mean, ramp.reduce((sum, x, j) => sum + x * M.weights[j], 0), 1e-9, 'the copper over the area');
+  assert.ok(heavy.stack.centre < heavy.stack.edge && heavy.profile.length === N);
+  const firstClear = sim => { while (sim.stack.covered === 1) run(sim, 0.5); return { centre: sim.stack.copper[0], edge: sim.stack.copper[N - 1] }; };
+  const a = firstClear(even), b = firstClear(heavy);
+  assert.ok(a.edge <= C.cleared && a.centre > 10, `an even film clears at the edge first: ${JSON.stringify(a)}`);
+  assert.ok(b.centre <= C.cleared && b.edge > 50, `heavy at the edge, it clears at the centre first: ${JSON.stringify(b)}`);
+});

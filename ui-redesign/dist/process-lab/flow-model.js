@@ -61,7 +61,7 @@
     }
     return list;
   }
-  const DIE_COUNT = dies().length;
+  const DIES = dies(), DIE_COUNT = DIES.length;
   /**
    * Which chips of the wafer of this lot carry a killer defect: the Poisson yield model, a chip of area A is hit with
    * probability 1 - exp(-A D). The same lot number always gives the same wafer.
@@ -73,7 +73,7 @@
     for (let i = 0; i < 8; i++) random();
     return dies().map(die => random() < 1 - Math.exp(-area * STANDARD.defects * (1 + 1.5 * (Math.hypot(die.x, die.y) / R) ** 4)));
   }
-  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함', residue: '구리 잔류', scratch: '스크래치', dish: '접시 파임' };
+  const BIN_NAMES = { contact: '접촉', leak: '누설', voltage: '전압', defect: '결함', residue: '구리 잔류', scratch: '스크래치', burnt: '도금 탐', dish: '접시 파임' };
 
   const empty = (lot = 1) => ({ lot, substrate: null, oxide: 0, resist: null, window: null, unmasked: false, junction: null, liner: 0, metal: null, tested: null, packaged: null });
 
@@ -106,20 +106,53 @@
    * residue, dishingMax, scratches, ok }. Otherwise the polish goes by the standard recipe, which clears a fixed amount of
    * field copper: more than that stays on the oxide, less than that dishes the copper in the windows.
    */
+  /** `values` taken at even steps along the radius, from the centre to the edge, read at `r` mm from the centre. */
+  function along(values, r) {
+    const n = values.length, x = Math.min(1, Math.max(0, r / (STANDARD.substrate.diameter / 2))) * (n - 1), k = Math.min(n - 2, Math.floor(x));
+    return n < 2 ? values[0] : values[k] + (x - k) * (values[k + 1] - values[k]);
+  }
+  /** Distances (mm) from the wafer's centre of the middle and the four corners of a chip: where what varies across the wafer is read for it. */
+  const reach = die => [[0, 0], [-8, -8], [8, -8], [8, 8], [-8, 8]].map(([dx, dy]) => Math.hypot(die.x + dx, die.y + dy));
+
+  /**
+   * The metal of the wafer after plating and polish. `plated` is the operator's plating, or nothing for the standard recipe:
+   * { thickness (the mean), profile (the thickness from the centre to the edge), scorched (where it grew above the limit, at the
+   * same places), burnt (anywhere), polish (the operator's polish, chip by chip) }. A plating without a profile is even.
+   * Where the operator plated and the polish goes by the standard recipe, the polish takes STANDARD.polish off everywhere,
+   * so every chip gets what is left at its own place.
+   */
   function metallised(wafer, plated) {
-    const w = { ...wafer }, t = plated ? plated.thickness : STANDARD.plated, M = SPEC.metal, polish = plated && plated.polish, burnt = plated && plated.burnt ? { burnt: true } : {};
+    const w = { ...wafer }, t = plated ? plated.thickness : STANDARD.plated, M = SPEC.metal, polish = plated && plated.polish;
     const depth = w.window && w.window.width > 0 ? w.window.depth + w.window.siliconLoss : 0;
-    const plating = t > 0 ? `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)${plated && plated.burnt ? ' · 한계 전류를 넘겨 도금이 탐' : ''}` : '구리가 도금되지 않음';
+    const profile = plated && Array.isArray(plated.profile) && plated.profile.length > 1 && t > 0 ? plated.profile : null;
+    const scorched = profile && Array.isArray(plated.scorched) && plated.scorched.length === profile.length ? plated.scorched : null;
+    const everywhere = Boolean(plated && plated.burnt) && (!scorched || scorched.every(Boolean)), somewhere = Boolean(plated && plated.burnt) || Boolean(scorched && scorched.some(Boolean));
+    const burntAt = r => Boolean(scorched) && !everywhere && scorched[Math.round(Math.min(1, r / (STANDARD.substrate.diameter / 2)) * (scorched.length - 1))];
+    const thinnest = profile ? Math.min(...profile) : t, thickest = profile ? Math.max(...profile) : t;
+    const even = thinnest >= M.target - M.tolerance && thickest <= M.target + M.tolerance;     // within the run sheet at every place
+    const burnt = everywhere ? { burnt: true } : {};
+    const plating = !(t > 0) ? '구리가 도금되지 않음'
+      : (profile ? `구리 평균 ${nm(t)} 도금, 가운데 ${nm(profile[0])} · 가장자리 ${nm(profile.at(-1))} (목표 어디서나 ${M.target} ± ${M.tolerance} nm)` : `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)`)
+        + (everywhere ? ' · 한계 전류를 넘겨 도금이 탐' : somewhere ? ' · 한계 전류를 넘겨 가장자리가 탐' : '');
     if (polish && t > 0) {                                          // polished by the operator: the polisher's scan, chip by chip
-      w.metal = { thickness: t, over: polish.centre.over, dishing: polish.centre.dishing, planar: polish.cleared && polish.dishingMax <= M.dishing, chips: polish.chips, ...burnt };
-      return { wafer: w, ok: !plated.burnt && Math.abs(t - M.target) <= M.tolerance && Boolean(polish.ok),
+      const chips = polish.chips.map((chip, i) => ({ ...chip, burnt: reach(DIES[i]).some(burntAt) }));
+      w.metal = { thickness: t, over: polish.centre.over, dishing: polish.centre.dishing, planar: polish.cleared && polish.dishingMax <= M.dishing, chips, ...burnt };
+      return { wafer: w, ok: !somewhere && even && Boolean(polish.ok),
         text: `${plating} · 연마 뒤 ${polish.cleared ? `접시 파임 최대 ${nm(polish.dishingMax)}` : `구리가 가장 두꺼운 곳에 ${nm(polish.residue)} 남음`}${polish.scratches ? ` · 스크래치 ${polish.scratches}개` : ''}` };
+    }
+    /** What the standard polish leaves where the copper was plated `top` nm thick. */
+    const left = top => { const over = Math.max(0, top - STANDARD.polish); return { over, dishing: over > 0 ? 0 : Math.min(depth, Math.max(0, depth - top) + (STANDARD.polish - top) * STANDARD.dishRate) }; };
+    if (profile) {                                                  // the operator's plating, the standard polish: chip by chip from the profile
+      const chips = DIES.map(die => { const places = reach(die), here = places.map(r => left(along(profile, r))); return { over: Math.max(...here.map(p => p.over)), dishing: Math.max(...here.map(p => p.dishing)), scratched: false, burnt: places.some(burntAt) }; });
+      const centre = left(profile[0]), joined = chips.filter(chip => chip.over > 1).length, deepest = Math.max(...chips.map(chip => chip.dishing));
+      w.metal = { thickness: t, over: centre.over, dishing: centre.dishing, planar: joined === 0 && deepest <= M.dishing, chips, ...burnt };
+      return { wafer: w, ok: !somewhere && even, text: `${plating} · 표준 연마 뒤 ${joined ? `칩 ${joined}개 위에 구리가 남음` : `접시 파임 최대 ${nm(deepest)}`}` };
     }
     const over = Math.max(0, t - STANDARD.polish), short = Math.max(0, depth - t);                    // copper left on the oxide; how far the copper in the window was short of the top
     const dishing = over > 0 ? 0 : Math.min(depth, short + (STANDARD.polish - t) * STANDARD.dishRate);
     w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && dishing <= M.dishing, ...burnt } : null;
     if (!plated) return { wafer: w, ok: null, text: '창을 금속으로 채우고 산화막 높이까지 평탄화' };
-    return { wafer: w, ok: t > 0 && !plated.burnt && Math.abs(t - M.target) <= M.tolerance,
+    return { wafer: w, ok: t > 0 && !somewhere && even,
       text: t > 0 ? `${plating} · 표준 연마 뒤 ${over > 0 ? `산화막 위에 구리 ${nm(over)} 남음` : `접시 파임 ${nm(dishing)}`}` : plating };
   }
 
@@ -196,7 +229,7 @@
                     : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
                       : w.metal.dishing > deep ? '창 안의 금속이 거의 남지 않아 저항이 큼' : null;      // what fails every chip of the wafer
       /** Where the operator polished the wafer, the bin a chip fails in for what the polish left on it (or null). */
-      const polished = i => !chips ? null : chips[i].over > 1 ? 'residue' : chips[i].scratched ? 'scratch' : chips[i].dishing > deep ? 'dish' : null;
+      const polished = i => !chips ? null : chips[i].over > 1 ? 'residue' : chips[i].scratched ? 'scratch' : chips[i].burnt ? 'burnt' : chips[i].dishing > deep ? 'dish' : null;
       const share = good => `칩 ${DIE_COUNT}개 중 양품 ${good}개 (수율 ${Math.round(good / DIE_COUNT * 100)}%)`;
       if (result) {                                                 // the operator's probing: one entry per chip
         const good = result.dies.filter(die => die.good).length, missed = result.missed || 0, bins = {};

@@ -363,9 +363,11 @@
     $('mon-togo').innerHTML = d.note; $('mon-now').innerHTML = d.now;
     $('meter').hidden = !d.meter;
     if (d.meter) {
-      const m = d.meter, gap = m.target - m.value;
+      const m = d.meter, from = m.from ?? null, low = from ?? m.value, gap = m.target - m.value;          // with `from` the bar spans from..value (the thinnest to the thickest place)
       Object.assign($('mon-band').style, { left: `${(m.target - m.tolerance) / m.scale * 100}%`, width: `${2 * m.tolerance / m.scale * 100}%` });
-      $('mon-bar').style.width = `${clamp(m.value / m.scale, 0, 1) * 100}%`; $('mon-bar').dataset.tone = Math.abs(gap) <= m.tolerance ? 'ok' : gap < -m.tolerance ? 'bad' : '';
+      $('mon-bar').style.left = from == null ? '' : `${clamp(from / m.scale, 0, 1) * 100}%`;
+      $('mon-bar').style.width = `${clamp((m.value - (from ?? 0)) / m.scale, 0, 1) * 100}%`;
+      $('mon-bar').dataset.tone = low >= m.target - m.tolerance && m.value <= m.target + m.tolerance ? 'ok' : gap < -m.tolerance ? 'bad' : '';
     }
     $('spec').replaceChildren(...d.spec.map(text => el('span', { text })));
     const film = d.picture.film != null; $('film').hidden = !film; $('mon-section').hidden = film;

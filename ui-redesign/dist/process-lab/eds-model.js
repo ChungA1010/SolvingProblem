@@ -31,7 +31,7 @@
     permittivity: 11.7 * 8.854e-14,                                      // F/cm
     junctionArea: 1e-3, contactArea: 1e-5,                               // cm2 per chip, for the standard window and junction
     contact: { high: [1e20, 1e-6], low: [1e19, 1e-4] },                  // [doping per cm3, specific contact resistivity in ohm cm2]: two points of the curve
-    metal: { resistance: 0.2, burnt: 5 },                                // ohm of the copper path at full height; times this for burnt copper
+    metal: { resistance: 0.2, burnt: 100 },                              // ohm of the copper path at full height; times this where the copper burnt (assumed: a porous, powdery deposit that the polish tears out, past the 10 ohm limit)
     spike: { depth: 120, scale: 15 },                                    // nm: a junction left shallower than this under the window floor leaks
     dislocated: 1e4,                                                     // times the leakage in a crystal grown without a neck
     defect: [-7, 3],                                                     // a chip with a killer defect leaks 10^(a + b u) A, u uniform in 0..1
@@ -93,12 +93,12 @@
     return dies.map((die, i) => {
       const r2 = (Math.hypot(die.x, die.y) / K.radius) ** 2, a = normal(), b = normal(), u = random();
       if (!path) return { open: true, good: false };
-      const local = chips ? chips[i] : { over: m.over || 0, dishing: (m.dishing || 0) * (1 + K.spread.dishing * r2), scratched: false };
+      const local = chips ? chips[i] : { over: m.over || 0, dishing: (m.dishing || 0) * (1 + K.spread.dishing * r2), scratched: false, burnt: false };
       if (local.scratched) return { open: true, good: false, scratched: true };                // a scratch across the copper cuts the path
       const joined = Boolean(j.everywhere) || local.over > 1;                                  // copper left on the oxide joins the chip to its neighbours
       const width = win.width * (1 - K.spread.width[0] * r2 + K.spread.width[1] * a), surface = j.surface * (1 - K.spread.surface[0] * r2 + K.spread.surface[1] * b);
       const depth = win.depth + win.siliconLoss, left = depth - Math.min(depth, local.dishing);
-      const copper = left > 0 ? K.metal.resistance * depth / left * (m.burnt ? K.metal.burnt : 1) : Infinity;
+      const copper = left > 0 ? K.metal.resistance * depth / left * (m.burnt || local.burnt ? K.metal.burnt : 1) : Infinity;
       const resistance = contactResistivity(surface) / (K.contactArea * width / 1000) + copper;
       const area = K.junctionArea * (width + 1.4 * j.depth) / (1000 + 1.4 * 300);            // the junction spreads sideways by 0.7 of its depth on each side
       const spike = 1 + Math.exp(Math.min(50, (K.spike.depth - (j.depth - win.siliconLoss)) / K.spike.scale));

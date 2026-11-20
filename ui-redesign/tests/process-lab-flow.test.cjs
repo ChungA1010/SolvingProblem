@@ -221,7 +221,7 @@ test('a wafer the operator polished is judged chip by chip on what the polish le
   const clean = dies.map(() => ({ over: 0, dishing: 12, scratched: false }));
   const good = F.createRun('metal'), record = F.complete(good, { thickness: 800, burnt: false, polish: scan(clean), how: '연마 100초' });
   assert.ok(record.ok && /연마 뒤 접시 파임 최대 12 nm/.test(record.text) && /연마 100초/.test(record.text), record.text);
-  assert.equal(good.wafer.metal.chips, clean); assert.ok(good.wafer.metal.planar && good.wafer.metal.over === 0); finish(good); assert.equal(good.wafer.tested.good, GOOD);
+  assert.deepEqual(good.wafer.metal.chips, clean.map(chip => ({ ...chip, burnt: false }))); assert.ok(good.wafer.metal.planar && good.wafer.metal.over === 0); finish(good); assert.equal(good.wafer.tested.good, GOOD);
 
   const ring = dies.map(die => ({ over: Math.hypot(die.x, die.y) > 110 ? 40 : 0, dishing: 12, scratched: false })), outer = ring.filter(c => c.over > 0).length;   // copper left toward the edge
   ring[70] = { over: 0, dishing: 500, scratched: false }; ring[71] = { over: 0, dishing: 12, scratched: true };
@@ -245,4 +245,33 @@ test('applying a process does not change the wafer it was given', () => {
   const before = F.arriving(3), copy = JSON.parse(JSON.stringify(before));
   F.apply('etch', before);
   assert.deepEqual(before, copy);
+});
+
+test('the operator\'s plating goes on with its profile: a heavy edge keeps copper under the standard polish, a burnt edge fails its chips', () => {
+  const ED = require('../dist/process-lab/eds-model.js'), N = 31, none = new Array(N).fill(false);
+  const profile = (centre, edge) => Array.from({ length: N }, (_, j) => centre + (edge - centre) * (j / (N - 1)) ** 2);   // mean: centre + (edge - centre) / 2
+  const even = F.createRun('metal'), record = F.complete(even, { thickness: 802.5, profile: profile(760, 845), scorched: none, burnt: false });
+  assert.ok(record.ok && /가운데 760 nm · 가장자리 845 nm/.test(record.text) && /접시 파임 최대 30 nm/.test(record.text), record.text);
+  assert.ok(even.wafer.metal.chips.length === F.DIE_COUNT && even.wafer.metal.planar && even.wafer.metal.dishing === 30, 'the centre is dished most: it had the least copper to take off');
+  finish(even); assert.equal(even.wafer.tested.good, GOOD, 'every chip clears and works');
+
+  const heavy = F.createRun('metal'), marked = F.complete(heavy, { thickness: 875, profile: profile(800, 950), scorched: none, burnt: false });
+  assert.equal(marked.ok, false, 'on average inside the run sheet, at the edge 70 nm over it'); assert.match(marked.text, /칩 \d+개 위에 구리가 남음/);
+  F.complete(heavy);
+  const dies = F.dies(), tested = heavy.wafer.tested, residue = tested.dies.map(die => die.bin === 'residue');
+  assert.ok(residue.filter(Boolean).length > 10 && tested.reason === null, `${residue.filter(Boolean).length} chips`);
+  dies.forEach((die, i) => { const r = Math.hypot(die.x, die.y); if (residue[i]) assert.ok(r > 80, `residue on a chip ${r.toFixed(0)} mm out`); if (r < 60) assert.ok(!residue[i]); });
+
+  const scorched = Array.from({ length: N }, (_, j) => j >= N - 4), burnt = F.createRun('metal');              // the outer 15 mm grew above the limit
+  const told = F.complete(burnt, { thickness: 802.5, profile: profile(760, 845), scorched, burnt: true });
+  assert.equal(told.ok, false); assert.match(told.text, /가장자리가 탐/); assert.ok(!burnt.wafer.metal.burnt, 'not the whole wafer');
+  F.complete(burnt);
+  const bins = burnt.wafer.tested.dies.filter(die => die.bin === 'burnt').length;
+  assert.ok(burnt.wafer.tested.reason === null && bins > 10 && burnt.wafer.tested.good > 100, JSON.stringify({ bins, good: burnt.wafer.tested.good }));
+  const truth = ED.truths({ wafer: burnt.wafer, dies, killed: F.defects(1), seed: 5 });
+  truth.forEach((t, i) => { if (burnt.wafer.metal.chips[i].burnt) assert.ok(!t.good && t.resistance > ED.constants.limits.resistance, 'burnt copper fails the prober on its resistance'); });
+  assert.equal(truth.filter(t => t.good).length, burnt.wafer.tested.good, 'the prober and the standard test agree on which chips are good');
+
+  const all = F.createRun('metal'); F.complete(all, { thickness: 802.5, profile: profile(760, 845), scorched: new Array(N).fill(true), burnt: true }); finish(all);
+  assert.equal(all.wafer.tested.good, 0); assert.match(all.wafer.tested.reason, /타서/);
 });

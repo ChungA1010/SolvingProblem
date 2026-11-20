@@ -12,7 +12,7 @@
     "src/process-lab/puller.js",
     "src/process-lab/track.js"
   ],
-  "sourcesSha256": "9e3a7c9916ed09f7dd20f174a2555849b749c4110eeac7950a49f4e58ff0bfef",
+  "sourcesSha256": "af5dc80077f047dcd9437dd6945a5fd20f5cdddac02960060ddcbafe103e30cc",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }
