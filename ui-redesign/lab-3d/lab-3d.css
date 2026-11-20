@@ -182,6 +182,13 @@ td.num, th.num { text-align: right; }
 .focus::before, .focus::after { content: ""; position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--grip); animation: ping 1.7s ease-out infinite; }
 .focus::after { animation-delay: .85s; }
 @keyframes ping { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.45); opacity: 0; } }
+/* The drag that operates the part: a dotted path with an arrowhead, and a dot that travels it like a pointer. */
+.gesture { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gesture path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+#gesture-halo { stroke: #ffffffd9; stroke-width: 9; }
+#gesture-line { stroke: var(--grip); stroke-width: 3.5; stroke-dasharray: 1 8; }
+#gesture-tip { fill: var(--grip); stroke: #ffffffd9; stroke-width: 2.5; paint-order: stroke; }
+#gesture-hand { fill: #fff; stroke: var(--grip); stroke-width: 3.5; filter: drop-shadow(0 2px 4px #1e293b55); }
 /* Value shown on a part while it is dragged. */
 .pill { position: absolute; transform: translate(-50%, calc(-100% - 16px)); white-space: nowrap; background: #1e293bf0; color: #fff; font-weight: 700; font-size: 14px; border-radius: 999px; padding: 4px 11px; box-shadow: 0 6px 16px #1e293b40; }
 /* Card of the part under the pointer, tied to the part by a dot and a short leader. */
@@ -195,6 +202,7 @@ td.num, th.num { text-align: right; }
 @keyframes rise { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 .callout h3 { font-size: 14.5px; font-weight: 720; letter-spacing: -.01em; }
 .callout .role { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.callout .why { font-size: 12.5px; color: var(--ink); margin-top: 6px; }
 .callout dl { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin-top: 9px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 13px; }
 .callout dt { color: var(--muted); } .callout dd { font-weight: 700; text-align: right; }
 .callout .how { margin-top: 9px; font-size: 12.5px; color: var(--ink); background: #f3f6fb; border-radius: 9px; padding: 6px 9px; }
@@ -209,6 +217,8 @@ dialog::backdrop { background: #1e293b55; }
 dialog h2 { font-size: 17px; margin-bottom: 10px; }
 dialog ul { padding-left: 18px; margin: 0 0 12px; display: grid; gap: 6px; }
 dialog .scope { color: var(--muted); font-size: 12.5px; margin-bottom: 14px; }
+dialog .check { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-weight: 600; cursor: pointer; }
+dialog .check input { width: 16px; height: 16px; accent-color: var(--brand); }
 @media (max-width: 1100px) {
   .strip { grid-template-columns: minmax(0, 1.5fr) minmax(206px, 1fr) minmax(0, 1fr); } .tile.temp { display: none; } .tile.profile { padding-right: 34px; }
   .monitor { width: 214px; } #film { width: 52px; height: 52px; } .guide { max-width: calc(100% - 28px); }

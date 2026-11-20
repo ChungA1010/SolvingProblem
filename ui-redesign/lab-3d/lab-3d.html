@@ -20,7 +20,7 @@
     <a class="back" href="../index.html" aria-label="CMP Lab 홈으로">‹ CMP Lab</a>
     <div class="title">
       <h1>학습 실험실</h1>
-      <p>3D 연마 장비의 부품을 끌어 산화막을 연마합니다 · 부품에 마우스를 올리면 정보가 나옵니다</p>
+      <p>3D 연마 장비의 부품을 끌어 산화막을 연마합니다 · 주황색 화살표가 끄는 방향입니다 · 부품에 마우스를 올리면 설명이 나옵니다</p>
     </div>
     <div class="top-actions">
       <div class="seg" id="speed" role="group" aria-label="시간 배속">
@@ -97,11 +97,14 @@
         </aside>
 
         <div class="focus" id="focus" hidden></div>
+        <!-- Which way to drag the part the guide points at. Shown until the first wafer has been polished and measured. -->
+        <svg class="gesture" id="gesture" hidden aria-hidden="true"><path id="gesture-halo"/><path id="gesture-line"/><path id="gesture-tip" d="M0 0 L-13 -7 L-13 7 Z"/><circle id="gesture-hand" r="8"/></svg>
         <div class="pill num" id="pill" hidden></div>
         <div class="callout" id="callout" hidden>
           <div class="info">
             <h3 id="co-name"></h3>
             <p class="role" id="co-role"></p>
+            <p class="why" id="co-why" hidden></p>
             <dl id="co-values"></dl>
             <p class="how" id="co-how"></p>
           </div>
@@ -130,6 +133,7 @@
       <li><b>장비 상태</b>: 같은 조건에서도 장비는 웨이퍼마다 조금씩 다르게 깎습니다. 계측할 때마다 리포트가 이 웨이퍼에서 본 값과 다음 웨이퍼의 예상 범위를 알려 줍니다.</li>
       <li><b>패드 교체(위쪽 버튼)</b>: 웨이퍼를 내리고 플래튼을 멈춘 뒤에 누릅니다. 패드를 얼마나 썼는지는 플래튼에 마우스를 올리면 나옵니다.</li>
     </ul>
+    <label class="check"><input type="checkbox" id="coach-toggle"> 다음에 만질 부품에 끄는 방향 화살표 보이기</label>
     <p class="scope" id="scope-note"></p>
     <form method="dialog"><button class="btn primary" value="close">닫기</button></form>
   </dialog>

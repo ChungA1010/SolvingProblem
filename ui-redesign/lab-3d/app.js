@@ -44,40 +44,40 @@
   // What a part shows while the pointer is on it: rows are [label, value, basis of the model behind it].
   const PARTS = {
     wafer: {
-      name: s => `웨이퍼 #${s.wafer ? s.wafer.id : ''}`, role: '산화막(SiO₂)을 입힌 300 mm 웨이퍼입니다. 막 두께에 따라 색이 달라집니다.', how: '끌어서 헤드 아래나 계측기에 놓습니다.',
+      name: s => `웨이퍼 #${s.wafer ? s.wafer.id : ''}`, role: '산화막(SiO₂)을 입힌 300 mm 웨이퍼입니다. 막 두께에 따라 색이 달라집니다.', why: '이 막을 작업 지시의 두께까지 고르게 깎는 것이 할 일입니다. 들어올 때부터 가운데와 가장자리의 두께가 조금 다릅니다.', how: '끌어서 헤드 아래나 계측기에 놓습니다.',
       rows: s => { const w = s.wafer; if (!w) return []; return [['들어온 막 평균', `${fmt(w.incoming.mean)} nm`], ['가장자리 − 가운데', `${signed(w.incoming.edgeMinusCentre)} nm`]]; },
     },
     head: {
-      name: '캐리어 헤드', role: '웨이퍼를 잡아 패드에 누릅니다.', how: '아래로 끌면 내려가고, 닿은 뒤 더 끌면 압력이 올라갑니다.',
+      name: '캐리어 헤드', role: '웨이퍼를 잡아 패드에 누릅니다.', why: '세게 누를수록 빨리 깎이지만 마찰열이 늘고 가장자리가 더 깎입니다. 압력이 빠진 뒤에야 올라가므로 올리는 동안에도 조금 더 깎입니다.', how: '아래로 끌면 내려가고, 닿은 뒤 더 끌면 압력이 올라갑니다.',
       rows: s => [s.contact ? ['다운포스', `${fmt(s.pressure, 1)} psi`] : ['패드까지', `${fmt(s.gap * 1000)} mm`], ...factorRow('pressure', s)],
       pill: s => s.controls.head > 1 ? `${fmt((s.controls.head - 1) * C.pressureMax, 1)} psi` : `패드까지 ${fmt((1 - s.controls.head) * C.headTravel * 1000)} mm`,
     },
     carrier: {
-      name: '헤드 스핀들', role: '헤드를 돌립니다. 헤드가 돌지 않으면 웨이퍼 한쪽만 깎입니다.', how: '좌우로 끌어 회전수를 정합니다.',
+      name: '헤드 스핀들', role: '헤드를 돌립니다. 헤드가 돌지 않으면 웨이퍼 한쪽만 깎입니다.', why: '플래튼과 회전수가 같으면 웨이퍼의 모든 곳이 같은 속도로 패드를 지나갑니다. 차이가 클수록 가장자리가 더 빨리 깎입니다.', how: '좌우로 끌어 회전수를 정합니다.',
       rows: s => [['헤드 회전', `${fmt(s.carrierRpm)} rpm`], ['플래튼과 차이', `${fmt(Math.abs(s.platenRpm - s.carrierRpm))} rpm`]],
       pill: s => `${fmt(s.controls.carrier)} rpm`,
     },
     platen: {
-      name: '플래튼 · 패드', role: '패드를 붙인 회전 테이블입니다. 웨이퍼가 이 위에서 깎입니다.', how: '원을 그리듯 끌어 돌립니다. 시계 반대 방향이 가속입니다.',
+      name: '플래튼 · 패드', role: '패드를 붙인 회전 테이블입니다. 웨이퍼가 이 위에서 깎입니다.', why: '빨리 돌수록 빨리 깎이지만 슬러리가 빨리 빠져나가고 열이 납니다. 압력에 비해 너무 빠르면 웨이퍼가 슬러리 막 위에 떠서 깎이지 않습니다.', how: '원을 그리듯 끌어 돌립니다. 시계 반대 방향이 가속입니다.',
       rows: s => [['플래튼 회전', `${fmt(s.platenRpm)} rpm`], ['패드 온도', `${fmt(s.temp)} ℃`], ['패드 젖음', pct(s.coverage)],
         ...(sim.tool ? [['패드 사용', pct(sim.tool.status.padShare), 'data']] : []), ...factorRow('speed', s), ...factorRow('temp', s), ...(sim.tool ? factorRow('level', s) : [])],
       pill: s => `${fmt(s.controls.platen)} rpm`,
     },
     zone: {
-      name: '구역 압력 조절기', role: '웨이퍼 가운데와 가장자리 사이로 압력을 옮깁니다. 평균 압력은 그대로입니다.', how: '좌우로 끌어 돌립니다. 오른쪽이 가운데입니다.',
+      name: '구역 압력 조절기', role: '웨이퍼 가운데와 가장자리 사이로 압력을 옮깁니다. 평균 압력은 그대로입니다.', why: '계측에서 가운데나 가장자리가 두껍게 남았으면 그쪽을 더 눌러 균일도를 맞춥니다.', how: '좌우로 끌어 돌립니다. 오른쪽이 가운데입니다.',
       rows: s => [['압력 배분', zoneText(s.controls.zone)]], pill: s => zoneText(s.controls.zone),
     },
     slurry: {
-      name: '슬러리 밸브', role: '연마 입자가 든 슬러리를 패드에 흘립니다.', how: '오른쪽이나 위로 끌면 더 열립니다.',
+      name: '슬러리 밸브', role: '연마 입자가 든 슬러리를 패드에 흘립니다.', why: '모자라면 웨이퍼 가운데부터 덜 깎이고, 패드가 거의 마르면 표면이 긁힙니다. 넉넉히 흘리면 패드가 식습니다.', how: '오른쪽이나 위로 끌면 더 열립니다.',
       rows: s => [['유량', `${fmt(s.flow)} mL/min`], ['패드 젖음', pct(s.coverage)], ...factorRow('slurry', s)], pill: s => `${fmt(s.controls.slurry)} mL/min`,
     },
     conditioner: {
-      name: '패드 컨디셔너', role: '다이아몬드 디스크로 패드 표면을 다시 거칠게 만듭니다.', how: '누르면 쓸기 시작하고, 다시 누르면 대기 위치로 갑니다.',
+      name: '패드 컨디셔너', role: '다이아몬드 디스크로 패드 표면을 다시 거칠게 만듭니다.', why: '패드는 연마할수록 무뎌집니다. 쓰지 않으면 제거 속도가 서서히 떨어집니다.', how: '누르면 쓸기 시작하고, 다시 누르면 대기 위치로 갑니다.',
       rows: s => [['상태', s.controls.conditioner ? '쓰는 중' : '대기'], ['패드 거칠기', pct(s.glaze)], ...factorRow('pad', s)],
     },
     emo: { name: '비상 정지', role: '모든 회전과 슬러리를 멈추고 헤드를 올립니다.', how: '누릅니다.' },
     pedestal: { name: '로드 위치', role: '연마할 웨이퍼가 놓이는 자리입니다.' },
-    stage: { name: '두께 계측기', role: '웨이퍼 49곳의 막 두께를 재서 평균과 균일도를 냅니다.', how: '연마한 웨이퍼를 여기에 놓으면 계측합니다.' },
+    stage: { name: '두께 계측기', role: '웨이퍼 49곳의 막 두께를 재서 평균과 균일도를 냅니다.', why: '작업 지시와 비교해 합격 여부를 내고, 이 웨이퍼에서 본 장비 상태로 다음 웨이퍼의 예상을 고칩니다.', how: '연마한 웨이퍼를 여기에 놓으면 계측합니다.' },
     hmi: { name: '장비 화면', role: '막 두께 모니터와 현재 조건을 보여 줍니다. 두께는 패드의 창을 통해 플래튼 1회전마다 한 번 읽습니다.', how: '누르면 가까이에서 봅니다.' },
     tower: { name: '신호등', role: '초록은 연마 중, 노랑은 대기, 빨강은 경보입니다.' },
     nozzle: { name: '슬러리 공급 암', role: '슬러리를 패드 가운데 쪽에 떨어뜨립니다. 패드가 돌면서 웨이퍼 아래로 실어 나릅니다.' },
@@ -291,35 +291,73 @@
     onChart($('plot-trend'), timeTip); onChart($('plot-rate'), timeTip); onChart($('plot-temp'), timeTip); onChart($('plot-profile'), profileTip);
   }
 
-  /** Next action for a first-time operator: [step, text, button label, button action, part to point at]. It names actions, never values. */
+  /** Next action for a first-time operator: [step, text, button label, button action, part to point at, gesture]. It names actions, never values.
+   *  A gesture is how the part is operated: ['carry', to], ['pull', 'up' | 'down'], ['turn'] or ['slide']. */
   function guide(s) {
     const w = s.wafer, c = s.controls;
     if (measureAt) return [5, '49곳의 두께를 재는 중입니다.'];
     if (!w) return [1, '새 웨이퍼를 준비하세요.', '새 웨이퍼', () => newWafer()];
     if (w.where === 'stage') return [6, w.measured?.pass ? '기준을 모두 맞췄습니다.' : '기준에 못 미쳤습니다. 두꺼우면 헤드로 옮겨 더 연마할 수 있습니다.', '새 웨이퍼', () => newWafer()];
     if (w.where === 'pedestal') {
-      if (s.gap < C.headTravel * 0.5) return [1, '헤드를 위로 끌어 올리세요.', null, null, 'head'];
-      return [1, '웨이퍼를 헤드 아래로 끌어다 놓으세요.', '헤드에 올리기', () => { sim.setControl('head', 0); if (!sim.moveWafer('head')) flash('헤드가 올라간 뒤에 다시 눌러 주세요.'); }, 'wafer'];
+      if (s.gap < C.headTravel * 0.5) return [1, '헤드를 위로 끌어 올리세요.', null, null, 'head', ['pull', 'up']];
+      return [1, '웨이퍼를 헤드 아래로 끌어다 놓으세요.', '헤드에 올리기', () => { sim.setControl('head', 0); if (!sim.moveWafer('head')) flash('헤드가 올라간 뒤에 다시 눌러 주세요.'); }, 'wafer', ['carry', 'head']];
     }
     if (w.polishTime === 0 || s.polishing || s.contact) {
       if (!s.contact) {
-        if (c.platen < 5) return [2, '패드를 원을 그리듯 끌어 돌리세요.', null, null, 'platen'];
-        if (c.carrier < 5) return [2, '스핀들을 옆으로 끌어 헤드를 돌리세요.', null, null, 'carrier'];
-        if (c.slurry < 5) return [2, '밸브를 끌어 슬러리를 흘리세요.', null, null, 'slurry'];
-        return [3, '헤드를 아래로 끌어 패드에 닿게 하세요.', null, null, 'head'];
+        if (c.platen < 5) return [2, '패드를 원을 그리듯 끌어 돌리세요.', null, null, 'platen', ['turn']];
+        if (c.carrier < 5) return [2, '스핀들을 옆으로 끌어 헤드를 돌리세요.', null, null, 'carrier', ['slide']];
+        if (c.slurry < 5) return [2, '밸브를 끌어 슬러리를 흘리세요.', null, null, 'slurry', ['slide']];
+        return [3, '헤드를 아래로 끌어 패드에 닿게 하세요.', null, null, 'head', ['pull', 'down']];
       }
-      if (s.pressure < 0.3 && c.head <= 1.02) return [3, '헤드를 더 내려 압력을 주세요.', null, null, 'head'];
+      if (s.pressure < 0.3 && c.head <= 1.02) return [3, '헤드를 더 내려 압력을 주세요.', null, null, 'head', ['pull', 'down']];
       return [4, `막 두께가 ${fmt(C.target)} nm에 가까워지면 헤드를 올리세요.`];
     }
-    if (s.gap < C.headTravel * 0.5) return [5, '헤드를 끝까지 올리세요.', null, null, 'head'];
-    return [5, '헤드를 옆으로 끌어 웨이퍼를 꺼내 계측기에 놓으세요.', '계측기로 옮기기', () => onWafer('stage'), 'stage'];
+    if (s.gap < C.headTravel * 0.5) return [5, '헤드를 끝까지 올리세요.', null, null, 'head', ['pull', 'up']];
+    return [5, '헤드를 옆으로 끌어 웨이퍼를 꺼내 계측기에 놓으세요.', '계측기로 옮기기', () => onWafer('stage'), 'head', ['carry', 'stage']];
   }
-  let guideAction = null;
+  let guideAction = null, focusGesture = null;
+
+  // ----- which way to drag: an arrow on the part the guide points at, for an operator who has not used the tool yet -----
+  const COACH_KEY = 'cmp-lab3d-coach';
+  let coach = true;
+  function setCoach(on, keep = true) {
+    coach = on; $('coach-toggle').checked = on;
+    if (keep) try { localStorage.setItem(COACH_KEY, on ? 'on' : 'off'); } catch { /* a private window: the choice lasts for this visit */ }
+  }
+  /** Screen points of the drag that operates the part: a straight pull, a carry to a place, or an arc round the platen. */
+  function gesturePoints(part, gesture) {
+    const L = scene.layout, at = scene.screenOf(part); if (!at || !at.visible) return null;
+    const [kind, arg] = gesture;
+    if (kind === 'carry') { const to = arg === 'head' ? scene.project(L.head[0], L.carryY, L.head[2]) : scene.project(L.stage[0], L.carryY, L.stage[2]); return [at, to]; }
+    if (kind === 'pull') { const d = arg === 'down' ? 1 : -1; return [{ x: at.x + 58, y: at.y - d * 36 }, { x: at.x + 58, y: at.y + d * 36 }]; }   // beside the head, clear of it
+    if (kind === 'turn') return Array.from({ length: 13 }, (_, i) => { const a = 2.45 - i * 0.14; return scene.project(0.27 * Math.cos(a), L.padTop, 0.27 * Math.sin(a)); });   // anticlockwise seen from above: faster
+    if (part === 'slurry') return [{ x: at.x - 20, y: at.y + 2 }, { x: at.x + 26, y: at.y - 36 }];                 // right or up opens the valve
+    return [{ x: at.x - 36, y: at.y - 30 }, { x: at.x + 36, y: at.y - 30 }];
+  }
+  const STILL = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function renderGesture(now) {
+    const node = $('gesture'), points = coach && focusName && focusGesture && !dragging && !hovered ? gesturePoints(focusName, focusGesture) : null;
+    node.toggleAttribute('hidden', !points); node.dataset.kind = points ? focusGesture[0] : '';
+    if (!points) return;
+    const d = points.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+    $('gesture-halo').setAttribute('d', d); $('gesture-line').setAttribute('d', d);
+    const end = points.at(-1), before = points.at(-2), angle = Math.atan2(end.y - before.y, end.x - before.x) * 180 / Math.PI;
+    $('gesture-tip').setAttribute('transform', `translate(${end.x.toFixed(1)} ${end.y.toFixed(1)}) rotate(${angle.toFixed(1)})`);
+    // The hand travels the path the pointer should take, then starts again.
+    const lengths = points.slice(1).map((p, i) => Math.hypot(p.x - points[i].x, p.y - points[i].y)), total = lengths.reduce((a, b) => a + b, 0);
+    const phase = STILL ? 0 : (now % 2100) / 2100, along = Math.min(1, phase / 0.78);
+    let left = along * along * (3 - 2 * along) * total, i = 0;
+    while (i < lengths.length - 1 && left > lengths[i]) left -= lengths[i++];
+    const f = lengths[i] ? left / lengths[i] : 0, hand = $('gesture-hand');
+    hand.setAttribute('cx', (points[i].x + f * (points[i + 1].x - points[i].x)).toFixed(1)); hand.setAttribute('cy', (points[i].y + f * (points[i + 1].y - points[i].y)).toFixed(1));
+    hand.style.opacity = STILL ? '1' : String(Math.min(1, phase / 0.08, (1 - phase) / 0.16));
+  }
   function renderCallout(s) {
     const name = dragging ? null : hovered, part = name && PARTS[name], box = $('callout');
     if (!part) { box.hidden = true; return; }
     $('co-name').textContent = typeof part.name === 'function' ? part.name(s) : part.name;
     $('co-role').textContent = part.role;
+    const why = $('co-why'); why.hidden = !part.why; why.textContent = part.why || '';
     const rows = part.rows ? part.rows(s) : [], values = $('co-values');
     values.replaceChildren(...rows.flatMap(([label, value, basis]) => [el('dt', {}, label, ...(basis ? [el('span', { class: `src ${basis}`, text: BASIS[basis] })] : [])), el('dd', { class: 'num', text: value })]));
     values.hidden = !rows.length;
@@ -354,8 +392,8 @@
     }
     $('log-open').hidden = !attempts.length; $('log-count').textContent = $('log-count-tab').textContent = String(attempts.length);
     if (applyLayout(s)) renderStrip(s);
-    const [step, text, label, action, focus] = guide(s);
-    $('guide-step').textContent = `${step} / 6`; $('guide-text').textContent = text; focusName = focus || null;
+    const [step, text, label, action, focus, gesture] = guide(s);
+    $('guide-step').textContent = `${step} / 6`; $('guide-text').textContent = text; focusName = focus || null; focusGesture = gesture || null;
     const button = $('guide-action'); button.hidden = !label; button.textContent = label || ''; guideAction = action || null;
     const alarms = Object.values(s.alarms).map(a => a.text);
     if (notice && now < noticeUntil) alarms.push(notice);
@@ -372,6 +410,7 @@
     pill.hidden = !held; if (held) { pill.textContent = value(s); pill.style.left = `${held.x}px`; pill.style.top = `${held.y}px`; }
     const focus = $('focus'), target = focusName && !dragging && !hovered ? scene.screenOf(focusName) : null;
     focus.hidden = !target || !target.visible; if (target) { focus.style.left = `${target.x}px`; focus.style.top = `${target.y}px`; }
+    renderGesture(performance.now());
   }
   function flash(text, seconds = 3) { notice = text; noticeUntil = performance.now() + seconds * 1000; }
 
@@ -507,6 +546,7 @@
     const cond = track.id === m.waferId && track.time > 0 ? { platen: track.platen / track.time, carrier: track.carrier / track.time, flow: track.flow / track.time, zone: track.zone / track.time, conditioner: track.conditioner / track.time } : null;
     attempts = [{ id: m.waferId, m, cond, trend: trendData() }, ...attempts.filter(a => a.id !== m.waferId)].slice(0, 12);   // a re-measured wafer replaces its earlier entry
     drawer.selected = m.waferId; showDrawer('report'); hudClock = 1;                    // the guide follows in the same frame
+    if (coach && sim.state.wafer?.polishTime > 0) setCoach(false);                       // one wafer polished and measured: the operator knows the drags now
   }
 
   // ----- operator actions -----
@@ -534,6 +574,7 @@
     $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b) showView(b.dataset.view); });
     $('new-wafer').addEventListener('click', newWafer);
     $('pad-change').addEventListener('click', changePad);
+    $('coach-toggle').addEventListener('change', ev => setCoach(ev.target.checked));
     $('guide-action').addEventListener('click', () => guideAction?.());
     $('help-open').addEventListener('click', () => $('help').showModal());
     $('strip-open').addEventListener('click', () => { stripMode = 'open'; hudClock = 1; });
@@ -584,11 +625,12 @@
     });
     if (!scene) { $('fallback').hidden = false; $('scene').hidden = true; document.querySelector('.hud').hidden = true; return; }
     for (const name of Object.keys(scene.parts)) if (!PARTS[name]) console.warn(`lab-3d: no card for part "${name}"`);
-    build(); bind(); renderReport(); renderLog(); paintFilm();
+    let seen = null; try { seen = localStorage.getItem(COACH_KEY); } catch { /* storage is closed: show the arrows */ }
+    build(); bind(); setCoach(seen !== 'off', false); renderReport(); renderLog(); paintFilm();
     window.Lab3DDebug = {
       sim, scene, constants: C, parts: PARTS, newWafer, onWafer, changePad, measureNow: finishMeasure, showDrawer, closeDrawer,
       setSpeed: v => { timeScale = v; }, setStrip: mode => { stripMode = mode; hudClock = 1; },
-      get speed() { return timeScale; }, get attempts() { return attempts; }, get drawer() { return { ...drawer }; }, get strip() { return $('strip').dataset.open === 'true'; },
+      get speed() { return timeScale; }, get coach() { return coach; }, setCoach, get attempts() { return attempts; }, get drawer() { return { ...drawer }; }, get strip() { return $('strip').dataset.open === 'true'; },
     };
     last = performance.now(); requestAnimationFrame(frame);
   }

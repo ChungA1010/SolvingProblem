@@ -269,6 +269,23 @@ async function labPanels(t) {
   const { b, lab } = await openLab(t);
   let p = await lab.panels();
   t.expect(!p.strip && !p.drawer.open, 'before polishing, the instrument strip and the report are out of the way', JSON.stringify(p));
+  // A first-time operator is shown which way to drag: the arrow starts on the part to operate and ends where the drag goes.
+  const arrow = () => b.evaluate(`(() => { const d = ${LAB}, g = document.getElementById('gesture'), hand = document.getElementById('gesture-hand');
+    const points = (document.getElementById('gesture-line').getAttribute('d') || '').split(/[ML]/).filter(Boolean).map(pair => pair.trim().split(' ').map(Number));
+    const wafer = d.scene.screenOf('wafer'), head = d.scene.project(d.scene.layout.head[0], d.scene.layout.carryY, d.scene.layout.head[2]);
+    return { coach: d.coach, hidden: getComputedStyle(g).display === 'none', kind: g.dataset.kind, guide: document.getElementById('guide-text').innerText, points: points.length, from: points[0], to: points.at(-1), wafer, head, hand: [Number(hand.getAttribute('cx')), Number(hand.getAttribute('cy'))] }; })()`);
+  await b.mouse('mouseMoved', { x: 300, y: 300 }); await sleep(600);
+  let a = await arrow();
+  const close = (p, q) => !!p && Math.hypot(p[0] - q.x, p[1] - q.y) < 4;
+  t.expect(a.coach && !a.hidden && a.kind === 'carry' && /웨이퍼/.test(a.guide) && close(a.from, a.wafer) && close(a.to, a.head) && Math.hypot(a.wafer.x - a.head.x, a.wafer.y - a.head.y) > 60,
+    'on a first visit an arrow runs from the wafer to the place under the head, as the guide asks', JSON.stringify(a));
+  const hands = []; for (let i = 0; i < 4; i++) { hands.push((await arrow()).hand); await sleep(350); }
+  t.expect(new Set(hands.map(h => h.map(Math.round).join(','))).size > 1, 'a dot travels the arrow the way the pointer should', JSON.stringify(hands));
+  await b.evaluate(`${LAB}.sim.moveWafer('head')`);
+  await reached(b, `document.getElementById('gesture').dataset.kind === 'turn'`, 20000);
+  a = await arrow(); t.expect(!a.hidden && a.kind === 'turn' && /패드/.test(a.guide) && a.points > 8 && Math.hypot(a.from[0] - a.to[0], a.from[1] - a.to[1]) > 60, 'the next arrow is an arc round the pad', JSON.stringify(a));
+  await lab.shot('0-arrow');
+  await b.evaluate(`${LAB}.sim.moveWafer('pedestal')`); await sleep(300);
 
   await lab.startPolishing({ platen: 90, carrier: 87, slurry: 200, conditioner: true });
   p = await lab.panels(); t.expect(p.strip && p.bottom > 0, 'the instrument strip comes up when the wafer touches the pad, and the 3D view makes room for it', JSON.stringify(p));
@@ -285,6 +302,8 @@ async function labPanels(t) {
 
   await lab.polishTo(566); await lab.liftAndMeasure(1);
   p = await lab.panels(); t.expect(!p.strip && p.drawer.open && p.drawer.tab === 'report' && p.right > 0 && p.wafers.length === 1, 'after metrology the strip goes down, the report opens and the 3D view makes room for it', JSON.stringify(p));
+  const lesson = await b.evaluate(`({ coach: ${LAB}.coach, kept: localStorage.getItem('cmp-lab3d-coach'), hidden: getComputedStyle(document.getElementById('gesture')).display === 'none' })`);
+  t.expect(!lesson.coach && lesson.kept === 'off' && lesson.hidden, 'once a wafer has been polished and measured the arrows stop, and stay off on the next visit', JSON.stringify(lesson));
   await lab.shot('2-report');
   const toolText = () => b.evaluate(`(document.querySelector('#report .tool-state')?.innerText || '').replace(/\\n+/g, ' | ')`);
   const firstTool = await toolText(), firstSeen = await b.evaluate(`${LAB}.attempts[0].m.tool`);
