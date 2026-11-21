@@ -25,7 +25,9 @@ let site = root;                                                                
 /** Address of a page of the site, by its name in tools/site-files.cjs: index, game, lab-3d, process-lab. */
 const pageUrl = name => pathToFileURL(path.join(site, layout.PAGES[name])).href;
 /** What the home page has to offer and nothing else: the game, the learning lab and the tab of the 8-process lab. */
-const DOORS = ['game', 'lab-3d', 'process-lab'].map(name => `./${layout.PAGES[name]}`).sort().join(',');
+const DOORS = [`./${layout.PAGES.game}#new-workshop`, `./${layout.PAGES['lab-3d']}`, `./${layout.PAGES['process-lab']}`].sort().join(',');
+const freshWorkshop = "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(new URLSearchParams(location.search).get('workshop'))";
+const firstComicPanel = "#workshop-prologue[open] .comic-frame:not([hidden])";
 const same = (a, b, tolerance = 1) => Math.abs(a - b) <= tolerance;
 const line = (a, b, steps = 10) => Array.from({ length: steps + 1 }, (_, i) => ({ x: a.x + (b.x - a.x) * i / steps, y: a.y + (b.y - a.y) * i / steps }));
 const reached = (browser, expression, ms) => browser.until(expression, ms).then(() => true, () => false);
@@ -114,7 +116,7 @@ async function game(t) {
   await b.evaluate(`document.querySelector('.settings-actions a[href="../index.html#home"]').click()`);
   t.expect(await reached(b, `location.pathname.endsWith('/index.html') && location.hash === '#home' && document.querySelectorAll('.door').length === 2`, 60000), 'its menu link leads to the mode selection');
   await b.evaluate(`document.querySelector('a.door-factory').click()`);
-  t.expect(await reached(b, `location.pathname.endsWith('/factory/game.html') && !!document.querySelector('.settings-actions')`, 120000), 'and the home page leads back to the game');
+  t.expect(await reached(b, `location.pathname.endsWith('/factory/game.html') && !location.hash && ${freshWorkshop} && document.querySelectorAll('${firstComicPanel}').length === 1`, 120000), 'the home game card opens a fresh workshop on the first comic panel');
   await sleep(1500);
   await b.evaluate(`document.querySelector('.settings-actions a[href="../lab-3d/lab-3d.html"]').click()`);
   t.expect(await reached(b, `location.pathname.endsWith('/lab-3d/lab-3d.html') && !!(${LAB} && ${LAB}.scene)`, 90000), 'its other menu link opens the learning lab');
@@ -1046,9 +1048,9 @@ async function standalone(t) {
   t.expect(!narrow.length && !(await parkedShown()), 'in a narrow window the parked menus stay hidden too', narrow.join(' '));
   await b.viewport(1600, 1000); await sleep(600);
 
-  await b.evaluate(`location.hash = '#game'`);
-  const gameOpen = await reached(b, `location.hash === '#game' && ${loaded} && !!${F}.document.querySelector('.settings-actions')`, 120000);
-  t.expect(gameOpen, 'the game opens inside the file');
+  await b.evaluate(`${F}.document.querySelector('a.door-factory').click()`);
+  const gameOpen = await reached(b, `location.hash === '#game' && ${freshWorkshop} && ${loaded} && ${F}.document.querySelectorAll('${firstComicPanel}').length === 1`, 120000);
+  t.expect(gameOpen, 'the home game card opens a fresh workshop on the first comic panel inside the file');
   if (gameOpen) {
     await sleep(4000);
     t.expect(await b.evaluate(`(() => { const a = ${F}.document.querySelector('a[href="../index.html#intro"]'); return !a || ${F}.getComputedStyle(a).display === 'none'; })()`), 'the game\'s link to the parked 5-run challenge is hidden');

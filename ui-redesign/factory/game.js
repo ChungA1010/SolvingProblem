@@ -13,7 +13,7 @@
     url.hash = bundledWorkshop ? 'game' : '';
     return url.href;
   }
-  if (workshopId === 'new') {
+  if (workshopId === 'new' || window.location.hash === '#new-workshop') {
     workshopLocation.replace(newWorkshopUrl());
     return;
   }
