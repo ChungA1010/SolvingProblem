@@ -94,7 +94,7 @@
       if(state.phase==='settled' && saved.closedRunId===runId)closedRunId=runId;
       if(saved.tutorial&&typeof saved.tutorial==='object')tutorial={dismissed:saved.tutorial.dismissed===true,completed:saved.tutorial.completed===true,applied:saved.tutorial.applied===true};
       if(typeof saved.guidePreference==='boolean')guidePreference=saved.guidePreference;
-      if(completed.some(e=>e.session.order===0)||(state.order>0&&state.order<story.campaignCount)||(state.order===0&&state.rows.length>1))tutorial.completed=true;
+      if(completed.some(e=>e.session.order===0)||(state.order>0&&!game.orders[state.order].guest)||(state.order===0&&state.rows.length>1))tutorial.completed=true;
       handlingLearned=saved.handlingLearned===true||completed.length>0||state.events.some(e=>e.type==='advance'||e.type==='discard');
       if(saved.workshop){const restoredGrowth=CMPUpgrades.restore(saved.workshop);if(restoredGrowth)growth=restoredGrowth;else{stale=true;readyNotice='공방 자금 기록을 확인하지 못해 진행을 멈췄어요. 저장 원본은 유지됩니다.';}}
     }
@@ -228,9 +228,10 @@
     $(t.action).dataset.guideTarget='true';$('guide-focus').textContent={duration:'시간 확인 ↓',measure:'측정기로 ↓',advance:'보관 슬롯으로 ↓',process:'연마 시작으로 ↓','use-recommendation':'예상 시간 적용으로 ↓'}[t.action];
   }
   function qualityText(q){return {good:'규격 안',under:'덜 깎음',over:'너무 깎음'}[q]||'미측정';}
-  function customerIdentity(prefix,profile){$(prefix+'-portrait').src=['lee','jensen'].includes(profile.id)?CMPShop.artwork(profile.id).src:`./media/customer-${profile.id}.svg`;$(prefix+'-name').textContent=profile.name;$(prefix+'-role').textContent=profile.role;}
   function renderDialogue(){
-    const c=story.contract(state.order);customerIdentity('customer',c.profile);
+    const c=story.contract(state.order);
+    $('customer-name').textContent=c.profile.name;
+    $('customer-role').textContent=c.profile.role;
     $('customer-visit').textContent=c.returning?'다시 찾아온 고객':'새로운 고객';$('customer-focus').textContent=c.profile.focus;
     $('customer-opening').textContent=c.opening;$('customer-goal').textContent=story.goalLabel(state.order);
     $('customer-goal-note').textContent='규격 충족 + 목표 달성 시 배지';
@@ -352,9 +353,37 @@
   function renderCustomerContext(){
     const c=story.contract(state.order),o=c.order;$('active-customer').hidden=view==='brief';
     $('active-customer-summary').textContent=`${c.profile.name} · ${c.profile.focus} · 주문서 다시 보기`;
-    $('active-customer-spec').textContent=`용도: ${c.purpose} · ${o.target} nm ±${o.tolerance}% · ${o.guest?'가상 특별 의뢰 · 여섯 장 납품':'6장 중 3장 이상 규격 충족 후 납품하면 다음 의뢰 해제'}`;
+    $('active-customer-spec').textContent=`용도: ${c.purpose} · ${o.target} nm ±${o.tolerance}% · ${orderProgression(o)}`;
     $('active-customer-goal').textContent=`고객 추가 목표: ${story.goalLabel(state.order)}. ${c.metric==='time'?'장비가 연마한 게임 시간을 합산합니다. 종점 정지 시 단축된 시간을 사용하고 플레이·3D 재생 시간은 제외합니다.':'추가 목표 달성 여부는 대금·별점·해제 조건에 영향을 주지 않습니다.'}`;
   }
+  function orderProgression(order){
+    if(order.guest)return '특별 의뢰 · 규격 3장 이상과 추가 목표 달성 시 배지';
+    return state.order===story.campaignOrders.at(-1)?'마지막 의뢰 · 규격에 맞는 웨이퍼 3장 이상 납품':'규격 3장 이상이면 다음 의뢰 해제';
+  }
+  function renderOrderPicker(){
+    const cards=story.campaignOrders.map((index,position)=>{
+      const c=story.contract(index),button=document.createElement('button');
+      button.type='button';
+      button.disabled=!story.unlocked(best,index);
+      if(index===state.order)button.setAttribute('aria-current','true');
+      const portrait=document.createElement('span'),number=document.createElement('small');
+      const title=document.createElement('strong'),customer=document.createElement('small'),status=document.createElement('span');
+      portrait.className='order-portrait';
+      portrait.setAttribute('aria-hidden','true');
+      portrait.style.backgroundImage=`url("${CMPShop.artwork(c.profile.id).src}")`;
+      number.textContent=`ORDER ${String(position+1).padStart(2,'0')}`;
+      title.textContent=c.order.title;
+      customer.textContent=`${c.profile.name} · ${c.returning?'후속 의뢰':c.profile.focus}`;
+      status.textContent=button.disabled?'이전 주문 별 1개 필요':best[index]?'★'.repeat(best[index])+'☆'.repeat(3-best[index]):'의뢰 가능';
+      button.append(portrait,number,title,customer,status);
+      button.addEventListener('click',()=>newOrder(index));
+      return button;
+    });
+    $('order-picker').replaceChildren(...cards);
+  }
+  $('commission-board').addEventListener('toggle',()=>{
+    if($('commission-board').open)renderOrderPicker();
+  });
   function renderLog(){
     const rows=game.visibleRows(state).map((row,i)=>measuring&&row.number===displayedRow()?.number?{...row,removed:null,quality:null,measured:false}:row);$('wafer-log').replaceChildren();
     for(let i=0;i<6;i++){const row=rows[i],box=document.createElement('div');const label=document.createElement('span'),value=document.createElement('b'),note=document.createElement('small');label.textContent=`WAFER ${String(i+1).padStart(2,'0')}`;value.textContent=row?.discarded&&row.removed==null?'—':row?.removed!=null?format(row.removed,1)+' nm':row?'?':'대기';note.textContent=row?.discarded?'폐기':row?row.measured?qualityText(row.quality):'검사 때 공개':'미가공';box.append(label,value,note);$('wafer-log').append(box);}
@@ -586,8 +615,9 @@
     $('help-payout').textContent = billingState.version===game.fundedVersion?'가공 시작 전 표시한 비용을 사용하고, 규격 안 1장당 100 P를 납품할 때 받아요. 비용은 교육용 수치예요.':price.run
       ? '가공 시작 시 ' + price.run + ' P 사용. 납품 시 규격 안 1장당 ' + price.good + ' P, 규격 밖은 0 P입니다.'
       : '이전 주문 규칙 · 규격 안 100 P · 부족 40 P · 과다 0 P.';
-    $('order-progression').textContent=o.guest?'특별 의뢰 · 규격 3장 이상과 추가 목표 달성 시 배지':'규격 3장 이상이면 다음 의뢰 해제';
-    $('order-eyebrow').textContent=o.guest?`특별 의뢰 · ${o.title}`:`ORDER ${String(state.order+1).padStart(2,'0')} / 05 · ${o.title}`;
+    $('order-progression').textContent=orderProgression(o);
+    const orderNumber=story.campaignOrders.indexOf(state.order)+1;
+    $('order-eyebrow').textContent=o.guest?`특별 의뢰 · ${o.title}`:`ORDER ${String(orderNumber).padStart(2,'0')} / ${String(story.campaignCount).padStart(2,'0')} · ${o.title}`;
     const titles={feed:betweenWafers?'작업대 · 다음 작업 선택':guided?'웨이퍼를 연마 패드로 옮기세요.':'작업대 · 가공 대기',handover:'손님에게 상자를 건네세요.',brief:'어서오세요, 반도체 공방입니다.',setup:`${state.rows.length+1}번 웨이퍼, 시간을 정하세요.`,playing:'장비가 연마하고 있어요.',result:'웨이퍼를 어디로 보낼까요?',inspection:'검사 후, 손님에게 가져가요.',settled:'손님, 주문하신 웨이퍼 나왔어요.'};
     $('game-title').textContent=titles[view];$('game-title').style.whiteSpace='pre-line';
     if(['brief','handover','settled'].includes(view)){
@@ -609,7 +639,7 @@
     renderOrderEvent();
     environmentUI.render(environment,{station:view,stale,busy:busy||measuring,accepted,rows:state.rows.length});
     if(view==='brief'){
-      renderDialogue();$('order-picker').replaceChildren();game.orders.slice(0,story.campaignCount).forEach((order,i)=>{const c=story.contract(i),b=document.createElement('button');b.type='button';b.disabled=!story.unlocked(best,i);const small=document.createElement('small'),strong=document.createElement('strong'),stars=document.createElement('span'),who=document.createElement('small');small.textContent=`ORDER ${String(i+1).padStart(2,'0')}`;strong.textContent=order.title;who.textContent=`${c.profile.name} · ${c.returning?'후속 의뢰':c.profile.focus}`;stars.textContent=b.disabled?'이전 주문 별 1개 필요':best[i]?'★'.repeat(best[i])+'☆'.repeat(3-best[i]):'의뢰 가능';b.append(small,strong,who,stars);if(i===state.order)b.setAttribute('aria-current','true');b.addEventListener('click',()=>newOrder(i));$('order-picker').append(b);});
+      renderDialogue();
     }
     if(atBench){
       renderClues();$('equipment-brief').hidden=feeding||busy||resultView;
@@ -831,8 +861,8 @@
   });
   $('close-guests').addEventListener('click',()=>$('guests-dialog').close());
   $('return-campaign').addEventListener('click',()=>{
-    const next=best.slice(0,story.campaignCount).findIndex((stars,index)=>!stars&&story.unlocked(best,index));
-    chooseGuestOrder(next<0?story.campaignCount-1:next);
+    const next=story.campaignOrders.find(index=>!best[index]&&story.unlocked(best,index));
+    chooseGuestOrder(next??story.campaignOrders.at(-1));
   });
   $('open-order-slip').addEventListener('click',()=>$('order-dialog').showModal());
   $('bench-event').addEventListener('click',()=>$('order-dialog').showModal());

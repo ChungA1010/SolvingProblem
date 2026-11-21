@@ -8,9 +8,12 @@
     {title:'정비의 타이밍',client:'ORBIT · 소자 개발팀',target:135,tolerance:6,wear:70,pad:35,lesson:'컨디셔너를 교체하면 제거율도 달라집니다. 이전 측정값을 그대로 믿어도 될까요?'},
     {title:'다시 켠 장비',client:'LUMEN · 광학 연구팀',target:165,tolerance:5,wear:45,pad:45,lesson:'정지 후 첫 웨이퍼에는 가상의 재시작 효과가 있습니다. 첫 측정을 다음 장에 그대로 적용할지 판단하세요.'},
     {title:'좁아지는 공차',client:'MOSAIC · 패키징 팀',target:145,tolerance:4,wear:60,pad:55,lesson:'측정비를 아끼는 것과 불량을 줄이는 것 사이에서 균형을 찾아보세요.'},
-    {title:'마지막 정밀 주문',client:'APEX · 공정 연구팀',target:155,tolerance:3,wear:55,pad:60,lesson:'사용량 변화와 측정 최신성을 함께 보고 여섯 장을 납품하세요.'},
+    {title:'정밀 시제품',client:'APEX · 공정 연구팀',target:155,tolerance:3,wear:55,pad:60,lesson:'사용량 변화와 측정 최신성을 함께 보고 여섯 장을 납품하세요.'},
     {guest:true,title:'여섯 장의 간격',client:'이재용 · 가상 특별 손님',target:150,tolerance:5,wear:28,pad:20,lesson:'여섯 장 중 가장 많이 깎인 장과 가장 적게 깎인 장을 비교해요.'},
-    {guest:true,title:'시연 전 마지막 로트',client:'젠슨 황 · 가상 특별 손님',target:140,tolerance:6,wear:42,pad:22,lesson:'규격을 맞추면서 여섯 장의 실제 연마 시간을 합계 720초 안으로 맞춰요.'}
+    {guest:true,title:'시연 전 마지막 로트',client:'젠슨 황 · 가상 특별 손님',target:140,tolerance:6,wear:42,pad:22,lesson:'규격을 맞추면서 여섯 장의 실제 연마 시간을 합계 720초 안으로 맞춰요.'},
+    {title:'좌우 한 쌍',client:'다시소리 · 오디오 수리실',target:148,tolerance:5,wear:36,pad:32,lesson:'한 장의 오차를 맞춘 뒤, 첫 장과 뒷장의 제거량 차이도 확인해 보세요.'},
+    {title:'유리온실의 아침',client:'새잎온실 · 재배팀',target:138,tolerance:6,wear:48,pad:34,lesson:'예산 안에서 어느 장을 측정해야 남은 장에 도움이 될지 골라보세요.'},
+    {title:'해 지기 전까지',client:'별마루천문대 · 관측 장비팀',target:142,tolerance:5,wear:44,pad:40,lesson:'여섯 장의 연마 시간을 나누고, 설정을 바꿀 때마다 예상 제거량을 확인하세요.'}
   ].map(o=>Object.freeze({...o,count:6,measureCost:5,serviceCost:30,goodPay:100,underPay:40})));
   const clone=value=>JSON.parse(JSON.stringify(value));
   const assert=(ok,message)=>{if(!ok)throw new Error(message);};

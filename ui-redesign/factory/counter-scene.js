@@ -1,7 +1,10 @@
 /* Presentation only. No campaign events, random outcomes or economic effects. */
 (function(root,factory){const api=factory();if(typeof module==='object')module.exports=api;else root.CMPShop=api;})(globalThis,function(){
   'use strict';
-  const portraits=Object.freeze({research:'seoyun',startup:'dohyeon',production:'minjae',lee:'lee',jensen:'jensen'});
+  const portraits=Object.freeze({
+    research:'seoyun', startup:'dohyeon', production:'minjae', lee:'lee', jensen:'jensen',
+    mirae:'mirae', nuru:'nuru', taeo:'taeo'
+  });
   function artwork(customer,mood='neutral'){
     const person=portraits[customer]||portraits.research;
     const expression=mood==='retry'?2:['delighted','accepted'].includes(mood)?1:0;

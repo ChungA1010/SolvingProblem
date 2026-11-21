@@ -5,15 +5,18 @@ const story=require('../customer-story.js');
 function played(index,{duration=132,measure=[],service=false}={}){let state=game.create(index);if(service)state=game.transition(state,{type:'service'});for(let i=0;i<6;i++){state=game.transition(state,{type:'run',duration,input:game.settings()});if(measure.includes(i))state=game.transition(state,{type:'measure'});state=game.transition(state,{type:'advance'});}return state;}
 function shipped(index,options){let state=played(index,options);state=game.transition(state,{type:'inspect',count:6});return game.transition(state,{type:'ship'});}
 
-test('five customers include two optional guests and preserve the original five orders',()=>{
-  assert.equal(story.customers.length,5);assert.equal(new Set(story.customers.map(c=>c.id)).size,5);assert.equal(story.campaignCount,5);
+test('eight customers include two optional guests and preserve the original order IDs',()=>{
+  assert.equal(story.customers.length,8);assert.equal(new Set(story.customers.map(c=>c.id)).size,8);assert.equal(story.campaignCount,8);
+  assert.deepEqual(story.campaignOrders,[0,1,2,3,4,7,8,9]);
   assert.equal(story.contract(0).profile.id,story.contract(3).profile.id);assert.equal(story.contract(3).returning,true);
   assert.equal(story.contract(1).profile.id,story.contract(4).profile.id);assert.equal(story.contract(4).returning,true);
-  assert.equal(story.contract(2).profile.id,'production');assert.throws(()=>story.contract(7));
+  assert.equal(story.contract(2).profile.id,'production');
+  assert.deepEqual([5,6,7,8,9].map(i=>story.contract(i).profile.id),['lee','jensen','mirae','nuru','taeo']);
+  assert.throws(()=>story.contract(10));
 });
 test('questions use actual order specifications and reveal all scoring rules without spending actions',()=>{
   const state=game.create(),before=game.serialize(state);let asked=[];
-  for(let i=0;i<5;i++){const o=game.orders[i];assert.ok(story.answer(i,'spec').includes(`${o.target} nm`));assert.ok(story.answer(i,'spec').includes(`±${o.tolerance}%`));assert.ok(story.answer(i,'priority').includes(story.goalLabel(i)));}
+  for(const i of story.campaignOrders){const o=game.orders[i];assert.ok(story.answer(i,'spec').includes(`${o.target} nm`));assert.ok(story.answer(i,'spec').includes(`±${o.tolerance}%`));assert.ok(story.answer(i,'priority').includes(story.goalLabel(i)));assert.ok(story.answer(i,'advice').length>10);}
   for(const q of story.questionList)asked=story.ask(asked,q.id);
   asked=story.ask(asked,'spec');assert.equal(asked.length,3);assert.equal(game.serialize(state),before);assert.equal(game.actions(state).remaining,2);assert.equal(state.wallet,100);
   assert.throws(()=>story.ask(asked,'secret'));assert.throws(()=>story.answer(0,'unknown'));
@@ -52,19 +55,22 @@ test('follow-up unlocks preserve earned stars and never require the optional cus
   const best=[0,0,0,0,0];assert.ok(story.unlocked(best,0));assert.equal(story.nextOrder(best,0),null);
   assert.equal(story.unlocked(best,-1),false);assert.equal(story.unlocked(best,7),false);
   best[0]=1;assert.equal(story.nextOrder(best,0),1);assert.ok(story.unlocked(best,1));assert.equal(story.unlocked(best,2),false);
-  best[1]=1;best[2]=1;assert.ok(story.unlocked(best,3));assert.equal(story.contract(3).returning,true);assert.equal(story.nextOrder([3,3,3,3,3],4),null);
+  best[1]=1;best[2]=1;assert.ok(story.unlocked(best,3));assert.equal(story.contract(3).returning,true);
+  assert.equal(story.nextOrder([3,3,3,3,3],4),7);
+  best[4]=1;assert.ok(story.unlocked(best,7));assert.equal(story.unlocked(best,8),false);
+  best[7]=1;assert.equal(story.nextOrder(best,7),8);best[8]=1;assert.equal(story.nextOrder(best,8),9);assert.equal(story.nextOrder(best,9),null);
 });
-test('all five additional goals can be met with the existing inputs and two-action rule',()=>{
-  for(let index=0;index<5;index++){let state=game.create(index);
-    for(let i=0;i<6;i++){const input=game.settings(index===2?{wafer_rotation_pct:110,stage_rotation_pct:110}:{});const probe=game.transition(state,{type:'run',duration:120,input});const duration=Math.round(game.orders[index].target/probe.rows.at(-1).rate*60);state=game.transition(state,{type:'run',duration,input});state=game.transition(state,{type:'advance'});}
+test('all regular goals can be met with existing inputs and the two-action rule',()=>{
+  for(const index of story.campaignOrders){let state=game.create(index);
+    for(let i=0;i<6;i++){const input=game.settings(story.contract(index).metric==='time'?{wafer_rotation_pct:110,stage_rotation_pct:110}:{});const probe=game.transition(state,{type:'run',duration:120,input});const duration=Math.round(game.orders[index].target/probe.rows.at(-1).rate*60);state=game.transition(state,{type:'run',duration,input});state=game.transition(state,{type:'advance'});}
     state=game.transition(state,{type:'inspect',count:6});state=game.transition(state,{type:'ship'});assert.equal(story.reaction(state).achieved,true,`order ${index+1}`);assert.equal(game.actions(state).used,0);
   }
 });
 
-test('guest invitations and stars stay independent of the five regular orders',()=>{
+test('five- and seven-order saves keep their stars; guest results never unlock the new regular orders',()=>{
   const prior=[3,1,0,0,0];
   const best=story.restoreBest(prior);
-  assert.deepEqual(best,[3,1,0,0,0,0,0]);
+  assert.deepEqual(best,[3,1,0,0,0,0,0,0,0,0]);
   assert.deepEqual(prior,[3,1,0,0,0]);
   for(const index of [5,6]){
     assert.equal(story.unlocked(story.restoreBest(),index),true);
@@ -73,6 +79,8 @@ test('guest invitations and stars stay independent of the five regular orders',(
     for(const q of story.questionList)assert.ok(story.answer(index,q.id)?.length>10);
   }
   assert.deepEqual(story.restoreBest(best),best);
+  assert.deepEqual(story.restoreBest([3,1,0,0,0,2,3]),[3,1,0,0,0,2,3,0,0,0]);
+  assert.equal(story.unlocked(best,7),false);
   assert.equal(story.unlocked(best,3),false);
   assert.equal(story.nextOrder(best,4),null);
 });
@@ -105,10 +113,10 @@ test('Lee scores the lot range; Jensen scores elapsed time; both use standard pa
 
 test('a walk-in uses the unlocked follow-up or another available customer at every campaign boundary',()=>{
   const firstDay=story.restoreBest();
-  assert.equal(story.nextCustomer(firstDay,0),story.campaignCount);
+  assert.equal(story.nextCustomer(firstDay,0),5);
   firstDay[0]=1;
   assert.equal(story.nextCustomer(firstDay,0),1);
-  assert.equal(story.nextCustomer(firstDay,story.campaignCount),1);
+  assert.equal(story.nextCustomer(firstDay,5),1);
   for(const best of [firstDay,Array(game.orders.length).fill(3)]){
     for(let i=0;i<game.orders.length;i++){
       const next=story.nextCustomer(best,i);
@@ -116,4 +124,39 @@ test('a walk-in uses the unlocked follow-up or another available customer at eve
       assert.notEqual(story.contract(next).profile.id,story.contract(i).profile.id);
     }
   }
+});
+
+test('each new walk-in can finish under budget, keep its own feedback on reload, and hand off to the next customer',()=>{
+  const best=story.restoreBest([1,1,1,1,1,0,0]);
+  let previous=4;
+  for(const [index,duration,rotation] of [[7,132,100],[8,126,100],[9,120,110]]){
+    assert.equal(story.nextCustomer(best,previous),index);
+    const input=game.settings({wafer_rotation_pct:rotation,stage_rotation_pct:rotation});
+    let state=game.createFunded(index,{},100);
+    for(let n=0;n<6;n++){
+      state=game.transition(state,{type:'run',duration,input});
+      if(n===0)state=game.transition(state,{type:'measure'});
+      state=game.transition(state,{type:'advance'});
+    }
+    state=game.transition(state,{type:'inspect',count:6});
+    state=game.transition(state,{type:'ship'});
+    const response=story.reaction(state);
+    assert.equal(response.good,6);
+    assert.equal(response.mood,'delighted');
+    assert.deepEqual(story.reaction(game.restore(game.serialize(state))),response);
+    best[index]=game.summary(state).stars;
+    previous=index;
+  }
+});
+
+test('the new customers respond in their own voices to an empty shipment',()=>{
+  const replies=[7,8,9].map(index=>{
+    let state=game.transition(game.createFunded(index,{},100),{type:'finishLot'});
+    state=game.transition(state,{type:'ship'});
+    assert.equal(story.reaction(state).mood,'retry');
+    return story.reaction(state).message;
+  });
+  assert.match(replies[0],/마이크/);
+  assert.match(replies[1],/습도/);
+  assert.match(replies[2],/관측/);
 });

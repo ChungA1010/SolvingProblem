@@ -76,6 +76,13 @@
 .settings-records > details p { font-size: 12px; line-height: 1.65; margin: 4px 0 10px; }
 .settings-records > details a { font-size: 13px; text-decoration: underline; }
 .settings-records .order-picker { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.order-picker .order-portrait {
+  float: right;
+  width: 36px;
+  height: 52px;
+  margin-left: 6px;
+  background: 0 0 / 300% 100% no-repeat;
+}
 .settings-records #inspection-screen { overflow-x: auto; }
 
 @media (max-aspect-ratio: 1/1) {
