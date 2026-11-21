@@ -15,9 +15,68 @@
   const clone=value=>JSON.parse(JSON.stringify(value));
   const assert=(ok,message)=>{if(!ok)throw new Error(message);};
   function create(index=0,equipment={}){assert(Number.isInteger(index)&&index>=0&&index<orders.length,'지원하지 않는 주문입니다.');return {version:economyVersion,equipment:upgrades.levels(equipment),order:index,phase:'setup',wallet:100,spent:0,wear:orders[index].wear,pad:orders[index].pad,estimateScale:1,lastMeasured:null,servicedSinceMeasure:false,inspected:0,rows:[],events:[]};}
-  function createFunded(index=0,equipment={},initialWallet=100){
+  function eventSetup(context){
+    const {seed,sequence,items}=context;
+    assert(typeof seed==='string' && seed.length>0 && seed.length<=100 && Number.isSafeInteger(sequence) && sequence>=1,'공방 이벤트 순번을 확인해주세요.');
+    assert(Array.isArray(items) && items.length<=2 && new Set(items).size===items.length &&
+      items.every(id=>id==='storage_cabinet'||id==='note_board'),'공방 이벤트 장비를 확인해주세요.');
+    assert(context.environmentVersion===undefined || context.environmentVersion===1,'환경 이벤트 버전을 확인해주세요.');
+    const setup={seed,sequence,items:[...items].sort()};
+    if(context.environmentVersion===1)setup.environmentVersion=1;
+    return setup;
+  }
+  function percentDraw(key){
+    let hash=2166136261;
+    for(const ch of key)hash=Math.imul(hash^ch.charCodeAt(0),16777619);
+    hash=Math.imul(hash^(hash>>>16),0x85ebca6b);
+    return ((hash^(hash>>>13))>>>0)/0x100000000*100;
+  }
+  // The shop and delivery slot determine the draw, independently of the customer,
+  // retry id, and installed items. A board converts quiet draws only.
+  function orderEvent(state){
+    if(!state.eventSetup)return null;
+    const {seed,sequence,items}=state.eventSetup,rules=upgrades.eventRules;
+    const roll=percentDraw(seed+'|'+sequence);
+    const common={blocked:false,induced:false,feePerWafer:0,bonus:0,minimumGood:rules.priorityMinGood};
+    if(sequence>1 && roll<rules.shortageChance){
+      const blocked=items.includes('storage_cabinet');
+      return {...common,id:'shortage',title:'자재 수급 지연',tone:blocked?'neutral':'warning',blocked,
+        feePerWafer:blocked?0:rules.shortageSurcharge,detail:blocked?'예비 자재함의 비축분으로 추가 가공비를 막았어요.':`긴급 자재를 써서 가공할 때마다 ${rules.shortageSurcharge} P가 더 들어요.`};
+    }
+    const chance=items.includes('note_board')?rules.boardPriorityChance:rules.priorityChance;
+    if(sequence>1 && roll<rules.shortageChance+chance){
+      const induced=roll>=rules.shortageChance+rules.priorityChance;
+      const offer=`규격 안 웨이퍼를 ${rules.priorityMinGood}장 이상 납품하면 ${rules.priorityBonus} P를 더 받아요.`;
+      return {...common,id:'priority',title:'우선 납품 의뢰',tone:'positive',induced,bonus:rules.priorityBonus,
+        detail:induced?'의뢰 게시판으로 연결됐어요. '+offer:offer};
+    }
+    return {...common,id:'quiet',title:'평상 영업',tone:'neutral',detail:'기본 가공비와 납품 단가가 적용돼요.'};
+  }
+  function environmentStatus(state){
+    const setup=state.eventSetup;
+    if(setup?.environmentVersion!==1 || setup.sequence===1)return null;
+    let id,resolution=null;
+    if(setup.sequence===2)id='dust';
+    else if(setup.sequence===3)id='construction';
+    else{
+      const roll=percentDraw('environment|'+setup.seed+'|'+setup.sequence);
+      if(roll>=36)return null;
+      id=roll<18?'dust':'construction';
+      if(id==='dust' && roll>=12)resolution='normal';
+    }
+    const hasSpare=id==='dust' && setup.items.includes('storage_cabinet');
+    if(id==='dust'){
+      if(state.events.some(event=>event.type==='replaceFilter'))resolution=hasSpare?'reserve':'service';
+    }else if(state.events.some(event=>event.type==='waitForQuiet'))resolution='waited';
+    else if(state.rows.length>=2)resolution='finished';
+    const active=resolution===null && (state.phase==='setup'||state.phase==='result');
+    return {id,active,hasSpare,resolution};
+  }
+  function createFunded(index=0,equipment={},initialWallet=100,context){
     assert(Number.isSafeInteger(initialWallet)&&initialWallet>=0&&initialWallet<=1000000000,'시작 운영 자금을 확인해주세요.');
-    return {...create(index,equipment),version:fundedVersion,initialWallet,wallet:initialWallet};
+    const state={...create(index,equipment),version:fundedVersion,initialWallet,wallet:initialWallet};
+    if(context!==undefined)state.eventSetup=eventSetup(context);
+    return state;
   }
   // A quoted teaching-game resource charge; not a physical CMP operating cost.
   // It uses requested settings only, never a hidden removal result or sensor reading.
@@ -30,6 +89,7 @@
     const parts={base:5,time:Math.ceil(duration/60),pressure:Math.ceil(1.5*pressureRatio),
       rotation:Math.ceil(((input.wafer_rotation_pct/100)**2+(input.stage_rotation_pct/100)**2)/2),
       slurry:Math.ceil((input.slurry_c_pct/100)**2)};
+    if(state.eventSetup)parts.eventFee=orderEvent(state).feePerWafer;
     return {total:Object.values(parts).reduce((sum,cost)=>sum+cost,0),...parts};
   }
   function equipment(state){return [upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(state.version)?upgrades.levels(state.equipment):upgrades.levels();}
@@ -38,7 +98,7 @@
   }
   function prices(state) {
     const current = [economyVersion,fundedVersion].includes(state.version);
-    return { run: state.version===fundedVersion?8:current?10:0, good: orders[state.order].goodPay, under: current ? 0 : orders[state.order].underPay };
+    return { run: state.version===fundedVersion?8+(orderEvent(state)?.feePerWafer??0):current?10:0, good: orders[state.order].goodPay, under: current ? 0 : orders[state.order].underPay };
   }
   function availableForActions(state) {
     const unfinished = orders[state.order].count - state.rows.length;
@@ -89,9 +149,13 @@
     const good = lot.filter(row => row.quality === 'good').length;
     const under = lot.filter(row => row.quality === 'under').length;
     const processingCost = state.version===fundedVersion?state.rows.reduce((sum,row)=>sum+row.processingFee,0):price.run * state.rows.length;
+    const event=orderEvent(state);
+    const eventFee=state.rows.length*(event?.feePerWafer??0);
+    const eventBonus=event && inspectionDone(state) && good>=event.minimumGood ? event.bonus : 0;
     return {
       good, total: lot.length, stars: good >= 5 ? 3 : good >= 4 ? 2 : good >= 3 ? 1 : 0,
-      revenue: good * price.good + under * price.under,
+      revenue: good * price.good + under * price.under + eventBonus,
+      eventFee,eventBonus,eventNet:eventBonus-eventFee,
       processingCost, actionCost: state.spent, spent: processingCost + state.spent,
       errors: lot.map(row => row.error)
     };
@@ -107,8 +171,14 @@
       assert(['setup','result'].includes(s.phase) && selected,'이 층에 보관된 웨이퍼가 없습니다.');
       if(s.recalled)assert(s.recalled===event.wafer,'측정기에 있는 웨이퍼를 확인해주세요.');
     }
-    if(event.type==='run'){
+    const environment=environmentStatus(s);
+    if(event.type==='replaceFilter'){
+      assert(s.phase==='setup' && !s.rows.length && environment?.id==='dust' && environment.active,'지금은 외기 필터를 교체할 필요가 없어요.');
+    }else if(event.type==='waitForQuiet'){
+      assert(environment?.id==='construction' && environment.active,'지금은 측정대의 진동 대기가 필요 없어요.');
+    }else if(event.type==='run'){
       assert(s.phase==='setup'&&s.rows.length<o.count,'현재 웨이퍼의 결과를 확인해주세요.');
+      assert(!(environment?.id==='dust' && environment.active),'외기 필터를 교체한 뒤 가공을 시작해주세요.');
       const input=settings(event.input),base=rated(s,input),duration=event.duration;
       assert(Number.isInteger(duration)&&duration>=30&&duration<=240,'연마 시간은 30–240초의 정수로 입력하세요.');
       assert(event.endpointEnabled===undefined||typeof event.endpointEnabled==='boolean','종점 감지 설정을 확인해주세요.');
@@ -126,15 +196,21 @@
       const stopSeconds=o.target/(rate*(1+sensorBias))*60;
       const actualDuration=endpointEnabled?Math.min(duration,Math.ceil(stopSeconds*10)/10):duration;
       const removed=rate*actualDuration/60;
-      const processingFee = processingQuote(s,input,duration).total;
+      const quote=processingQuote(s,input,duration),processingFee=quote.total;
       assert(s.wallet >= processingFee, '가공할 운영 자금이 부족합니다.');
       s.wallet -= processingFee;
       s.rows.push({number:n+1,input,duration,...(s.version===fundedVersion?{processingFee}:{}),...([equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(s.version)?{actualDuration,endpointEnabled,endpointStopped:endpointEnabled&&actualDuration<duration}:{}),...(usesCalibration(s)?{endpointRequested,endpointReason:calibration.reason,calibrationRemaining:calibration.remaining}:{}),rate,removed,error:(removed/o.target-1)*100,quality:quality(removed,o),measured:false,wear:s.wear,pad:s.pad,restart:restart!==1});
+      if(s.eventSetup)s.rows.at(-1).eventFee=quote.eventFee;
+      if(s.order===0 && n===0){
+        // Event replay also reconstructs the estimate shown before older first runs.
+        s.rows[0].estimatedRemoval = base * s.estimateScale * duration / 60;
+      }
       const services=s.events.filter(e=>e.type==='service').length;
       if(services)s.rows.at(-1).servicesAtRun=services;
       s.wear=Math.min(100,s.wear+effect.wearStep);s.pad=Math.min(100,s.pad+1.5);s.phase='result';
     }else if(event.type==='measure'){
       const row=fromRack?selected:s.rows.at(-1);assert((fromRack||s.phase==='result')&&row&&!row.measured,'이미 측정했거나 측정할 웨이퍼가 없습니다.');
+      assert(!(environment?.id==='construction' && environment.active),'측정대가 흔들려요. 진동이 잦아들면 측정해주세요.');
       requireAction(s);
       assert(availableForActions(s)>=o.measureCost,'남은 가공비를 제외하면 측정 비용이 부족합니다.');
       if(fromRack){
@@ -186,12 +262,26 @@
     s.events.push(clone(event));return s;
   }
   function restore(serialized){
-    try{const value=typeof serialized==='string'?JSON.parse(serialized):serialized;assert([version,legacyVersion,upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value?.version)&&Array.isArray(value.events)&&value.events.length<=60,'저장 형식 오류');assert(value.version!==fundedVersion||(Number.isSafeInteger(value.initialWallet)&&value.initialWallet>=0),'시작 자금 기록 누락');const enhanced=[upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value.version);if(enhanced)assert(value.equipment&&Object.hasOwn(value.equipment,'environment')&&Object.hasOwn(value.equipment,'care'),'장비 기록 누락');if([equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value.version))assert(['pad','endpoint'].every(k=>Object.hasOwn(value.equipment,k)),'새 장비 기록 누락');if(value.version===upgradedVersion)assert(!value.equipment.pad&&!value.equipment.endpoint,'이전 기록의 장비가 변경됐습니다.');let s=value.version===fundedVersion?createFunded(value.order,value.equipment,value.initialWallet):create(value.order,enhanced?value.equipment:{});s.version=value.version;if(!enhanced)delete s.equipment;for(const event of value.events)s=transition(s,event);return s;}catch{return null;}
+    try{
+      const value=typeof serialized==='string'?JSON.parse(serialized):serialized;
+      assert([version,legacyVersion,upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value?.version)&&Array.isArray(value.events)&&value.events.length<=60,'저장 형식 오류');
+      assert(value.version===fundedVersion || !Object.hasOwn(value,'eventSetup'),'공방 이벤트 형식 오류');
+      assert(value.version!==fundedVersion||(Number.isSafeInteger(value.initialWallet)&&value.initialWallet>=0),'시작 자금 기록 누락');
+      const enhanced=[upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value.version);
+      if(enhanced)assert(value.equipment&&Object.hasOwn(value.equipment,'environment')&&Object.hasOwn(value.equipment,'care'),'장비 기록 누락');
+      if([equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(value.version))assert(['pad','endpoint'].every(k=>Object.hasOwn(value.equipment,k)),'새 장비 기록 누락');
+      if(value.version===upgradedVersion)assert(!value.equipment.pad&&!value.equipment.endpoint,'이전 기록의 장비가 변경됐습니다.');
+      let state=value.version===fundedVersion?createFunded(value.order,value.equipment,value.initialWallet,value.eventSetup):create(value.order,enhanced?value.equipment:{});
+      state.version=value.version;
+      if(!enhanced)delete state.equipment;
+      for(const event of value.events)state=transition(state,event);
+      return state;
+    }catch{return null;}
   }
-  function serialize(state){return JSON.stringify({version:state.version,...(state.version===fundedVersion?{initialWallet:state.initialWallet}:{}),...([upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(state.version)?{equipment:equipment(state)}:{}),order:state.order,events:state.events});}
+  function serialize(state){return JSON.stringify({version:state.version,...(state.version===fundedVersion?{initialWallet:state.initialWallet}:{}),...(state.eventSetup?{eventSetup:state.eventSetup}:{}),...([upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion].includes(state.version)?{equipment:equipment(state)}:{}),order:state.order,events:state.events});}
   function visibleRows(state){
     const inspected=new Set(lotRows(state).slice(0,state.inspected).map(row=>row.number));
-    return state.rows.map(r=>r.measured||inspected.has(r.number)?clone(r):{number:r.number,...(r.discarded?{discarded:true}:{}),input:clone(r.input),duration:r.duration,...(r.processingFee!==undefined?{processingFee:r.processingFee}:{}),...(r.actualDuration!==undefined?{actualDuration:r.actualDuration,endpointEnabled:r.endpointEnabled,endpointStopped:r.endpointStopped}:{}),measured:false,wear:r.wear,pad:r.pad,restart:r.restart,rate:null,removed:null,error:null,quality:null});}
+    return state.rows.map(r=>r.measured||inspected.has(r.number)?clone(r):{number:r.number,...(r.discarded?{discarded:true}:{}),input:clone(r.input),duration:r.duration,...(r.processingFee!==undefined?{processingFee:r.processingFee}:{}),...(r.eventFee!==undefined?{eventFee:r.eventFee}:{}),...(r.actualDuration!==undefined?{actualDuration:r.actualDuration,endpointEnabled:r.endpointEnabled,endpointStopped:r.endpointStopped}:{}),measured:false,wear:r.wear,pad:r.pad,restart:r.restart,rate:null,removed:null,error:null,quality:null});}
   function clues(state){
     const o=orders[state.order],next=state.rows.length+1,result=[];
     if(state.order===2&&next===1)result.push({kind:'warning',title:'정지 후 첫 가공',detail:'이번 장에는 제거율이 낮아지는 재시작 효과가 적용됩니다. 다음 장에는 이 효과가 사라집니다.'});
@@ -204,13 +294,27 @@
     if(state.lastMeasured&&state.rows.length>state.lastMeasured)result.push({kind:'changed',title:'측정 이후 상태 변화',detail:`마지막 측정 후 ${state.rows.length-state.lastMeasured}장을 더 가공했습니다. 이전 측정값은 현재 제거율을 보장하지 않습니다.`});
     return result;
   }
+  function comparable(a,b){
+    if(a.order!==b.order || a.version!==b.version || !upgrades.same(equipment(a),equipment(b)))return false;
+    const aEnv=environmentStatus(a),bEnv=environmentStatus(b);
+    if(aEnv?.id!==bEnv?.id || (aEnv?.resolution==='normal')!==(bEnv?.resolution==='normal'))return false;
+    const left=orderEvent(a),right=orderEvent(b);
+    return (left?.feePerWafer??0)===(right?.feePerWafer??0) && (left?.bonus??0)===(right?.bonus??0);
+  }
   function comparison(current,previous){
-    if(!previous||current.order!==previous.order||current.version!==previous.version||!upgrades.same(equipment(current),equipment(previous))||!inspectionDone(current)||!current.inspected||!previous.inspected||previous.phase!=='settled')return null;
+    if(!previous||!comparable(current,previous)||!inspectionDone(current)||!current.inspected||!previous.inspected||previous.phase!=='settled')return null;
     const metrics=s=>{const v=summary(s);return {good:v.good,mae:v.errors.reduce((a,b)=>a+Math.abs(b),0)/v.total,profit:v.revenue-v.spent,actions:actions(s).used,measures:s.events.filter(e=>e.type==='measure').length,services:s.events.filter(e=>e.type==='service').length};};
     const before=metrics(previous),after=metrics(current);return {before,after,delta:Object.fromEntries(Object.keys(after).map(k=>[k,after[k]-before[k]]))};
   }
   function restoreArchive(entries){if(!Array.isArray(entries))return [];const seen=new Set();return entries.filter(e=>{if(!e||typeof e.id!=='string'||!/^[\w-]{1,100}$/.test(e.id)||seen.has(e.id)||!Number.isFinite(Date.parse(e.at)))return false;const s=restore(e.session);if(s?.phase!=='settled')return false;seen.add(e.id);return true;}).slice(-30).map(e=>({id:e.id,at:e.at,session:JSON.parse(serialize(restore(e.session)))}));}
   function archiveSettlement(entries,id,at,state){assert(state.phase==='settled','납품 완료 기록만 보관할 수 있습니다.');const archive=restoreArchive(entries);if(archive.some(e=>e.id===id))return archive;return restoreArchive([...archive,{id,at,session:JSON.parse(serialize(state))}]);}
-  function previousAttempt(entries,state,id){const entry=restoreArchive(entries).filter(e=>e.id!==id&&e.session.order===state.order&&e.session.version===state.version&&upgrades.same(equipment(state),equipment(restore(e.session)))).at(-1);return entry?restore(entry.session):null;}
-  return Object.freeze({version,legacyVersion,upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion,usesCalibration,prices,processingQuote,availableForActions,equipment,endpointStatus,sameConditions,orders,create,createFunded,settings,estimate,recommendation,elapsed,quality,summary,lotRows,storedRows,freeSlot,inspectionDone,transition,restore,serialize,visibleRows,actions,clues,comparison,restoreArchive,archiveSettlement,previousAttempt});
+  function previousAttempt(entries,state,id){
+    for(const entry of restoreArchive(entries).reverse()){
+      if(entry.id===id || entry.session.order!==state.order)continue;
+      const previous=restore(entry.session);
+      if(comparable(state,previous))return previous;
+    }
+    return null;
+  }
+  return Object.freeze({version,legacyVersion,upgradedVersion,equipmentVersion,balancedVersion,economyVersion,fundedVersion,usesCalibration,prices,processingQuote,availableForActions,equipment,endpointStatus,sameConditions,orders,create,createFunded,orderEvent,environmentStatus,settings,estimate,recommendation,elapsed,quality,summary,lotRows,storedRows,freeSlot,inspectionDone,transition,restore,serialize,visibleRows,actions,clues,comparison,restoreArchive,archiveSettlement,previousAttempt});
 });

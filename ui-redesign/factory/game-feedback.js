@@ -48,6 +48,9 @@
         case 'start':
           tone(t, 145, 230, 0.22, 0.12, 'triangle');
           tone(t + 0.055, 350, 440, 0.13, 0.05); break;
+        case 'roadwork':
+          for (const offset of [0, 0.12, 0.29]) tone(t + offset, 104, 57, 0.09, 0.17, 'triangle');
+          break;
         case 'scan':
           tone(t, 740, 740, 0.12, 0.12);
           tone(t + 0.105, 988, 988, 0.18, 0.10); break;

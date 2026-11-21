@@ -124,7 +124,11 @@ function transferRig(accepted=true, destination='store') {
   const window = {...events(),CMPFeedback:{play:name=>cues.push(name)}};
   vm.runInNewContext(transferCode, {window,document,setTimeout:fn=>timers.push(fn)});
   window.CMPTransfers((...args)=>{drops.push(args);return accepted;},value=>moved.push(value),()=>{},value=>taps.push(value));
-  const pointer = (type,x=0,y=0) => source.fire(type,{isPrimary:true,button:0,pointerType:'mouse',pointerId:1,clientX:x,clientY:y,target:source});
+  const pointer = (type,x=0,y=0,element=source) => {
+    const event={isPrimary:true,button:0,pointerType:'mouse',pointerId:1,clientX:x,clientY:y,target:element};
+    document.fire(type,event);
+    element.fire(type,event);
+  };
   const key = name => source.fire('keydown',{key:name,repeat:false,preventDefault(){}});
   return {cues,drops,moved,taps,source,target,document,window,pointer,key,setHit:value=>{hit=value;}};
 }
@@ -160,6 +164,19 @@ test('rejected, illegal and cancelled drops never play a success cue or mutate t
     assert.deepEqual(r.cues,['lift'],cancel);
     assert.equal(r.source.attributes['aria-pressed'],'false');
   }
+});
+
+test('a drag can finish over its receiver after losing pointer capture', () => {
+  const r = transferRig(true,'replaceFilter');
+  r.pointer('pointerdown');
+  r.pointer('pointermove',12);
+  r.source.releasePointerCapture(1);
+  r.pointer('lostpointercapture',12);
+  r.pointer('pointermove',40,0,r.target);
+  r.pointer('pointerup',40,0,r.target);
+  assert.deepEqual(r.cues,['lift','seat']);
+  assert.deepEqual(r.drops,[['replaceFilter',2]]);
+  assert.equal(r.document.body.dataset.carrying,undefined);
 });
 
 test('keyboard delivery uses the same successful action and delivery cue as pointer dragging', () => {

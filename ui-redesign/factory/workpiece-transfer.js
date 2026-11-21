@@ -113,15 +113,6 @@
         }
         source.setPointerCapture(event.pointerId);
       });
-      source.addEventListener('pointermove', move);
-      source.addEventListener('pointerup', event => {
-        if (!grip || event.pointerId !== grip.id) return;
-        move(event);
-        release();
-      });
-      source.addEventListener('lostpointercapture', () => {
-        if (grip?.source === source && !grip.keyboard) reset();
-      });
       source.addEventListener('keydown', event => {
         const liftKey = event.key === ' ' || event.key === 'Enter';
         if (liftKey) {
@@ -147,7 +138,13 @@
       });
       source.addEventListener('blur', () => { if (grip?.keyboard) reset(); });
     }
-    // Recipients are landing zones. A click on one never performs a transfer.
+    // The pointer can cross other controls even after capture has been released.
+    document.addEventListener('pointermove', move, true);
+    document.addEventListener('pointerup', event => {
+      if (!grip || event.pointerId !== grip.id) return;
+      move(event);
+      release();
+    }, true);
     for (const target of document.querySelectorAll('[data-drop]')) target.tabIndex = -1;
     document.addEventListener('pointercancel', event => { if (grip?.id===event.pointerId) reset(); });
     document.addEventListener('keydown', event => { if (event.key==='Escape') reset(); });

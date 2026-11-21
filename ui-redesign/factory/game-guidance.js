@@ -2,7 +2,7 @@
 (function(root,factory){const api=factory(typeof module==='object'?require('./game-model.js'):root.CMPFactory);if(typeof module==='object')module.exports=api;else root.CMPGuidance=api;})(globalThis,function(g){
   'use strict';
   const f=(n,d=1)=>n.toFixed(d);
-  function tutorial(s,{dismissed=false,completed=false,applied=false}={}){
+  function tutorial(s,{dismissed=false,completed=false}={}){
     if(dismissed||completed||s.order!==0||s.rows.length>1||['inspection','settled'].includes(s.phase))return null;
     const first=g.visibleRows(s)[0],target=g.orders[s.order].target;
     if(!first)return {step:1,title:'시간을 정하고, 한 장 연마해요',copy:`목표는 제거량 ${target} nm예요. 우선 기본 조건과 예상 시간으로 시작하고, 실제 결과는 측정해서 확인해요.`,action:'duration'};
@@ -10,8 +10,7 @@
       if(s.phase==='setup')return null;
       return {step:2,title:'첫 장을 측정해 확인해요',copy:'웨이퍼를 측정기로 옮겨 예상과 실제를 비교해요. 5 P와 추가 행동 1회가 들고, 주문 전체에 행동은 2회예요.',action:'measure'};
     }
-    const next=g.recommendation(s,first.input);
-    return {step:3,title:applied?'새 시간으로 두 번째 장을 연마해요':'측정값으로 시간을 다시 맞춰요',copy:`${first.duration}초에 ${f(first.removed)} nm가 제거됐어요. ${target} ÷ ${f(first.rate)} × 60 ≈ ${next}초. ${s.phase==='result'?'보관 슬롯에 넣은 뒤 다음 장에 예상 시간을 적용해요.':applied?'바뀐 시간을 확인하고 연마해요. 이후 마모로 결과가 달라질 수 있어요.':'예상 시간 적용을 눌러 이전 시간과 비교해요.'}`,action:s.phase==='result'?'advance':applied?'process':'use-recommendation'};
+    return {step:3,title:'두 번째 장의 시간을 직접 정해요',copy:`첫 장은 ${first.duration}초에 ${f(first.removed)} nm였어요. 목표는 ${target} nm예요. ${s.phase==='result'?'첫 장을 보관하거나 폐기한 뒤 다음 원판을 올려요.':'같은 시간으로 갈지, 시간을 바꿀지 예상 눈금을 보고 정해요.'}`,action:s.phase==='result'?'advance':'duration'};
   }
   function debrief(s){
     if(!g.inspectionDone(s))return null;
