@@ -378,7 +378,6 @@ body.factory[data-bench-focus=true] #work-screen:has(#cmp-scene[data-renderer=we
   outline: 2px solid #7b936d; outline-offset: 1px;
 }
 .factory #dialogue-next.next-cue { background: #e3ebd7; border-radius: 7px; padding: 5px 10px; }
-.factory #counter-help { color: #486149; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
 .factory .dialogue-controls { gap: 8px; }
 .customer-stage[data-phase=waiting] :is(.shop-character,.shop-arrival,.shop-conversation,.shop-counter) { visibility: hidden; }
 @media(prefers-reduced-motion:reduce) {

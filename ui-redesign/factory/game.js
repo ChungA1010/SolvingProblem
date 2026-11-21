@@ -27,9 +27,9 @@
   let growth=CMPUpgrades.create(),upgradeUI=null;
   const customersPerDay=3;
   let closedRunId=null,exitTimer=null;
-  let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,asked=[],accepted=false;
+  let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,accepted=false;
   let speechText='',speechLast=false,lastPresentation=null,observedPhase=null;
-  let openingRead=false,briefAnswer=null;
+  let openingRead=false;
   // A page index resumes the first visit. A null index leaves the guide available on demand.
   let firstLessonStep=0;
   let prologueRead=false;
@@ -52,10 +52,9 @@
     const closingLine=view==='settled' && frame.last;
     $('dialogue-next').textContent=frame.phase!=='talking'?'대화 바로 보기 →':closingLine?'인사 마치기 →':frame.last?'다시 듣기 ↺':'계속 듣기 →';
     if(view==='brief'){
-      if(frame.last && frame.phase==='talking' && !briefAnswer)openingRead=true;
+      if(frame.last && frame.phase==='talking')openingRead=true;
       $('accept-order').disabled=stale||!openingRead;
       $('accept-order').textContent=openingRead?'주문 받을게요 · 작업대로 →':'대화를 마치면 주문을 받아요';
-      $('conversation-options').hidden=!openingRead;
       $('dialogue-next').classList.toggle('next-cue',!openingRead);
     }else $('dialogue-next').classList.remove('next-cue');
   }});
@@ -71,11 +70,11 @@
           rackResume=state.phase==='result'?'result':saved.rackResume==='setup'?'setup':'feed';
           view='result';
         }
-        input=state.rows.at(-1)?.input||game.settings();asked=story.restoreDialogue(saved.dialogue,state.order);}
+        input=state.rows.at(-1)?.input||game.settings();}
       else{stale=true;readyNotice='저장된 진행을 확인하지 못해 멈췄어요. 저장 원본은 유지됩니다.';}
       if(typeof saved.runId==='string'&&/^[\w-]{1,100}$/.test(saved.runId))runId=saved.runId;
       completed=game.restoreArchive(saved.completed);
-      if(accepted||state.order!==0||completed.length||asked.length||saved.firstLessonStep===null){
+      if(accepted||state.order!==0||completed.length||saved.firstLessonStep===null||story.restoreDialogue(saved.dialogue,state.order).length){
         firstLessonStep=null;
       }else if(Number.isInteger(saved.firstLessonStep)&&saved.firstLessonStep>=0){
         firstLessonStep=saved.lessonFormat==='live'?([0,0,1,2,2,3,3,4,4,4,4][saved.firstLessonStep]??0):Math.min(saved.firstLessonStep,4);
@@ -113,7 +112,7 @@
   function campaignRecord(){
     return {version:game.version,best,runId,closedRunId,completed,tutorial,firstLessonStep,prologueRead,comicEdition,firstComicRevealed,lessonFormat:'preview',
       handlingLearned,guidePreference,workshop:CMPUpgrades.serialize(growth),orderAccepted:accepted,rackResume,
-      station:view,loadedWafer:view==='setup'?state.rows.length+1:null,dialogue:story.serializeDialogue(asked,state.order),
+      station:view,loadedWafer:view==='setup'?state.rows.length+1:null,
       session:JSON.parse(game.serialize(state))};
   }
   function persist(record){
@@ -228,19 +227,6 @@
     $(t.action).dataset.guideTarget='true';$('guide-focus').textContent={duration:'시간 확인 ↓',measure:'측정기로 ↓',advance:'보관 슬롯으로 ↓',process:'연마 시작으로 ↓','use-recommendation':'예상 시간 적용으로 ↓'}[t.action];
   }
   function qualityText(q){return {good:'규격 안',under:'덜 깎음',over:'너무 깎음'}[q]||'미측정';}
-  function renderDialogue(){
-    const c=story.contract(state.order);
-    $('customer-name').textContent=c.profile.name;
-    $('customer-role').textContent=c.profile.role;
-    $('customer-visit').textContent=c.returning?'다시 찾아온 고객':'새로운 고객';$('customer-focus').textContent=c.profile.focus;
-    $('customer-opening').textContent=c.opening;$('customer-goal').textContent=story.goalLabel(state.order);
-    $('customer-goal-note').textContent='규격 충족 + 목표 달성 시 배지';
-    $('order-thread').textContent=`${c.profile.name} · ${c.purpose}`;
-    const host=$('customer-questions');host.replaceChildren();
-    for(const q of story.questionList){const b=document.createElement('button');b.type='button';b.className='customer-question';b.textContent=q.label;b.dataset.question=q.id;b.setAttribute('aria-controls','shop-dialogue');b.setAttribute('aria-pressed',String(asked.at(-1)===q.id));b.dataset.read=String(asked.includes(q.id));b.addEventListener('click',()=>{if(stale||!openingRead)return;asked=story.ask(asked.filter(id=>id!==q.id),q.id);save();renderDialogue();briefAnswer=story.answer(state.order,q.id);speechText=briefAnswer;shop.say(speechText);$('customer-questions').querySelector(`[data-question="${q.id}"]`).focus({preventScroll:true});});host.append(b);}
-    const key=asked.at(-1);$('customer-answer').hidden=!key;$('customer-question-echo').textContent=story.questionList.find(q=>q.id===key)?.label||'';$('customer-answer-text').textContent=key?story.answer(state.order,key):'';
-    $('customer-talk-note').textContent='';
-  }
   function renderShop(){
     const handingOver=view==='handover', delivered=view==='settled', visible=['brief','handover','settled'].includes(view), c=story.contract(state.order),o=c.order;
     $('customer-stage').dataset.handover=String(handingOver);
@@ -272,7 +258,7 @@
     const shift=businessDay();
     $('settings-shift').textContent=`영업 ${shift.day}일차 · 손님 ${shift.slot}/${customersPerDay} · 운영 자금 ${cashBalance()} P`;
     document.body.dataset.place=visible?'counter':'workbench';
-    $('customer-stage').hidden=!visible;$('shop-brief-dialogue').hidden=view!=='brief';
+    $('customer-stage').hidden=!visible;
     if(lastPresentation!==view){
       $('customer-stage').dataset.receiving=String(delivered&&lastPresentation==='handover');$('inspection-records').open=!delivered;$('inspection-debrief').open=view==='inspection';lastPresentation=view;}
     if(!visible){shop.leave();return;}
@@ -286,11 +272,8 @@
     $('shop-figure').style.backgroundImage=`url("${art.src}")`;
     $('shop-figure').style.backgroundPosition=art.position;
     $('shop-figure').setAttribute('aria-label',`${c.profile.name} · ${art.label} 표정`);
-    $('shop-speaker-name').textContent=c.profile.name;$('shop-speaker-role').textContent=c.profile.role;
-    $('shop-visit-label').textContent=handingOver?'납품 대기':delivered?'납품 확인':o.guest?'초대 손님':c.returning?'다시 온 손님':'첫 방문';
     $('shop-arrival').textContent=handingOver?'손님이 상자를 기다려요.':delivered?`납품 대금 +${game.summary(state).revenue} P`:`딩동! ${c.profile.name}님이 찾아왔어요.`;
     $('accept-order').closest('.counter-accept').hidden=view!=='brief';
-    $('counter-help').hidden=view!=='brief';
     $('slip-spec').replaceChildren(document.createTextNode(`${o.target} nm `));const unit=document.createElement('small');unit.textContent=`±${o.tolerance}% · ${delivered?game.lotRows(state).length+'장 납품':'원판 6장'}`;$('slip-spec').append(unit);
     $('slip-client').textContent=`${c.profile.name}의 ${o.guest?'특별':c.returning?'후속':'첫'} 의뢰 · ${delivered?'납품 완료':'주문 확인'}`;
     if(handingOver){
@@ -303,11 +286,11 @@
         `상자 잘 받았어요, 이번 ${quantity[shipmentCount]}은 규격을 벗어났네요.`;
       speechText=[receipt,...CMPShop.lines(feedback.message).slice(1)].join(' ');
     }else{
-      speechText=delivered?feedback.message:briefAnswer||c.opening;
+      speechText=delivered?feedback.message:c.opening;
     }
     const event=game.orderEvent(state);
     if(event?.id==='priority'){
-      if(view==='brief'&&!briefAnswer)speechText+=' '+priorityRequest(event);
+      if(view==='brief')speechText+=' '+priorityRequest(event);
       if(delivered&&game.summary(state).eventBonus)speechText+=` 약속한 우선 납품비 ${event.bonus} P도 같이 보냈어요.`;
     }
     shop.enter({id:`${runId}:${view}`,text:speechText,delivery:delivered,mood:feedback?.mood,reduced:motion.matches||document.hidden||handingOver||delivered});
@@ -634,13 +617,10 @@
     renderCustomerContext();
     $('brief-screen').hidden=view!=='brief';$('work-screen').hidden=!atBench;$('result-screen').hidden=!resultView;$('inspection-screen').hidden=!inspection;
     document.querySelectorAll('[data-game-step]').forEach(el=>{if(el.dataset.gameStep===({feed:'setup',playing:'setup',handover:'inspection',settled:'inspection'}[view]||view))el.setAttribute('aria-current','step');else el.removeAttribute('aria-current');});
-    $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;$('order-lesson').textContent=o.lesson;
+    $('client').textContent=story.contract(state.order).profile.role;$('order-name').textContent=o.title;count('target',o.target);$('tolerance').textContent=`허용 오차 ±${o.tolerance}% · ${(o.target*(1-o.tolerance/100)).toFixed(1)}–${(o.target*(1+o.tolerance/100)).toFixed(1)} nm`;
     $('customer-goal').textContent=story.goalLabel(state.order);$('customer-goal-note').textContent='규격 충족 + 목표 달성 시 배지';$('order-thread').textContent=`${story.contract(state.order).profile.name} · ${story.contract(state.order).purpose}`;
     renderOrderEvent();
     environmentUI.render(environment,{station:view,stale,busy:busy||measuring,accepted,rows:state.rows.length});
-    if(view==='brief'){
-      renderDialogue();
-    }
     if(atBench){
       renderClues();$('equipment-brief').hidden=feeding||busy||resultView;
       syncHandling();
@@ -805,9 +785,9 @@
     if($('game-settings').open)$('game-settings').close();
     clearTimeout(inspectionTimer);inspectionTimer=null;
     handlingPlayer.cancel();busy=measuring=false;transferMode='idle';transferFrame=null;player.reset();
-    state=draftOrder(index);runId=crypto.randomUUID();asked=[];accepted=false;
-    openingRead=false;briefAnswer=null;guidePreference=null;
-    $('conversation-options').open=$('commission-board').open=$('counter-history').open=false;
+    state=draftOrder(index);runId=crypto.randomUUID();accepted=false;
+    openingRead=false;guidePreference=null;
+    $('commission-board').open=$('counter-history').open=false;
     input=game.settings();fillSettings();$('duration').value=game.recommendation(state,input);
     $('duration-slider').value=$('duration').value;
     setView('brief',!fromConversation);save();
@@ -820,11 +800,6 @@
     if(stale)return;
     if(view==='settled' && speechLast){startDeparture();return;}
     if(speechLast && $('customer-stage').dataset.phase==='talking'){
-      if(view==='brief'){
-        briefAnswer=null;
-        const event=game.orderEvent(state);
-        speechText=story.contract(state.order).opening+(event?.id==='priority'?' '+priorityRequest(event):'');
-      }
       shop.say(speechText);
     }
     else shop.next();
@@ -1064,7 +1039,6 @@
     save();render();
   });
   $('open-help').addEventListener('click',()=>openLesson());
-  $('counter-help').addEventListener('click',()=>openLesson(0));
   $('bench-cue').addEventListener('click',()=>openLesson());
   document.querySelectorAll('[data-scene-view]').forEach(b=>b.addEventListener('click',()=>scene?.setView(b.dataset.sceneView)));$('scene-cutaway').addEventListener('change',()=>scene?.setCutaway($('scene-cutaway').checked));$('scene-transparent').addEventListener('change',()=>scene?.setTransparent($('scene-transparent').checked));$('scene-zoom-in').addEventListener('click',()=>scene?.zoom(.85));$('scene-zoom-out').addEventListener('click',()=>scene?.zoom(1.15));
   document.addEventListener('visibilitychange',()=>{if(document.hidden)shop.ready();if(document.hidden&&(busy||measuring))finishVisual();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches)shop.ready();if(motion.matches&&(busy||measuring))finishVisual();if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{if(busy||measuring)finishVisual();shop.destroy();clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted){shop.ready();if(view==='inspection')scheduleInspection();}});

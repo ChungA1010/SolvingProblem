@@ -114,11 +114,9 @@
 @media (min-aspect-ratio: 1/1) and (max-height: 580px) {
   .shop-game .customer-stage .shop-conversation { top: 44%; max-height: 59%; }
   .customer-stage .shop-character { left: 13%; }
-  .shop-game .customer-stage .shop-speaker { padding: 3px 10px; margin-bottom: 4px; }
   .shop-game .customer-stage .shop-bubble { padding: 8px 14px 2px; }
   .shop-game .customer-stage #shop-dialogue { min-height: 28px; font-size: 15px; }
   .customer-stage .dialogue-controls { margin-top: 4px; padding-top: 0; }
-  .customer-stage #conversation-options { margin-top: 4px; padding: 2px 9px; }
   .customer-stage .counter-top { flex-wrap: nowrap; }
   .customer-stage .counter-slip { flex: none; width: auto; min-width: 150px; padding: 6px 12px; }
   .customer-stage .counter-slip > span:last-child { display: none; }
