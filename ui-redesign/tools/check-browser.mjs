@@ -240,7 +240,15 @@ async function labOperate(t) {
   await sleep(1500);
 
   const up = await lab.at(L.head[0], L.padTop + C.headTravel + 0.05, L.head[2] + 0.184);
-  await b.drag(line(up, await lab.at(L.stage[0], L.carryY, L.stage[2]), 16));
+  await b.drag(line(up, await lab.at(L.cleaner[0], L.carryY, L.cleaner[2]), 16));
+  const washing = await reached(b, `${LAB}.sim.state.wafer.where === 'cleaner' && ${LAB}.sim.state.cleaner.phase === 'scrub'`, 15000);
+  t.expect(washing, 'pulling the raised head to the cleaner puts the wafer on its chuck and starts the scrub', JSON.stringify(await b.evaluate(`({ where: ${LAB}.sim.state.wafer.where, cleaner: ${LAB}.sim.state.cleaner })`)));
+  await sleep(2500); await lab.shot('2-cleaning');
+  await b.evaluate(`${LAB}.setSpeed(64)`);
+  const dried = await reached(b, `${LAB}.sim.state.cleaner.phase === 'done' && !${LAB}.sim.state.wafer.wet`, 120000);
+  await b.evaluate(`${LAB}.setSpeed(4)`); await sleep(1500);
+  t.expect(dried && /세정이 끝났습니다/.test(await b.evaluate(`document.getElementById('guide-text').innerText`)), 'the cleaner scrubs, rinses and dries by itself, and the guide then points to the metrology stage', await b.evaluate(`document.getElementById('guide-text').innerText`));
+  await b.drag(line(await lab.at(L.cleaner[0], L.cleaner[1] + 0.004, L.cleaner[2]), await lab.at(L.stage[0], L.carryY, L.stage[2]), 18));
   const measured = await reached(b, `${LAB}.drawer.open && ${LAB}.attempts.length === 1`, 30000);
   await sleep(2000);
   const p = await lab.panels(), report = await b.evaluate(`document.getElementById('report').innerText.replace(/\\n+/g, ' | ')`);
@@ -249,6 +257,8 @@ async function labOperate(t) {
   if (p.wafers[0]) {
     t.expect(p.wafers[0].mean > 500 && p.wafers[0].mean < 600, 'the measured thickness is where the polish was stopped', `${p.wafers[0].mean} nm`);
     t.note(`this wafer: ${Math.round(p.wafers[0].mean)} nm, ${p.wafers[0].pass ? 'passed' : 'did not pass'} (the verdict depends on the drags above; the model itself is covered by the unit tests)`);
+    const cleaned = await b.evaluate(`(() => { const m = ${LAB}.attempts[0].m; return { particles: m.particles, wet: m.wet, clean: m.ok.clean }; })()`);
+    t.expect(cleaned.clean === true && !cleaned.wet && cleaned.particles <= C.particlesMax, 'the wafer that went through the cleaner is dry and within the particle limit', JSON.stringify(cleaned));
   }
   await lab.shot('3-report');
 
@@ -290,6 +300,9 @@ async function labPanels(t) {
   await lab.startPolishing({ platen: 90, carrier: 87, slurry: 200, conditioner: true });
   p = await lab.panels(); t.expect(p.strip && p.bottom > 0, 'the instrument strip comes up when the wafer touches the pad, and the 3D view makes room for it', JSON.stringify(p));
   await lab.polishTo(800); await sleep(1500);
+  const wording = await b.evaluate(`({ tile: document.querySelector('.tile.profile h3').innerText, spec: document.getElementById('spec').innerText, guide: document.getElementById('guide-text').innerText })`);
+  t.expect(/불균일도/.test(wording.tile) && /불균일도 ≤/.test(wording.spec) && /입자 ≤ 30개/.test(wording.spec) && !/컨디셔너/.test(wording.guide),
+    'the lower-is-better figure is called non-uniformity, the work order carries the particle limit, and the guide does not mention a conditioner that is already sweeping', JSON.stringify(wording));
   await lab.shot('1-strip');
   const tips = {};
   for (const [name, selector, fx] of [['thickness trend', '#plot-trend', 0.55], ['radial profile', '#plot-profile', 0.8], ['rate factor', '#factors .frow:nth-child(5)', 0.5], ['model note', '#model-note', 0.5]]) { await lab.hover(await lab.centre(selector, fx)); tips[name] = await lab.tip(); }
@@ -315,9 +328,31 @@ async function labPanels(t) {
   t.expect((await lab.tip()).length > 0, 'a point of the 49-point map shows its thickness under the pointer');
   await b.mouse('mouseMoved', { x: 300, y: 300 }); await sleep(200);
 
+  // This wafer went from the pad straight to the stage: the report counts what is left on it and offers the cleaner.
+  const cleanRow = () => b.evaluate(`[...document.querySelectorAll('#report .criteria li')].map(li => li.innerText.replace(/\\s+/g, ' ').trim()).find(row => /남은 입자/.test(row)) || ''`);
+  const result = () => b.evaluate(`(() => { const m = ${LAB}.attempts[0].m; return { particles: m.particles, wet: m.wet, clean: m.ok.clean, pass: m.pass, cycle: m.cycle, notes: document.querySelector('#report .notes').innerText }; })()`);
+  let row = await cleanRow(), m = await result();
+  t.expect(/미달/.test(row) && /젖음/.test(row) && m.particles > 1500 && m.wet && m.clean === false && !m.pass && /세정하지 않아/.test(m.notes),
+    'a wafer measured straight off the pad fails on the particles left on its wet surface, and the report says why', `${row} ${JSON.stringify(m)}`);
+  const through = await b.evaluate(`(document.querySelector('#report .throughput')?.innerText || '').replace(/\\n+/g, ' | ')`);
+  t.expect(/처리량/.test(through) && /이 장비 한 대 \| 시간당 \d+\.\d장/.test(through) && /양산 구성 \(연마 모듈 4대\) \| 시간당 \d+장/.test(through) && m.cycle.clean === 0 && Math.abs(m.cycle.perHour - 3600 / (m.cycle.polish + 30)) < 1e-6,
+    'the report gives the time this wafer took and the wafers per hour of one tool and of a line of four polishing modules', through);
+  await b.evaluate("document.querySelector('#report footer').scrollIntoView({ block: 'end' })"); await sleep(600);
+  const sent = await lab.clickOn('#report footer button:nth-child(2)', 1200), washing = await b.evaluate(`({ where: ${LAB}.sim.state.wafer.where, phase: ${LAB}.sim.state.cleaner.phase, drawer: ${LAB}.drawer.open, guide: document.getElementById('guide-text').innerText })`);
+  t.expect(sent && washing.where === 'cleaner' && washing.phase === 'scrub' && !washing.drawer && /솔질 중/.test(washing.guide), 'the report\'s button sends the wafer back to the cleaner, which starts to scrub', JSON.stringify(washing));
+  await sleep(2500); await lab.shot('2-cleaning');
+  await b.evaluate(`${LAB}.setSpeed(64)`); const dried = await reached(b, `${LAB}.sim.state.cleaner.phase === 'done'`, 120000); await b.evaluate(`${LAB}.setSpeed(4)`);
+  await b.evaluate(`${LAB}.onWafer('stage')`); await b.until(`${LAB}.drawer.open && ${LAB}.attempts[0].m.ok.clean === true`, 30000); await sleep(1500);
+  row = await cleanRow(); m = await result();
+  t.expect(dried && /통과/.test(row) && /마름/.test(row) && m.particles <= 30 && !m.wet && Math.abs(m.cycle.clean - 45) < 0.5 && (await lab.panels()).wafers.length === 1,
+    'after scrub, rinse and dry the same wafer is within the particle limit, and its time now includes the 45 s clean', `${row} ${JSON.stringify(m.cycle)}`);
+  await lab.shot('2-cleaned-report');
+
   await b.evaluate(`${LAB}.newWafer()`); await sleep(600);
   p = await lab.panels(); t.expect(!p.drawer.open, 'a new wafer closes the report');
-  await lab.startPolishing({ platen: 90, carrier: 0, slurry: 200 });                         // on purpose: the head does not turn
+  await lab.startPolishing({ platen: 90, carrier: 0, slurry: 200, conditioner: false });                         // on purpose: the head does not turn
+  const hint = await b.evaluate(`document.getElementById('guide-text').innerText`);
+  t.expect(/연마 중에도 컨디셔너/.test(hint), 'while a wafer is polished with the conditioner parked, the guide says it can be used during the polish', hint);
   await lab.polishTo(600); await lab.liftAndMeasure(2);
   p = await lab.panels();
   t.note(`wafers: ${p.wafers.map(w => `#${w.id} ${Math.round(w.mean)} nm ${w.pass ? 'passed' : 'did not pass'}`).join(', ')}`);

@@ -12,6 +12,8 @@ const DECK = 0.86, PAD_TOP = 0.94, ARM_Y = 1.40;
 const HEAD = new THREE.Vector3(0.19, 0, 0);                 // carrier axis (platen axis is the origin)
 const PEDESTAL = new THREE.Vector3(0.80, DECK + 0.062, 0.36);
 const STAGE = new THREE.Vector3(0.83, DECK + 0.052, -0.13);
+const CLEANER = new THREE.Vector3(-0.63, DECK + 0.060, 0.39);   // spin chuck of the post-CMP cleaner
+const BRUSH_PIVOT = [-0.15, -0.17], BRUSH_ARM = 0.2, BRUSH_PARK = 0, BRUSH_IN = 0.85, BRUSH_OUT = 0.3;   // arm angles about its post (rad)
 const NOZZLE = new THREE.Vector3(-0.07, PAD_TOP + 0.11, 0.10);
 const PIVOT = new THREE.Vector3(-0.44, 0, -0.36), COND_ARM = 0.42;
 const COND_REST = Math.atan2(0.36, 0.44), COND_SWEEP = 0.61, COND_PARK = 1.31;
@@ -23,7 +25,8 @@ const HEAD_TOP = 0.196, BELLOWS_TOP = ARM_Y - 0.106;
 const BRAND = 0x0d6efd, ACCENT = 0xf26a1b;
 const CLICK_PARTS = ['conditioner', 'emo'];                 // operated by a click instead of a drag
 
-export function create({ canvas, constants, on = {} }) {
+/** `cleaner: true` adds the post-CMP cleaner to the deck; a page that does not clean wafers leaves it out. */
+export function create({ canvas, constants, on = {}, cleaner: withCleaner = false }) {
   let renderer;
   try {
     const context = canvas.getContext('webgl2', { antialias: true, alpha: false });
@@ -442,22 +445,54 @@ export function create({ canvas, constants, on = {} }) {
   plate(0.13, 0.022, label(['REFLECTOMETER'], { bg: '#24272c', fg: '#e9edf3', size: 0.6 }), metro, [-0.1, 0.015, 0.2203]);
   info('stage', metro, new THREE.Vector3(STAGE.x + 0.02, DECK + 0.285, STAGE.z));
 
+  // ----- post-CMP cleaner: spin chuck in a splash cup, pencil brush on a swing arm, DI water nozzle -----
+  const cleanerUnit = new THREE.Group(); cleanerUnit.position.set(CLEANER.x, DECK, CLEANER.z); machine.add(cleanerUnit);
+  add(cyl(0.2, 0.205, 0.02, 56), mat.stainless, cleanerUnit, [0, 0.01, 0]);
+  add(lathe([[0.166, 0.02], [0.198, 0.02], [0.198, 0.098], [0.188, 0.112], [0.176, 0.112], [0.172, 0.10], [0.172, 0.03], [0.166, 0.03], [0.166, 0.02]], 64), mat.pp, cleanerUnit);
+  small(new THREE.RingGeometry(0.07, 0.171, 56), std(0x8a929b, 0.2, 0.22), cleanerUnit, [0, 0.0215, 0]).rotation.x = -Math.PI / 2;   // drain floor
+  const spinChuck = new THREE.Group(); cleanerUnit.add(spinChuck);
+  add(cyl(0.05, 0.062, 0.03, 32), mat.stainless, spinChuck, [0, 0.035, 0]);
+  add(cyl(0.142, 0.142, 0.006, 56), mat.peek, spinChuck, [0, 0.053, 0]);
+  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + 0.26; small(cyl(0.006, 0.007, 0.014, 10), mat.pp, spinChuck, [Math.cos(a) * 0.153, 0.06, Math.sin(a) * 0.153]); }   // edge grip pins
+  small(cube(0.02, 0.003, 0.006), mat.accent, spinChuck, [0.12, 0.0572, 0]);                                    // mark: shows that the chuck turns
+  const water = std(0xbfe0f2, 0.05, 0.05, { transparent: true, opacity: 0, depthWrite: false });
+  const waterFilm = ghost(add(new THREE.CircleGeometry(waferR * 0.985, 64), water, cleanerUnit, [0, CLEANER.y - DECK + 0.0048, 0])); waterFilm.rotation.x = -Math.PI / 2;
+  add(cyl(0.024, 0.028, 0.012, 20), mat.stainless, cleanerUnit, [BRUSH_PIVOT[0], 0.006, BRUSH_PIVOT[1]]);
+  add(cyl(0.016, 0.016, 0.17, 18), mat.stainless, cleanerUnit, [BRUSH_PIVOT[0], 0.097, BRUSH_PIVOT[1]]);
+  const brushArm = new THREE.Group(); brushArm.position.set(BRUSH_PIVOT[0], 0.176, BRUSH_PIVOT[1]); brushArm.rotation.y = -BRUSH_PARK; cleanerUnit.add(brushArm);
+  add(cyl(0.026, 0.026, 0.034, 22), mat.anodized, brushArm, [0, 0.008, 0]);
+  add(box(BRUSH_ARM + 0.016, 0.024, 0.034, 0.008), mat.paint, brushArm, [BRUSH_ARM / 2, 0.008, 0]);
+  const brushHead = new THREE.Group(); brushHead.position.set(BRUSH_ARM, 0, 0); brushArm.add(brushHead);
+  add(cyl(0.011, 0.011, 0.07, 14), mat.stainless, brushHead, [0, -0.03, 0]);
+  add(cyl(0.024, 0.024, 0.012, 22), mat.pp, brushHead, [0, -0.068, 0]);
+  add(cyl(0.021, 0.019, 0.026, 22), std(0xf5f3ea, 0, 0.95), brushHead, [0, -0.087, 0]);                         // PVA sponge brush
+  const diw = [[-0.17, 0.012, 0.14], [-0.17, 0.2, 0.14], [-0.115, 0.236, 0.092], [-0.03, 0.196, 0.022]];
+  add(cyl(0.018, 0.021, 0.012, 16), mat.stainless, cleanerUnit, [diw[0][0], 0.006, diw[0][2]]);
+  tube(diw, 0.007, mat.stainless, cleanerUnit, 32);
+  small(cyl(0.008, 0.004, 0.02, 12), mat.pp, cleanerUnit, [-0.026, 0.188, 0.019]);
+  const rinse = ghost(add(cyl(0.0032, 0.0042, 1, 10), new THREE.MeshBasicMaterial({ color: 0xcfeaf8, transparent: true, opacity: 0.8, depthWrite: false }), cleanerUnit, [-0.024, 0, 0.017]));
+  const rinseTop = 0.18, rinseFoot = CLEANER.y - DECK + 0.006;
+  rinse.scale.y = rinseTop - rinseFoot; rinse.position.y = (rinseTop + rinseFoot) / 2; rinse.visible = false;
+  const cleanPlate = plate(0.09, 0.024, label(['CLEAN'], { bg: '#24272c', fg: '#e9edf3', size: 0.66 }), machine, [CLEANER.x + 0.12, DECK + 0.0012, CLEANER.z + 0.222], [-Math.PI / 2, 0, 0]);
+  if (withCleaner) info('cleaner', cleanerUnit, new THREE.Vector3(CLEANER.x, DECK + 0.056, CLEANER.z));
+  else cleanerUnit.visible = cleanPlate.visible = false;   // on the chuck, so the pointer finds the part there
+
   // ----- wafer -----
   const filmCanvas = document.createElement('canvas'); filmCanvas.width = filmCanvas.height = 256;
   const filmTexture = new THREE.CanvasTexture(filmCanvas); filmTexture.colorSpace = THREE.SRGBColorSpace; textures.push(filmTexture);
   const waferHolder = new THREE.Group(); machine.add(waferHolder);
   const wafer = add(cyl(waferR, waferR, 0.004, 96), [mat.silicon, std(0xffffff, 0.35, 0.2, { map: filmTexture }), mat.silicon], waferHolder);
   control('wafer', waferHolder, new THREE.Vector3());
-  const targets = { head: new THREE.Vector3(HEAD.x, CARRY_Y, HEAD.z), pedestal: PEDESTAL.clone(), stage: STAGE.clone() };
+  const targets = { head: new THREE.Vector3(HEAD.x, CARRY_Y, HEAD.z), pedestal: PEDESTAL.clone(), stage: STAGE.clone(), ...(withCleaner ? { cleaner: CLEANER.clone() } : {}) };
   const targetRings = Object.fromEntries(Object.entries(targets).map(([name, p]) => {
     const ring = add(new THREE.RingGeometry(0.158, 0.176, 64), new THREE.MeshBasicMaterial({ color: BRAND, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }), machine,
-      [p.x, name === 'head' ? PAD_TOP + 0.002 : name === 'pedestal' ? p.y + 0.008 : p.y + 0.004, p.z]);
+      [p.x, name === 'head' ? PAD_TOP + 0.002 : name === 'pedestal' ? p.y + 0.008 : name === 'cleaner' ? DECK + 0.115 : p.y + 0.004, p.z]);
     ring.rotation.x = -Math.PI / 2; return [name, ghost(ring)];
   }));
 
   // ----- interaction: hover any part, drag the controls, orbit the rest -----
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(), hit = new THREE.Vector3(), tmp = new THREE.Vector3();
-  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, clock = 0, carried = null, measuring = 0, emoPressed = 0;
+  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, clock = 0, carried = null, measuring = 0, emoPressed = 0, chuckAngle = 0, brushAngle = BRUSH_PARK;
   const setNdc = ev => { const r = canvas.getBoundingClientRect(); ndc.set((ev.clientX - r.left) / r.width * 2 - 1, 1 - (ev.clientY - r.top) / r.height * 2); raycaster.setFromCamera(ndc, camera); };
   function partAt(ev) {
     setNdc(ev);
@@ -520,7 +555,7 @@ export function create({ canvas, constants, on = {} }) {
     }
     return best?.name ?? null;
   }
-  const targetAllowed = name => !!view?.wafer && view.wafer.where !== name && (name !== 'head' || view.gap > travel * 0.5);
+  const targetAllowed = name => !!view?.wafer && view.wafer.where !== name && (name !== 'head' || view.gap > travel * 0.5) && (name !== 'cleaner' || !!view.cleaner);
   function endDrag() {
     const d = drag; drag = null; controls.enabled = true;
     if (!d) return;
@@ -659,13 +694,13 @@ export function create({ canvas, constants, on = {} }) {
       const held = w.where === 'head' && !carried;
       if (carried) waferGoal.set(carried.x, CARRY_Y, carried.z);
       else if (held) waferGoal.set(HEAD.x, headY + 0.002, HEAD.z);
-      else waferGoal.copy(w.where === 'stage' ? STAGE : PEDESTAL).setY((w.where === 'stage' ? STAGE.y : PEDESTAL.y) + 0.002);
+      else { const rest = w.where === 'stage' ? STAGE : w.where === 'cleaner' ? CLEANER : PEDESTAL; waferGoal.copy(rest).setY(rest.y + 0.002); }
       if (held && waferHolder.userData.held) waferHolder.position.copy(waferGoal);
       else waferHolder.position.lerp(waferGoal, Math.min(1, dt * 14));
       waferHolder.userData.held = held && waferHolder.position.distanceTo(waferGoal) < 0.004;
       const flip = held ? Math.PI : 0;                                    // the film faces the pad in the head, up on the stations
       wafer.rotation.x += (flip - wafer.rotation.x) * Math.min(1, dt * 12);
-      wafer.rotation.y = held ? next.carrierAngle : 0;
+      wafer.rotation.y = held ? next.carrierAngle : w.where === 'cleaner' && !carried ? chuckAngle : 0;
       parts.wafer.anchor.copy(waferHolder.position);
     }
     const dragging = drag?.name === 'wafer' && drag.moved, snap = dragging ? dropTarget() : null;
@@ -674,6 +709,16 @@ export function create({ canvas, constants, on = {} }) {
       ring.material.opacity += (goalOpacity - ring.material.opacity) * Math.min(1, dt * 12);
       ring.material.color.setHex(snap === name ? 0x10b981 : BRAND);
     }
+    // cleaner: the chuck turns through every step and fastest in the spin dry; the brush works only in the scrub
+    const phase = next.cleaner?.phase ?? 'idle', scrubbing = phase === 'scrub', wetStep = scrubbing || phase === 'rinse';
+    chuckAngle += dt * (scrubbing ? 5 : phase === 'rinse' ? 9 : phase === 'dry' ? 34 : 0); spinChuck.rotation.y = chuckAngle;
+    const brushGoal = scrubbing ? BRUSH_OUT + (BRUSH_IN - BRUSH_OUT) * (0.5 - 0.5 * Math.cos(clock * 2.4)) : BRUSH_PARK;
+    brushAngle += (brushGoal - brushAngle) * Math.min(1, dt * (scrubbing ? 6 : 3)); brushArm.rotation.y = -brushAngle;
+    brushHead.position.y += ((scrubbing && brushAngle > BRUSH_OUT - 0.08 ? -0.012 : 0.02) - brushHead.position.y) * Math.min(1, dt * 6);
+    brushHead.rotation.y -= dt * (scrubbing ? 12 : 0);
+    rinse.visible = wetStep;
+    const inCleaner = next.wafer?.where === 'cleaner' && !carried;
+    water.opacity += ((inCleaner && next.cleaner?.wet ? (phase === 'dry' ? 0.16 : 0.42) : 0) - water.opacity) * Math.min(1, dt * (phase === 'dry' ? 0.5 : 5));
     // metrology scan, signal tower, emergency stop button
     measuring = Math.max(0, measuring - dt);
     beam.material.opacity = measuring > 0 ? 0.85 : 0; sensor.position.z = measuring > 0 ? Math.sin(clock * 9) * 0.13 : sensor.position.z * Math.max(0, 1 - dt * 6);
@@ -711,7 +756,7 @@ export function create({ canvas, constants, on = {} }) {
     /** Screen position of a world point (used by the interaction tests). */
     project(x, y, z) { tmp.set(x, y, z).project(camera); return { x: (tmp.x + 1) / 2 * canvas.clientWidth, y: (1 - tmp.y) / 2 * canvas.clientHeight }; },
     layout: {
-      deck: DECK, padTop: PAD_TOP, armY: ARM_Y, carryY: CARRY_Y, head: HEAD.toArray(), pedestal: PEDESTAL.toArray(), stage: STAGE.toArray(),
+      deck: DECK, padTop: PAD_TOP, armY: ARM_Y, carryY: CARRY_Y, head: HEAD.toArray(), pedestal: PEDESTAL.toArray(), stage: STAGE.toArray(), cleaner: CLEANER.toArray(),
       ring: [HEAD.x, ARM_Y - 0.075, HEAD.z + 0.098], zone: [HEAD.x, ARM_Y + 0.10, HEAD.z + 0.139], valve: [sx, DECK + 0.17, sz + 0.07], cup: [cup.x, DECK + 0.266, cup.z],
       emo: [emo.position.x, DECK + 0.083, emo.position.z], hmi: hmi.position.toArray(), tower: parts.tower.anchor.toArray(), gauges: parts.gauges.anchor.toArray(),
     },

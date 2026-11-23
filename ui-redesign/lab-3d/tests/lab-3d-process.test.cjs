@@ -165,3 +165,79 @@ test('controls are clamped to the tool range and unknown controls are rejected',
   assert.equal(sim.setControl('head', 7), 2); assert.equal(sim.setControl('conditioner', 1), true);
   assert.throws(() => sim.setControl('laser', 1), /unknown control/);
 });
+
+// ----- after the polish: cleaning, and the time one wafer takes -----
+/** Polishes to the target with a cleaner on the tool and lifts the head; the wafer is still in the head. */
+function polished(seed = 1) {
+  const sim = M.create({ seed, cleaning: true });
+  sim.newWafer();
+  for (const [name, value] of [['platen', C.platenRef], ['carrier', C.carrierRef], ['slurry', C.slurryRef], ['conditioner', true]]) sim.setControl(name, value);
+  sim.step(12); sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax);
+  let guard = 0; while (sim.meanThickness() > C.target + 6 && guard++ < 20000) sim.step(0.1);
+  sim.setControl('head', 0); sim.step(4);
+  return sim;
+}
+
+test('a tool without a cleaner has no cleaner to go to, and its verdict has no cleaning criterion', () => {
+  const { sim, result } = polish();
+  assert.equal(sim.moveWafer('cleaner'), false);
+  assert.equal('clean' in result.ok, false); assert.equal(result.particles, undefined);
+});
+
+test('a polished wafer leaves the pad wet with slurry particles on it, and fails if it is measured like that', () => {
+  const sim = polished(), w = sim.state.wafer;
+  assert.equal(w.wet, true);
+  assert.ok(w.particles >= 2000 * 0.85 && w.particles <= 2000 * 1.15, `particles ${w.particles}`);
+  assert.equal(w.particles, w.soil);
+  sim.moveWafer('stage'); const m = sim.measure();
+  assert.equal(m.ok.clean, false); assert.equal(m.pass, false); assert.equal(m.wet, true); assert.equal(m.particles, Math.round(w.soil));
+  assert.equal(m.ok.thickness, true);                                         // the polish itself was right
+});
+
+test('scrub and rinse remove particles first-order in time, and the spin dry leaves the wafer dry (hand-worked)', () => {
+  const sim = polished(), w = sim.state.wafer, soil = w.soil, k = sim.state.cleaner;
+  assert.equal(sim.moveWafer('cleaner'), true); assert.equal(k.phase, 'scrub');
+  sim.step(10); assert.ok(Math.abs(w.particles / soil - Math.exp(-10 / 4)) < 1e-9);            // 0.082085 of them left
+  sim.step(10); assert.equal(k.phase, 'rinse'); assert.ok(Math.abs(w.particles / soil - Math.exp(-5)) < 1e-9);   // 0.006738
+  sim.step(10); assert.equal(k.phase, 'dry'); assert.ok(Math.abs(w.particles / soil - Math.exp(-5 - 10 / 6)) < 1e-9);   // 0.001273
+  assert.equal(w.wet, true);
+  sim.step(14.9); assert.equal(w.wet, true); assert.equal(k.phase, 'dry');
+  sim.step(0.2); assert.equal(w.wet, false); assert.equal(k.phase, 'done');
+  assert.ok(Math.abs(w.cleanTime - 45) < 1e-6, `clean time ${w.cleanTime}`);
+  sim.step(30); assert.ok(Math.abs(w.cleanTime - 45) < 1e-6);                 // a finished cleaner does nothing more
+  sim.moveWafer('stage'); const m = sim.measure();
+  assert.ok(m.particles >= 2 && m.particles <= 3, `particles ${m.particles}`);   // 2000 ± 15 % times 0.001273
+  assert.equal(m.ok.clean, true); assert.equal(m.pass, true);
+});
+
+test('a wafer taken out before the spin dry is still wet and fails, however few particles it carries', () => {
+  const sim = polished(); sim.moveWafer('cleaner'); sim.step(32);              // scrub and rinse done, 2 s into the dry
+  sim.moveWafer('stage'); const m = sim.measure();
+  assert.ok(m.particles <= C.particlesMax); assert.equal(m.wet, true); assert.equal(m.ok.clean, false); assert.equal(m.pass, false);
+  assert.equal(sim.state.cleaner.phase, 'idle');
+});
+
+test('polishing a cleaned wafer again soils it again', () => {
+  const sim = polished(); sim.moveWafer('cleaner'); sim.step(46);
+  const w = sim.state.wafer; assert.equal(w.wet, false);
+  sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax); sim.step(6); sim.setControl('head', 0); sim.step(4);
+  assert.equal(w.wet, true); assert.equal(w.particles, w.soil);
+});
+
+test('the polish repeats for the same seed with or without a cleaner on the tool', () => {
+  const a = polish({ seed: 9 }).result, sim = polished(9); sim.moveWafer('stage'); const b = sim.measure();
+  assert.equal(a.mean, b.mean); assert.equal(a.wiwnu, b.wiwnu);
+});
+
+test('the time of one wafer is polish plus clean plus transfer, and the hourly rate follows from it (hand-worked)', () => {
+  const sim = polished(); sim.moveWafer('cleaner'); sim.step(46); sim.moveWafer('stage');
+  const m = sim.measure(), c = m.cycle;
+  assert.equal(c.polish, m.polishTime); assert.ok(Math.abs(c.clean - 45) < 1e-6); assert.equal(c.handling, 30);
+  assert.ok(Math.abs(c.total - (m.polishTime + 75)) < 1e-6);
+  assert.ok(Math.abs(c.perHour - 3600 / (m.polishTime + 75)) < 1e-9);
+  assert.ok(m.polishTime > 95 && m.polishTime < 125, `polish ${m.polishTime} s`);   // about 450 nm at 250 nm/min is 108 s: 3600 / 183 = 19.7 wafers an hour
+  assert.ok(c.perHour > 18 && c.perHour < 21.2, `per hour ${c.perHour}`);
+  assert.equal(C.parallelModules, 4);
+  const idle = M.create({ seed: 1, cleaning: true }); idle.newWafer(); idle.moveWafer('stage');
+  assert.equal(idle.measure().cycle.perHour, 0);                              // nothing polished, nothing produced
+});

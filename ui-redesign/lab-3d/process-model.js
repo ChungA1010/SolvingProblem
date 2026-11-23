@@ -14,6 +14,10 @@
  *   pad          glazing lowers the rate, conditioning restores it (first-order, simplified)
  *   temperature  frictional heating ~ mu*P*v, Arrhenius factor on the rate
  *   contact      hydroplaning when speed is high for the pressure (Stribeck-type roll-off, simplified)
+ *
+ * After the polish (only with `create({ cleaning: true })`): a polished wafer leaves the pad wet and carrying slurry
+ * particles. The cleaner scrubs, rinses and spin-dries it; each wet step removes particles first-order in time.
+ * The particle counts, the time constants and the step times are assumptions, shortened so a lesson can show them.
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -31,6 +35,9 @@
     rateRef: 250,                                                       // nm/min at the reference condition
     ambient: 22, tempRef: 45, tempAlarm: 68,                            // deg C
     filmStart: 1000, target: 550, targetTol: 25, wiwnuMax: 3.0,         // nm, nm, % (1 sigma, 49 points)
+    cleanScrub: 20, cleanRinse: 10, cleanDry: 15,                       // s, steps of the post-CMP clean (assumed, shortened)
+    particlesMax: 30,                                                   // particles left on a wafer that may go on (assumed)
+    handlingTime: 30, parallelModules: 4,                               // s of wafer transfer per wafer; polishing modules of a production line (both assumed)
     nodes: 31,
   });
 
@@ -47,6 +54,10 @@
   const HYDRO_S = 3, HYDRO_POWER = 5;
   const RINGS = Object.freeze([[0, 1], [0.049, 8], [0.098, 16], [0.147, 24]]);   // 49-point pattern
   const TOOL_MIN_REMOVED = 20;        // nm; a wafer polished less than this says nothing about the tool
+  const PARTICLES_POLISHED = 2000, PARTICLES_SPREAD = 0.15;             // particles on a wafer as it leaves the pad, and their wafer-to-wafer spread
+  const PARTICLES_INCOMING = 2;
+  const TAU_SCRUB = 4, TAU_RINSE = 6;                                   // s
+  const CLEAN_STEPS = Object.freeze(['scrub', 'rinse', 'dry']);
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const lag = (h, tau) => 1 - Math.exp(-h / tau);
@@ -133,6 +144,8 @@
 
   function create(options = {}) {
     const rand = mulberry32(options.seed ?? 1), tool = options.tool || null, baseLevel = options.level ?? 1;
+    const cleaning = !!options.cleaning, soilRand = mulberry32((options.seed ?? 1) ^ 0x2C1EA9);   // its own stream: the polish repeats with or without a cleaner
+    const stepTime = { scrub: C.cleanScrub, rinse: C.cleanRinse, dry: C.cleanDry };
     const N = C.nodes, radius = Float64Array.from({ length: N }, (_, i) => C.waferRadius * i / (N - 1));
     const areaWeight = Float64Array.from({ length: N }, (_, i) => {
       const d = 1 / (N - 1), lo = Math.max(0, i * d - d / 2), hi = Math.min(1, i * d + d / 2);
@@ -145,6 +158,7 @@
       platenAngle: 0, carrierAngle: 0, sweepPhase: 0,
       coverage: 0, glaze: 1, temp: C.ambient, padWear: 0, slurryTotal: 0,
       rate: 0, contact: false, polishing: false,
+      cleaner: { phase: 'idle', left: 0 },                                // idle | scrub | rinse | dry | done
       factors: { pressure: 0, speed: 0, slurry: 0, pad: 1, temp: 1, contact: 1, level: 1 },
       wafer: null, monitor: null, alarms: {}, events: [], history: [], waferCount: 0,
     };
@@ -186,6 +200,8 @@
         scratches: [], polishTime: 0, clock: 0, slurryUsed: 0, maxTemp: C.ambient, peakPressure: 0, pressureTime: 0,
         incoming: { mean: areaMean(film), edgeMinusCentre: film[N - 1] - film[0] }, measured: null,
         tool: null, nominal: 0,           // the tool state this wafer met, and what the same polish would have removed at level 1
+        particles: PARTICLES_INCOMING, wet: false, cleanTime: 0,
+        soil: PARTICLES_POLISHED * (1 + PARTICLES_SPREAD * (soilRand() * 2 - 1)),   // what one polish leaves on this wafer
       };
       s.level = baseLevel;
       s.history = []; lastSample = -1;
@@ -195,11 +211,30 @@
     }
     function moveWafer(where) {
       const w = s.wafer;
-      if (!w || !['pedestal', 'head', 'stage'].includes(where) || w.where === where) return false;
+      if (!w || !['pedestal', 'head', 'stage', ...(cleaning ? ['cleaner'] : [])].includes(where) || w.where === where) return false;
       if ((where === 'head' || w.where === 'head') && s.gap < C.headTravel * 0.5) return false;   // the head must be raised to hand over
       w.where = where;
-      event('wafer', where === 'head' ? '헤드가 웨이퍼를 잡음' : where === 'stage' ? '계측대로 이동' : '로드 위치로 이동');
+      s.cleaner.phase = where === 'cleaner' ? CLEAN_STEPS[0] : 'idle'; s.cleaner.left = where === 'cleaner' ? stepTime[CLEAN_STEPS[0]] : 0;   // the cycle starts over each time
+      if (where === 'cleaner') w.wet = true;
+      event('wafer', where === 'head' ? '헤드가 웨이퍼를 잡음' : where === 'stage' ? '계측대로 이동' : where === 'cleaner' ? '세정기로 이동' : '로드 위치로 이동');
       return true;
+    }
+
+    /** Scrub, rinse, spin-dry: the wet steps take particles off, the last one leaves the wafer dry. */
+    function clean(h) {
+      const w = s.wafer, k = s.cleaner;
+      let left = h;
+      while (left > 1e-9 && CLEAN_STEPS.includes(k.phase)) {
+        const d = Math.min(left, k.left);
+        if (k.phase === 'scrub') w.particles *= Math.exp(-d / TAU_SCRUB);
+        else if (k.phase === 'rinse') w.particles *= Math.exp(-d / TAU_RINSE);
+        w.cleanTime += d; k.left -= d; left -= d;
+        if (k.left <= 1e-9) {
+          const next = CLEAN_STEPS[CLEAN_STEPS.indexOf(k.phase) + 1];
+          if (next) { k.phase = next; k.left = stepTime[next]; }
+          else { k.phase = 'done'; k.left = 0; w.wet = false; event('clean', `세정 끝: 남은 입자 ${Math.round(w.particles)}개`); }
+        }
+      }
     }
 
     function setAlarm(key, on, text) {
@@ -261,6 +296,7 @@
         w.polishTime += h; w.slurryUsed += s.flow / 60 * h; w.pressureTime += s.pressure * h;
         w.nominal += rate * h / Math.max(s.level / baseLevel, 1e-6); s.lastPolish = s.t;
         w.peakPressure = Math.max(w.peakPressure, s.pressure); w.maxTemp = Math.max(w.maxTemp, s.temp);
+        if (cleaning) { w.particles = Math.max(w.particles, w.soil); w.wet = true; }   // slurry on the surface again
         if (s.platenRpm > 5) {
           const dry = Math.max(0, 0.16 - s.coverage) / 0.16;
           const hazard = 1.2 * pressureRatio * speedRatio * dry + (s.temp > 72 ? 0.08 : 0) + (s.glaze < 0.3 ? 0.03 : 0);
@@ -276,6 +312,7 @@
       s.glaze = clamp(s.glaze + (conditioning * (1 - s.glaze) / TAU_COND - glazing * s.glaze) * h, 0.05, 1);
       s.padWear += conditioning * 0.02 * h;
 
+      if (w && w.where === 'cleaner') clean(h);
       if (w) {
         w.clock += h;
         const revolution = Math.floor(s.platenAngle / (2 * Math.PI));
@@ -315,7 +352,14 @@
         meanRate: w.polishTime > 0 ? (w.incoming.mean - areaMean(w.film)) / w.polishTime * 60 : 0,
         ok: { thickness: Math.abs(st.mean - C.target) <= C.targetTol, uniformity: st.wiwnu <= C.wiwnuMax, defects: w.scratches.length === 0 },
       };
-      result.pass = result.ok.thickness && result.ok.uniformity && result.ok.defects;
+      if (cleaning) {
+        result.particles = Math.round(w.particles); result.wet = w.wet; result.cleanTime = w.cleanTime;
+        result.ok.clean = result.particles <= C.particlesMax && !w.wet;
+      }
+      result.pass = Object.values(result.ok).every(Boolean);
+      // Time one wafer takes on this tool, and what that makes per hour. A wafer that fails still took the time.
+      const total = w.polishTime + w.cleanTime + C.handlingTime;
+      result.cycle = { polish: w.polishTime, clean: w.cleanTime, handling: C.handlingTime, total, perHour: w.polishTime > 0 ? 3600 / total : 0 };
       if (tool && w.tool && w.nominal >= TOOL_MIN_REMOVED) {
         // What this wafer says about the tool: removed against what the same polish removes on a tool at its mean.
         const observed = (w.incoming.mean - areaMean(w.film)) / w.nominal, context = { rested: w.tool.rested, afterPadChange: w.tool.afterPadChange };
@@ -323,7 +367,7 @@
         result.tool = { wafer: w.tool.wafer, observed, predicted: w.tool.predicted, next: tool.predict(), ...context, padShare: w.tool.padUsage / tool.model.padUsageSeen };
       }
       w.measured = result;
-      event('measure', `계측: 평균 ${st.mean.toFixed(0)} nm, 균일도 ${st.wiwnu.toFixed(1)}%`);
+      event('measure', `계측: 평균 ${st.mean.toFixed(0)} nm, 불균일도 ${st.wiwnu.toFixed(1)}%`);
       return result;
     }
 

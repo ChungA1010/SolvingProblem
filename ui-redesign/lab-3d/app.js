@@ -21,7 +21,12 @@
     node.append(...children); return node;
   }
 
-  const SCOPE = '압력, 속도, 슬러리, 패드, 온도, 접촉은 대표적인 300 mm 산화막 CMP 조건을 가정한 값이며 이 장비의 실측값이 아닙니다. 장비 상태만 PHM 2016 기록으로 학습한 모델에서 옵니다. 그 기록은 단위를 알 수 없어 평균에 대한 비율만 가져왔습니다.';
+  const SCOPE = '압력, 속도, 슬러리, 패드, 온도, 접촉은 대표적인 300 mm 산화막 CMP 조건을 가정한 값이며 이 장비의 실측값이 아닙니다. 장비 상태만 PHM 2016 기록으로 학습한 모델에서 옵니다. 그 기록은 단위를 알 수 없어 평균에 대한 비율만 가져왔습니다. 세정의 입자 수와 단계별 시간, 처리량의 이송 시간과 모듈 수는 가정입니다.';
+  const CLEAN_STEP = { scrub: '솔질', rinse: '헹굼', dry: '건조' };
+  const cleanTotal = C.cleanScrub + C.cleanRinse + C.cleanDry;
+  /** Seconds of the cleaning cycle still to run. */
+  const cleanLeft = k => k.phase === 'scrub' ? k.left + C.cleanRinse + C.cleanDry : k.phase === 'rinse' ? k.left + C.cleanDry : k.phase === 'dry' ? k.left : 0;
+  const surfaceRows = w => w && (w.polishTime > 0 || w.wet) ? [['표면 입자', `${fmt(w.particles)}개`, 'simple'], ['표면', w.wet ? '젖음' : '마름']] : [];
   const FACTORS = [
     ['pressure', '압력', 'Preston 식: 제거 속도는 압력에 비례합니다. 웨이퍼 가장자리는 패드가 되튀어 더 세게 눌립니다.', 'book'],
     ['speed', '속도', '플래튼과 헤드의 회전에서 나오는 상대 속도입니다. 두 회전수가 다르면 가장자리가 더 빨리 지나갑니다.', 'book'],
@@ -44,8 +49,8 @@
   // What a part shows while the pointer is on it: rows are [label, value, basis of the model behind it].
   const PARTS = {
     wafer: {
-      name: s => `웨이퍼 #${s.wafer ? s.wafer.id : ''}`, role: '산화막(SiO₂)을 입힌 300 mm 웨이퍼입니다. 막 두께에 따라 색이 달라집니다.', why: '이 막을 작업 지시의 두께까지 고르게 깎는 것이 할 일입니다. 들어올 때부터 가운데와 가장자리의 두께가 조금 다릅니다.', how: '끌어서 헤드 아래나 계측기에 놓습니다.',
-      rows: s => { const w = s.wafer; if (!w) return []; return [['들어온 막 평균', `${fmt(w.incoming.mean)} nm`], ['가장자리 − 가운데', `${signed(w.incoming.edgeMinusCentre)} nm`]]; },
+      name: s => `웨이퍼 #${s.wafer ? s.wafer.id : ''}`, role: '산화막(SiO₂)을 입힌 300 mm 웨이퍼입니다. 막 두께에 따라 색이 달라집니다.', why: '이 막을 작업 지시의 두께까지 고르게 깎는 것이 할 일입니다. 들어올 때부터 가운데와 가장자리의 두께가 조금 다릅니다.', how: '끌어서 헤드 아래, 세정기, 계측기에 놓습니다.',
+      rows: s => { const w = s.wafer; if (!w) return []; return [['들어온 막 평균', `${fmt(w.incoming.mean)} nm`], ['가장자리 − 가운데', `${signed(w.incoming.edgeMinusCentre)} nm`], ...surfaceRows(w)]; },
     },
     head: {
       name: '캐리어 헤드', role: '웨이퍼를 잡아 패드에 누릅니다.', why: '세게 누를수록 빨리 깎이지만 마찰열이 늘고 가장자리가 더 깎입니다. 압력이 빠진 뒤에야 올라가므로 올리는 동안에도 조금 더 깎입니다.', how: '아래로 끌면 내려가고, 닿은 뒤 더 끌면 압력이 올라갑니다.',
@@ -64,7 +69,7 @@
       pill: s => `${fmt(s.controls.platen)} rpm`,
     },
     zone: {
-      name: '구역 압력 조절기', role: '웨이퍼 가운데와 가장자리 사이로 압력을 옮깁니다. 평균 압력은 그대로입니다.', why: '계측에서 가운데나 가장자리가 두껍게 남았으면 그쪽을 더 눌러 균일도를 맞춥니다.', how: '좌우로 끌어 돌립니다. 오른쪽이 가운데입니다.',
+      name: '구역 압력 조절기', role: '웨이퍼 가운데와 가장자리 사이로 압력을 옮깁니다. 평균 압력은 그대로입니다.', why: '계측에서 가운데나 가장자리가 두껍게 남았으면 그쪽을 더 눌러 불균일도를 낮춥니다.', how: '좌우로 끌어 돌립니다. 오른쪽이 가운데입니다.',
       rows: s => [['압력 배분', zoneText(s.controls.zone)]], pill: s => zoneText(s.controls.zone),
     },
     slurry: {
@@ -72,12 +77,16 @@
       rows: s => [['유량', `${fmt(s.flow)} mL/min`], ['패드 젖음', pct(s.coverage)], ...factorRow('slurry', s)], pill: s => `${fmt(s.controls.slurry)} mL/min`,
     },
     conditioner: {
-      name: '패드 컨디셔너', role: '다이아몬드 디스크로 패드 표면을 다시 거칠게 만듭니다.', why: '패드는 연마할수록 무뎌집니다. 쓰지 않으면 제거 속도가 서서히 떨어집니다.', how: '누르면 쓸기 시작하고, 다시 누르면 대기 위치로 갑니다.',
+      name: '패드 컨디셔너', role: '다이아몬드 디스크로 패드 표면을 다시 거칠게 만듭니다.', why: '패드는 연마할수록 무뎌집니다. 쓰지 않으면 제거 속도가 서서히 떨어집니다. 연마하는 중에도 쓸 수 있고, 플래튼이 돌아야 패드가 쓸립니다.', how: '누르면 쓸기 시작하고, 다시 누르면 대기 위치로 갑니다. 연마 중에 눌러도 됩니다.',
       rows: s => [['상태', s.controls.conditioner ? '쓰는 중' : '대기'], ['패드 거칠기', pct(s.glaze)], ...factorRow('pad', s)],
     },
     emo: { name: '비상 정지', role: '모든 회전과 슬러리를 멈추고 헤드를 올립니다.', how: '누릅니다.' },
     pedestal: { name: '로드 위치', role: '연마할 웨이퍼가 놓이는 자리입니다.' },
-    stage: { name: '두께 계측기', role: '웨이퍼 49곳의 막 두께를 재서 평균과 균일도를 냅니다.', why: '작업 지시와 비교해 합격 여부를 내고, 이 웨이퍼에서 본 장비 상태로 다음 웨이퍼의 예상을 고칩니다.', how: '연마한 웨이퍼를 여기에 놓으면 계측합니다.' },
+    stage: { name: '두께 계측기', role: '웨이퍼 49곳의 막 두께를 재서 평균과 불균일도를 내고, 표면에 남은 입자를 셉니다.', why: '작업 지시와 비교해 합격 여부를 내고, 이 웨이퍼에서 본 장비 상태로 다음 웨이퍼의 예상을 고칩니다.', how: '세정한 웨이퍼를 여기에 놓으면 계측합니다.' },
+    cleaner: {
+      name: '세정기', role: '연마한 웨이퍼를 돌리면서 스펀지 솔로 문지르고, 순수로 헹군 뒤, 빠르게 돌려 말립니다.', why: '패드에서 나온 웨이퍼는 젖어 있고 슬러리 입자가 붙어 있습니다. 씻지 않거나 덜 말린 채 넘기면 입자와 물 얼룩이 결함으로 남습니다.', how: '연마한 웨이퍼를 여기에 놓으면 세정을 시작합니다.',
+      rows: s => { const k = s.cleaner, on = !!CLEAN_STEP[k.phase]; return [['상태', on ? `${CLEAN_STEP[k.phase]} 중` : k.phase === 'done' ? '끝남' : '대기'], ...(on ? [['남은 시간', `${fmt(cleanLeft(k))}초`]] : []), ...(s.wafer?.where === 'cleaner' ? surfaceRows(s.wafer) : [])]; },
+    },
     hmi: { name: '장비 화면', role: '막 두께 모니터와 현재 조건을 보여 줍니다. 두께는 패드의 창을 통해 플래튼 1회전마다 한 번 읽습니다.', how: '누르면 가까이에서 봅니다.' },
     tower: { name: '신호등', role: '초록은 연마 중, 노랑은 대기, 빨강은 경보입니다.' },
     nozzle: { name: '슬러리 공급 암', role: '슬러리를 패드 가운데 쪽에 떨어뜨립니다. 패드가 돌면서 웨이퍼 아래로 실어 나릅니다.' },
@@ -140,7 +149,7 @@
     x.textBaseline = 'middle'; x.textAlign = 'left';
     x.fillStyle = '#e8eefc'; x.font = `700 36px ${F}`; x.fillText('CMP-01', 32, 44);
     x.fillStyle = '#8ea3c7'; x.font = `500 26px ${F}`; x.fillText('OXIDE POLISH', 190, 46);
-    const alarm = Object.keys(s.alarms).length > 0, status = alarm ? ['ALARM', '#ff6b6b'] : s.polishing ? ['POLISH', '#4ade80'] : ['IDLE', '#fbbf24'];
+    const alarm = Object.keys(s.alarms).length > 0, status = alarm ? ['ALARM', '#ff6b6b'] : s.polishing ? ['POLISH', '#4ade80'] : CLEAN_STEP[s.cleaner.phase] ? ['CLEAN', '#38bdf8'] : ['IDLE', '#fbbf24'];
     x.fillStyle = status[1]; x.beginPath(); x.arc(W - 186, 44, 11, 0, 7); x.fill(); x.font = `700 30px ${F}`; x.fillText(status[0], W - 162, 46);
     const panel = (px, py, pw, ph) => { x.fillStyle = '#101a2e'; x.beginPath(); x.roundRect(px, py, pw, ph, 14); x.fill(); };
     const caption = (text, px, py) => { x.fillStyle = '#7f95bb'; x.font = `600 21px ${F}`; x.textAlign = 'left'; x.fillText(text, px, py); };
@@ -286,7 +295,7 @@
     }
     $('factors').style.setProperty('--base', `${100 / FACTOR_MAX}%`);
     $('eq-ref').textContent = fmt(C.rateRef);
-    $('spec').replaceChildren(...[`${fmt(C.target)} ± ${fmt(C.targetTol)} nm`, `균일도 ≤ ${fmt(C.wiwnuMax)}%`, '스크래치 0'].map(text => el('span', { text })));
+    $('spec').replaceChildren(...[`${fmt(C.target)} ± ${fmt(C.targetTol)} nm`, `불균일도 ≤ ${fmt(C.wiwnuMax)}%`, '스크래치 0', `입자 ≤ ${fmt(C.particlesMax)}개`].map(text => el('span', { text })));
     $('scope-note').textContent = `계산 근거: 제거 속도는 기준 ${fmt(C.rateRef)} nm/min에 압력, 속도, 슬러리, 패드, 온도, 접촉, 장비 상태 일곱 요인을 곱한 값입니다. ${SCOPE}`;
     onChart($('plot-trend'), timeTip); onChart($('plot-rate'), timeTip); onChart($('plot-temp'), timeTip); onChart($('plot-profile'), profileTip);
   }
@@ -295,9 +304,17 @@
    *  A gesture is how the part is operated: ['carry', to], ['pull', 'up' | 'down'], ['turn'] or ['slide']. */
   function guide(s) {
     const w = s.wafer, c = s.controls;
-    if (measureAt) return [5, '49곳의 두께를 재는 중입니다.'];
+    if (measureAt) return [6, '49곳의 두께를 재는 중입니다.'];
     if (!w) return [1, '새 웨이퍼를 준비하세요.', '새 웨이퍼', () => newWafer()];
-    if (w.where === 'stage') return [6, w.measured?.pass ? '기준을 모두 맞췄습니다.' : '기준에 못 미쳤습니다. 두꺼우면 헤드로 옮겨 더 연마할 수 있습니다.', '새 웨이퍼', () => newWafer()];
+    if (w.where === 'stage') {
+      const m = w.measured;
+      return [7, m?.pass ? '기준을 모두 맞췄습니다.' : m && m.ok.clean === false && m.ok.thickness ? '세정이 모자랍니다. 세정기에 다시 놓을 수 있습니다.' : '기준에 못 미쳤습니다. 두꺼우면 헤드로 옮겨 더 연마할 수 있습니다.', '새 웨이퍼', () => newWafer()];
+    }
+    if (w.where === 'cleaner') {
+      const k = s.cleaner;
+      if (CLEAN_STEP[k.phase]) return [5, `${CLEAN_STEP[k.phase]} 중입니다. 건조까지 끝나면 계측기로 옮기세요.`];
+      return [5, '세정이 끝났습니다. 웨이퍼를 계측기에 놓으세요.', '계측기로 옮기기', () => onWafer('stage'), 'wafer', ['carry', 'stage']];
+    }
     if (w.where === 'pedestal') {
       if (s.gap < C.headTravel * 0.5) return [1, '헤드를 위로 끌어 올리세요.', null, null, 'head', ['pull', 'up']];
       return [1, '웨이퍼를 헤드 아래로 끌어다 놓으세요.', '헤드에 올리기', () => { sim.setControl('head', 0); if (!sim.moveWafer('head')) flash('헤드가 올라간 뒤에 다시 눌러 주세요.'); }, 'wafer', ['carry', 'head']];
@@ -310,10 +327,10 @@
         return [3, '헤드를 아래로 끌어 패드에 닿게 하세요.', null, null, 'head', ['pull', 'down']];
       }
       if (s.pressure < 0.3 && c.head <= 1.02) return [3, '헤드를 더 내려 압력을 주세요.', null, null, 'head', ['pull', 'down']];
-      return [4, `막 두께가 ${fmt(C.target)} nm에 가까워지면 헤드를 올리세요.`];
+      return [4, `막 두께가 ${fmt(C.target)} nm에 가까워지면 헤드를 올리세요.${c.conditioner ? '' : ' 연마 중에도 컨디셔너를 눌러 패드를 다시 거칠게 할 수 있습니다.'}`];
     }
     if (s.gap < C.headTravel * 0.5) return [5, '헤드를 끝까지 올리세요.', null, null, 'head', ['pull', 'up']];
-    return [5, '헤드를 옆으로 끌어 웨이퍼를 꺼내 계측기에 놓으세요.', '계측기로 옮기기', () => onWafer('stage'), 'head', ['carry', 'stage']];
+    return [5, '헤드를 옆으로 끌어 웨이퍼를 꺼내 세정기에 놓으세요.', '세정기로 옮기기', () => onWafer('cleaner'), 'head', ['carry', 'cleaner']];
   }
   let guideAction = null, focusGesture = null;
 
@@ -328,7 +345,7 @@
   function gesturePoints(part, gesture) {
     const L = scene.layout, at = scene.screenOf(part); if (!at || !at.visible) return null;
     const [kind, arg] = gesture;
-    if (kind === 'carry') { const to = arg === 'head' ? scene.project(L.head[0], L.carryY, L.head[2]) : scene.project(L.stage[0], L.carryY, L.stage[2]); return [at, to]; }
+    if (kind === 'carry') return [at, scene.project(L[arg][0], L.carryY, L[arg][2])];
     if (kind === 'pull') { const d = arg === 'down' ? 1 : -1; return [{ x: at.x + 58, y: at.y - d * 36 }, { x: at.x + 58, y: at.y + d * 36 }]; }   // beside the head, clear of it
     if (kind === 'turn') return Array.from({ length: 13 }, (_, i) => { const a = 2.45 - i * 0.14; return scene.project(0.27 * Math.cos(a), L.padTop, 0.27 * Math.sin(a)); });   // anticlockwise seen from above: faster
     if (part === 'slurry') return [{ x: at.x - 20, y: at.y + 2 }, { x: at.x + 26, y: at.y - 36 }];                 // right or up opens the valve
@@ -393,7 +410,7 @@
     $('log-open').hidden = !attempts.length; $('log-count').textContent = $('log-count-tab').textContent = String(attempts.length);
     if (applyLayout(s)) renderStrip(s);
     const [step, text, label, action, focus, gesture] = guide(s);
-    $('guide-step').textContent = `${step} / 6`; $('guide-text').textContent = text; focusName = focus || null; focusGesture = gesture || null;
+    $('guide-step').textContent = `${step} / 7`; $('guide-text').textContent = text; focusName = focus || null; focusGesture = gesture || null;
     const button = $('guide-action'); button.hidden = !label; button.textContent = label || ''; guideAction = action || null;
     const alarms = Object.values(s.alarms).map(a => a.text);
     if (notice && now < noticeUntil) alarms.push(notice);
@@ -421,10 +438,15 @@
     else if (err > 0) notes.push(`목표보다 ${fmt(err)} nm 두껍습니다. 평균 제거 속도 ${fmt(m.meanRate)} nm/min이면 약 ${fmt(err / Math.max(1, m.meanRate) * 60)}초 더 연마하면 됩니다.`);
     else notes.push(`목표보다 ${fmt(-err)} nm 더 깎았습니다. 깎은 막은 되돌릴 수 없습니다. 헤드를 올리는 동안에도 조금 더 깎이므로 목표에 닿기 직전에 올리기 시작하세요.`);
     if (m.tilt > 8) notes.push(`웨이퍼가 한쪽으로 ${fmt(m.tilt)} nm 기울어 깎였습니다. 헤드가 돌지 않으면 플래튼 바깥쪽을 지나는 면만 빨리 깎입니다.`);
-    else if (m.ok.uniformity) notes.push(`균일도 ${fmt(m.wiwnu, 1)}%로 기준(${fmt(C.wiwnuMax, 1)}% 이하) 안입니다.`);
+    else if (m.ok.uniformity) notes.push(`불균일도 ${fmt(m.wiwnu, 1)}%로 기준(${fmt(C.wiwnuMax, 1)}% 이하) 안입니다.`);
     else if (edge < 0) notes.push(`가운데가 가장자리보다 ${fmt(-edge)} nm 두껍게 남았습니다. 구역 압력 조절기를 가운데 쪽(오른쪽)으로 돌리면 가운데를 더 깎습니다. 압력이 높거나 헤드와 플래튼의 회전수 차이가 크거나 슬러리가 모자라면 가장자리가 더 빨리 깎입니다.`);
     else notes.push(`가장자리가 가운데보다 ${fmt(edge)} nm 두껍게 남았습니다. 구역 압력 조절기를 가장자리 쪽(왼쪽)으로 돌리면 가장자리를 더 깎습니다.`);
     if (m.scratches) notes.push(`스크래치 ${m.scratches}개: 슬러리가 거의 없는 패드에 닿았거나 패드가 과열됐습니다.`);
+    if (m.ok.clean === false) {
+      if (m.cleanTime === 0) notes.push(`세정하지 않아 슬러리 입자 약 ${fmt(m.particles)}개가 젖은 표면에 남았습니다. 연마한 웨이퍼는 세정기에서 솔질, 헹굼, 건조를 거친 뒤에 넘깁니다.`);
+      else if (m.particles > C.particlesMax) notes.push(`세정을 일찍 멈춰 입자 ${fmt(m.particles)}개가 남았습니다 (기준 ${fmt(C.particlesMax)}개 이하). 솔질과 헹굼이 길수록 입자가 줄어듭니다.`);
+      else notes.push('입자는 기준 안이지만 물기가 남은 채로 꺼냈습니다. 젖은 웨이퍼는 마르면서 물 얼룩이 남으므로 건조가 끝난 뒤에 꺼냅니다.');
+    }
     if (m.maxTemp > C.tempAlarm) notes.push(`패드 온도가 ${fmt(m.maxTemp)}℃까지 올랐습니다. 압력과 속도의 곱이 클수록 마찰열이 커집니다.`);
     if (m.tool && Math.abs(m.tool.observed - 1) >= 0.03) {
       const slow = m.tool.observed < 1;
@@ -443,7 +465,7 @@
   /** Uniformity against its limit: the bar is full at twice the limit. */
   function limitMeter(value) {
     const top = C.wiwnuMax * 2, ok = value <= C.wiwnuMax;
-    return el('div', { class: `track meter ${ok ? 'ok' : 'ng'}`, role: 'img', 'aria-label': `균일도 ${fmt(value, 2)}%, 기준 ${fmt(C.wiwnuMax, 1)}% 이하` },
+    return el('div', { class: `track meter ${ok ? 'ok' : 'ng'}`, role: 'img', 'aria-label': `불균일도 ${fmt(value, 2)}%, 기준 ${fmt(C.wiwnuMax, 1)}% 이하` },
       el('i', { class: 'fill', style: `width:${clamp01(value / top) * 100}%` }), el('u', { class: 'limit', style: `left:${C.wiwnuMax / top * 100}%` }));
   }
   // Thinner than target is blue, thicker is orange, on target is neutral grey.
@@ -484,6 +506,14 @@
       el('dl', { class: 'stats' }, ...pairs([['이 웨이퍼에서 본 값', times(t.observed)], ['연마 전 모델의 예상', rangeText(t.predicted)], ['다음 웨이퍼 예상', rangeText(t.next)], ['패드 사용', pct(t.padShare)]])),
       ...(first.length ? [el('p', { class: 'sub', text: first.join(' · ') })] : []));
   }
+  /** How long this wafer took, and what that makes per hour on one tool and on a line of several polishing modules. */
+  function throughputSection(m) {
+    const c = m.cycle, seconds = v => `${fmt(v)}초`;
+    return el('section', { class: 'throughput' }, el('h4', {}, '처리량', el('span', { class: 'src simple', text: BASIS.simple })),
+      el('p', { class: 'sub', text: '웨이퍼 한 장에 걸린 시간 = 연마 + 세정 + 이송' }),
+      el('dl', { class: 'stats' }, ...pairs([['연마', seconds(c.polish)], ['세정', seconds(c.clean)], ['이송 (가정)', seconds(c.handling)], ['이 장비 한 대', `시간당 ${fmt(c.perHour, 1)}장`], [`양산 구성 (연마 모듈 ${C.parallelModules}대)`, `시간당 ${fmt(c.perHour * C.parallelModules)}장`]])),
+      el('p', { class: 'sub', text: `양산 장비는 연마 모듈 여러 대가 나란히 돌아 처리량이 그만큼 늘어납니다. 여기서는 ${C.parallelModules}대로 가정했습니다.${m.pass ? '' : ' 이 웨이퍼처럼 불합격한 웨이퍼는 양품에 들지 않습니다.'}` }));
+  }
   function renderReport() {
     const host = $('report'), e = attempts.find(a => a.id === drawer.selected) || attempts[0];
     if (!e) { host.replaceChildren(el('p', { class: 'empty', text: '연마한 웨이퍼를 계측기에 올리면 리포트가 나옵니다.' })); return; }
@@ -496,6 +526,7 @@
     const current = sim.state.wafer, here = !!current && current.id === e.id && current.where === 'stage';
     const again = el('button', { type: 'button', class: 'btn', text: '이어서 연마' }), next = el('button', { type: 'button', class: 'btn primary', text: '새 웨이퍼' });
     again.disabled = !here; again.addEventListener('click', () => onWafer('head')); next.addEventListener('click', newWafer);
+    const reclean = el('button', { type: 'button', class: 'btn', text: '다시 세정' }); reclean.disabled = !here; reclean.addEventListener('click', () => onWafer('cleaner'));
     const conditions = conditionsOf(e);
     host.replaceChildren(
       el('div', { class: 'report-head' }, el('div', {}, el('h3', { text: `웨이퍼 #${e.id}` }), el('p', { class: 'sub', text: `49점 계측 · 연마 ${fmt(m.polishTime)}초` })),
@@ -503,9 +534,11 @@
       el('ul', { class: 'criteria' },
         el('li', {}, el('div', { class: 'crit' }, el('span', { text: '평균 두께' }), el('b', { text: `${fmt(m.mean)} nm` }), verdict(m.ok.thickness)), targetTrack(m.mean),
           el('div', { class: 'scale num' }, el('span', { text: fmt(C.target - 4 * C.targetTol) }), el('span', { text: `목표 ${fmt(C.target)} ± ${fmt(C.targetTol)}` }), el('span', { text: fmt(C.target + 4 * C.targetTol) }))),
-        el('li', {}, el('div', { class: 'crit' }, el('span', { text: '균일도 (1σ)' }), el('b', { text: `${fmt(m.wiwnu, 2)}%` }), verdict(m.ok.uniformity)), limitMeter(m.wiwnu),
+        el('li', {}, el('div', { class: 'crit' }, el('span', { text: '불균일도 (1σ)' }), el('b', { text: `${fmt(m.wiwnu, 2)}%` }), verdict(m.ok.uniformity)), limitMeter(m.wiwnu),
           el('div', { class: 'scale num' }, el('span', { text: '0' }), el('span', { text: `기준 ${fmt(C.wiwnuMax, 1)}% 이하` }), el('span', { text: `${fmt(C.wiwnuMax * 2)}%` }))),
-        el('li', {}, el('div', { class: 'crit' }, el('span', { text: '스크래치' }), el('b', { text: `${m.scratches}개` }), verdict(m.ok.defects)))),
+        el('li', {}, el('div', { class: 'crit' }, el('span', { text: '스크래치' }), el('b', { text: `${m.scratches}개` }), verdict(m.ok.defects))),
+        ...(m.ok.clean === undefined ? [] : [el('li', {}, el('div', { class: 'crit' }, el('span', { text: '남은 입자' }), el('b', { text: `${fmt(m.particles)}개` }), verdict(m.ok.clean)),
+          el('div', { class: 'scale num' }, el('span', { text: m.wet ? '표면 젖음' : '표면 마름' }), el('span', { text: `기준 ${fmt(C.particlesMax)}개 이하, 마른 상태` })))])),
       el('div', { class: 'maps' }, waferMap(m), el('figure', {}, el('figcaption', { text: '반경별 두께 (nm)' }), profile)),
       ringTable(m),
       el('section', {}, el('h4', { text: '결과 풀이' }), el('ul', { class: 'notes' }, ...explain(m).map(t => el('li', { text: t })))),
@@ -515,20 +548,21 @@
         el('p', { class: 'sub', text: '결과' }),
         el('dl', { class: 'stats' }, ...pairs([['깎은 양', `${fmt(m.removed)} nm`], ['평균 제거 속도', `${fmt(m.meanRate)} nm/min`], ['두께 범위', `${fmt(m.range)} nm`], ['슬러리 사용량', `${fmt(m.slurryUsed)} mL`], ['최고 패드 온도', `${fmt(m.maxTemp)} ℃`]]))),
       ...(m.tool ? [toolSection(m.tool)] : []),
-      el('footer', {}, again, next));
+      ...(m.cycle && m.cycle.perHour > 0 ? [throughputSection(m)] : []),
+      el('footer', {}, again, ...(m.ok.clean === false ? [reclean] : []), next));
     draw();
   }
   /** Every measured wafer in one list: the result against the work order, and the conditions that led to it. */
   function renderLog() {
     const host = $('log');
     if (!attempts.length) { host.replaceChildren(el('p', { class: 'empty', text: '아직 계측한 웨이퍼가 없습니다.' })); return; }
-    host.replaceChildren(el('div', { class: 'log-head' }, ...['웨이퍼', '평균 두께', '균일도', '판정'].map(t => el('span', { text: t }))), ...attempts.map(e => {
+    host.replaceChildren(el('div', { class: 'log-head' }, ...['웨이퍼', '평균 두께', '불균일도', '판정'].map(t => el('span', { text: t }))), ...attempts.map(e => {
       const m = e.m, row = el('button', { type: 'button', class: 'log-row', 'aria-pressed': String(e.id === drawer.selected) },
         el('b', { class: 'id', text: `#${e.id}` }),
         el('span', { class: 'cell' }, el('b', { class: 'num', text: `${fmt(m.mean)} nm` }), targetTrack(m.mean)),
         el('span', { class: 'cell' }, el('b', { class: 'num', text: `${fmt(m.wiwnu, 1)}%` }), limitMeter(m.wiwnu)),
         verdict(m.pass, '합격', '불합격'),
-        el('span', { class: 'cond' }, ...[...conditionsOf(e).slice(0, 5).map(([k, v]) => `${k} ${v}`), `연마 ${fmt(m.polishTime)}초`, ...(m.tool ? [`장비 ${times(m.tool.observed)}`] : []), ...(m.scratches ? [`스크래치 ${m.scratches}개`] : [])].map(text => el('span', { text }))));
+        el('span', { class: 'cond' }, ...[...conditionsOf(e).slice(0, 5).map(([k, v]) => `${k} ${v}`), `연마 ${fmt(m.polishTime)}초`, ...(m.tool ? [`장비 ${times(m.tool.observed)}`] : []), ...(m.scratches ? [`스크래치 ${m.scratches}개`] : []), ...(m.ok.clean === false ? [m.particles > C.particlesMax ? `입자 ${fmt(m.particles)}개` : '덜 마름'] : [])].map(text => el('span', { text }))));
       row.addEventListener('click', () => { drawer.selected = e.id; showDrawer('report'); });
       return row;
     }));
@@ -591,6 +625,7 @@
       gap: s.gap, pressure: s.pressure, contact: s.contact, polishing: s.polishing, platenRpm: s.platenRpm,
       platenAngle: spin.platen, carrierAngle: spin.carrier, sweepPhase: spin.sweep, flow: s.flow, coverage: s.coverage, glaze: s.glaze, temp: s.temp,
       controls: s.controls, wafer: s.wafer ? { where: s.wafer.where, id: s.wafer.id } : null, alarm: Object.keys(s.alarms).length > 0,
+      cleaner: { phase: s.cleaner.phase, wet: !!s.wafer?.wet },
     };
   }
   function frame(now) {
@@ -615,9 +650,9 @@
 
   function init() {
     const seed = Number(new URLSearchParams(location.search).get('seed')) || (Date.now() % 100000) + 1;
-    sim = P.create({ seed, tool: Tool.create({ seed }) }); sim.newWafer();
+    sim = P.create({ seed, cleaning: true, tool: Tool.create({ seed }) }); sim.newWafer();
     scene = Scene.create({
-      canvas: $('scene'), constants: C,
+      canvas: $('scene'), constants: C, cleaner: true,
       on: {
         control: onControl, wafer: onWafer, hover: name => { hovered = name; renderCallout(sim.state); }, drag: name => { dragging = name; renderCallout(sim.state); },
         press: name => { if (name === 'hmi') showView('screen'); }, refuse: () => flash('헤드를 끝까지 올린 뒤에 웨이퍼를 꺼낼 수 있습니다.'),
