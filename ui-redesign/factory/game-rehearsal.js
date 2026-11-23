@@ -8,7 +8,7 @@ window.CMPWalkthrough=(()=>{
   const chapters=[
     {poster:'./media/workshop-guide/order.webp',at:0,label:'주문',copy:'손님의 말을 끝까지 듣고 주문을 받으면 작업대로 이동해요.'},
     {poster:'./media/workshop-guide/load.webp',at:2.8,label:'투입',copy:'투입 슬롯 맨 위의 웨이퍼를 잡고 연마 패드 한가운데에 놓아요.'},
-    {poster:'./media/workshop-guide/polish.webp',at:5.2,label:'연마',copy:'＋로 시간을 121초에서 126초로 늘려요. 예상 제거량의 바늘을 확인하고 연마를 시작해요.'},
+    {poster:'./media/workshop-guide/polish.webp',at:5.2,label:'연마',copy:'웨이퍼를 올리고 시간을 정해요. 새 장마다 장비 하나를 직접 조작해요. 첫 장은 헤드를 눌렀다 떼며 접촉압을 맞추고, 성공하면 연마를 시작해요.'},
     {poster:'./media/workshop-guide/measure.webp',at:10.6,label:'측정·보관',copy:'연마한 웨이퍼를 측정기로 옮겨 예상값과 측정값을 비교한 뒤 보관 슬롯에 넣어요.'},
     {poster:'./media/workshop-guide/delivery.webp',at:16.0,label:'납품',copy:'보관한 웨이퍼의 검사를 마치고, 카운터에서 상자를 손님 앞으로 옮겨요.'}
   ];

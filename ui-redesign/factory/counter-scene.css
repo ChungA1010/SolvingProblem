@@ -52,10 +52,6 @@
 
 .shop-counter{position:absolute;z-index:6;left:0;bottom:34px;width:100%}
 .counter-top{position:relative;display:flex;align-items:center;justify-content:space-between;padding:0 5%;gap:24px;min-height:125px}
-.counter-slip{position:relative;min-width:230px;text-align:left;background:#fffdf1;border:1.5px solid #41483f;border-radius:3px;padding:15px 18px;box-shadow:3px 4px 0 #41483f20;transform:rotate(-4deg);color:#41483f;transition:transform .2s}
-.counter-slip:hover{transform:rotate(-1deg) translateY(-3px)}
-.counter-slip:before{content:'';position:absolute;top:-8px;left:42%;height:16px;width:38px;background:#b9c3a9bd;transform:rotate(4deg)}
-.counter-slip>span{display:block;font-size:10px;line-height:1.5}.counter-slip>span:first-child{color:#7b826a;margin-bottom:6px;font-weight:650}.counter-slip strong{font-size:25px;font-weight:750;line-height:1.4;display:block;font-variant-numeric:tabular-nums;letter-spacing:-.04em}.counter-slip small{font-size:12px;font-weight:500;white-space:nowrap}.counter-slip>span:last-child{border-top:1px dashed #c8cebb;margin-top:6px;padding-top:6px}
 /* The counter surface spans 29–42% of the illustration height. The tray base is at y=118 in its 145-unit SVG. */
 .counter-document-tray{position:absolute;left:40.5%;top:38%;width:11.5%;height:auto;translate:0 -81.38%;filter:drop-shadow(0 1px 1px #493c2b40)}
 .followup-portrait{display:block;flex:none;width:35px;height:48px;background-size:300% 100%;background-position:0 0;background-repeat:no-repeat}
@@ -82,7 +78,7 @@
 @keyframes customer-thanks{0%,100%{transform:none}45%{transform:translateY(6px) rotate(1deg)}}
 @keyframes station-enter{from{opacity:.3;transform:translateY(8px)}to{opacity:1;transform:none}}
 @media(min-width:1500px){.shop-conversation{margin-top:230px}.customer-stage{min-height:730px}}
-@media(max-width:1050px){.shop-game .factory-main{padding:20px}.shop-game .factory-header{padding:16px 20px}.shop-game .game-hud>div{min-width:90px;padding:10px 14px}.shop-conversation{margin:160px 4% 200px 46%}.shop-character{left:9%;height:78%}.counter-top{gap:15px}.counter-slip{min-width:205px;padding:13px 15px}.counter-accept{min-width:245px}.counter-accept #accept-order{font-size:12px;padding:11px}.shop-game .factory-footer{display:block}.shop-game .factory-footer details{margin-top:8px}}
+@media(max-width:1050px){.shop-game .factory-main{padding:20px}.shop-game .factory-header{padding:16px 20px}.shop-game .game-hud>div{min-width:90px;padding:10px 14px}.shop-conversation{margin:160px 4% 200px 46%}.shop-character{left:9%;height:78%}.counter-top{gap:15px}.counter-accept{min-width:245px}.counter-accept #accept-order{font-size:12px;padding:11px}.shop-game .factory-footer{display:block}.shop-game .factory-footer details{margin-top:8px}}
 @media(max-width:760px){
 .shop-game .factory-header{padding:15px 16px}.shop-game .factory-header nav{gap:12px;font-size:11px}.shop-game .factory-header nav>a:last-child{display:none}.shop-game .factory-brand{font-size:14px}.shop-game .factory-brand>span{font-size:9px}.shop-game .factory-main{padding:18px 14px}.shop-game .factory-heading{align-items:start;flex-wrap:wrap}.shop-game .factory-heading>div:first-child{flex:1}.shop-game h1{font-size:23px}.shop-game #game-subtitle{max-width:260px}.shop-game .game-hud{width:100%;justify-content:space-between}.shop-game .game-hud>div{flex:1;text-align:center;padding:7px 12px}.shop-game .game-hud strong{font-size:21px}.shop-game .game-hud span{font-size:10px}
 .customer-stage{min-height:0;border-radius:17px;padding-top:max(315px,calc(185px + 28%));background:#f5f3e7}
@@ -92,7 +88,7 @@
 .shop-arrival{top:14px;left:12px;font-size:10px;padding:6px 10px}
 .shop-conversation,.customer-stage[data-delivered="true"] .shop-conversation{margin:0 12px 18px;min-height:0;max-width:none}
 .shop-game .shop-bubble{border-radius:14px;padding:16px 17px 8px}.shop-game .shop-bubble:before{display:none}.shop-game #shop-dialogue{font-size:17px;min-height:56px}.dialogue-controls{margin-top:10px}
-.shop-counter{position:relative;bottom:auto;margin-top:12px;padding:0 0 20px}.counter-top{min-height:0;flex-wrap:wrap;gap:18px;padding:0 18px}.counter-slip{min-width:0;flex:1;padding:12px;transform:rotate(-2deg)}.counter-slip strong{font-size:22px}.counter-slip small{font-size:11px}.counter-slip>span:last-child{font-size:9px}.counter-accept{width:100%;min-width:0;padding:10px}.counter-accept #accept-order{font-size:14px}.counter-accept>span{font-size:10px}
+.shop-counter{position:relative;bottom:auto;margin-top:12px;padding:0 0 20px}.counter-top{min-height:0;flex-wrap:wrap;gap:18px;padding:0 18px}.counter-accept{width:100%;min-width:0;padding:10px}.counter-accept #accept-order{font-size:14px}.counter-accept>span{font-size:10px}
 .commission-board,.inspection-records{padding:0 14px}.commission-board>summary,.inspection-records>summary{font-size:12px}.commission-board>summary span,.inspection-records>summary span{font-size:9px;display:block;margin:5px 0 0 16px}.shop-game .order-picker{grid-template-columns:1fr 1fr}.shop-game .followup-card .game-primary{width:100%;margin-top:3px}.shop-game .game-stepper li{font-size:9px;padding:9px 4px;gap:4px}.shop-game .action-budget-note{font-size:10px}.shop-game .game-dialog{padding:24px}.shop-game .factory-footer{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.shop-game *,.shop-game *:before,.shop-game *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.customer-stage[data-phase="arriving"] .shop-conversation{opacity:1;transform:none}}

@@ -16,19 +16,24 @@
     <span id="wi-live" class="sr-only" aria-live="polite"></span>
   </section>
   <section id="wp-rotary" aria-label="회전식 웨이퍼 연마 체험" hidden>
-  <header><h2>회전식 웨이퍼 연마</h2><span id="wp-phase">돌출부 제거 · 마감 80% 이상 · 과연마 5% 이하</span></header>
+  <header><h2>회전식 웨이퍼 연마</h2><button id="wp-mute" class="cmp-fx-toggle" type="button">효과음</button><span id="wp-phase">돌출부 제거 · 마감 80% 이상 · 과연마 5% 이하</span></header>
   <div class="wp-tools" role="group" aria-label="연마 도구">
     <button id="wp-coarse" type="button" aria-pressed="true"><i aria-hidden="true"></i><span>굵은 패드<small>돌출부 깎기</small></span></button>
     <button id="wp-finish" type="button" aria-pressed="false"><i aria-hidden="true"></i><span>마감 패드<small>넓게 광택 내기</small></span></button>
   </div>
+  <div id="wp-meters" aria-hidden="true">
+    <div class="wp-meter"><span>남은 돌출부</span><b id="wp-ridge-count">3곳</b><div id="wp-ridges"><i></i><i></i><i></i></div></div>
+    <div class="wp-meter"><span>마감</span><b id="wp-gloss">0%</b><div class="wp-track wp-gloss-track"><i></i></div></div>
+    <div class="wp-meter"><span>과연마</span><b id="wp-damage">0%</b><div class="wp-track wp-damage-track"><i></i></div></div>
+  </div>
   <button id="wp-field" type="button" aria-label="회전하는 웨이퍼. 누르고 있는 동안 연마하고, 손을 떼면 패드가 들립니다. 누른 채 중심과 가장자리 사이로 이동하세요. 키보드는 방향키로 반경을 맞추고 스페이스를 길게 누르세요."><canvas id="wp-canvas" width="640" height="352" aria-hidden="true"></canvas></button>
-  <div class="wp-info"><span id="wp-hint">돌출부가 패드 아래에 오면 누르고, 지나가면 떼세요.</span><strong id="wp-value">남은 돌출부 3곳 · 마감 0% · 과연마 0%</strong></div>
+  <div class="wp-info"><span id="wp-hint">돌출부가 패드 아래에 오면 누르고, 지나가면 떼세요.</span><strong id="wp-value" class="sr-only">남은 돌출부 3곳 · 마감 0% · 과연마 0%</strong></div>
   <div class="wp-foot"><span id="wp-read" aria-label="패드 아래 표면 상태">패드 아래 · 높은 돌출부</span><button id="wp-action" type="button" disabled>가공 끝내고 검사</button></div>
   <button id="wi-back" class="wi-link" type="button">예제로 돌아가기</button>
   <span id="wp-live" class="sr-only" aria-live="polite"></span>
 </section>
 </section>`;
-  function mountPractice(shell){
+  function mountPractice(shell, isRound=false){
   const workshopLocation = window.__cmpAsset && window.location.protocol === 'about:'
     ? window.parent.location : window.location;
   const scope = new URLSearchParams(workshopLocation.search).get('workshop');
@@ -230,9 +235,13 @@ function createInspectionLens(field, canvas, onChange) {
     stop(){release();if(pending)cancelAnimationFrame(pending);pending=0;}
   };
 }
-  const root=document.getElementById('wp-rotary'), get=id=>root.querySelector('#wp-'+id);
-  const game=document.getElementById('wi-game'),wi=id=>game.querySelector('#wi-'+id);
+  const root=shell.querySelector('#wp-rotary'), get=id=>root.querySelector('#wp-'+id);
+  const game=shell.querySelector('#wi-game'),wi=id=>game.querySelector('#wi-'+id);
   const field=get('field'),cv=get('canvas'),ctx=cv.getContext('2d'),action=get('action');
+  const meters=get('meters'),ridgeMarks=[...get('ridges').children],ridgeCount=get('ridge-count');
+  const glossValue=get('gloss'),damageValue=get('damage'),scoreText=get('value');
+  const heardRidges=new Set();
+  window.CMPFeedback?.bindMuteButton?.(get('mute'));
   const N=67, resolution=340, removed=new Float32Array(N*N),stock=new Float32Array(N*N),sheen=new Float32Array(N*N);
   const mounds=[[],[],[]];
   const pads={coarse:{radius:.205,perSecond:1.95},finish:{radius:.31,perSecond:.86}};
@@ -248,6 +257,7 @@ function createInspectionLens(field, canvas, onChange) {
   for(let j=0;j<N;j++)for(let i=0;i<N;i++)if(inDisk(i/(N-1)*2-1,j/(N-1)*2-1))cells.push(j*N+i);
   function formWafer(){
     const angle=pattern*Math.PI*2/3,co=Math.cos(angle),si=Math.sin(angle);
+    heardRidges.clear();
     for(const group of mounds)group.length=0;
     for(let j=0;j<N;j++)for(let i=0;i<N;i++){
       const x=i/(N-1)*2-1,y=j/(N-1)*2-1,u=x*co+y*si,v=-x*si+y*co;
@@ -273,11 +283,18 @@ function createInspectionLens(field, canvas, onChange) {
   let active=null,locked=false,changed=false,tool={x:.56,y:0},held=false,space=false;
   let axis=0,angle=0,clock=null,lastPaint=-Infinity,inView=true,savedValues=null;
   let W=1,H=1,R=1,X=0,Y=0,dpr=1,dirty=true,frame=0,good=0,over=0;
+  let paused=false, windowAway=false, roundPattern=0;
+  function contact(value){
+    if(held===value)return;
+    held=value;root.dataset.contact=held?pad:'lifted';
+    if(held)window.CMPFeedback?.startSurfaceContact?.(pad);
+    else window.CMPFeedback?.stopSurfaceContact?.();
+  }
   let ridgesLeft=3;
   let screen='inspect',origin='sample',caseNo=0,activeScene=null,targets=[];
   const freshLens=()=>({beam:{x:-.57,y:.16},mark:null,revealed:false});
   let sight=freshLens(),answer=null;
-  const lens=createInspectionLens(wi('field'),wi('canvas'),(update,kind)=>{
+  const lens=isRound?null:createInspectionLens(wi('field'),wi('canvas'),(update,kind)=>{
     if(screen!=='inspect'||answer)return;
     sight={...sight,...update};inspectionControls();
     if(kind==='unlit')wi('hint').textContent='그곳은 아직 어두워요. 빛을 그쪽으로 끌어온 뒤 찍으세요.';
@@ -333,11 +350,12 @@ function createInspectionLens(field, canvas, onChange) {
   }
   function openPolisher(reset,focus=false){
     if(reset){
-      removed.fill(0);sheen.fill(0);changed=locked=false;dirty=true;pattern=(pattern+1)%3;
+      removed.fill(0);sheen.fill(0);changed=locked=false;dirty=true;pattern=isRound?roundPattern:(pattern+1)%3;
       formWafer();axis=angle=0;pad='coarse';setRadius(.56);sight=freshLens();answer=null;
     }
     screen='polish';clock=null;wi('inspection').hidden=true;root.hidden=false;
-    showPhase();resize();if(focus)field.focus({preventScroll:true});
+    showPhase();resize();
+    if(focus)(locked?wi('back'):field).focus({preventScroll:true});
   }
   function submit(choice){
     if(screen!=='inspect'||answer||(choice==='spot'&&!sight.mark))return;
@@ -350,8 +368,14 @@ function createInspectionLens(field, canvas, onChange) {
   wi('none').addEventListener('click',()=>submit('none'));
   wi('next').addEventListener('click',()=>{if(!answer)return;caseNo++;openInspection('sample',false,true);save();});
   wi('own').addEventListener('click',()=>{openPolisher(locked,true);save();});
-  wi('back').addEventListener('click',()=>{lift();openInspection('sample',false,true);save();});
-  function surface(){
+  wi('back').addEventListener('click',()=>{
+    lift();
+    if(isRound){openPolisher(true,true);return;}
+    if(locked)openPolisher(true,true);
+    else openInspection('sample',false,true);
+    save();
+  });
+  function surface(strokeFeedback=false){
     let okay=0,excess=0;
     for(const k of cells){
       const h=stock[k]-removed[k];
@@ -359,10 +383,19 @@ function createInspectionLens(field, canvas, onChange) {
       else if(h<=high && sheen[k]>=polished)okay++;
     }
     good=Math.round(100*okay/cells.length);over=Math.round(100*excess/cells.length);
-    ridgesLeft=mounds.filter(group=>{
+    let newlyCleared=false;
+    ridgesLeft=0;
+    mounds.forEach((group,index)=>{
       const raisedCells=group.reduce((n,k)=>n+Number(stock[k]-removed[k]>high),0);
-      return raisedCells>group.length*.05;
-    }).length;
+      const raised=raisedCells>group.length*.05;
+      if(raised)ridgesLeft++;
+      const mark=ridgeMarks[index];
+      if(!raised && strokeFeedback && mark.dataset.raised==='true' && !heardRidges.has(index)){
+        newlyCleared=true;heardRidges.add(index);
+      }
+      if(mark.dataset.raised!==String(raised))mark.dataset.raised=String(raised);
+    });
+    if(newlyCleared && !document.hidden && document.hasFocus())window.CMPFeedback?.play('surface-ridge');
     const interpolate=(a,k,ax,ay)=>mean(mean(a[k],a[k+1],ax),mean(a[k+N],a[k+N+1],ax),ay);
     for(const s of pixels){
       const {p,k,ax,ay}=s;
@@ -379,7 +412,13 @@ function createInspectionLens(field, canvas, onChange) {
       rgba.data[p+2]=mean(mean(b,raisedTone-39,ridge),70+(s.stripe?17:0),hot);rgba.data[p+3]=255;
     }
     gfx.putImageData(rgba,0,0);dirty=false;
-    get('value').textContent='남은 돌출부 '+ridgesLeft+'곳 · 마감 '+good+'%';
+    const summary='남은 돌출부 '+ridgesLeft+'곳 · 마감 '+good+'% · 과연마 '+over+'%';
+    if(scoreText.textContent!==summary){
+      scoreText.textContent=summary;
+      ridgeCount.textContent=ridgesLeft+'곳';glossValue.textContent=good+'%';damageValue.textContent=over+'%';
+      meters.style.setProperty('--wp-gloss',good+'%');meters.style.setProperty('--wp-damage',over+'%');
+      meters.dataset.overLimit=String(over>5);
+    }
     action.disabled=!changed&&!locked;
   }
   let benchLayer;
@@ -459,7 +498,7 @@ function createInspectionLens(field, canvas, onChange) {
     if(clock!==null && now<clock)return;
     const elapsed=clock===null?0:clamp((now-clock)/1000,0,.20);
     clock=now;
-    if(!elapsed||locked||screen!=='polish'||!inView||document.hidden)return;
+    if(!elapsed||locked||screen!=='polish'||!inView||paused||windowAway||document.hidden)return;
     const steps=Math.ceil(elapsed*70),dt=elapsed/steps,spin=speed()*dt;
     for(let i=0;i<steps;i++){
       angle=(angle+spin*.5)%turn;
@@ -468,8 +507,8 @@ function createInspectionLens(field, canvas, onChange) {
     }
   }
   function render(now){
-    frame=0;if(screen!=='polish')return;advance(now);
-    if(dirty && (!held||now-lastPaint>44)){surface();lastPaint=now;}
+    frame=0;if(screen!=='polish'||paused||windowAway||document.hidden)return;advance(now);
+    if(dirty && (!held||now-lastPaint>44)){surface(held);lastPaint=now;}
     ctx.setTransform(dpr,0,0,dpr,0,0);
     drawBench();
     ctx.save();ctx.translate(X,Y);ctx.rotate(angle);ctx.drawImage(skin,-R,-R,2*R,2*R);ctx.restore();
@@ -486,20 +525,38 @@ function createInspectionLens(field, canvas, onChange) {
     else if(sheen[k]>=polished)reading='마감 완료';
     const read=(held?'접촉 중 · ':'패드 들림 · ')+reading;
     if(get('read').textContent!==read)get('read').textContent=read;
-    const coarse=pad==='coarse',x=X+tool.x*R,y=Y+tool.y*R,r=pads[pad].radius*R;
+    const coarse=pad==='coarse',r=pads[pad].radius*R;
+    const x=X+tool.x*R,y=Y+tool.y*R;
+    // Only the shoe moves; the contact footprint and the measured wafer stay in place.
+    const chatter=held&&coarse&&!motion.matches?Math.sin(now*.056)*.70:0;
+    ctx.save();ctx.translate(chatter,held?0:-2);
     const material=ctx.createRadialGradient(x-r*.35,y-r*.46,1,x,y,r);
     material.addColorStop(0,coarse?'#e7bc83':'#d4e4d8');material.addColorStop(.69,coarse?'#cb9762':'#a4c9bc');material.addColorStop(1,coarse?'#8e6445':'#769c91');
     ctx.save();ctx.shadowColor='rgba(20,27,23,.45)';ctx.shadowBlur=held?2:7;ctx.shadowOffsetY=held?1:4;disc(x,y,r,material);ctx.restore();
     ring(x,y,r,coarse?'#584b3d':'#506d60',1.6);
     ring(x,y,r*.84,coarse?'#aa8059':'#729a8e',1);
     if(coarse){
-      for(const side of [-1,0,1]){ctx.beginPath();ctx.moveTo(x-r*.3,y+side*r*.2);ctx.lineTo(x+r*.3,y+side*r*.2-r*.25);ctx.strokeStyle='#745c43';ctx.lineWidth=2;ctx.lineCap='round';ctx.stroke();}
+      ctx.save();ctx.beginPath();ctx.arc(x,y,r*.74,0,turn);ctx.clip();
+      const step=r*.23;
+      for(let i=-6;i<=6;i++){
+        ctx.beginPath();ctx.moveTo(x+i*step-r*.5,y+r*.83);ctx.lineTo(x+i*step+r*.5,y-r*.83);
+        ctx.strokeStyle='#876345';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.beginPath();ctx.moveTo(x+i*step-r*.5+2,y+r*.83);ctx.lineTo(x+i*step+r*.5+2,y-r*.83);
+        ctx.strokeStyle='#e0bd88';ctx.lineWidth=.9;ctx.stroke();
+      }
+      ctx.restore();
     }else{
       ring(x,y,r*.66,'#7aa193',1);ring(x,y,r*.44,'#8ab1a3',1);ring(x,y,r*.21,'#88ab9d',1);
     }
+    if(held){
+      const start=coarse?Math.PI*.16:motion.matches?-.7:angle*.7;
+      ctx.beginPath();ctx.arc(x,y,r-1.9,start,start+(coarse?2.1:1.3));
+      ctx.strokeStyle=coarse?'#63452f':'#f0f3dd';ctx.lineWidth=coarse?2.4:2;ctx.lineCap='round';ctx.stroke();
+    }
+    ctx.restore();
     if(inView&&!document.hidden)refresh();
   }
-  function refresh(){if(!frame)frame=requestAnimationFrame(render);}
+  function refresh(){if(!frame&&!paused&&!windowAway&&!document.hidden)frame=requestAnimationFrame(render);}
   function resize(){
     const rect=cv.getBoundingClientRect();W=Math.max(1,rect.width);H=Math.max(1,rect.height);
     dpr=Math.min(window.devicePixelRatio||1,2);cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
@@ -534,9 +591,10 @@ function createInspectionLens(field, canvas, onChange) {
   function endStroke(){
     // Score the same surface that will be restored when the player returns.
     for(const i of cells){removed[i]=Math.round(removed[i]*50)/50;sheen[i]=Math.round(sheen[i]*250)/250;}
-    dirty=true;surface();refresh();save();
+    dirty=true;surface(true);refresh();save();
   }
   function save(){
+    if(isRound)return;
     const existing = readPractice();
     if (existing !== savedValues) {
       syncPractice(existing);
@@ -554,9 +612,9 @@ function createInspectionLens(field, canvas, onChange) {
   function cancelTools(){
     const id = active;
     active = null;
-    held = space = false;
+    space = false;contact(false);
     if (id !== null && field.hasPointerCapture(id)) field.releasePointerCapture(id);
-    lens.stop();
+    lens?.stop();
     clock = null;
   }
   function syncPractice(serialized){
@@ -583,7 +641,7 @@ function createInspectionLens(field, canvas, onChange) {
       removed[i]=raw.charCodeAt(i)/50; sheen[i]=Math.min(1,raw.charCodeAt(i+N*N)/250);
     }
     pattern=[0,1,2].includes(data.pattern)?data.pattern:0;formWafer();pad=data.pad==='finish'?'finish':'coarse';
-    active=null;held=space=false;angle=Number.isFinite(data.angle)?data.angle%turn:0;clock=null;
+    active=null;space=false;contact(false);angle=Number.isFinite(data.angle)?data.angle%turn:0;clock=null;
     locked=data.locked===true;changed=data.changed===true;dirty=true;surface();
     caseNo=Number.isSafeInteger(data.caseNo)&&data.caseNo>=0?data.caseNo:0;
     const point=p=>p&&Number.isFinite(p.x)&&Number.isFinite(p.y)&&Math.hypot(p.x,p.y)<=1.001;
@@ -595,48 +653,66 @@ function createInspectionLens(field, canvas, onChange) {
     return true;
   }
   function showPhase(){
-    field.disabled=locked;action.disabled=!changed;action.textContent='가공 끝내고 검사';
+    field.disabled=locked;action.disabled=!changed;
+    root.dataset.tool=pad;root.dataset.contact=held?pad:'lifted';
+    action.textContent=locked?'연마한 표면 보기':'가공 끝내고 검사';
+    wi('back').textContent=locked?'새 웨이퍼 연마':'예제로 돌아가기';
     for(const id of Object.keys(pads)){get(id).disabled=locked;get(id).setAttribute('aria-pressed',String(id===pad));}
     const goal='돌출부 제거 · 마감 80% 이상 · 과연마 5% 이하';
     get('phase').textContent=locked?'측정 완료':goal;
     get('hint').textContent=locked?(over>5?'과연마 면적이 기준을 넘었어요.':ridgesLeft?'줄무늬 돌출부가 남아 있어요.':good>=80?'표면 가공 목표를 달성했어요.':'마감 면적이 부족해요.'):(pad==='coarse'?'돌출부가 오면 꾹 누르고, 평평한 면이 오면 떼세요.':'누른 채 중심에서 가장자리로 천천히 옮겨 보세요.');
     if(locked)get('read').textContent=goal;
+    if(isRound){
+      const won=locked && ridgesLeft===0 && good>=80 && over<=5;
+      shell.dataset.phase=locked?(won?'success':'failed'):'active';
+      shell.querySelector('#surface-round-continue').hidden=!won;
+      action.textContent='표면 판정하기';action.hidden=locked;
+      wi('back').textContent='새 웨이퍼로 다시 하기';
+      if(locked){
+        get('phase').textContent=won?'가공 기준 충족':'가공 기준 미달';
+        get('live').textContent=get('hint').textContent+' '+get('value').textContent;
+      }else get('live').textContent='';
+    }
   }
   for(const id of Object.keys(pads))get(id).addEventListener('click',()=>{
-    if(locked||active!==null||space)return;
-    pad=id;showPhase();refresh();save();
+    if(locked||active!==null||space||pad===id)return;
+    pad=id;window.CMPFeedback?.play('pad-latch');showPhase();refresh();save();
   });
   field.addEventListener('pointerdown',e=>{
     if(locked||active!==null||space||!e.isPrimary||e.button!==0)return;
     const p=location(e);if(Math.hypot(p.x,p.y)>1)return;
-    advance(performance.now());park(p);active=e.pointerId;held=true;field.setPointerCapture(active);refresh();
+    advance(performance.now());park(p);active=e.pointerId;field.setPointerCapture(active);contact(true);refresh();
   });
   field.addEventListener('pointermove',e=>{
     if(locked||space)return;
     const p=location(e),inside=Math.hypot(p.x,p.y)<=1;
     if(active===e.pointerId){
-      advance(performance.now());held=inside;
+      advance(performance.now());contact(inside);
       if(inside)setRadius(p.x*Math.cos(axis)+p.y*Math.sin(axis));
     }else if(active===null&&e.pointerType==='mouse'&&inside)park(p);
   });
   function lift(){
     if(active===null&&!space)return;
     advance(performance.now());
-    const id=active;active=null;held=space=false;
+    const id=active;active=null;space=false;contact(false);
     if(id!==null&&field.hasPointerCapture(id))field.releasePointerCapture(id);
     if(changed)endStroke();else refresh();
   }
   for(const type of ['pointerup','pointercancel','lostpointercapture'])field.addEventListener(type,e=>{if(e.pointerId===active)lift();});
   field.addEventListener('keydown',e=>{
     if(locked||active!==null)return;
-    if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!space){advance(performance.now());space=held=true;refresh();}return;}
+    if(e.key===' '||e.key==='Enter'){e.preventDefault();if(!space){advance(performance.now());space=true;contact(true);refresh();}return;}
     const direction={ArrowLeft:-1,ArrowRight:1,ArrowUp:-1,ArrowDown:1}[e.key];
     if(!direction)return;e.preventDefault();advance(performance.now());
     setRadius(Math.hypot(tool.x,tool.y)+direction*.06);refresh();
   });
   field.addEventListener('keyup',e=>{if(space&&(e.key===' '||e.key==='Enter')){e.preventDefault();lift();}});
-  field.addEventListener('blur',()=>{if(space)lift();});
-  window.addEventListener('blur',lift);
+  field.addEventListener('blur',lift);
+  window.addEventListener('blur',()=>{
+    lift();
+    if(isRound){windowAway=true;clock=null;}
+  });
+  if(isRound)window.addEventListener('focus',()=>{windowAway=false;clock=null;refresh();});
   window.addEventListener('pagehide',lift);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)lift();clock=null;refresh();});
   new IntersectionObserver(entries=>{
@@ -644,34 +720,59 @@ function createInspectionLens(field, canvas, onChange) {
   }).observe(field);
   action.addEventListener('click',()=>{
     if(!changed||screen!=='polish')return;
-    lift();locked=true;clock=null;surface();showPhase();openInspection('personal',false,true);save();
+    const keepInspection=locked&&origin==='personal';
+    lift();locked=true;clock=null;surface();showPhase();
+    if(isRound){
+      // A held Enter from judging must never carry over to the paid run or retry.
+      get('phase').focus({preventScroll:true});
+      refresh();
+      return;
+    }
+    openInspection('personal',keepInspection,true);save();
   });
-  showPhase();new ResizeObserver(resize).observe(cv);openInspection('sample');
-  syncPractice(readPractice());
-  window.addEventListener('storage', event => {
-    if (event.key === storageKey || event.key === null) syncPractice(readPractice());
-  });
+  new ResizeObserver(resize).observe(cv);
+  if(!isRound){
+    showPhase();openInspection('sample');
+    syncPractice(readPractice());
+    window.addEventListener('storage', event => {
+      if (event.key === storageKey || event.key === null) syncPractice(readPractice());
+    });
+  }
   return {
-    resume() { syncPractice(readPractice()); if (screen === 'polish') resize(); else lens.draw(); },
-    pause() { lift(); cancelTools(); }
+    resume() { paused=false;syncPractice(readPractice()); if (screen === 'polish') resize(); else lens.draw(); },
+    startRound(waferNumber) {
+      paused=false;windowAway=false;cancelTools();
+      roundPattern=(waferNumber-1)%3;
+      openPolisher(true,true);
+    },
+    enter(mode) {
+      if(mode==='polish')openPolisher(false,true);
+      else {
+        const source=locked?'personal':'sample';
+        openInspection(source,origin===source,true);
+      }
+    },
+    pause() { lift(); paused=true;cancelTools();if(frame)cancelAnimationFrame(frame);frame=0; }
   };
   }
   const page = document.getElementById('surface-practice-page');
   const trigger = document.getElementById('surface-practice-link');
   if (!page && !trigger) return;
-  let shell, practice;
-  function buildSurface(container, embedded) {
+  let shell, practice, returnTo=null;
+  let roundShell, roundPractice, roundOptions=null, roundNav, roundContinue;
+  let fromWorkbench=false;
+  function buildSurface(container, embedded, onExit=leavePractice) {
     const nav = document.createElement('nav');
     nav.className = 'surface-practice-nav';
     nav.setAttribute('aria-label', '연습 내비게이션');
     const title = document.createElement('strong');
-    title.id = 'surface-practice-title';
+    title.id = container.id==='surface-round'?'surface-round-title':'surface-practice-title';
     title.textContent = '웨이퍼 연마·표면 검사 연습';
     const back = document.createElement(embedded ? 'button' : 'a');
     back.textContent = '공방으로 돌아가기';
     if (embedded) {
       back.type = 'button';
-      back.addEventListener('click', leavePractice);
+      back.addEventListener('click', onExit);
     } else {
       back.setAttribute('href', './game.html' + window.location.search + window.location.hash);
     }
@@ -684,6 +785,7 @@ function createInspectionLens(field, canvas, onChange) {
     container.append(nav, warning);
     container.insertAdjacentHTML('beforeend', board);
     container.setAttribute('aria-labelledby', title.id);
+    return {title,back};
   }
   if (page) {
     const url = new URL(window.location.href);
@@ -697,31 +799,81 @@ function createInspectionLens(field, canvas, onChange) {
     return;
   }
   const route = '#surface-practice';
-  let addedHistory = false;
-  function showPractice() {
+  let addedHistory = false, nav;
+  function showPractice(mode=null, opener=trigger) {
+    if(roundShell?.open)return false;
+    roundShell?.remove();
     if (!shell) {
       shell = document.createElement('dialog');
       shell.className = 'surface-practice-shell';
       shell.id = 'surface-practice';
-      buildSurface(shell, true);
-      document.body.append(shell);
+      nav=buildSurface(shell, true);
       shell.addEventListener('cancel', event => { event.preventDefault(); leavePractice(); });
     }
-    if (shell.open) return;
+    if (shell.open) return false;
+    if (!shell.isConnected) document.body.append(shell);
+    returnTo=opener;
+    fromWorkbench=mode!==null;
+    nav.title.textContent=fromWorkbench?'미니게임 · 연습용 웨이퍼':'웨이퍼 연마·표면 검사 연습';
+    nav.back.textContent=fromWorkbench?'작업대로 돌아가기':'공방으로 돌아가기';
     shell.showModal();
     if (!practice) practice = mountPractice(shell);
     else practice.resume();
+    if(fromWorkbench)practice.enter(mode);
+    return true;
+  }
+  function closeRound(continueOrder=false){
+    if(!roundShell?.open||!roundOptions)return;
+    if(continueOrder && roundShell.dataset.phase!=='success')return;
+    const options=roundOptions;
+    roundOptions=null;
+    roundPractice.pause();
+    roundShell.close();
+    if(continueOrder && typeof options.onContinue==='function')options.onContinue();
+    else if(options.opener?.isConnected && !options.opener.disabled)options.opener.focus({preventScroll:true});
+  }
+  function openRound(options={}){
+    if(shell?.open||roundShell?.open)return false;
+    // Both contexts render the original board. Only the active one belongs to the document.
+    shell?.remove();
+    if(!roundShell){
+      roundShell=document.createElement('dialog');
+      roundShell.id='surface-round';
+      roundShell.className='surface-practice-shell';
+      roundNav=buildSurface(roundShell,true,()=>closeRound());
+      roundNav.back.dataset.roundClose='';
+      roundShell.querySelector('#wp-phase').tabIndex=-1;
+      roundContinue=document.createElement('button');
+      roundContinue.type='button';roundContinue.id='surface-round-continue';roundContinue.hidden=true;
+      roundContinue.addEventListener('click',()=>closeRound(true));
+      roundShell.querySelector('.wp-foot').append(roundContinue);
+      roundShell.addEventListener('cancel',event=>{event.preventDefault();closeRound();});
+    }
+    if(!roundShell.isConnected)document.body.append(roundShell);
+    roundOptions={...options,opener:options.opener||document.activeElement};
+    const paid=typeof options.onContinue==='function';
+    const waferNumber=Number.isSafeInteger(options.waferNumber)&&options.waferNumber>0?options.waferNumber:1;
+    roundNav.title.textContent=paid?waferNumber+'번 웨이퍼 · 표면 가공':'표면 가공 연습';
+    roundNav.back.textContent=paid?'작업대로':options.practiceLabel||'종목 선택으로';
+    roundContinue.textContent=paid?options.continueLabel||'연마 시작':roundNav.back.textContent;
+    roundShell.showModal();
+    if(!roundPractice)roundPractice=mountPractice(roundShell,true);
+    roundPractice.startRound(waferNumber);
+    return true;
   }
   function dismissPractice() {
     if (!shell?.open) return;
     practice.pause();
     shell.close();
-    const settings = trigger.closest('dialog');
-    (settings && !settings.open ? document.getElementById('open-settings') : trigger)?.focus({preventScroll:true});
+    const fallback=document.getElementById(fromWorkbench?'bench-title':'open-settings');
+    const target=returnTo?.isConnected&&!returnTo.disabled&&returnTo.getClientRects().length?returnTo:fallback;
+    returnTo=null;fromWorkbench=false;
+    target?.focus({preventScroll:true});
   }
   function leavePractice() {
+    const hasRoute=!fromWorkbench;
     dismissPractice();
-    if (window.location.hash !== route) return;
+    if (!hasRoute||window.location.hash !== route) return;
     if (addedHistory) {
       addedHistory = false;
       window.history.back();
@@ -744,5 +896,17 @@ function createInspectionLens(field, canvas, onChange) {
     else dismissPractice();
   }
   window.addEventListener('hashchange', routePractice);
+  window.addEventListener('pagehide',()=>closeRound());
+  window.CMPSurfacePractice=Object.freeze({
+    openRound,
+    closeRound:()=>closeRound(),
+    open(mode,opener) {
+      if(mode!=='polish'&&mode!=='inspect')return false;
+      return showPractice(mode,opener);
+    },
+    close() {
+      if(fromWorkbench)dismissPractice();
+    }
+  });
   routePractice();
 })();

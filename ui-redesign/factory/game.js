@@ -5,6 +5,32 @@
   // In the single-file edition the shell owns the address and reloads the game iframe.
   const bundledWorkshop = typeof window.__cmpAsset === 'function' && window.location.protocol === 'about:';
   const workshopLocation = bundledWorkshop ? window.parent.location : window.location;
+  if (location.hash === '#surface-practice') {
+    // A direct visit to the original practice board must not open or save a campaign underneath it.
+    $('surface-practice').addEventListener('close', () => {
+      const inner = location.hash === '#surface-practice' ? '' : location.hash.slice(1);
+      if (bundledWorkshop) window.parent.CMPLabBundle.go('game', inner);
+      else location.reload();
+    }, {once:true});
+    return;
+  }
+  if (CMPArcade.isRoute(location.hash)) {
+    // Direct practice links run independently, even if this workshop is already open in another tab.
+    CMPArcade.practicePage(() => {
+      const inner = CMPArcade.isRoute(location.hash) ? '' : location.hash;
+      if (bundledWorkshop) window.parent.CMPLabBundle.go('game', inner.slice(1));
+      else {
+        if (location.hash !== inner) location.hash = inner;
+        else location.reload();
+      }
+    });
+    return;
+  }
+  window.addEventListener('hashchange', () => {
+    if (!CMPArcade.isRoute(location.hash)) return;
+    if (bundledWorkshop) window.parent.CMPLabBundle.go('game', location.hash.slice(1));
+    else location.reload();
+  });
   const workshopUrl = new URL(workshopLocation.href);
   const workshopId = workshopUrl.searchParams.get('workshop');
   function newWorkshopUrl() {
@@ -28,6 +54,8 @@
   const customersPerDay=3;
   let closedRunId=null,exitTimer=null;
   let completed=[],runId=crypto.randomUUID(),inspectionTimer=null,accepted=false;
+  let savedMicrogames;
+  let legacyFiveGameDeck=false;
   let speechText='',speechLast=false,lastPresentation=null,observedPhase=null;
   let openingRead=false;
   // A page index resumes the first visit. A null index leaves the guide available on demand.
@@ -74,6 +102,8 @@
       else{stale=true;readyNotice='저장된 진행을 확인하지 못해 멈췄어요. 저장 원본은 유지됩니다.';}
       if(typeof saved.runId==='string'&&/^[\w-]{1,100}$/.test(saved.runId))runId=saved.runId;
       completed=game.restoreArchive(saved.completed);
+      savedMicrogames=saved.microgames;
+      legacyFiveGameDeck=Array.isArray(savedMicrogames) && saved.microgameDeckVersion !== 2;
       if(accepted||state.order!==0||completed.length||saved.firstLessonStep===null||story.restoreDialogue(saved.dialogue,state.order).length){
         firstLessonStep=null;
       }else if(Number.isInteger(saved.firstLessonStep)&&saved.firstLessonStep>=0){
@@ -99,6 +129,7 @@
     }
   }catch{stale=true;readyNotice='저장된 진행을 확인하지 못해 멈췄어요. 저장 원본은 유지됩니다.';}
   growth=campaign.initialize(growth);
+  let microgames = CMPArcade.restore(savedMicrogames, state.order===0 && !growth.credited.length && !completed.length, state.rows.length, legacyFiveGameDeck);
   if(readyNotice)notice(readyNotice);
   function draftOrder(index){
     return game.createFunded(index,growth.levels,growth.balance,{
@@ -110,7 +141,7 @@
   }
   function notice(message){$('save-warning').hidden=false;$('save-warning').textContent=message;}
   function campaignRecord(){
-    return {version:game.version,best,runId,closedRunId,completed,tutorial,firstLessonStep,prologueRead,comicEdition,firstComicRevealed,lessonFormat:'preview',
+    return {version:game.version,best,runId,closedRunId,completed,microgames,microgameDeckVersion:2,tutorial,firstLessonStep,prologueRead,comicEdition,firstComicRevealed,lessonFormat:'preview',
       handlingLearned,guidePreference,workshop:CMPUpgrades.serialize(growth),orderAccepted:accepted,rackResume,
       station:view,loadedWafer:view==='setup'?state.rows.length+1:null,
       session:JSON.parse(game.serialize(state))};
@@ -121,7 +152,23 @@
     catch{notice('브라우저 저장을 사용할 수 없습니다. 현재 탭에서는 진행되지만 닫으면 사라집니다.');return false;}
   }
   function save(){return persist(campaignRecord());}
-  function dispatch(event){if(stale)throw new Error('다른 탭의 최신 진행을 불러오려면 새로고침해주세요.');const next=game.transition(state,event);const nextGrowth=campaign.sync(growth,runId,next);state=next;growth=nextGrowth;if(['advance','discard'].includes(event.type))handlingLearned=true;if(event.type==='run'&&state.order===0&&state.rows.length>=2)tutorial.completed=true;if(event.type==='ship'){best[state.order]=Math.max(best[state.order],game.summary(state).stars);completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);creditSettlement(runId,state);}save();}
+  function dispatch(event){
+    if(stale)throw new Error('다른 탭의 최신 진행을 불러오려면 새로고침해주세요.');
+    const next=game.transition(state,event);
+    const nextGrowth=campaign.sync(growth,runId,next);
+    state=next;growth=nextGrowth;
+    if(['advance','discard'].includes(event.type))handlingLearned=true;
+    if(event.type==='run'){
+      microgames=CMPArcade.advance(microgames);
+      if(state.order===0&&state.rows.length>=2)tutorial.completed=true;
+    }
+    if(event.type==='ship'){
+      best[state.order]=Math.max(best[state.order],game.summary(state).stars);
+      completed=game.archiveSettlement(completed,runId,new Date().toISOString(),state);
+      creditSettlement(runId,state);
+    }
+    save();
+  }
   function creditSettlement(id,session){growth=campaign.sync(growth,id,session);}
   function activeEnvironment(id){
     const environment=game.environmentStatus(state);
@@ -155,10 +202,16 @@
     $('cost-info').hidden=view!=='setup';
     ledger($('daily-ledger'),[['시작 잔액',day.opening+' P'],['납품 수입','+'+day.revenue+' P'],['가공·측정·정비','−'+day.costs+' P'],['공방 구매','−'+day.purchases+' P'],['운영금·지원','+'+(day.initial+day.support)+' P'],...(day.legacyIncome?[['이전 주문 정산','+'+day.legacyIncome+' P']]:[]),['현재 잔액',growth.balance+' P']]);
   }
+  function renderProcessAction(fee){
+    const cost=fee ? `예정 ${fee} P` : '';
+    const task=CMPArcade.taskName(microgames[0]);
+    $('process-action').textContent=task;
+    $('process-cost').textContent=cost;
+    $('process').setAttribute('aria-label',`${state.rows.length+1}번 웨이퍼 · ${task} 시작${cost?' · '+cost:''}`);
+  }
   function renderQuote(){
     const quote=game.processingQuote(state,input,Number($('duration').value));
-    $('process-cost').textContent=quote.total?`−${quote.total} P`:'';
-    $('process').setAttribute('aria-label',`${state.rows.length+1}번 웨이퍼 연마 시작 · −${quote.total} P`);
+    renderProcessAction(quote.total);
     const event=game.orderEvent(state);
     const surcharge=event?.id==='shortage'?[[event.blocked?'예비 자재함 사용':'긴급 자재비',(quote.eventFee||0)+' P']]:[];
     ledger($('cost-ledger'),[['기본',quote.base+' P'],['설정 시간',quote.time+' P'],['압력',quote.pressure+' P'],['회전',quote.rotation+' P'],['Slurry C',quote.slurry+' P'],...surcharge,['합계',quote.total+' P']]);
@@ -224,7 +277,7 @@
     if(!visible)return;
     $('guide-step').textContent=`첫 주문 실습 · ${t.step} / 3`;$('guide-title').textContent=t.title;$('guide-copy').textContent=t.copy;
     document.querySelectorAll('[data-guide-step]').forEach(el=>el.dataset.current=String(Number(el.dataset.guideStep)===t.step));
-    $(t.action).dataset.guideTarget='true';$('guide-focus').textContent={duration:'시간 확인 ↓',measure:'측정기로 ↓',advance:'보관 슬롯으로 ↓',process:'연마 시작으로 ↓','use-recommendation':'예상 시간 적용으로 ↓'}[t.action];
+    $(t.action).dataset.guideTarget='true';$('guide-focus').textContent={duration:'시간 확인 ↓',measure:'측정기로 ↓',advance:'보관 슬롯으로 ↓',process:CMPArcade.taskName(microgames[0])+' ↓','use-recommendation':'예상 시간 적용으로 ↓'}[t.action];
   }
   function qualityText(q){return {good:'규격 안',under:'덜 깎음',over:'너무 깎음'}[q]||'미측정';}
   function renderShop(){
@@ -274,7 +327,8 @@
     $('shop-figure').setAttribute('aria-label',`${c.profile.name} · ${art.label} 표정`);
     $('shop-arrival').textContent=handingOver?'손님이 상자를 기다려요.':delivered?`납품 대금 +${game.summary(state).revenue} P`:`딩동! ${c.profile.name}님이 찾아왔어요.`;
     $('accept-order').closest('.counter-accept').hidden=view!=='brief';
-    $('slip-spec').replaceChildren(document.createTextNode(`${o.target} nm `));const unit=document.createElement('small');unit.textContent=`±${o.tolerance}% · ${delivered?game.lotRows(state).length+'장 납품':'원판 6장'}`;$('slip-spec').append(unit);
+    const quantity = delivered ? `${shipmentCount}장 납품` : `원판 ${o.count}장`;
+    $('slip-spec').textContent = `${o.target} nm ±${o.tolerance}% · ${quantity}`;
     $('slip-client').textContent=`${c.profile.name}의 ${o.guest?'특별':c.returning?'후속':'첫'} 의뢰 · ${delivered?'납품 완료':'주문 확인'}`;
     if(handingOver){
       speechText='그 상자, 이쪽으로 건네주시겠어요?';
@@ -322,7 +376,7 @@
     const active=event&&event.id!=='quiet';
     const bench=$('bench-event'),detail=$('order-event-detail'),stamp=$('slip-label');
     bench.hidden=detail.hidden=!active;
-    stamp.textContent='의뢰서 펼치기 ↗';
+    stamp.textContent='';
     delete stamp.dataset.eventTone;
     if(!active)return;
     const short=event.id==='priority'?`${event.induced?'게시판 의뢰':'우선 납품'} · ${event.minimumGood}장 달성 시 +${event.bonus} P`:
@@ -494,7 +548,7 @@
     if(guided&&view==='feed'&&!$('physical-feed').hidden){
       area=$('physical-feed');destination='place';copy='웨이퍼를 잡고 → 연마 패드에 놓기';
     }else if(guided&&view==='setup'){
-      copy='− / + 로 시간 조절 → 초록 눈금 확인 → 연마 시작';
+      copy='− / + 로 시간 조절 → 초록 눈금 확인 → '+CMPArcade.taskName(microgames[0]);
     }else if(guided&&view==='result'){
       area=$('physical-sorting');destination=!displayedRow()?.measured&&!$('physical-meter').disabled?'measure':'store';
       copy=destination==='measure'?'패드의 웨이퍼 → 측정기로 끌기':'웨이퍼를 잡고 → 보관 슬롯에 놓기';
@@ -539,6 +593,25 @@
     $('first-wafer-measurement').textContent = format(first.removed) + ' nm';
     $('first-wafer-instruction').textContent = onControls ? '두 번째 장의 시간을 정해보세요.' : '';
   }
+  function workbenchActivity(){
+    if(!accepted || busy || measuring || stale)return null;
+    if(view==='setup' && !activeEnvironment('dust'))return 'arcade';
+    if(view==='result' && displayedRow()?.measured)return 'inspect';
+    if(view==='feed')return 'arcade';
+    return null;
+  }
+  const activityLabels={arcade:'미니게임 골라 하기',inspect:'빛으로 표면 검사'};
+  const practiceButton=$('bench-practice');
+  practiceButton.addEventListener('click',()=>{
+    const mode=workbenchActivity();
+    if(!mode)return;
+    if(mode==='arcade')CMPArcade.openGallery(practiceButton);
+    else CMPSurfacePractice.open(mode,practiceButton);
+  });
+  function closeWorkActivities(){
+    CMPArcade.closeGame();
+    CMPSurfacePractice.close();
+  }
   function render(){
     hideWaferInfo();
     renderFirstWaferReading();
@@ -551,6 +624,9 @@
     $('wafer-feed').hidden=!feeding;
     const kept=game.lotRows(state).length;
     const betweenWafers=feeding && state.rows.length>0;
+    const activity=workbenchActivity();
+    practiceButton.hidden=!activity;
+    practiceButton.textContent=activity ? activityLabels[activity] : '';
     $('bench-lot').hidden=!(feeding&&(state.rows.length>0||state.version===game.fundedVersion));
     $('wafer-feed').querySelector('.transfer-help').hidden=!guided;
     $('feed-wafer-number').textContent=betweenWafers?'작업대':'웨이퍼 '+String(state.rows.length+1).padStart(2,'0');
@@ -641,8 +717,7 @@
       $('service').disabled=feeding||busy||resultView||state.order===0||spendable<o.serviceCost||state.wear===0||budget.remaining===0;$('service').textContent=state.order===0?'정비 · 다음 주문부터':budget.remaining===0?'정비 불가 · 추가 행동 소진':spendable<o.serviceCost?'정비 불가 · 남은 가공비 확보':'컨디셔너 교체 · 30 P + 행동 1회';
       $('use-recommendation').disabled=busy||stale;
       $('use-recommendation').hidden=isSecondWaferAfterMeasurement();
-      $('process-cost').textContent=price.run?`−${price.run} P`:'';
-      $('process').setAttribute('aria-label',`${state.rows.length+1}번 웨이퍼 연마 시작${price.run?' · −'+price.run+' P':''}`);
+      renderProcessAction(price.run);
       ensureScene();syncHandling();if(view==='setup')updateEstimate();
     }
     if(resultView){
@@ -853,7 +928,32 @@
     setView('feed');
     save();
   });
-  $('game-form').addEventListener('submit',event=>{event.preventDefault();if(view!=='setup'||busy||state.phase!=='setup'||activeEnvironment('dust')||!validate())return;try{dispatch({type:'run',duration:Number($('duration').value),input:readSettings(),endpointEnabled:$('endpoint-enabled').checked});playback();}catch(e){$('game-error').hidden=false;$('game-error').textContent=e.message;}});
+  function readyToPolish(){
+    return accepted && !stale && !busy && !measuring && view==='setup' &&
+      state.phase==='setup' && !activeEnvironment('dust');
+  }
+  $('game-form').addEventListener('submit',event=>{
+    event.preventDefault();
+    if(!readyToPolish() || document.querySelector('dialog[open]') || !validate())return;
+    const orderRun=runId, processed=state.rows.length;
+    const run={type:'run',duration:Number($('duration').value),input:readSettings(),endpointEnabled:$('endpoint-enabled').checked};
+    function startPolishing(){
+      if(!readyToPolish() || runId!==orderRun || state.rows.length!==processed)return;
+      try{
+        dispatch(run);
+        playback();
+      }catch(error){
+        $('game-error').hidden=false;
+        $('game-error').textContent=error.message;
+      }
+    }
+    const fee=game.processingQuote(state,run.input,run.duration).total;
+    CMPArcade.play(microgames[0],{
+      opener:$('process'),waferNumber:processed+1,input:run.input,
+      continueLabel:fee ? `연마 시작 · −${fee} P` : '연마 시작',
+      onContinue:startPolishing
+    });
+  });
   $('duration').addEventListener('input',()=>{if($('duration').value!==''&&Number.isFinite(Number($('duration').value)))$('duration-slider').value=$('duration').value;updateEstimate();});
   $('duration-slider').addEventListener('input',()=>{$('duration').value=$('duration-slider').value;updateEstimate();});
   $('endpoint-enabled').addEventListener('change',updateEstimate);
@@ -1041,17 +1141,17 @@
   $('open-help').addEventListener('click',()=>openLesson());
   $('bench-cue').addEventListener('click',()=>openLesson());
   document.querySelectorAll('[data-scene-view]').forEach(b=>b.addEventListener('click',()=>scene?.setView(b.dataset.sceneView)));$('scene-cutaway').addEventListener('change',()=>scene?.setCutaway($('scene-cutaway').checked));$('scene-transparent').addEventListener('change',()=>scene?.setTransparent($('scene-transparent').checked));$('scene-zoom-in').addEventListener('click',()=>scene?.zoom(.85));$('scene-zoom-out').addEventListener('click',()=>scene?.zoom(1.15));
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)shop.ready();if(document.hidden&&(busy||measuring))finishVisual();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches)shop.ready();if(motion.matches&&(busy||measuring))finishVisual();if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{if(busy||measuring)finishVisual();shop.destroy();clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted){shop.ready();if(view==='inspection')scheduleInspection();}});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)shop.ready();if(document.hidden&&(busy||measuring))finishVisual();if(document.hidden&&view==='inspection')finishInspection();});motion.addEventListener('change',()=>{if(motion.matches)shop.ready();if(motion.matches&&(busy||measuring))finishVisual();if(motion.matches&&view==='inspection')finishInspection();});window.addEventListener('pagehide',e=>{closeWorkActivities();if(busy||measuring)finishVisual();shop.destroy();clearTimeout(inspectionTimer);inspectionTimer=null;if(!e.persisted)scene?.dispose();});window.addEventListener('pageshow',e=>{if(e.persisted){shop.ready();if(view==='inspection')scheduleInspection();}});
   // A second tab must never silently overwrite a more recent campaign.
-  window.addEventListener('storage',e=>{if(e.key===saveKey){transfers.reset();stale=true;if(prologue.open)prologue.close();if($('game-help').open)$('game-help').close();clearTimeout(inspectionTimer);inspectionTimer=null;if(busy||measuring)finishVisual();notice('다른 탭에서 게임이 변경되었습니다. 이 탭을 새로고침해 최신 진행을 불러오세요.');document.querySelectorAll('#factory-main button,#factory-main input').forEach(el=>el.disabled=true);upgradeUI?.render();}});
+  window.addEventListener('storage',e=>{if(e.key===saveKey){transfers.reset();stale=true;closeWorkActivities();if(prologue.open)prologue.close();if($('game-help').open)$('game-help').close();clearTimeout(inspectionTimer);inspectionTimer=null;if(busy||measuring)finishVisual();notice('다른 탭에서 게임이 변경되었습니다. 이 탭을 새로고침해 최신 진행을 불러오세요.');document.querySelectorAll('#factory-main button,#factory-main input').forEach(el=>el.disabled=true);upgradeUI?.render();}});
   $('toggle-focus').addEventListener('click',()=>{focusMode=!focusMode;render();$('toggle-focus').focus({preventScroll:true});});
   $('return-blank').addEventListener('click',()=>{if(view==='setup'&&!busy&&!stale){setView('feed');save();}});
   $('request-support').addEventListener('click',()=>{if(stale||accepted||view!=='brief')return;try{growth=campaign.support(growth,runId);state=draftOrder(state.order);save();render();}catch(error){notice(error.message);}});
-  function soundButton(){const muted=CMPFeedback.isMuted();$('toggle-sound').setAttribute('aria-pressed',String(muted));$('toggle-sound').textContent=muted?'효과음 꺼짐':'효과음 켜짐';}
-  $('toggle-sound').addEventListener('click',()=>{CMPFeedback.setMuted(!CMPFeedback.isMuted());soundButton();if(!CMPFeedback.isMuted()){CMPFeedback.unlock();CMPFeedback.play('seat');}});
-  soundButton();
+  CMPFeedback.bindMuteButton($('toggle-sound'));
+  $('toggle-sound').addEventListener('click',()=>{if(!CMPFeedback.isMuted())CMPFeedback.play('seat');});
   $('bench-order').addEventListener('click',()=>$('order-dialog').showModal());
   const settingsDialog=$('game-settings');
+  $('open-microgames').addEventListener('click',event=>CMPArcade.openGallery(event.currentTarget));
   const fullscreenButton=$('toggle-fullscreen');
   function syncFullscreen(){
     fullscreenButton.hidden=!document.fullscreenEnabled;

@@ -359,6 +359,16 @@ body.factory[data-bench-focus=true] #work-screen:has(#cmp-scene[data-renderer=we
   color: #395c49; text-align: left; font-size: clamp(11px,1vw,13px); font-weight: 650; line-height: 1.35;
 }
 .factory #bench-cue:hover { text-decoration: underline; }
+.factory .bench-practice {
+  display: inline-flex; align-items: center; gap: 5px; min-height: 30px;
+  margin-top: 2px; padding: 3px 9px; border: 1px solid #9da58d; border-radius: 6px;
+  background: #f7f6e8; color: #3b5645; font: inherit; font-size: 12px;
+  font-weight: 650; line-height: 1.25; cursor: pointer;
+}
+.factory .bench-practice[hidden] { display: none; }
+.factory .bench-practice::after { content: '›'; font-size: 15px; }
+.factory .bench-practice:hover { background: #e8eedc; }
+.factory .bench-practice:focus-visible { outline: 2px solid #43644a; outline-offset: 2px; }
 .factory .gesture-trail {
   position: absolute; z-index: 3; height: 0; border-top: 3px dashed #fff6d6;
   transform-origin: 0 50%; pointer-events: none; filter: drop-shadow(0 1px 2px #274837);

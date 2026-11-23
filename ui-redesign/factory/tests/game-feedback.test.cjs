@@ -15,15 +15,23 @@ function events() {
 }
 
 function audioRig({supported=true, stored='false', storageThrows=false, constructorThrows=false}={}) {
-  const contexts = [], oscillators = [], writes = [];
-  const param = () => ({value:0, setValueAtTime(){}, exponentialRampToValueAtTime(){}});
+  const contexts = [], oscillators = [], sources = [], writes = [];
+  const param = () => ({value:0, setValueAtTime(){}, exponentialRampToValueAtTime(){}, linearRampToValueAtTime(){}, cancelScheduledValues(){}});
   const document = {...events(), hidden:false};
   class AudioContext {
     constructor() {
       if (constructorThrows) throw new Error('audio unavailable');
-      this.state = 'running'; this.currentTime = 1; this.destination = {}; contexts.push(this);
+      this.state = 'running'; this.currentTime = 1; this.sampleRate = 12000; this.destination = {}; contexts.push(this);
     }
     createGain() { return {gain:param(), connect(){}, disconnect(){}}; }
+    createBuffer(channels, length) {
+      const data = new Float32Array(length);
+      return {getChannelData: () => data};
+    }
+    createBufferSource() {
+      const source = {stops:[], connect(){}, disconnect(){}, start(){}, stop(time){ this.stops.push(time); }};
+      sources.push(source); return source;
+    }
     createOscillator() {
       const voice = {frequency:param(), stops:0, connect(){}, disconnect(){}, start(){}, stop(){this.stops++;}};
       oscillators.push(voice); return voice;
@@ -31,7 +39,7 @@ function audioRig({supported=true, stored='false', storageThrows=false, construc
     resume() { this.state = 'running'; return Promise.resolve(); }
   }
   const root = {
-    ...events(), document,
+    ...events(), document, Event, dispatchEvent(event) { this.fire(event.type, event); return true; },
     localStorage: {
       getItem(){if(storageThrows) throw new Error('storage blocked'); return stored;},
       setItem(key,value){if(storageThrows) throw new Error('storage blocked'); writes.push([key,value]);}
@@ -39,7 +47,7 @@ function audioRig({supported=true, stored='false', storageThrows=false, construc
     ...(supported ? {AudioContext} : {})
   };
   vm.runInNewContext(audioCode, root);
-  return {root, audio:root.CMPFeedback, document, contexts, oscillators, writes};
+  return {root, audio:root.CMPFeedback, document, contexts, oscillators, sources, writes};
 }
 
 test('audio requires a real input unlock and unsupported or blocked APIs remain harmless', () => {
@@ -57,6 +65,56 @@ test('audio requires a real input unlock and unsupported or blocked APIs remain 
   assert.equal(r.contexts.length, 1);
   assert.equal(r.audio.play('seat'), true);
   assert.equal(r.audio.play('unknown'), false);
+});
+
+test('the workshop instrument cues use the same sound preference', () => {
+  for (const name of ['tempo-reference','tempo-sensor','landing-cue','landing-good','landing-precise','landing-miss','pad-latch','surface-ridge']) {
+    const r = audioRig();
+    r.audio.unlock();
+    assert.equal(r.audio.play(name), true);
+    assert.ok(r.oscillators.length > 0);
+    r.audio.setMuted(true);
+    assert.equal(r.audio.play(name), false);
+  }
+});
+
+test('contact loops share no voices across pads and stop on release, blur and mute', () => {
+  const r = audioRig();
+  r.audio.unlock();
+  assert.ok(r.audio.startSurfaceContact('coarse'));
+  assert.ok(r.audio.startSurfaceContact('coarse'));
+  assert.equal(r.sources.length, 1);
+  const first = r.sources[0];
+  assert.equal(first.loop, true);
+  assert.ok(first.buffer.getChannelData(0).some(value => Math.abs(value) > .1));
+  r.audio.startSurfaceContact('finish');
+  assert.equal(first.stops.length, 1);
+  assert.notEqual(r.sources[1].buffer, first.buffer);
+  r.root.fire('blur');
+  assert.equal(r.sources[1].stops.length, 1);
+  r.audio.startSurfaceContact('coarse');
+  assert.equal(r.sources[2].buffer, first.buffer);
+  r.audio.stopSurfaceContact();
+  assert.equal(r.sources[2].stops.length, 1);
+  r.audio.startSurfaceContact('finish');
+  r.audio.setMuted(true);
+  assert.equal(r.sources[3].stops.length, 1);
+  assert.equal(r.audio.startSurfaceContact('coarse'), false);
+});
+
+test('a released stroke cannot start sounding after an asynchronous browser audio unlock', async () => {
+  const r = audioRig();
+  r.audio.unlock();
+  const context = r.contexts[0];
+  context.state = 'suspended';
+  let resume;
+  context.resume = () => new Promise(resolve => { resume = resolve; });
+  assert.ok(r.audio.startSurfaceContact('finish'));
+  r.audio.stopSurfaceContact();
+  context.state = 'running';
+  resume();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(r.sources.length, 0);
 });
 
 test('muting persists, stops active sounds and resumes without blocking the game', () => {
