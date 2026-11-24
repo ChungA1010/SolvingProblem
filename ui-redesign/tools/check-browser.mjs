@@ -488,7 +488,16 @@ async function labLot(t) {
 
 // ----- 8-process lab -----
 const PL = 'window.ProcessLabDebug';
-/** The route by itself, with every process passed by the standard recipe (equipment=off). */
+/** A point on a machine of the lab's line, in page pixels: found by going down from its top until the pointer is on it. Null if there is none. */
+async function onMachine(b, key) {
+  const top = await b.evaluate(`(() => { const p = ${PL}.scene.stationPoint(${JSON.stringify(key)}), r = document.getElementById('scene').getBoundingClientRect(); return p && p.visible ? { x: p.x + r.left, y: p.y + r.top } : null; })()`);
+  for (let down = 8; top && down <= 320; down += 12) {
+    const point = { x: top.x, y: top.y + down };
+    if (await b.evaluate(`${PL}.scene.stationAt(${point.x}, ${point.y})`) === key) return { x: point.x, y: point.y + 8 };
+  }
+  return null;
+}
+/** The line the lab opens on and the route by itself, with every process passed by the standard recipe (equipment=off). */
 async function processRoute(t) {
   const b = await t.open({ width: 1600, height: 1000 });
   await b.goto(`${pageUrl('process-lab')}?seed=5&equipment=off`);
@@ -499,18 +508,26 @@ async function processRoute(t) {
 
   const names = await b.evaluate(`[...document.querySelectorAll('.stop .name')].map(e => e.textContent)`);
   t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route holds the eight processes in order', names.join(' '));
-  const landing = await b.evaluate(`(() => { const tiles = [...document.querySelectorAll('.line .tile')], shown = tile => { const img = tile.querySelector('.shot img'); return !!img && img.complete && img.naturalWidth > 0; };
-    return { mode: ${PL}.mode, run: !!${PL}.run, first: !!document.getElementById('start-first'), routeHidden: document.getElementById('route').hidden, tiles: tiles.map(tile => tile.querySelector('.name').textContent),
-      pictures: tiles.filter(shown).length, thumbs: document.querySelectorAll('.line .tile .thumb svg').length, words: document.querySelector('.bench').innerText.replace(/\\s+/g, ' ').trim().length,
-      goal: [...document.querySelectorAll('#help-goal svg text')].map(e => e.textContent) }; })()`);
-  t.expect(landing.mode === 'bench' && !landing.run && landing.first && landing.routeHidden && String(landing.tiles) === String(names) && landing.pictures === 8 && landing.thumbs === 8 && landing.words < 140,
-    'the lab opens on its eight pieces of equipment in order: a picture of each, its name and the wafer as it leaves, and few words', JSON.stringify({ ...landing, goal: undefined }));
+  const landing = await b.evaluate(`(() => { const d = ${PL}, box = document.getElementById('scene').getBoundingClientRect(), at = d.scene.stations.map(key => d.scene.stationPoint(key));
+    return { mode: d.mode, run: !!d.run, start: !document.getElementById('line-start').hidden, back: !document.getElementById('line-back').hidden, machines: d.scene.stations.length,
+      inOrder: at.every((p, i) => p.visible && p.x > 0 && p.x < box.width && p.y > 0 && p.y < box.height && (!i || p.x > at[i - 1].x)),
+      words: document.getElementById('line-head').innerText.replace(/\\s+/g, ' ').trim().length, goal: [...document.querySelectorAll('#help-goal svg text')].map(e => e.textContent) }; })()`);
+  t.expect(landing.mode === 'line' && !landing.run && landing.start && !landing.back && landing.machines === 8 && landing.inOrder && landing.words < 60,
+    'the lab opens on its line: the eight machines stand in order in one 3D picture, under one heading and one button', JSON.stringify({ ...landing, goal: undefined }));
   t.expect(['구리', '산화막', 'n+ 접합', '장벽막', '창', '실리콘'].every(word => landing.goal.some(label => label.includes(word))), 'what the lab makes, the finished chip with every layer named after its process, is in the help window', landing.goal.join(' | '));
-  await t.shot('1-overview');
+  await sleep(2500); await t.shot('1-line');
 
-  let landed = await clickOn(b, '.line .tile[data-step="3"]', 1900);
+  const etcher = await onMachine(b, 'etch');
+  if (etcher) { await b.mouse('mouseMoved', { x: etcher.x - 3, y: etcher.y }); await sleep(200); await b.mouse('mouseMoved', etcher); await reached(b, `${PL}.line.tagged === 3`, 30000); await sleep(600); }
+  const tag = await b.evaluate(`(() => { const box = document.getElementById('line-tag'); return { shown: !box.hidden, text: box.innerText.replace(/\\s+/g, ' ').trim(), picture: !!box.querySelector('svg'), hot: [...document.querySelectorAll('.stop')].findIndex(stop => 'hot' in stop.dataset) }; })()`);
+  t.expect(Boolean(etcher) && tag.shown && /^4 식각/.test(tag.text) && /산화막을 깎아/.test(tag.text) && tag.picture && tag.hot === 3,
+    'under the pointer a machine of the line shows its number and process, the wafer as it leaves and what the process does, and its step of the route lights up', JSON.stringify(tag));
+  await t.shot('1-line-hover');
+  if (etcher) await b.click(etcher, 1900);
+  let landed = await reached(b, `!!${PL}.run && ${PL}.mode === 'bench'`, 20000);
+  const tagGone = await b.evaluate(`document.getElementById('line-tag').hidden || getComputedStyle(document.getElementById('line-tag')).display === 'none'`);
   const begun = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, start: ${PL}.run.start, before: ${PL}.run.records.filter(r => r.before).length, oxide: ${PL}.run.wafer.oxide, window: !!${PL}.run.wafer.window, result: document.querySelector('.bench .result').textContent })`);
-  t.expect(landed && begun.title === '식각' && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'a click on a picture starts there at once, on a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
+  t.expect(landed && tagGone && begun.title === '식각' && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'a click on a machine starts there at once, on a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
   await t.shot('2-etch');
   let mapped = null;
   for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) {         // the last click opens the run sheet
@@ -541,6 +558,12 @@ async function processRoute(t) {
   for (let i = 0; i < 6 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) landed = await clickOn(b, '#next-step', 1700);
   landed = landed && await clickOn(b, '#from-first', 1900); page = await bench();
   t.expect(landed && page.start === 0 && page.records === 1 && page.title === '웨이퍼 제조', 'a new run can be started from the first process', JSON.stringify(page));
+
+  landed = await clickOn(b, '#to-line', 2500);
+  const lineAgain = await b.evaluate(`({ mode: ${PL}.mode, back: !document.getElementById('line-back').hidden, start: !document.getElementById('line-start').hidden })`);
+  t.expect(landed && lineAgain.mode === 'line' && lineAgain.back && lineAgain.start, 'the title shows the line again, with the way back to the process in hand', JSON.stringify(lineAgain));
+  landed = await clickOn(b, '#line-back', 1500); page = await bench();
+  t.expect(landed && page.title === '웨이퍼 제조' && page.records === 1, 'and that way leads back to it', JSON.stringify(page));
 }
 
 /**
@@ -555,11 +578,15 @@ async function processFlow(t) {
   const at = () => b.evaluate(`({ mode: ${PL}.mode, equipment: ${PL}.station ? ${PL}.station.equipment : null, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0,
     redo: !!document.getElementById('redo-here'), fresh: !!document.getElementById('start-here') })`);
   const opens = equipment => reached(b, `${PL}.mode === 'station' && !!${PL}.station && ${PL}.station.equipment === '${equipment}' && Object.keys(${PL}.scene.parts).length > 5`, 30000);
-  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-first') && document.getElementById('redo').hidden && document.getElementById('skip').hidden`), 'with nothing in hand the lab shows its line of equipment');
+  t.expect(await b.evaluate(`${PL}.mode === 'line' && !${PL}.run && !document.getElementById('line-start').hidden && document.getElementById('redo').hidden && document.getElementById('skip').hidden`), 'with nothing in hand the lab shows its line of equipment');
 
-  let landed = await clickOn(b, '.line .tile[data-step="3"]', 2500);
-  const opened = await opens('etch'), top = await b.evaluate(`({ route: !document.getElementById('route').hidden, redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run.start })`);
-  t.expect(landed && opened && top.start === 3 && top.route && top.redo && top.skip, 'a click on a picture opens that equipment at once, and the route comes up above it', JSON.stringify(top));
+  const etcher = await onMachine(b, 'etch');
+  if (etcher) await b.click(etcher, 500);
+  const opened = Boolean(etcher) && await opens('etch'), flying = opened && await b.evaluate(`${PL}.scene.gliding`);
+  const arrived = opened && await reached(b, `!${PL}.scene.gliding && ${PL}.scene.active === 'etch'`, 120000);
+  const top = await b.evaluate(`({ redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run ? ${PL}.run.start : -1 })`);
+  t.expect(opened && flying && arrived && top.start === 3 && top.redo && top.skip, 'a click on a machine of the line opens that equipment at once, and the camera flies to it', JSON.stringify({ ...top, found: Boolean(etcher), opened, flying, arrived }));
+  let landed = opened;
   const step = await b.evaluate(`(() => { const r = document.querySelector('.stop:nth-child(4)').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
   await b.mouse('mouseMoved', { x: step.x - 4, y: step.y }); await sleep(200); await b.mouse('mouseMoved', step); await sleep(900);
   const pop = await b.evaluate(`(() => { const box = document.getElementById('route-pop'); return { shown: !box.hidden, text: box.innerText, picture: !!box.querySelector('svg') }; })()`);
@@ -595,6 +622,16 @@ async function processFlow(t) {
   const later = await opens('prober'); page = await at();
   t.expect(landed && later && page.start === 6 && page.at === 6 && page.records === 6, 'and starting there opens that equipment on a standard wafer', JSON.stringify(page));
   await sleep(2000); await t.shot('2-new-run');
+
+  // out to the line with the run in hand, and from there to the equipment again
+  landed = await clickOn(b, '#to-line', 1200);
+  const out = landed && await reached(b, `${PL}.mode === 'line' && !${PL}.scene.gliding`, 120000);
+  const offered = await b.evaluate(`({ back: !document.getElementById('line-back').hidden, start: !document.getElementById('line-start').hidden, redo: document.getElementById('redo').hidden, hud: getComputedStyle(document.getElementById('hud')).display })`);
+  t.expect(out && offered.back && offered.start && offered.redo && offered.hud === 'none', 'the title takes the camera back out to the line, which offers the way back to the process in hand', JSON.stringify(offered));
+  await sleep(2500); await t.shot('3-line-in-hand');
+  landed = await clickOn(b, '#line-back', 1200);
+  const again = landed && await opens('prober') && await reached(b, `!${PL}.scene.gliding && ${PL}.scene.active === 'prober'`, 120000); page = await at();
+  t.expect(again && page.mode === 'station' && page.at === 6 && page.records === 6, 'and from the line the camera returns to the equipment in hand, the run as it was', JSON.stringify(page));
 }
 
 /** Opens the 8-process lab at a process that has equipment, and returns helpers for checking that equipment. */
@@ -1275,10 +1312,11 @@ async function standalone(t) {
   t.expect(processOpen, 'the 8-process lab opens inside the file');
   if (processOpen) {
     await sleep(1200);
-    const line = await b.evaluate(`[...${F}.document.querySelectorAll('.line .tile .shot img')].map(img => ({ embedded: img.src.startsWith('data:'), drawn: img.complete && img.naturalWidth > 0 }))`);
-    t.expect(line.length === 8 && line.every(picture => picture.embedded && picture.drawn), 'the pictures of its eight pieces of equipment are inside the file', JSON.stringify(line));
+    const opening = await b.evaluate(`({ mode: ${PL}.mode, machines: ${PL}.scene.stations.length, heading: ${F}.document.getElementById('line-title').textContent })`);
+    t.expect(opening.mode === 'line' && opening.machines === 8 && opening.heading.length > 5, 'it opens on its line of eight machines', JSON.stringify(opening));
+    await sleep(3000); await t.shot('4-process-lab-line');
     await b.evaluate(`${PL}.start(1)`);
-    t.expect(await reached(b, `${PL}.mode === 'station' && Object.keys(${PL}.scene.parts).length > 5`, 60000), 'its oxidation furnace starts inside the file');
+    t.expect(await reached(b, `${PL}.mode === 'station' && Object.keys(${PL}.scene.parts).length > 5 && !${PL}.scene.gliding`, 120000), 'its oxidation furnace starts inside the file, and the camera gets there');
     await sleep(2500); await t.shot('4-process-lab');
     // the polisher is drawn by the learning lab's 3D bundle, which this page takes from another folder: plate a wafer and see that it opens
     const PS = `${PL}.sim.state`, drive = pairs => b.evaluate(`(() => { const d = ${PL}; for (const [name, value] of ${JSON.stringify(pairs)}) d.station.control(d.sim, name, value); })()`);
@@ -1303,8 +1341,8 @@ const CHECKS = {
   'lab-operate': { run: labOperate, minutes: 10, about: 'lab-3d/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'lab-3d/lab-3d.html, instrument strip, report and record over two wafers' },
   'lab-lot': { run: labLot, minutes: 14, about: 'lab-3d/lab-3d.html, a lot of five wafers: the pad worn out and changed, the result of the lot, the lot after it' },
-  'process-route': { run: processRoute, minutes: 4, about: 'process-lab/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
-  'process-flow': { run: processFlow, minutes: 6, about: 'process-lab/process-lab.html, with the equipment on: open at a click, the same process again, pass by the standard recipe, go back' },
+  'process-route': { run: processRoute, minutes: 4, about: 'process-lab/process-lab.html, the line it opens on and the route of eight processes: start at any machine, run to the sheet' },
+  'process-flow': { run: processFlow, minutes: 6, about: 'process-lab/process-lab.html, with the equipment on: fly to a machine of the line, the same process again, pass by the standard recipe, go back, out to the line' },
   'process-crystal': { run: processCrystal, minutes: 10, about: 'process-lab/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
   'process-oxidation': { run: processOxidation, minutes: 10, about: 'process-lab/process-lab.html, the oxidation furnace operated to a measured film' },
   'process-photo': { run: processPhoto, minutes: 8, about: 'process-lab/process-lab.html, the coat, expose and develop cell with a rework' },

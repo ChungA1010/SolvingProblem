@@ -49,7 +49,6 @@
 | `factory/media/workshop-catalog/`, `factory/media/shipper/` | Blender 스크립트 | `factory/` 폴더에서 `blender --background --python tools/build-shop-assets.py`, `tools/build-delivery-shipper.py` |
 | `home/media/factory.webp` | 게임 그림 세 장(`factory/media/counter-art/`) | `python tools/build-home-art.py` (Pillow 필요) |
 | `home/media/lab.webp` | 실제 3D 장비 화면 | `node tools/render-lab-still.mjs` |
-| `process-lab/media/line-*.webp` (8대 공정 실험실 첫 화면의 장비 그림 여덟 장) | 각 장비의 3D 장면 | `node tools/render-process-stills.mjs` |
 | `lab-sim/state-model-v2.json` | 저장소 루트의 `tools/lab_sim/` | [LAB-SIM.md](lab-sim/LAB-SIM.md) |
 | `standalone/CMP-Lab.html` | 사이트 전체 | `node tools/build-standalone.mjs` |
 | `site/` | 사이트 전체 | `node tools/export-site.mjs` |
@@ -82,7 +81,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | 어디든 | 단위 테스트 |
 | `lab-3d/src/lab-3d-scene.js` (3D 장면, 끌기 조작) | `build-scenes lab-3d` → 단위 테스트 → `check-browser lab`. 장비 모양이 달라졌으면 `render-lab-still`로 홈 그림도 다시 찍는다 |
 | `lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`, `process-model.js`, `scene.js`를 고쳤으면 `check-browser process`도 (특히 `process-cmp`) |
-| `process-lab/src/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process`. 장비 모양이 달라졌으면 `render-process-stills`로 첫 화면의 그림도 다시 찍는다 |
+| `process-lab/src/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process`. 첫 화면의 라인은 같은 장비들을 그대로 세운 것이라 따로 다시 만들 것이 없다. 장비의 크기가 달라지면 라인의 자리와 카메라는 저절로 다시 잡힌다 |
 | `process-lab/` (화면, 공정 흐름, 계산) | 단위 테스트 → `check-browser process` |
 | 홈 화면(`index.html`, `home/`) | `check-browser home` |
 | 게임(`factory/`) | [factory/README.md](factory/README.md)의 개발 및 검증. 파일을 더하거나 옮겼으면 `check-browser game`. 파일 이름을 바꾸거나 지웠으면 단위 테스트가 `index.html`과 `lab-sim/lab-sim.html`의 어긋난 줄을 알려 준다 |
@@ -115,8 +114,8 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-operate` | 웨이퍼 장착, 플래튼, 스핀들, 밸브, 구역 조절기, 컨디셔너, 가압, 휠, 연마, 헤드 올리기, 계측까지 부품을 끌어서 한 장을 처리하기. 끄는 동안의 값 표시, 장비 화면 확대, 비상 정지 |
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
 | `lab-lot` | 로트 다섯 장을 끝까지 돌리기: 컨디셔너를 계속 쓰면 패드 수명이 로트 안에서 끝나 경보가 뜨는지, 패드를 바꾼 뒤의 로트 시간, 로트 결과 화면과 안내, 다음 로트, 계측하지 않고 넘긴 웨이퍼 |
-| `process-route` | 첫 화면(장비 그림 여덟 장, 적은 글자), 그림을 눌러 바로 시작해 끝 화면(웨이퍼 맵, 수율, 공정마다 한 줄)까지, 앞 공정을 같은 웨이퍼로 다시 하기 (장비 없이 표준 조건으로) |
-| `process-flow` | 같은 흐름을 장비를 켠 채로: 누르면 장비가 열리는지, 이 공정 다시, 표준 조건으로 넘기기, 앞 공정으로 돌아가기 |
+| `process-route` | 첫 화면(3D 라인에 여덟 장비가 순서대로, 적은 글자, 장비에 마우스를 올리면 나오는 카드), 장비를 눌러 바로 시작해 끝 화면(웨이퍼 맵, 수율, 공정마다 한 줄)까지, 앞 공정을 같은 웨이퍼로 다시 하기, 제목을 눌러 라인으로 돌아가기 (장비 없이 표준 조건으로) |
+| `process-flow` | 같은 흐름을 장비를 켠 채로: 라인의 장비를 누르면 카메라가 날아가 장비가 열리는지, 이 공정 다시, 표준 조건으로 넘기기, 앞 공정으로 돌아가기, 라인으로 나갔다가 하던 장비로 돌아오기 |
 | `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-cmp`, `process-eds`, `process-bond` ([PROCESS-LAB.md](process-lab/PROCESS-LAB.md)) |
 | `process-all` | 웨이퍼 한 장을 여덟 장비로 처음부터 끝까지 (마우스 대신 각 장비의 조작 함수로). 장비 사이의 넘겨주기 |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |

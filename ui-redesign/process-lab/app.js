@@ -1,6 +1,7 @@
-/* Page logic of the 8-process lab: the route, the run, the bench views and the host of the equipment stations.
- * Route and wafer: flow-model.js. 3D: scene.js (built from src/process-lab-scene.js), and for the polish the scene of
- * the CMP learning lab itself (../lab-3d/scene.js) on a canvas of its own.
+/* Page logic of the 8-process lab: the line it opens on, the route, the run, the bench views and the host of the
+ * equipment stations. Route and wafer: flow-model.js. 3D: scene.js (built from src/process-lab-scene.js) holds the whole
+ * line and the piece of equipment in use; for the polish, the scene of the CMP learning lab itself (../lab-3d/scene.js)
+ * on a canvas of its own.
  * window.ProcessLabDebug at the end is what tools/check-browser.mjs drives the page with.
  *
  * A process with equipment has a station object in window.ProcessLabStations (station-<process>.js):
@@ -153,14 +154,17 @@
   // ----- state -----
   const query = new URLSearchParams(location.search), seed = Number(query.get('seed')) || (Date.now() % 100000);
   const passAll = query.get('equipment') === 'off';             // ?equipment=off passes every process by the standard recipe (the route alone)
-  let run = null, after = [], entries = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];   // entries[i]: the run as it was when it came to process i
+  let run = null, after = [], entries = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];   // mode: 'line', 'bench' or 'station'; entries[i]: the run as it was when it came to process i
   let station = null, sim = null, stage = 0, staged = [], stageWafer = null;      // a process with two pieces of equipment: which one is in use, the results so far, the wafer between them
-  let scene = null, polisher = null, view3d = null, scanning = false, mountedEquipment = null, timeScale = 60,   // scene: this lab's own; polisher: the CMP lab's, made when first needed; view3d: the one in use
+  let scene = null, polisher = null, view3d = null, scanning = false, timeScale = 60,   // scene: this lab's own; polisher: the CMP lab's, made when first needed; view3d: the one in use
       hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0,
       stripMode = 'auto', tiles = [], reportOpen = false, reportId = null;                    // the process instruments and the metrology report of the station on show
   /** The equipment of process i in the order it is used. Most processes have one piece, some have two. */
   const stationsOf = i => { const s = scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null; return !s ? [] : Array.isArray(s) ? s : [s]; };
   const stationLive = () => Boolean(run && !run.finished && sim && station);
+  /** The first piece of equipment of process i (a process can have two): the one that stands in the line. */
+  const firstStation = i => { const s = STATIONS[F.STEPS[i].id]; return Array.isArray(s) ? s[0] : s; };
+  const lineKeys = F.STEPS.map((step, i) => { const first = firstStation(i); return first ? first.equipment : null; });
 
   // ----- route -----
   const stops = [];
@@ -178,8 +182,9 @@
       const mark = el('span', { class: 'mark' });
       const button = el('button', { type: 'button', class: 'stop', 'aria-pressed': 'false', 'aria-label': `${i + 1} ${step.name}: ${step.does}`, onclick: () => select(i) },
         el('span', { class: 'no', text: String(i + 1) }), el('span', { class: 'name', text: step.name }), mark);
-      button.addEventListener('pointerenter', () => showPop(i)); button.addEventListener('focus', () => showPop(i));
-      button.addEventListener('pointerleave', hidePop); button.addEventListener('blur', hidePop);
+      const point = () => { showPop(i); scene?.mark(lineKeys[i]); }, leave = () => { hidePop(); scene?.mark(null); };     // on the line the machine of the step lights up
+      button.addEventListener('pointerenter', point); button.addEventListener('focus', point);
+      button.addEventListener('pointerleave', leave); button.addEventListener('blur', leave);
       stops[i] = { button, mark };
       return button;
     }));
@@ -208,10 +213,10 @@
   function setMode(next) {
     mode = next; $('stage').dataset.mode = next; $('speed').hidden = $('redo').hidden = $('skip').hidden = next !== 'station';
     $('redo-piece').hidden = next !== 'station' || stage === 0;       // only on the second piece of a process: the first one is 'this process again'
-    if (next === 'station') { $('route').hidden = false; last = performance.now(); hudClock = 0; view3d.resize(); }
+    if (next !== 'line') showTag(-1);
+    if (next !== 'bench') { last = performance.now(); hudClock = 0; (next === 'line' ? scene : view3d).resize(); }
   }
-  function showBench(nodes, kind = '') { $('bench').dataset.view = kind; $('route').hidden = kind === 'line' && !run;   // on the first screen the pictures are the route
-    $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); $('bench').scrollTop = 0; setMode('bench'); }
+  function showBench(nodes) { $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); $('bench').scrollTop = 0; setMode('bench'); }
   const head = (i, actions) => el('div', { class: 'bench-head' },
     el('div', {}, el('p', { class: 'no', text: `공정 ${i + 1}` }), el('h2', { text: F.STEPS[i].name }), el('p', { text: F.STEPS[i].does })), el('div', { class: 'bench-actions' }, actions));
   /** The finished chip in cross-section, with every layer named after the process that makes it. */
@@ -226,28 +231,46 @@
     root.append(svg('text', { x: 22, y: 286, 'font-size': 13, 'font-weight': 650, fill: '#1e293b' }, 'p형 실리콘 웨이퍼 · 1 웨이퍼 제조'));
     return root;
   }
-  /** The first piece of equipment of process i (a process can have two). */
-  const firstStation = i => { const s = STATIONS[F.STEPS[i].id]; return Array.isArray(s) ? s[0] : s; };
   /**
-   * Where the lab opens: the eight pieces of equipment in order, each a still of its own 3D scene, with the wafer as it
-   * leaves that process under it. A click on one starts there; with a run in hand it asks first, like the route does.
+   * Where the lab opens: the whole line in one 3D picture. The eight pieces of equipment stand in the order of the
+   * processes and a carriage takes the box of wafers along the rail in front of them. A click on a machine starts there
+   * and the camera goes to it; with a run in hand it asks first, like the route does. From a machine the camera flies back out.
    */
-  function showOverview() {
+  function showLine() {
     selected = -1;
-    const inHand = run && !run.finished;
-    showBench([
-      el('div', { class: 'line-head' }, el('h2', { text: '웨이퍼 한 장이 여덟 장비를 거쳐 칩이 됩니다' }),
-        el('div', { class: 'bench-actions' },
-          inHand ? el('button', { type: 'button', class: 'btn', id: 'back', text: '하던 공정으로', onclick: () => select(viewing) }) : null,
-          el('button', { type: 'button', class: inHand ? 'btn' : 'btn primary', id: 'start-first', text: '처음부터 시작', onclick: () => start(0) }))),
-      el('ol', { class: 'line' }, F.STEPS.map((step, i) => {
-        const first = firstStation(i);
-        return el('li', {}, el('button', { type: 'button', class: 'tile', 'data-step': String(i), 'aria-label': `${i + 1} ${step.name}: ${step.does}`, onclick: () => select(i) },
-          el('span', { class: 'shot' }, first ? el('img', { src: `./media/line-${first.equipment}.webp`, alt: '', draggable: 'false' }) : null),
-          el('span', { class: 'cap' }, el('span', { class: 'no', text: String(i + 1) }), el('span', { class: 'name', text: step.name }), el('span', { class: 'thumb' }, picture(i, waferAfter(i), true)))));
-      })),
-    ], 'line');
-    renderRoute();
+    if (!scene) {                                                 // no 3D: the route above is the way in
+      showBench([el('div', { class: 'bench-head' }, el('div', {}, el('h2', { text: $('line-title').textContent }), el('p', { text: '이 브라우저에서는 3D 장비를 그릴 수 없어, 모든 공정을 표준 조건으로 지나갑니다.' })),
+        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn primary', id: 'start-first', text: '처음부터 시작', onclick: () => start(0) })))]);
+      renderRoute(); return;
+    }
+    const inHand = Boolean(run && !run.finished), flying = mode === 'station' && view3d === scene;
+    $('line-back').hidden = !inHand; $('line-start').className = inHand ? 'btn' : 'btn primary';
+    $('stage').dataset.view = 'own'; $('scene').setAttribute('aria-label', '공정 라인. 장비를 누르면 그 공정으로 갑니다.');
+    scene.setInsets({}); scene.park(inHand ? lineKeys[run.at] : null); scene.showLine(!flying);
+    setMode('line'); renderRoute();
+  }
+  /** The card of the machine of the line under the pointer: its number and process, the wafer as it leaves that process, what the process does. */
+  let tagged = -1;
+  function showTag(i) {
+    if (i === tagged) return;
+    if (tagged >= 0) delete stops[tagged].button.dataset.hot;
+    tagged = i; const box = $('line-tag'); box.hidden = i < 0;
+    if (i < 0) return;
+    stops[i].button.dataset.hot = '';
+    box.replaceChildren(el('p', { class: 'name' }, el('span', { class: 'no', text: String(i + 1) }), F.STEPS[i].name), picture(i, waferAfter(i), true), el('p', { text: F.STEPS[i].does }));
+    placeTag();
+  }
+  function placeTag() {
+    if (tagged < 0) return;
+    const box = $('line-tag'), p = scene.stationPoint(lineKeys[tagged]), stage = $('stage');
+    if (!p || !p.visible) { box.style.visibility = 'hidden'; return; }
+    const w = box.offsetWidth, h = box.offsetHeight;
+    box.style.visibility = ''; box.style.left = `${clamp(p.x - w / 2, 8, stage.clientWidth - w - 8)}px`; box.style.top = `${clamp(p.y - h - 14, 64, stage.clientHeight - h - 8)}px`;
+  }
+  function onLine(kind, key) {
+    const i = lineKeys.indexOf(key);
+    if (kind === 'hover') showTag(mode === 'line' ? i : -1);
+    else if (kind === 'pick' && i >= 0 && mode === 'line') { showTag(-1); select(i); }
   }
   /** A process picked while a run is in hand (or over): do it again on the wafer this run brought to it, or start a new run there. */
   function showChoice(i) {
@@ -336,7 +359,7 @@
   function skip() { if (stationLive()) { pass(); renderRoute(); } }
   function select(i) {
     if (!run) { start(i); return; }                               // nothing in hand: the equipment of that process opens at once
-    if (!run.finished && i === viewing) { selected = i; if (stationLive()) setMode('station'); else showBench(runBench); renderRoute(); return; }
+    if (!run.finished && i === viewing) { selected = i; if (stationLive()) showStation(mode === 'line'); else showBench(runBench); renderRoute(); return; }
     showChoice(i);
   }
 
@@ -348,27 +371,36 @@
     hover: name => { hovered = name; },
     drag: (name, ended) => { dragging = name; if (!name && ended && sim) { station.dragEnd?.(sim, ended); hudClock = 0; } },
     press: name => { if (name === 'hmi') showView('screen'); },
+    station: onLine,
     wafer: target => { if (!sim || !station.wafer) return; const refused = station.wafer(sim, target); if (refused) flash(refused); hudClock = 0; },
     refuse: () => flash('헤드를 끝까지 올린 뒤에 웨이퍼를 꺼낼 수 있습니다.'),
   };
-  /** The 3D view a station is shown in: this lab's scene with the station's equipment mounted, or the polisher of the CMP lab. Null if it cannot be made. */
-  function sceneOf(next) {
+  /**
+   * The 3D view a station is shown in: this lab's scene with the station's machine of the line in use, or the polisher of
+   * the CMP lab. Null if it cannot be made. `fly`: the camera goes to the machine instead of being put there.
+   */
+  function sceneOf(next, fly = false) {
     const cmp = next.scene === 'cmp';
     if (cmp && !polisher && window.CMPLab3DScene) polisher = window.CMPLab3DScene.create({ canvas: $('scene-cmp'), constants: FILM.constants, on: sceneEvents });
     if (cmp && !polisher) return null;
     $('stage').dataset.view = cmp ? 'cmp' : 'own';
-    if (!cmp && mountedEquipment !== next.equipment) { scene.mount(next.equipment); mountedEquipment = next.equipment; }
+    if (!cmp) { $('scene').setAttribute('aria-label', '공정 장비. 부품을 끌거나 눌러 조작합니다.'); if (scene.active !== next.equipment) scene.mount(next.equipment, fly); }
     return cmp ? polisher : scene;
   }
+  /** The equipment in use on show again, as it was left: from the line the camera flies to it. */
+  function showStation(fly = false) { sceneOf(station, fly); setMode('station'); }
   function openStation(next) {
-    const target = sceneOf(next);
+    // From the line, and from one machine of this scene to the next, the camera goes there; everything else is a cut.
+    const fly = next.scene !== 'cmp' && (mode === 'line' || (mode === 'station' && view3d === scene && scene.active !== next.equipment));
+    const target = sceneOf(next, fly);
     if (!target) { console.warn('process-lab: the polisher could not be shown, so the polish goes by the standard recipe'); pass(); return; }
     station = next; view3d = target; scanning = false; sim = station.create(stageWafer, seed, { base: run.wafer, results: staged });
     for (const name of Object.keys(view3d.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`);
     $('views').replaceChildren(...station.views.map(([view, text]) => el('button', { type: 'button', 'data-view': view, 'aria-pressed': 'false', text })));
     $('speed').replaceChildren(...station.speeds.map(([speed, text]) => el('button', { type: 'button', 'data-speed': speed, 'aria-pressed': 'false', text })));
     timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
-    view3d.setView('home', true); pressed($('views'), 'view', 'home');
+    if (!fly) view3d.setView('home', true);
+    pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
     stripMode = 'auto'; reportOpen = false; reportId = null; buildTiles();
     $('redo-piece').textContent = station.title ? `${station.title}만 다시` : '이 장비만 다시';
@@ -587,7 +619,7 @@
     }
     const pill = $('pill'), part = dragging && station.parts[dragging];
     if (part && part.pill && place(pill, dragging)) { pill.textContent = part.pill(sim.state); pill.hidden = false; } else pill.hidden = true;
-    const focus = $('focus'); focus.hidden = !focusPart || hovered === focusPart || Boolean(dragging) || !place(focus, focusPart);
+    const focus = $('focus'); focus.hidden = !focusPart || hovered === focusPart || Boolean(dragging) || Boolean(view3d.gliding) || !place(focus, focusPart);
   }
 
   function frame(now) {
@@ -604,13 +636,13 @@
         if (view3d.filmCanvas && station.paint) { station.paint(sim, view3d.filmCanvas); view3d.refreshFilm(); }
       }
       renderCallout(); positionOverlays();
-    }
+    } else if (mode === 'line') { scene.update(null, dt); scene.render(); placeTag(); }
     requestAnimationFrame(frame);
   }
 
   function init() {
+    scene = window.CMPProcessLabScene.create({ canvas: $('scene'), on: sceneEvents, line: F.STEPS.map((step, i) => ({ equipment: lineKeys[i], number: i + 1, name: step.name })) });
     buildRoute();
-    scene = window.CMPProcessLabScene.create({ canvas: $('scene'), on: sceneEvents });
     $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b && view3d) showView(b.dataset.view); });
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); pressed($('speed'), 'speed', timeScale); });
     $('guide-action').addEventListener('click', () => guideAction?.());
@@ -620,7 +652,9 @@
     $('report-open').addEventListener('click', () => { reportOpen = true; hudClock = 0; });
     $('help-open').addEventListener('click', () => $('help').showModal());
     $('help-goal').replaceChildren(goalPicture());
-    $('to-line').addEventListener('click', showOverview);
+    $('to-line').addEventListener('click', showLine);
+    $('line-start').addEventListener('click', () => start(0));
+    $('line-back').addEventListener('click', () => select(viewing));
     $('redo').addEventListener('click', () => { if (run && !run.finished) redo(run.at); });
     $('redo-piece').addEventListener('click', restage);
     $('skip').addEventListener('click', skip);
@@ -636,10 +670,11 @@
     if (!scene) console.warn('process-lab: WebGL 2 is not available, so the equipment views are passed by the standard recipe');
 
     const from = query.get('start'), index = F.STEPS.findIndex(step => step.id === from);
-    if (index >= 0) start(index); else showOverview();
+    if (index >= 0) start(index); else showLine();
     window.ProcessLabDebug = {
-      flow: F, stations: STATIONS, start, enter, select, finishStation, redo, restage, skip, showOverview,
-      get scene() { return view3d || scene; },                    // the 3D view in use: the checks project points and read parts through it
+      flow: F, stations: STATIONS, start, enter, select, finishStation, redo, restage, skip, showLine,
+      get scene() { return mode === 'line' ? scene : view3d || scene; },   // the 3D view in use: the checks project points and read parts through it
+      get line() { return { keys: lineKeys, tagged, tag: $('line-tag').hidden ? '' : $('line-tag').innerText }; },
       get stage() { return stage; }, get entries() { return entries; },
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },

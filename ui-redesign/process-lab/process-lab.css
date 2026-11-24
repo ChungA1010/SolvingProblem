@@ -1,13 +1,12 @@
 /* 8-process lab. Tokens, top bar, stage and the HUD pieces (monitor, guide, part card) come from ../lab-3d/lab-3d.css;
- * this file adds the route, the bench views and what the wafer monitor needs here.
- * Words are few on purpose: pictures of the real equipment and of the wafer carry the page. */
+ * this file adds the route, the line the lab opens on, the bench views and what the wafer monitor needs here.
+ * Words are few on purpose: the equipment itself and pictures of the wafer carry the page. */
 
 /* Route: the eight processes in order, one slim row. A step shows the wafer as it leaves that process under the pointer. */
-.route[hidden] { display: none; }
 .route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .stop { position: relative; display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 9px 12px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
 .stop:first-child { border-left: 0; }
-.stop:hover { background: #f6f8fc; }
+.stop:hover, .stop[data-hot] { background: #f6f8fc; }                                             /* data-hot: the pointer is on its machine in the line */
 .stop[aria-pressed="true"] { background: var(--brand-soft); }
 .stop:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 .stop .no { font-size: 11px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
@@ -22,9 +21,9 @@
 .title h1 { cursor: pointer; } .title h1:hover { color: var(--brand); }
 
 .stage { height: calc(100vh - 150px); min-height: 520px; }
-.route[hidden] ~ .stage { height: calc(100vh - 100px); }                                         /* the first screen has the room of the route too */
 .stage[data-mode="bench"] { background: var(--panel); }
 .stage[data-mode="bench"]::after, .stage[data-mode="bench"] #scene, .stage[data-mode="bench"] .hud, .stage[data-mode="station"] .bench { display: none; }
+.stage[data-mode="line"] .bench, .stage[data-mode="line"] .hud, .stage:not([data-mode="line"]) .line-head, .stage:not([data-mode="line"]) .line-tag { display: none; }
 
 /* Bench: what is shown instead of the equipment. */
 .bench { position: absolute; inset: 0; overflow: auto; display: grid; place-items: center; padding: 26px 32px; }
@@ -46,25 +45,16 @@
 .result { font-size: 16px; font-weight: 650; word-break: keep-all; } .result[data-tone="bad"] { color: var(--danger); }
 .assumed { font-size: 12.5px; color: var(--muted); word-break: keep-all; }
 
-/* The line: where the lab opens. The eight pieces of equipment in order, four to a row, each a still of its own 3D scene
-   (tools/render-process-stills.mjs) with the wafer as it leaves that process under it. A click starts there. */
-.bench[data-view="line"] { place-items: stretch; padding: 20px 26px 22px; }
-.bench[data-view="line"] .bench-inner { grid-template-rows: auto minmax(0, 1fr); gap: 14px; width: 100%; min-height: 100%; }
-.line-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+/* The line: where the lab opens. The whole line stands in the 3D view (src/process-lab-scene.js). The page lays one
+   heading over the top of the picture and hangs a card on the machine under the pointer. */
+.line-head { position: absolute; right: 0; bottom: 0; z-index: 1; display: grid; justify-items: end; gap: 16px; max-width: min(560px, 100%); padding: 0 34px 34px 16px; text-align: right; pointer-events: none; }
 .line-head h2 { font-size: clamp(21px, 2.1vw, 30px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; word-break: keep-all; }
-.line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 12px 2px; min-height: 0; margin: 0; padding: 0; list-style: none; }
-.line li { display: grid; min-width: 0; min-height: 0; }
-.line .tile { display: grid; grid-template-rows: minmax(150px, 1fr) auto; min-width: 0; padding: 0; border: 0; background: none; color: inherit; text-align: left; outline: none; }
-.line .tile .shot { position: relative; overflow: hidden; background: #dde1e7; }
-.line .tile .shot img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 55%; transition: transform .6s cubic-bezier(.2, .6, .2, 1); }
-.line .tile:hover .shot img, .line .tile:focus-visible .shot img { transform: scale(1.035); }
-.line .tile .cap { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 8px 4px 2px; }
-.line .tile .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
-.line .tile .name { font-size: clamp(13px, 1.05vw, 16px); font-weight: 750; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.line .tile:hover .name, .line .tile:focus-visible .name { color: var(--brand); }
-.line .tile .thumb { flex: none; width: 132px; margin-left: auto; }                                     /* the wafer as it leaves this process */
-.line .tile .thumb svg { display: block; width: 100%; height: 31px; border-radius: 5px; background: #eef1f6; }
-.line .tile:focus-visible .shot { box-shadow: inset 0 0 0 3px var(--brand); }
+.line-head .btn { pointer-events: auto; box-shadow: var(--shadow); }
+.line-tag { position: absolute; z-index: 2; width: 236px; padding: 10px; border: 1px solid #ffffffc0; border-radius: 12px; background: #fffffff0; backdrop-filter: blur(10px); box-shadow: var(--shadow); pointer-events: none; }
+.line-tag .name { display: flex; align-items: baseline; gap: 7px; margin-bottom: 7px; font-size: 15px; font-weight: 750; letter-spacing: -.01em; }
+.line-tag .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
+.line-tag svg { display: block; width: 100%; height: 62px; border-radius: 6px; background: #eef1f6; }
+.line-tag svg + p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; }
 
 /* The end of a run: how many chips, the wafer map they came from, and one line for each process. */
 .finish { display: flex; align-items: center; gap: 26px; }
@@ -119,12 +109,8 @@
 .stage[data-view="cmp"] #scene { display: none; }
 
 @media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 132px); overflow-x: auto; } }
-@media (max-width: 900px), (max-height: 700px) {                                                 /* no room for two rows of four in the window: the pictures keep their shape and the bench scrolls */
-  .bench[data-view="line"] .bench-inner { min-height: 0; } .line { grid-auto-rows: auto; } .line .tile { grid-template-rows: auto auto; } .line .tile .shot { aspect-ratio: 3 / 2; }
-}
-@media (max-width: 900px) { .line { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 2px; } }
 @media (max-width: 720px) {
-  .bench, .bench[data-view="line"] { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2, .finish-head h2 { font-size: 25px; }
-  .line-head { flex-direction: column; align-items: stretch; } .finish { flex-direction: column; align-items: flex-start; }
+  .bench { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2, .finish-head h2 { font-size: 25px; }
+  .line-head { gap: 10px; padding: 0 16px 18px; } .finish { flex-direction: column; align-items: flex-start; }
 }
-@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } .line .tile .shot img { transition: none; } .line .tile:hover .shot img, .line .tile:focus-visible .shot img { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } }
