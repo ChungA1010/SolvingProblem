@@ -23,8 +23,6 @@
   <script src="./factory/workbench.js" defer></script>
   <link rel="stylesheet" href="./factory/workbench.css">
   <link rel="stylesheet" href="./home/home.css">
-  <script src="./lab-3d/process-model.js" defer></script>
-  <script src="./home/home.js" defer></script>
 </head>
 <body>
   <a href="#main" class="fixed left-4 top-3 z-50 -translate-y-24 rounded-[5px] bg-brand px-4 py-2 text-paper focus:translate-y-0">본문으로 바로가기</a>
@@ -79,7 +77,9 @@
 
         <section id="page-home" aria-label="모드 선택">
           <!-- Mode selection. The two modes stand side by side, each shown by a still of its own scene:
-               home/media/factory.webp (tools/build-home-art.py) and home/media/lab.webp (tools/render-lab-still.mjs). Styles: home/home.css. -->
+               home/media/factory.webp (tools/build-home-art.py) and home/media/lab.webp (tools/render-lab-still.mjs). Styles: home/home.css.
+               Words are kept to what a first visitor needs: one line on what CMP is, and under each picture the name
+               of the mode, one line on what is done there, and the way in. -->
           <div class="home">
             <header class="home-top">
               <a class="home-brand" href="#home" aria-label="CMP Lab">
@@ -91,41 +91,31 @@
                 <a href="#home" aria-current="page">모드 선택</a>
                 <a href="./process-lab/process-lab.html">8대 공정 실험실<small>실험판</small></a>
               </nav>
-              <h1 class="home-thesis">CMP 공정을 게임과 실험, 두 가지 방법으로 다룹니다.</h1>
+              <h1 class="home-thesis">CMP는 웨이퍼 표면을 평평하게 연마하는 반도체 공정입니다.</h1>
             </header>
             <div class="doors">
               <a class="door door-factory" href="./factory/game.html">
                 <div class="door-art"><img src="./home/media/factory.webp" width="1800" height="1500" alt="팩토리 게임의 접수 창구에 선 손님"></div>
                 <div class="door-cap">
                   <div class="door-text">
-                    <p class="door-who">CMP가 처음이라면</p>
                     <h2 class="door-name">CMP 팩토리</h2>
-                    <p class="door-what">기계는 연마하고, 당신은 측정과 납품을 판단합니다.</p>
-                    <p class="door-facts">일반 의뢰 5개 · 특별 손님 2명</p>
+                    <p class="door-what">의뢰받은 웨이퍼를 연마해 납품하는 게임</p>
                   </div>
-                  <div class="door-side">
-                    <dl class="door-detail"><dt>첫 의뢰</dt><dd>150 nm ± 8% · 원판 6장</dd></dl>
-                    <span class="door-go">게임 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
-                  </div>
+                  <span class="door-go">게임 시작<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
                 </div>
               </a>
               <a class="door door-lab" href="./lab-3d/lab-3d.html">
                 <div class="door-art"><img src="./home/media/lab.webp" width="1800" height="1500" alt="학습 실험실의 3D 연마 장비"></div>
                 <div class="door-cap">
                   <div class="door-text">
-                    <p class="door-who">공정을 배우고 있다면</p>
                     <h2 class="door-name">학습 실험실</h2>
-                    <p class="door-what">3D 연마 장비를 직접 움직여 산화막 한 장을 연마하고 계측합니다.</p>
-                    <p class="door-facts">300 mm 웨이퍼 · 49점 계측</p>
+                    <p class="door-what">3D 연마 장비를 직접 조작하는 실험</p>
                   </div>
-                  <div class="door-side">
-                    <div class="door-detail"><span>산화막 두께에 따라 달라지는 색</span><canvas id="home-film" width="480" height="20" aria-hidden="true"></canvas><span class="film-ends"><span id="home-film-from">1,000 nm</span><span id="home-film-to">550 nm</span></span></div>
-                    <span class="door-go">실험실 열기<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
-                  </div>
+                  <span class="door-go">실험실 열기<svg class="icon size-4" aria-hidden="true"><use href="#i-arrow"/></svg></span>
                 </div>
               </a>
             </div>
-            <footer class="home-foot"><p>수식 기반 교육용 데모입니다. 목표 달성은 학습 미션의 판정이며 실제 공정 품질을 뜻하지 않습니다.</p><p>데이터 출처 · PHM 2016 CMP</p></footer>
+            <footer class="home-foot"><p>교육용 데모이며, 결과는 실제 공정 품질을 뜻하지 않습니다.</p><p>데이터 출처 · PHM 2016 CMP</p></footer>
           </div>
           <button type="button" class="primary-button" data-page="lab" hidden data-parked>예전 학습 실험실 워크스페이스 열기</button>
           <p class="mode-footnote" hidden data-parked>게임 진행과 실험 기록은 각각 저장됩니다. <a href="#intro-tour">기존 5회 MRR 도전 →</a></p>

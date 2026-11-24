@@ -10,7 +10,7 @@ const path = require('node:path');
 
 /** Folder of each part -> what it is and which other parts its files may load from (links to pages are free). */
 const PARTS = {
-  home: { what: 'the mode selection page (index.html at the root)', uses: ['shared', 'factory', 'lab-3d'] },
+  home: { what: 'the mode selection page (index.html at the root)', uses: ['shared', 'factory'] },
   shared: { what: 'what several parts load: the base stylesheet, the font, licence texts', uses: [] },
   factory: { what: 'CMP Factory, the game; also the scripts of the parked inner screens of index.html', uses: ['shared'] },
   'lab-3d': { what: 'the learning lab, the 3D polisher', uses: ['shared'] },

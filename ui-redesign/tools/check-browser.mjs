@@ -61,9 +61,14 @@ async function home(t) {
   t.expect(parked.length > 0 && !parked.includes(true), `the ${parked.length} parked entries stay out of sight`);
   t.expect(!(await shown('.sidebar')) && !(await shown('.topbar')), 'the workspace frame (side menu, top bar) is hidden on the home page');
   t.expect(await b.evaluate(`[...document.querySelectorAll('.door-art img')].every(i => i.naturalWidth > 0)`), 'both pictures load');
-  const film = await b.evaluate(`(() => { const c = document.getElementById('home-film'), d = c.getContext('2d').getImageData(0, 0, c.width, 1).data, at = i => [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]].join(',');
-    return { from: at(0), to: at(c.width - 1), labels: [document.getElementById('home-film-from').textContent, document.getElementById('home-film-to').textContent] }; })()`);
-  t.expect(film.from !== film.to && film.labels.every(label => /\d\s*nm$/.test(label)) && film.labels[0] !== film.labels[1], 'the film colour scale is painted by the lab\'s process model', JSON.stringify(film));
+  // The page is kept to few words: what CMP is at the top, and under each picture a name, one line and the way in.
+  const words = await b.evaluate(`(() => { const lines = e => e.innerText.split('\\n').map(s => s.trim()).filter(Boolean), thesis = document.querySelector('.home-thesis');
+    return { thesis: thesis.innerText.trim(), thesisShown: thesis.getClientRects().length > 0, foot: lines(document.querySelector('.home-foot')), scripts: [...document.scripts].map(s => s.getAttribute('src') || '').filter(src => /lab-3d|home\\//.test(src)),
+      caps: [...document.querySelectorAll('.door')].map(door => ({ lines: lines(door.querySelector('.door-cap')), name: door.querySelector('.door-name').innerText.trim(), what: door.querySelector('.door-what').innerText.trim(), go: door.querySelector('.door-go').innerText.trim() })) }; })()`);
+  t.expect(words.caps.length === 2 && words.caps.every(c => c.lines.length === 3 && c.lines[0] === c.name && c.lines[1] === c.what && c.lines[2] === c.go && c.what.length <= 30),
+    'under each picture there are three things and no more: the name of the mode, one short line on what is done there, and the way in', JSON.stringify(words.caps));
+  t.expect(words.thesisShown && /CMP/.test(words.thesis) && /연마/.test(words.thesis) && words.thesis.length <= 40 && words.foot.length === 2 && words.scripts.length === 0,
+    'one line at the top says what CMP is, the foot has two short notes, and the page loads no script of the lab for itself', JSON.stringify({ thesis: words.thesis, foot: words.foot, scripts: words.scripts }));
 
   for (const [width, height] of [[1920, 1080], [1600, 1000], [1366, 768], [1024, 768], [400, 800]]) {
     await b.viewport(width, height); await sleep(700);

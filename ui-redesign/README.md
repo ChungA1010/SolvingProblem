@@ -17,7 +17,7 @@
 
 | 위치 | 내용 |
 |---|---|
-| `index.html`, `home/` | 모드 선택 화면. `home/`에는 이 화면만 쓰는 스타일, 스크립트, 그림 두 장이 있다. `index.html` 안에는 숨겨 둔 예전 화면(입문 체험, 예전 실험 워크스페이스, MRR 예측)의 마크업도 남아 있다 |
+| `index.html`, `home/` | 모드 선택 화면. `home/`에는 이 화면만 쓰는 스타일과 그림 두 장이 있다(`home.js`는 뺀 색 눈금을 그리던 스크립트로, 지금은 쓰이지 않는다). `index.html` 안에는 숨겨 둔 예전 화면(입문 체험, 예전 실험 워크스페이스, MRR 예측)의 마크업도 남아 있다 |
 | `game.html` | 게임의 옛 주소로 들어온 사람을 `factory/game.html`로 넘기는 한 줄짜리 화면 |
 | `shared/` | 여러 화면이 같이 불러 쓰는 것: 기본 스타일시트 `styles.css`(Tailwind 출력, 원본은 `shared/src/input.css`), 글꼴, 라이선스 글 |
 | `tools/`, `tests/` | 사이트 전체를 묶고, 검사하고, 내보내는 도구와 그 테스트 |
@@ -37,7 +37,6 @@
 | 쓰는 쪽 | 불러 쓰는 것 | 그래서 |
 |---|---|---|
 | 8대 공정 실험실 | `lab-3d/lab-3d.css`, `lab-3d/process-model.js`, `lab-3d/scene.js` | 학습 실험실의 이 세 파일을 고치면 8대 공정 실험실도 확인한다 (`check-browser process-cmp`) |
-| 모드 선택 화면 | `lab-3d/process-model.js` (산화막 색 눈금) | |
 | 모드 선택 화면의 숨긴 화면 | `factory/`의 스크립트 12개(`engine.js`, `app.js` 등), 스타일 2개, 투어 영상 | 게임 쪽에서 이 파일들의 이름을 바꾸거나 지우면 `index.html`의 해당 줄도 고친다 |
 | 숨겨 둔 장비 시뮬레이터 | `factory/scene-model.js`, `scene-parts.js`, `cmp-scene.js` | 위와 같다 (`lab-sim/lab-sim.html`) |
 
