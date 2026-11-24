@@ -41,8 +41,7 @@
   <header class="topbar">
     <a class="back" href="../index.html" aria-label="CMP Lab 홈으로">‹ CMP Lab</a>
     <div class="title">
-      <h1>8대 공정 실험실</h1>
-      <p>공정 하나를 고르면 거기서부터 패키징까지 같은 웨이퍼로 진행합니다</p>
+      <h1 id="to-line" title="여덟 장비 한눈에 보기">8대 공정 실험실</h1>
     </div>
     <div class="top-actions">
       <button type="button" class="btn" id="redo" hidden>이 공정 다시</button>
@@ -54,18 +53,18 @@
   </header>
 
   <main>
-    <!-- The eight processes in order. Each stop shows the wafer as it leaves that process. -->
+    <!-- The eight processes in order, one slim row. Under the pointer a step shows the wafer as it leaves that process. -->
     <nav class="route" id="route" aria-label="8대 공정"></nav>
+    <div class="route-pop" id="route-pop" hidden></div>
 
     <section class="stage" id="stage" data-mode="bench" aria-label="공정 화면">
       <canvas id="scene" tabindex="0" aria-label="공정 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
       <!-- The polisher of the CMP learning lab, drawn by that lab's own scene when the route comes to the polish. -->
       <canvas id="scene-cmp" tabindex="0" aria-label="CMP 장비. 부품을 끌거나 눌러 조작합니다."></canvas>
-      <!-- Shown instead of the equipment: where a run starts, a process passed by the standard recipe, the run sheet at the end. -->
+      <!-- Shown instead of the equipment: the line of the eight pieces of equipment where the lab opens, a process passed by the standard recipe, the end of a run. -->
       <div class="bench" id="bench"></div>
       <div class="hud" id="hud">
         <div class="views"><div class="seg" id="views" role="group" aria-label="시점"></div></div>
-        <p class="about" id="about"></p>
         <div class="alarms" id="alarms" aria-live="assertive"></div>
 
         <!-- Wafer monitor: filled by the station of the process on show. -->
@@ -104,8 +103,9 @@
 
   <dialog id="help" aria-labelledby="help-title">
     <h2 id="help-title">조작법</h2>
+    <figure class="goal"><div id="help-goal"></div><figcaption>만드는 것은 다이오드 칩입니다. 구리가 산화막의 창을 통해 n+ 영역에 닿아 있습니다. 7번 EDS에서 칩마다 전기로 검사해 양품을 가리고, 8번 패키징에서 양품만 금선으로 잇습니다.</figcaption></figure>
     <ul>
-      <li><b>공정 고르기</b>: 위쪽 줄에서 공정을 누르면 그 공정의 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다. 하던 도중에 다른 공정을 누르면, 지금 웨이퍼로 그 공정을 다시 할지 새 웨이퍼로 시작할지 고릅니다.</li>
+      <li><b>공정 고르기</b>: 첫 화면의 장비 그림이나 위쪽 줄의 공정을 누르면 그 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다. 위쪽 줄의 공정에 마우스를 올리면 그 공정을 지난 웨이퍼의 단면이 나옵니다. 하던 도중에 다른 공정을 누르면, 지금 웨이퍼로 그 공정을 다시 할지 새 웨이퍼로 시작할지 고릅니다. 제목을 누르면 첫 화면으로 갑니다.</li>
       <li><b>다시 하기, 넘기기</b>: 오른쪽 위의 <b>이 공정 다시</b>는 같은 웨이퍼로 이 공정을 처음부터 다시 합니다. <b>표준 조건으로 넘기기</b>는 이 공정을 표준 조건으로 지나갑니다.</li>
       <li><b>장비 조작</b>: 장비의 부품을 끌거나 눌러 조작합니다. 부품에 마우스를 올리면 그 부품이 하는 일, 지금 값, 조작법이 나옵니다.</li>
       <li><b>웨이퍼 모니터</b>: 오른쪽 위에 지금 웨이퍼의 상태가 나옵니다. 그래프에 마우스를 올리면 그 시점의 값이 나옵니다.</li>

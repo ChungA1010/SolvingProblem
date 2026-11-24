@@ -157,6 +157,7 @@
 
   // ----- route -----
   const stops = [];
+  let popped = -1;                                              // the step whose picture of the wafer is on show
   function waferAfter(i) {
     if (!run) return F.arriving(i + 1);
     if (i < run.at) return after[i];
@@ -167,13 +168,23 @@
   }
   function buildRoute() {
     $('route').replaceChildren(...F.STEPS.map((step, i) => {
-      const mark = el('span', { class: 'mark' }), holder = el('span', { class: 'thumb' });
-      const button = el('button', { type: 'button', class: 'stop', 'aria-pressed': 'false', title: step.does, onclick: () => select(i) },
-        el('span', { class: 'head' }, el('span', { class: 'no', text: String(i + 1) }), el('span', { class: 'name', text: step.name }), mark), holder);
-      stops[i] = { button, mark, holder };
+      const mark = el('span', { class: 'mark' });
+      const button = el('button', { type: 'button', class: 'stop', 'aria-pressed': 'false', 'aria-label': `${i + 1} ${step.name}: ${step.does}`, onclick: () => select(i) },
+        el('span', { class: 'no', text: String(i + 1) }), el('span', { class: 'name', text: step.name }), mark);
+      button.addEventListener('pointerenter', () => showPop(i)); button.addEventListener('focus', () => showPop(i));
+      button.addEventListener('pointerleave', hidePop); button.addEventListener('blur', hidePop);
+      stops[i] = { button, mark };
       return button;
     }));
   }
+  /** Under the pointer a step shows the wafer as it leaves that process (as the run stands now) and what the process does. */
+  function renderPop() { if (popped >= 0) $('route-pop').replaceChildren(picture(popped, waferAfter(popped), true), el('p', { text: F.STEPS[popped].does })); }
+  function showPop(i) {
+    popped = i; renderPop();
+    const box = $('route-pop'), at = stops[i].button.getBoundingClientRect(); box.hidden = false;
+    box.style.left = `${clamp(at.left + at.width / 2 - box.offsetWidth / 2, 8, window.innerWidth - box.offsetWidth - 8)}px`; box.style.top = `${at.bottom + 8}px`;
+  }
+  function hidePop() { popped = -1; $('route-pop').hidden = true; }
   function renderRoute() {
     F.STEPS.forEach((step, i) => {
       const s = stops[i], record = run ? run.records.find(r => r.step === step.id) : null;
@@ -182,17 +193,18 @@
       if (run && !run.finished && i === viewing) s.button.setAttribute('aria-current', 'step'); else s.button.removeAttribute('aria-current');
       const [tone, text] = !record ? ['', ''] : record.ok === false ? ['bad', record.by === 'operator' ? '✕ 규격 밖' : '✕ 불량'] : record.by === 'operator' ? ['ok', '✓ 직접'] : ['', '표준'];
       s.mark.dataset.tone = tone; s.mark.textContent = text;
-      s.holder.replaceChildren(picture(i, waferAfter(i), true));
     });
+    renderPop();
   }
 
   // ----- bench: a process as pictures of the wafer -----
   function setMode(next) {
     mode = next; $('stage').dataset.mode = next; $('speed').hidden = $('redo').hidden = $('skip').hidden = next !== 'station';
     $('redo-piece').hidden = next !== 'station' || stage === 0;       // only on the second piece of a process: the first one is 'this process again'
-    if (next === 'station') { last = performance.now(); hudClock = 0; view3d.resize(); }
+    if (next === 'station') { $('route').hidden = false; last = performance.now(); hudClock = 0; view3d.resize(); }
   }
-  function showBench(nodes) { $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); setMode('bench'); }
+  function showBench(nodes, kind = '') { $('bench').dataset.view = kind; $('route').hidden = kind === 'line' && !run;   // on the first screen the pictures are the route
+    $('bench').replaceChildren(el('div', { class: 'bench-inner' }, nodes)); $('bench').scrollTop = 0; setMode('bench'); }
   const head = (i, actions) => el('div', { class: 'bench-head' },
     el('div', {}, el('p', { class: 'no', text: `공정 ${i + 1}` }), el('h2', { text: F.STEPS[i].name }), el('p', { text: F.STEPS[i].does })), el('div', { class: 'bench-actions' }, actions));
   /** The finished chip in cross-section, with every layer named after the process that makes it. */
@@ -207,16 +219,27 @@
     root.append(svg('text', { x: 22, y: 286, 'font-size': 13, 'font-weight': 650, fill: '#1e293b' }, 'p형 실리콘 웨이퍼 · 1 웨이퍼 제조'));
     return root;
   }
-  /** Where the lab opens: what the eight processes make between them. */
+  /** The first piece of equipment of process i (a process can have two). */
+  const firstStation = i => { const s = STATIONS[F.STEPS[i].id]; return Array.isArray(s) ? s[0] : s; };
+  /**
+   * Where the lab opens: the eight pieces of equipment in order, each a still of its own 3D scene, with the wafer as it
+   * leaves that process under it. A click on one starts there; with a run in hand it asks first, like the route does.
+   */
   function showOverview() {
     selected = -1;
+    const inHand = run && !run.finished;
     showBench([
-      el('div', { class: 'bench-head' },
-        el('div', {}, el('p', { class: 'no', text: '만드는 것' }), el('h2', { text: '웨이퍼 한 장으로 다이오드 칩을 만듭니다' }), el('p', { text: '위에서 공정을 누르면 그 장비가 열리고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다.' })),
-        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn primary', id: 'start-first', text: `${F.STEPS[0].name}부터 시작`, onclick: () => start(0) }))),
-      el('div', { class: 'figure' }, goalPicture()),
-      el('p', { class: 'assumed', text: '완성된 칩은 다이오드입니다. 구리가 산화막의 창을 통해 n+ 영역에 닿아 있습니다. 7번 EDS에서 칩마다 이 접촉의 저항, 거꾸로 건 전압에서 새는 전류, 바로 건 전압을 재서 양품을 가리고, 8번 패키징에서 양품만 금선으로 잇습니다.' }),
-    ]);
+      el('div', { class: 'line-head' }, el('h2', { text: '웨이퍼 한 장이 여덟 장비를 거쳐 칩이 됩니다' }),
+        el('div', { class: 'bench-actions' },
+          inHand ? el('button', { type: 'button', class: 'btn', id: 'back', text: '하던 공정으로', onclick: () => select(viewing) }) : null,
+          el('button', { type: 'button', class: inHand ? 'btn' : 'btn primary', id: 'start-first', text: '처음부터 시작', onclick: () => start(0) }))),
+      el('ol', { class: 'line' }, F.STEPS.map((step, i) => {
+        const first = firstStation(i);
+        return el('li', {}, el('button', { type: 'button', class: 'tile', 'data-step': String(i), 'aria-label': `${i + 1} ${step.name}: ${step.does}`, onclick: () => select(i) },
+          el('span', { class: 'shot' }, first ? el('img', { src: `./media/line-${first.equipment}.webp`, alt: '', draggable: 'false' }) : null),
+          el('span', { class: 'cap' }, el('span', { class: 'no', text: String(i + 1) }), el('span', { class: 'name', text: step.name }), el('span', { class: 'thumb' }, picture(i, waferAfter(i), true)))));
+      })),
+    ], 'line');
     renderRoute();
   }
   /** A process picked while a run is in hand (or over): do it again on the wafer this run brought to it, or start a new run there. */
@@ -233,8 +256,8 @@
       el('div', { class: 'figure' }, !done ? picture(i === 0 ? 0 : i - 1, incoming, false, from) : same ? section(incoming, false, from) : picture(i, after[i]), done && same ? el('div', { class: 'after' }, section(after[i], false, from)) : null),
       i === 6 && done ? mapLegend(after[i].tested) : i <= 6 ? legend(done ? after[i] : incoming) : null,
       record ? el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }) : null,
-      el('p', { class: 'assumed', text: mine ? '이 웨이퍼로 다시 하면 앞 공정에서 만든 것은 그대로 두고 이 공정부터 다시 합니다. 이 공정과 그 뒤 공정의 결과는 지워집니다. 표준 웨이퍼로 새로 시작하면 지금 웨이퍼는 버립니다.'
-        : `표준 웨이퍼로 새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 끝낸 것으로 치고, 지금 웨이퍼는 버립니다.` }),
+      el('p', { class: 'assumed', text: mine ? '다시 하면 이 공정과 그 뒤 공정의 결과가 지워집니다. 새로 시작하면 지금 웨이퍼는 버립니다.'
+        : `새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 지난 것으로 치고, 지금 웨이퍼는 버립니다.` }),
     ]);
     renderRoute();
   }
@@ -245,24 +268,31 @@
       el('div', { class: 'figure' }, same ? section(before, false, from) : picture(i, run.wafer), same ? el('div', { class: 'after' }, section(run.wafer, false, from)) : null),
       same ? legend(run.wafer) : i === 6 ? mapLegend(run.wafer.tested) : null,
       el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }),
-      el('p', { class: 'assumed', text: '표준 조건으로 처리했습니다. 위 수치는 가정한 값이며 계산한 결과가 아닙니다.' }),
+      el('p', { class: 'assumed', text: '표준 조건으로 지났습니다. 수치는 가정값입니다.' }),
     ];
     showBench(runBench);
   }
+  /** The end of a run: how many chips, the wafer map they came from, and one line for each process (a click on a line shows all of it). */
   function showFinished() {
-    const chips = run.wafer.packaged.chips, startIndex = run.start;
+    const chips = run.wafer.packaged.chips, startIndex = run.start, tested = run.wafer.tested;
+    const share = tested && tested.total ? `칩 ${fmt(tested.total)}개 중 양품 ${fmt(tested.good)}개 · 수율 ${Math.round(100 * tested.good / tested.total)}%` : `${F.STEPS[startIndex].name}에서 시작해 패키징까지 지났습니다.`;
     runBench = [
-      el('div', { class: 'bench-head' },
-        el('div', {}, el('p', { class: 'no', text: '공정 기록' }), el('h2', { text: chips ? `칩 ${fmt(chips)}개를 만들었습니다` : '완성된 칩이 없습니다' }), el('p', { text: `${F.STEPS[startIndex].name}에서 시작해 패키징까지 지났습니다.` })),
-        el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn', id: 'again', text: `새 웨이퍼로 ${F.STEPS[startIndex].name}부터`, onclick: () => start(startIndex) }), el('button', { type: 'button', class: 'btn primary', id: 'from-first', text: '새 웨이퍼로 처음부터', onclick: () => start(0) }))),
+      el('div', { class: 'finish' },
+        tested ? el('div', { class: 'finish-map' }, waferMap(tested, true)) : null,
+        el('div', { class: 'finish-head' }, el('h2', { text: chips ? `칩 ${fmt(chips)}개를 만들었습니다` : '완성된 칩이 없습니다' }), el('p', { text: share }),
+          el('div', { class: 'bench-actions' }, el('button', { type: 'button', class: 'btn primary', id: 'from-first', text: '새 웨이퍼로 처음부터', onclick: () => start(0) }),
+            startIndex > 0 ? el('button', { type: 'button', class: 'btn', id: 'again', text: `새 웨이퍼로 ${F.STEPS[startIndex].name}부터`, onclick: () => start(startIndex) }) : null))),
       el('table', { class: 'sheet' },
-        el('thead', {}, el('tr', {}, ['', '공정', '한 일', '방식', '판정', ''].map(text => el('th', { text })))),
-        el('tbody', {}, run.records.map((record, i) => el('tr', { 'data-before': String(Boolean(record.before)) },
-          el('td', { class: 'no', text: String(i + 1) }), el('td', { class: 'name', text: F.STEPS[i].name }), el('td', { class: 'text', text: record.text }),
-          el('td', { class: 'who', text: record.before ? '시작 전 · 표준' : record.by === 'operator' ? '직접 조작' : '표준 조건' }),
-          el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '', text: record.ok === false ? '✕ 불량' : record.ok ? '✓ 통과' : '—' }),
-          el('td', { class: 'again' }, entries[i] ? el('button', { type: 'button', class: 'link', 'data-redo': String(i), 'aria-label': `${F.STEPS[i].name}부터 이 웨이퍼로 다시`, text: '다시', onclick: () => redo(i) }) : null))))),
-      el('p', { class: 'assumed', text: '표준 조건으로 지나간 공정의 수치는 가정한 값입니다. 직접 조작한 공정의 결과만 계산한 값입니다. 표의 "다시"는 그 공정에 들어갈 때의 웨이퍼로 돌아가 거기서부터 다시 합니다.' }),
+        el('tbody', {}, run.records.map((record, i) => {
+          const row = el('tr', { 'data-before': String(Boolean(record.before)) },
+            el('td', { class: 'no', text: String(i + 1) }), el('td', { class: 'name', text: F.STEPS[i].name }), el('td', { class: 'text' }, el('span', { text: record.text })),
+            el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '' }, record.ok === false ? '✕ 불량' : record.ok ? '✓ 통과' : '—',
+              el('small', { text: record.before ? '시작 전' : record.by === 'operator' ? '직접' : '표준' })),
+            el('td', { class: 'again' }, entries[i] ? el('button', { type: 'button', class: 'link', 'data-redo': String(i), 'aria-label': `${F.STEPS[i].name}부터 이 웨이퍼로 다시`, text: '다시', onclick: () => redo(i) }) : null));
+          row.addEventListener('click', ev => { if (!ev.target.closest('button')) row.classList.toggle('open'); });
+          return row;
+        }))),
+      el('p', { class: 'assumed', text: '줄을 누르면 그 공정에서 한 일이 다 보입니다. 표준으로 지난 공정의 수치는 가정값입니다.' }),
     ];
     showBench(runBench);
   }
@@ -333,7 +363,6 @@
     timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
     view3d.setView('home', true); pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
-    $('about').textContent = F.STEPS[run.at].does;
     $('redo-piece').textContent = station.title ? `${station.title}만 다시` : '이 장비만 다시';
     setMode('station');
   }
@@ -473,6 +502,8 @@
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); pressed($('speed'), 'speed', timeScale); });
     $('guide-action').addEventListener('click', () => guideAction?.());
     $('help-open').addEventListener('click', () => $('help').showModal());
+    $('help-goal').replaceChildren(goalPicture());
+    $('to-line').addEventListener('click', showOverview);
     $('redo').addEventListener('click', () => { if (run && !run.finished) redo(run.at); });
     $('redo-piece').addEventListener('click', restage);
     $('skip').addEventListener('click', skip);
@@ -490,7 +521,7 @@
     const from = query.get('start'), index = F.STEPS.findIndex(step => step.id === from);
     if (index >= 0) start(index); else showOverview();
     window.ProcessLabDebug = {
-      flow: F, stations: STATIONS, start, enter, select, finishStation, redo, restage, skip,
+      flow: F, stations: STATIONS, start, enter, select, finishStation, redo, restage, skip, showOverview,
       get scene() { return view3d || scene; },                    // the 3D view in use: the checks project points and read parts through it
       get stage() { return stage; }, get entries() { return entries; },
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },

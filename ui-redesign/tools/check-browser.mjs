@@ -498,15 +498,19 @@ async function processRoute(t) {
     redo: !!document.getElementById('redo-here'), fresh: !!document.getElementById('start-here'), back: !!document.getElementById('back') })`);
 
   const names = await b.evaluate(`[...document.querySelectorAll('.stop .name')].map(e => e.textContent)`);
-  t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route shows the eight processes in order', names.join(' '));
-  const landing = await b.evaluate(`({ mode: ${PL}.mode, run: !!${PL}.run, first: !!document.getElementById('start-first'), stops: document.querySelectorAll('.stop svg').length, labels: [...document.querySelectorAll('.figure svg text')].map(e => e.textContent) })`);
-  t.expect(landing.mode === 'bench' && !landing.run && landing.first && landing.stops === 8 && ['구리', '산화막', 'n+ 접합', '장벽막', '창', '실리콘'].every(word => landing.labels.some(text => text.includes(word))),
-    'the lab opens on what it makes: the finished chip, every layer named after the process that makes it', JSON.stringify(landing));
+  t.expect(String(names) === '웨이퍼 제조,산화,포토,식각,증착·이온주입,금속배선,EDS,패키징', 'the route holds the eight processes in order', names.join(' '));
+  const landing = await b.evaluate(`(() => { const tiles = [...document.querySelectorAll('.line .tile')], shown = tile => { const img = tile.querySelector('.shot img'); return !!img && img.complete && img.naturalWidth > 0; };
+    return { mode: ${PL}.mode, run: !!${PL}.run, first: !!document.getElementById('start-first'), routeHidden: document.getElementById('route').hidden, tiles: tiles.map(tile => tile.querySelector('.name').textContent),
+      pictures: tiles.filter(shown).length, thumbs: document.querySelectorAll('.line .tile .thumb svg').length, words: document.querySelector('.bench').innerText.replace(/\\s+/g, ' ').trim().length,
+      goal: [...document.querySelectorAll('#help-goal svg text')].map(e => e.textContent) }; })()`);
+  t.expect(landing.mode === 'bench' && !landing.run && landing.first && landing.routeHidden && String(landing.tiles) === String(names) && landing.pictures === 8 && landing.thumbs === 8 && landing.words < 140,
+    'the lab opens on its eight pieces of equipment in order: a picture of each, its name and the wafer as it leaves, and few words', JSON.stringify({ ...landing, goal: undefined }));
+  t.expect(['구리', '산화막', 'n+ 접합', '장벽막', '창', '실리콘'].every(word => landing.goal.some(label => label.includes(word))), 'what the lab makes, the finished chip with every layer named after its process, is in the help window', landing.goal.join(' | '));
   await t.shot('1-overview');
 
-  let landed = await clickOn(b, '.stop:nth-child(4)', 1900);
+  let landed = await clickOn(b, '.line .tile[data-step="3"]', 1900);
   const begun = await b.evaluate(`({ title: document.querySelector('.bench h2').textContent, start: ${PL}.run.start, before: ${PL}.run.records.filter(r => r.before).length, oxide: ${PL}.run.wafer.oxide, window: !!${PL}.run.wafer.window, result: document.querySelector('.bench .result').textContent })`);
-  t.expect(landed && begun.title === '식각' && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'a click on a stop starts there at once, on a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
+  t.expect(landed && begun.title === '식각' && begun.start === 3 && begun.before === 3 && begun.oxide === 500 && begun.window && begun.result.length > 5, 'a click on a picture starts there at once, on a wafer finished up to that process by the standard recipe', JSON.stringify(begun));
   await t.shot('2-etch');
   let mapped = null;
   for (let i = 0; i < 8 && landed && !(await b.evaluate(`!!document.querySelector('.sheet')`)); i++) {         // the last click opens the run sheet
@@ -516,6 +520,10 @@ async function processRoute(t) {
   t.expect(mapped && mapped.cells === 148 && mapped.failed === 148 - mapped.good && mapped.tips === mapped.failed && new RegExp(`양품 ${mapped.good}`).test(mapped.key) && new RegExp(`결함 ${mapped.failed}`).test(mapped.key), 'the EDS map colours failed chips by what failed them, says so under the pointer, and the key counts them', JSON.stringify(mapped));
   const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, rows: document.querySelectorAll('.sheet tbody tr').length, before: document.querySelectorAll('.sheet tr[data-before="true"]').length, again: document.querySelectorAll('.sheet [data-redo]').length, chips: ${PL}.run.wafer.packaged.chips, good: ${PL}.run.wafer.tested.good, clean: ${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length, title: document.querySelector('.bench h2').textContent })`);
   t.expect(sheet.finished && sheet.rows === 8 && sheet.before === 3 && sheet.again === 5 && sheet.chips === sheet.good && sheet.good === sheet.clean && sheet.good > 100 && sheet.good < 148 && sheet.title.includes(String(sheet.chips)), 'the run goes on from there to packaging and ends with the sheet of all eight processes; the chips without a defect are the ones packaged', JSON.stringify(sheet));
+  const finish = await b.evaluate(`(() => { const row = document.querySelector('.sheet tbody tr:nth-child(6)'), line = row.querySelector('.text span'), before = getComputedStyle(line).whiteSpace; row.click();
+    return { cells: document.querySelectorAll('.finish-map svg rect[width="18.4"]').length, share: document.querySelector('.finish-head p').textContent, before, open: row.classList.contains('open'), after: getComputedStyle(line).whiteSpace }; })()`);
+  t.expect(finish.cells === 148 && new RegExp(`양품 ${sheet.good}개`).test(finish.share) && /수율 \d+%/.test(finish.share) && finish.before === 'nowrap' && finish.open && finish.after === 'normal',
+    'the end of a run shows the wafer map and the yield; each process is one line, and a click on it shows all it did', JSON.stringify(finish));
   await t.shot('3-run-sheet');
 
   landed = await clickOn(b, '.stop:nth-child(6)', 1500);
@@ -547,11 +555,17 @@ async function processFlow(t) {
   const at = () => b.evaluate(`({ mode: ${PL}.mode, equipment: ${PL}.station ? ${PL}.station.equipment : null, at: ${PL}.run ? ${PL}.run.at : -1, start: ${PL}.run ? ${PL}.run.start : -1, records: ${PL}.run ? ${PL}.run.records.length : 0,
     redo: !!document.getElementById('redo-here'), fresh: !!document.getElementById('start-here') })`);
   const opens = equipment => reached(b, `${PL}.mode === 'station' && !!${PL}.station && ${PL}.station.equipment === '${equipment}' && Object.keys(${PL}.scene.parts).length > 5`, 30000);
-  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-first') && document.getElementById('redo').hidden && document.getElementById('skip').hidden`), 'with nothing in hand the lab shows what it makes');
+  t.expect(await b.evaluate(`${PL}.mode === 'bench' && !${PL}.run && !!document.getElementById('start-first') && document.getElementById('redo').hidden && document.getElementById('skip').hidden`), 'with nothing in hand the lab shows its line of equipment');
 
-  let landed = await clickOn(b, '.stop:nth-child(4)', 2500);
-  const opened = await opens('etch'), top = await b.evaluate(`({ about: document.getElementById('about').textContent, redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run.start })`);
-  t.expect(landed && opened && top.start === 3 && /산화막을 깎아/.test(top.about) && top.redo && top.skip, 'a click on a process opens its equipment at once, with a line on what the process does', JSON.stringify(top));
+  let landed = await clickOn(b, '.line .tile[data-step="3"]', 2500);
+  const opened = await opens('etch'), top = await b.evaluate(`({ route: !document.getElementById('route').hidden, redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run.start })`);
+  t.expect(landed && opened && top.start === 3 && top.route && top.redo && top.skip, 'a click on a picture opens that equipment at once, and the route comes up above it', JSON.stringify(top));
+  const step = await b.evaluate(`(() => { const r = document.querySelector('.stop:nth-child(4)').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  await b.mouse('mouseMoved', { x: step.x - 4, y: step.y }); await sleep(200); await b.mouse('mouseMoved', step); await sleep(900);
+  const pop = await b.evaluate(`(() => { const box = document.getElementById('route-pop'); return { shown: !box.hidden, text: box.innerText, picture: !!box.querySelector('svg') }; })()`);
+  t.expect(pop.shown && pop.picture && /산화막을 깎아/.test(pop.text), 'under the pointer a step of the route shows the wafer as it leaves that process and says what the process does', JSON.stringify(pop));
+  await b.mouse('mouseMoved', { x: 500, y: 640 }); await sleep(400);
+  t.expect(await b.evaluate(`document.getElementById('route-pop').hidden`), 'and puts it away when the pointer leaves');
   await sleep(2500); await t.shot('1-opened');
 
   await b.evaluate(`(() => { const d = ${PL}; for (const [name, value] of [['chf3', true], ['power', 300], ['load', true]]) d.station.control(d.sim, name, value); d.setSpeed(240); })()`);
@@ -1173,8 +1187,8 @@ async function processAll(t) {
 
   await set([['power', 80], ['force', 30], ['time', 15], ['run', true]]); await until(`${S}.phase === 'done'`, 240);
   passed('8 packaging: the good chips are wired, and the run ends with its sheet', await handOver(7, null));
-  const sheet = await b.evaluate(`({ rows: [...document.querySelectorAll('.sheet tbody tr')].map(row => ({ who: row.querySelector('.who').textContent, state: row.querySelector('.state').textContent })), chips: ${PL}.run.wafer.packaged.chips, title: document.querySelector('.bench h2').textContent, substrate: ${PL}.run.wafer.substrate.resistivity })`);
-  t.expect(sheet.rows.length === 8 && sheet.rows.every(row => row.who === '직접 조작' && /통과/.test(row.state)) && sheet.chips === map.good && sheet.title.includes(String(sheet.chips)) && Math.abs(sheet.substrate - 10) < 1, 'the sheet lists eight processes, all operated by hand and all passed, and the chips made from the crystal that was grown', JSON.stringify(sheet));
+  const sheet = await b.evaluate(`({ rows: [...document.querySelectorAll('.sheet tbody tr')].map(row => ({ who: row.querySelector('.state small').textContent, state: row.querySelector('.state').textContent })), chips: ${PL}.run.wafer.packaged.chips, title: document.querySelector('.bench h2').textContent, substrate: ${PL}.run.wafer.substrate.resistivity })`);
+  t.expect(sheet.rows.length === 8 && sheet.rows.every(row => row.who === '직접' && /통과/.test(row.state)) && sheet.chips === map.good && sheet.title.includes(String(sheet.chips)) && Math.abs(sheet.substrate - 10) < 1, 'the sheet lists eight processes, all operated by hand and all passed, and the chips made from the crystal that was grown', JSON.stringify(sheet));
   await t.shot('1-run-sheet');
 }
 
@@ -1241,6 +1255,9 @@ async function standalone(t) {
   const PL = `${F}.ProcessLabDebug`, processOpen = await reached(b, `location.hash === '#process-lab' && ${loaded} && !!${PL}`, 90000);
   t.expect(processOpen, 'the 8-process lab opens inside the file');
   if (processOpen) {
+    await sleep(1200);
+    const line = await b.evaluate(`[...${F}.document.querySelectorAll('.line .tile .shot img')].map(img => ({ embedded: img.src.startsWith('data:'), drawn: img.complete && img.naturalWidth > 0 }))`);
+    t.expect(line.length === 8 && line.every(picture => picture.embedded && picture.drawn), 'the pictures of its eight pieces of equipment are inside the file', JSON.stringify(line));
     await b.evaluate(`${PL}.start(1)`);
     t.expect(await reached(b, `${PL}.mode === 'station' && Object.keys(${PL}.scene.parts).length > 5`, 60000), 'its oxidation furnace starts inside the file');
     await sleep(2500); await t.shot('4-process-lab');

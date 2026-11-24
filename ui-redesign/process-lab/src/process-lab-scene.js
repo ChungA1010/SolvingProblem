@@ -289,6 +289,14 @@ export function create({ canvas, on = {} }) {
     /** Screen position of a world point (used by the browser checks). */
     project(x, y, z) { tmp.set(x, y, z).project(camera); return { x: (tmp.x + 1) / 2 * canvas.clientWidth, y: (1 - tmp.y) / 2 * canvas.clientHeight }; },
     get layout() { return equipment?.layout ?? {}; }, get views() { return Object.keys(VIEWS); },
+    /** The box the mounted equipment fits in (two opposite corners, metres) and the ball round it: still pictures frame the equipment by them. */
+    get bounds() {
+      if (!root) return null;
+      const box3 = new THREE.Box3().setFromObject(root), ball = box3.getBoundingSphere(new THREE.Sphere());
+      return { min: box3.min.toArray(), max: box3.max.toArray(), centre: ball.center.toArray(), radius: ball.radius };
+    },
+    /** The direction the named view looks from, as a unit vector from its target to its camera. */
+    viewDirection(name = 'home') { const v = VIEWS[name] || VIEWS.home; return new THREE.Vector3(v[0][0] - v[1][0], v[0][1] - v[1][1], v[0][2] - v[1][2]).normalize().toArray(); },
     get screenCanvas() { return equipment?.screenCanvas ?? null; }, refreshScreen() { equipment?.refreshScreen?.(); },
     get dragging() { return drag?.moved ? drag.name : null; }, get hovered() { return hovered; },
     dispose() {

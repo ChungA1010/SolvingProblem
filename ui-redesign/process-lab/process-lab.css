@@ -1,34 +1,39 @@
 /* 8-process lab. Tokens, top bar, stage and the HUD pieces (monitor, guide, part card) come from ../lab-3d/lab-3d.css;
- * this file adds the route, the bench views and what the wafer monitor needs here. */
+ * this file adds the route, the bench views and what the wafer monitor needs here.
+ * Words are few on purpose: pictures of the real equipment and of the wafer carry the page. */
 
-/* Route: the eight processes in order. Each stop carries a small picture of the wafer as it leaves that process. */
-.route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-.stop { position: relative; display: grid; grid-template-rows: auto 40px; gap: 5px; min-width: 0; padding: 8px 11px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
+/* Route: the eight processes in order, one slim row. A step shows the wafer as it leaves that process under the pointer. */
+.route[hidden] { display: none; }
+.route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.stop { position: relative; display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 9px 12px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
 .stop:first-child { border-left: 0; }
 .stop:hover { background: #f6f8fc; }
 .stop[aria-pressed="true"] { background: var(--brand-soft); }
 .stop:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
-.stop .head { display: flex; align-items: baseline; gap: 6px; min-width: 0; }
 .stop .no { font-size: 11px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
 .stop .name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stop .mark { margin-left: auto; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--faint); }
 .stop .mark[data-tone="ok"] { color: var(--success-ink); } .stop .mark[data-tone="bad"] { color: var(--danger); }
-.stop svg { display: block; width: 100%; height: 40px; border-radius: 5px; background: #eef1f6; }
-.stop[data-state="todo"] .name { color: var(--muted); } .stop[data-state="todo"] svg { opacity: .5; }
+.stop[data-state="todo"] .name { color: var(--muted); }
 .stop[data-state="current"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--brand); }
+.route-pop { position: fixed; z-index: 40; width: 236px; padding: 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); pointer-events: none; }
+.route-pop svg { display: block; width: 100%; height: 62px; border-radius: 6px; background: #eef1f6; }
+.route-pop p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; }
+.title h1 { cursor: pointer; } .title h1:hover { color: var(--brand); }
 
-.stage { height: calc(100vh - 200px); min-height: 520px; }
+.stage { height: calc(100vh - 150px); min-height: 520px; }
+.route[hidden] ~ .stage { height: calc(100vh - 100px); }                                         /* the first screen has the room of the route too */
 .stage[data-mode="bench"] { background: var(--panel); }
 .stage[data-mode="bench"]::after, .stage[data-mode="bench"] #scene, .stage[data-mode="bench"] .hud, .stage[data-mode="station"] .bench { display: none; }
 
-/* Bench: one process shown as the wafer's cross-section, before the equipment view or instead of it. */
+/* Bench: what is shown instead of the equipment. */
 .bench { position: absolute; inset: 0; overflow: auto; display: grid; place-items: center; padding: 26px 32px; }
 .bench-inner { display: grid; gap: 16px; width: min(880px, 100%); }
 .bench-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
 .bench-head .no { font-size: 13px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
 .bench-head h2 { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
 .bench-head p { max-width: 36em; margin-top: 5px; font-size: 14.5px; color: var(--muted); word-break: keep-all; }
-.bench-actions { display: flex; flex: none; gap: 8px; }
+.bench-actions { display: flex; flex: none; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .bench-actions .btn { padding: 9px 18px; font-size: 14.5px; white-space: nowrap; }
 .figure { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #f3f5f9; }
 .figure svg { display: block; width: 100%; height: auto; max-height: 46vh; }
@@ -41,17 +46,50 @@
 .result { font-size: 16px; font-weight: 650; word-break: keep-all; } .result[data-tone="bad"] { color: var(--danger); }
 .assumed { font-size: 12.5px; color: var(--muted); word-break: keep-all; }
 
-/* Run sheet: what each process left on the wafer. */
+/* The line: where the lab opens. The eight pieces of equipment in order, four to a row, each a still of its own 3D scene
+   (tools/render-process-stills.mjs) with the wafer as it leaves that process under it. A click starts there. */
+.bench[data-view="line"] { place-items: stretch; padding: 20px 26px 22px; }
+.bench[data-view="line"] .bench-inner { grid-template-rows: auto minmax(0, 1fr); gap: 14px; width: 100%; min-height: 100%; }
+.line-head { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.line-head h2 { font-size: clamp(21px, 2.1vw, 30px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; word-break: keep-all; }
+.line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 12px 2px; min-height: 0; margin: 0; padding: 0; list-style: none; }
+.line li { display: grid; min-width: 0; min-height: 0; }
+.tile { display: grid; grid-template-rows: minmax(150px, 1fr) auto; min-width: 0; padding: 0; border: 0; background: none; color: inherit; text-align: left; outline: none; }
+.tile .shot { position: relative; overflow: hidden; background: #dde1e7; }
+.tile .shot img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 55%; transition: transform .6s cubic-bezier(.2, .6, .2, 1); }
+.tile:hover .shot img, .tile:focus-visible .shot img { transform: scale(1.035); }
+.tile .cap { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 8px 4px 2px; }
+.tile .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
+.tile .name { font-size: clamp(13px, 1.05vw, 16px); font-weight: 750; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tile:hover .name, .tile:focus-visible .name { color: var(--brand); }
+.tile .thumb { flex: none; width: 132px; margin-left: auto; }                                     /* the wafer as it leaves this process */
+.tile .thumb svg { display: block; width: 100%; height: 31px; border-radius: 5px; background: #eef1f6; }
+.tile:focus-visible .shot { box-shadow: inset 0 0 0 3px var(--brand); }
+
+/* The end of a run: how many chips, the wafer map they came from, and one line for each process. */
+.finish { display: flex; align-items: center; gap: 26px; }
+.finish-map { flex: none; width: 168px; } .finish-map svg { display: block; width: 100%; height: auto; }
+.finish-head h2 { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
+.finish-head p { margin-top: 5px; font-size: 14.5px; color: var(--muted); }
+.finish-head .bench-actions { justify-content: flex-start; margin-top: 14px; }
 .sheet { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-.sheet th { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; font-size: 12px; font-weight: 650; color: var(--muted); }
 .sheet td { padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.sheet tr:first-child td { border-top: 1px solid var(--line); }
+.sheet tbody tr { cursor: pointer; } .sheet tbody tr:hover { background: #f6f8fc; }
 .sheet .no { width: 2em; color: var(--faint); font-variant-numeric: tabular-nums; }
 .sheet .name { font-weight: 700; white-space: nowrap; }
-.sheet .who, .sheet .state { white-space: nowrap; color: var(--muted); }
-.sheet .state[data-tone="ok"] { color: var(--success-ink); font-weight: 700; } .sheet .state[data-tone="bad"] { color: var(--danger); font-weight: 700; }
+.sheet .text { width: 100%; max-width: 0; color: var(--muted); }                                 /* one line until its row is opened */
+.sheet .text span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sheet tr.open .text span { white-space: normal; color: var(--ink); }
+.sheet .state { white-space: nowrap; color: var(--muted); font-weight: 700; }
+.sheet .state small { margin-left: 6px; font-size: 11.5px; font-weight: 600; color: var(--faint); }
+.sheet .state[data-tone="ok"] { color: var(--success-ink); } .sheet .state[data-tone="bad"] { color: var(--danger); }
 .sheet tr[data-before="true"] td { color: var(--faint); } .sheet tr[data-before="true"] .name { font-weight: 600; }
+.sheet .again { width: 1%; white-space: nowrap; text-align: right; }
+.link { border: 0; background: none; padding: 2px 4px; font: inherit; font-size: 12.5px; font-weight: 650; color: var(--brand); border-radius: 4px; }
+.link:hover { text-decoration: underline; } .link:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
 
-/* Wafer monitor of the oxidation furnace: thickness so far, over time, and what the wafers are in right now. */
+/* Wafer monitor of a station: the wafer in section, a small chart over the run, and what the equipment is doing now. */
 #mon-section { flex: none; width: 96px; height: 64px; border-radius: 8px; overflow: hidden; box-shadow: 0 0 0 1px #1e293b14; background: #eef1f6; }
 #mon-section svg { display: block; width: 100%; height: 100%; }
 .trend { height: 56px; margin-top: 9px; }
@@ -59,23 +97,24 @@
 .monitor .now { margin-top: 6px; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .monitor .now b { color: var(--ink); font-weight: 650; }
 .callout .basis { margin-top: 7px; font-size: 11.5px; color: var(--muted); }
-
-@media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 138px); overflow-x: auto; } }
-@media (max-width: 720px) { .bench { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2 { font-size: 25px; } }
-@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } }
-
-/* the chips of the run sheet go onto a second line when they do not fit side by side */
 .spec { flex-wrap: wrap; }
 
-/* What the process on show does: one line under the view buttons. */
-.about { position: absolute; left: 16px; top: 58px; max-width: min(340px, 40%); font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; pointer-events: none; }
-/* Run sheet: the quiet button that takes the run back to a process. */
-.sheet .again { width: 1%; white-space: nowrap; text-align: right; }
-.link { border: 0; background: none; padding: 2px 4px; font: inherit; font-size: 12.5px; font-weight: 650; color: var(--brand); border-radius: 4px; }
-.link:hover { text-decoration: underline; } .link:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
-.bench-actions { flex-wrap: wrap; justify-content: flex-end; }
+/* What the lab makes, in the help window: the finished chip in section, every layer named after its process. */
+.goal { margin: 0 0 12px; } .goal svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+.goal figcaption { margin-top: 6px; font-size: 12.5px; line-height: 1.5; color: var(--muted); word-break: keep-all; }
 
 /* The polisher of the CMP lab has a canvas of its own; one of the two canvases shows at a time. */
 #scene-cmp { position: absolute; inset: 0; width: 100%; height: 100%; display: none; outline: none; touch-action: none; }
 .stage[data-mode="station"][data-view="cmp"] #scene-cmp { display: block; }
 .stage[data-view="cmp"] #scene { display: none; }
+
+@media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 132px); overflow-x: auto; } }
+@media (max-width: 900px), (max-height: 700px) {                                                 /* no room for two rows of four in the window: the pictures keep their shape and the bench scrolls */
+  .bench[data-view="line"] .bench-inner { min-height: 0; } .line { grid-auto-rows: auto; } .tile { grid-template-rows: auto auto; } .tile .shot { aspect-ratio: 3 / 2; }
+}
+@media (max-width: 900px) { .line { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 2px; } }
+@media (max-width: 720px) {
+  .bench, .bench[data-view="line"] { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2, .finish-head h2 { font-size: 25px; }
+  .line-head { flex-direction: column; align-items: stretch; } .finish { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } .tile .shot img { transition: none; } .tile:hover .shot img, .tile:focus-visible .shot img { transform: none; } }
