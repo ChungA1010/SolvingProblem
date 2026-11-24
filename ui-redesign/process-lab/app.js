@@ -20,6 +20,12 @@
  *   monitor(sim)         the wafer monitor: picture ({ film, hot }, { map }, { section, top, height } or { custom: an SVG element }), value, unit, note, meter, trend, now, spec
  *   screen(sim)          what the equipment's touch screen shows
  *   result(sim)          the measured result to hand to the next process, or null while there is none
+ *   running(sim)         optional: true while the equipment is at work; the process instruments are up while it is
+ *   instruments(sim)     optional: the tiles of the process instruments, [{ title, unit, value, tone, plot, tip }]. plot is what plot() draws
+ *                        ({ x, y: domains, series: [[x, y]], yTicks, xTicks: [[x, label]], band: [lo, hi], limit, limitLabel, quiet }); tip(x) gives [title, [[value, label] ...]] for the pointer
+ *   report(sim)          optional: the metrology report once something is measured, { id, title, sub, pass, criteria, figures, notes, stats }.
+ *                        criteria: [{ label, value, ok, track: { value, lo, hi, band: [lo, hi] } | meter: { value, limit, top, atLeast }, scale: [left, middle, right] }];
+ *                        figures: [{ caption, node }]; notes: [text]; stats: [[name, value]]. A new id opens the report.
  *   interim(wafer, result)  for a piece that is not the last of its process: the wafer as it goes on to the next piece
  */
 (function () {
@@ -150,7 +156,8 @@
   let run = null, after = [], entries = [], viewing = -1, selected = 0, mode = 'bench', runBench = [];   // entries[i]: the run as it was when it came to process i
   let station = null, sim = null, stage = 0, staged = [], stageWafer = null;      // a process with two pieces of equipment: which one is in use, the results so far, the wafer between them
   let scene = null, polisher = null, view3d = null, scanning = false, mountedEquipment = null, timeScale = 60,   // scene: this lab's own; polisher: the CMP lab's, made when first needed; view3d: the one in use
-      hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0;
+      hovered = null, dragging = null, last = 0, hudClock = 0, notice = null, noticeUntil = 0,
+      stripMode = 'auto', tiles = [], reportOpen = false, reportId = null;                    // the process instruments and the metrology report of the station on show
   /** The equipment of process i in the order it is used. Most processes have one piece, some have two. */
   const stationsOf = i => { const s = scene && !passAll && F.STEPS[i].equipment ? STATIONS[F.STEPS[i].id] : null; return !s ? [] : Array.isArray(s) ? s : [s]; };
   const stationLive = () => Boolean(run && !run.finished && sim && station);
@@ -363,6 +370,7 @@
     timeScale = station.defaultSpeed ?? station.speeds[0][0]; pressed($('speed'), 'speed', timeScale);
     view3d.setView('home', true); pressed($('views'), 'view', 'home');
     hovered = dragging = null; notice = null;
+    stripMode = 'auto'; reportOpen = false; reportId = null; buildTiles();
     $('redo-piece').textContent = station.title ? `${station.title}만 다시` : '이 장비만 다시';
     setMode('station');
   }
@@ -379,6 +387,110 @@
     const refused = station.control(sim, name, value);
     if (refused) flash(refused);
     hudClock = 0;
+  }
+
+  // ----- process instruments and metrology report: the frame is here, the station on show fills it -----
+  const tipBox = () => $('viz-tip');
+  function showTip(at, title, rows = []) {
+    const node = tipBox();
+    node.replaceChildren(...(title ? [el('p', { class: 'tip-title', text: title })] : []), ...rows.map(([value, label]) => el('p', { class: 'tip-row' }, el('b', { class: 'num', text: value }), el('span', { text: label }))));
+    node.hidden = false;
+    const r = node.getBoundingClientRect();
+    node.style.left = `${Math.max(8, Math.min(window.innerWidth - r.width - 8, at.clientX + 14))}px`; node.style.top = `${Math.max(8, at.clientY - r.height - 14)}px`;
+  }
+  const hideTip = () => { tipBox().hidden = true; };
+  function niceTicks(lo, hi, count = 3) {
+    const span = hi - lo || 1, magnitude = 10 ** Math.floor(Math.log10(span / count)), step = [1, 2, 5, 10].map(k => k * magnitude).find(v => span / v <= count) || span;
+    const ticks = []; for (let v = Math.ceil(lo / step - 1e-9) * step; v <= hi + 1e-9; v += step) ticks.push(+v.toFixed(6));
+    return ticks;
+  }
+  /** Line chart into `host`, drawn 1:1 so the text stays sharp. One series: the tile's title names it. */
+  function plot(host, o) {
+    const W = host.clientWidth, H = host.clientHeight; if (W < 60 || H < 24) return;
+    const m = { l: 40, r: 10, t: 6, b: o.xTicks ? 16 : 4 }, [x0, x1] = o.x, [y0, y1] = o.y;
+    const px = v => m.l + (W - m.l - m.r) * (v - x0) / (x1 - x0 || 1), py = v => m.t + (H - m.t - m.b) * (1 - (clamp(v, y0, y1) - y0) / (y1 - y0 || 1));
+    const root = svg('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, 'aria-hidden': 'true' });
+    const text = (s, x, y, anchor) => root.append(svg('text', { x, y, 'text-anchor': anchor, class: 'tick' }, s));
+    for (const v of o.yTicks || niceTicks(y0, y1)) { root.append(svg('line', { class: 'grid', x1: m.l, x2: W - m.r, y1: py(v), y2: py(v) })); text((o.yFormat || fmt)(v), m.l - 5, py(v) + 3.5, 'end'); }
+    if (o.band && o.band[1] > y0 && o.band[0] < y1) root.append(svg('rect', { class: 'band', x: m.l, y: py(o.band[1]), width: W - m.l - m.r, height: Math.max(1, py(o.band[0]) - py(o.band[1])) }));
+    if (o.limit !== undefined && o.limit > y0 && o.limit < y1) { root.append(svg('line', { class: 'limit', x1: m.l, x2: W - m.r, y1: py(o.limit), y2: py(o.limit) })); if (o.limitLabel) text(o.limitLabel, W - m.r, py(o.limit) - 4, 'end'); }
+    root.append(svg('line', { class: 'axis', x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b }));
+    for (const [v, label] of o.xTicks || []) text(label, px(v), H - 3, px(v) < m.l + 14 ? 'start' : px(v) > W - m.r - 16 ? 'end' : 'middle');
+    const points = o.series;
+    if (points.length > 1) root.append(svg('polyline', { class: `line${o.quiet ? ' quiet' : ''}`, points: points.map(p => `${px(p[0]).toFixed(1)},${py(p[1]).toFixed(1)}`).join(' ') }));
+    if (points.length) { const p = points.at(-1); root.append(svg('circle', { class: 'dot', cx: px(p[0]), cy: py(p[1]), r: 4 })); }
+    if (o.cursor != null && points.length) { const p = points.reduce((best, q) => Math.abs(q[0] - o.cursor) < Math.abs(best[0] - o.cursor) ? q : best, points[0]); root.append(svg('line', { class: 'cursor', x1: px(p[0]), x2: px(p[0]), y1: m.t, y2: H - m.b }), svg('circle', { class: 'dot', cx: px(p[0]), cy: py(p[1]), r: 4 })); }
+    host.replaceChildren(root);
+    host._invert = offsetX => x0 + (x1 - x0) * clamp((offsetX - m.l) / (W - m.l - m.r || 1), 0, 1);
+  }
+  /** The tiles of the station on show: built once when it opens, filled on every tick of the readouts. */
+  function buildTiles() {
+    const list = station && station.instruments ? station.instruments(sim) : [];
+    tiles = list.map((tile, i) => {
+      const value = el('b', { class: 'value' }), unit = el('span', { class: 'unit' }), host = el('div', { class: 'plot', role: 'img' });
+      const node = el('div', { class: 'tile' }, el('h3', {}, tile.title, ' ', value, unit), host), entry = { node, value, unit, host, cursor: null };
+      host.addEventListener('pointermove', ev => {
+        if (!host._invert || !sim) return;
+        entry.cursor = host._invert(ev.clientX - host.getBoundingClientRect().left);
+        const now = station.instruments(sim)[i], tip = now && now.tip ? now.tip(entry.cursor) : null;
+        if (tip) showTip(ev, tip[0], tip[1]); renderStrip();
+      });
+      host.addEventListener('pointerleave', () => { entry.cursor = null; hideTip(); renderStrip(); });
+      return entry;
+    });
+    $('tiles').replaceChildren(...tiles.map(t => t.node));
+  }
+  function renderStrip() {
+    if (!tiles.length || !sim) return;
+    station.instruments(sim).forEach((tile, i) => {
+      const t = tiles[i]; if (!t) return;
+      t.value.textContent = tile.value; t.value.dataset.tone = tile.tone || ''; t.unit.textContent = tile.unit || '';
+      t.host.setAttribute('aria-label', tile.label || tile.title);
+      plot(t.host, { ...tile.plot, cursor: t.cursor });
+    });
+  }
+  /** State is never colour alone: a mark and a word go with it. */
+  const verdict = (ok, pass = '통과', fail = '미달') => el('em', { class: `state ${ok ? 'ok' : 'ng'}` }, el('span', { 'aria-hidden': 'true', text: ok ? '✓' : '✕' }), ok ? pass : fail);
+  function criterion(c) {
+    const at = (v, lo, hi) => clamp((v - lo) / (hi - lo), 0, 1) * 100;
+    const bar = c.track ? el('div', { class: 'track target', role: 'img', 'aria-label': `${c.label} ${c.value}` },
+        el('i', { class: 'band', style: `left:${at(c.track.band[0], c.track.lo, c.track.hi)}%;width:${at(c.track.band[1], c.track.lo, c.track.hi) - at(c.track.band[0], c.track.lo, c.track.hi)}%` }),
+        el('u', { class: `mark ${c.ok ? 'ok' : 'ng'}`, style: `left:${at(c.track.value, c.track.lo, c.track.hi)}%` }))
+      : c.meter ? el('div', { class: `track meter ${c.ok ? 'ok' : 'ng'}`, role: 'img', 'aria-label': `${c.label} ${c.value}` },
+        el('i', { class: 'fill', style: `width:${at(c.meter.value, 0, c.meter.top)}%` }), el('u', { class: 'limit', style: `left:${at(c.meter.limit, 0, c.meter.top)}%` })) : null;
+    return el('li', {}, el('div', { class: 'crit' }, el('span', { text: c.label }), el('b', { text: c.value }), verdict(c.ok, c.pass, c.fail)), bar,
+      c.scale ? el('div', { class: 'scale num' }, c.scale.map(text => el('span', { text }))) : null);
+  }
+  function renderReport(r) {
+    const result = station.result(sim), list = stationsOf(run.at), following = stage < list.length - 1 ? list[stage + 1].title : F.STEPS[run.at + 1] ? F.STEPS[run.at + 1].name : '끝';
+    $('report').replaceChildren(...[                                      // replaceChildren takes nodes one by one: no lists, no nulls
+      el('div', { class: 'report-head' }, el('div', {}, el('h3', { text: r.title }), r.sub ? el('p', { class: 'sub', text: r.sub }) : null),
+        el('span', { class: `verdict ${r.pass ? 'pass' : 'fail'}` }, el('span', { 'aria-hidden': 'true', text: r.pass ? '✓' : '✕' }), r.pass ? '합격' : '불합격')),
+      el('ul', { class: 'criteria' }, r.criteria.map(criterion)),
+      (r.figures || []).map(f => el('figure', {}, el('figcaption', { text: f.caption }), el('div', { class: 'figure-box' }, f.node))),
+      r.notes && r.notes.length ? el('section', {}, el('h4', { text: '결과 풀이' }), el('ul', { class: 'notes' }, r.notes.map(text => el('li', { text })))) : null,
+      r.stats && r.stats.length ? el('section', {}, el('h4', { text: '기록' }), el('dl', { class: 'stats' }, r.stats.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { class: 'num', text: v })]))) : null,
+      el('footer', {}, el('button', { type: 'button', class: 'btn', id: 'report-redo', text: stage > 0 ? '이 장비만 다시' : '이 공정 다시', onclick: () => { if (stage > 0) restage(); else redo(run.at); } }),
+        result ? el('button', { type: 'button', class: 'btn primary', id: 'report-next', text: `다음: ${following}`, onclick: finishStation }) : null),
+    ].flat().filter(Boolean));
+  }
+  /** Shows or hides the two panels and tells the 3D view how much of it they cover, so the equipment stays in the free area. */
+  function applyLayout() {
+    const box = $('stage'), strip = $('strip'), panel = $('drawer');
+    const running = Boolean(station && station.running && sim && station.running(sim));
+    const stripOpen = tiles.length > 0 && (stripMode === 'open' || (stripMode === 'auto' && running));
+    strip.dataset.open = String(stripOpen); strip.inert = !stripOpen; $('strip-open').hidden = stripOpen || !tiles.length;
+    panel.dataset.open = String(reportOpen); panel.inert = !reportOpen; $('report-open').hidden = reportOpen || reportId == null;
+    const right = reportOpen && box.clientWidth - panel.offsetWidth >= 560 ? panel.offsetWidth + 14 : 0, bottom = stripOpen ? strip.offsetHeight + 14 : 0;
+    box.style.setProperty('--inset-right', `${right}px`); box.style.setProperty('--inset-bottom', `${bottom}px`); box.dataset.strip = stripOpen ? 'open' : 'closed';
+    view3d.setInsets?.({ right, bottom });
+    return stripOpen;
+  }
+  /** A measurement that is new opens the report; the same one stays as the operator left it. */
+  function followReport() {
+    const r = station.report ? station.report(sim) : null;
+    if (!r) { if (reportOpen || reportId != null) { reportOpen = false; reportId = null; } return; }
+    if (r.id !== reportId) { reportId = r.id; reportOpen = true; renderReport(r); }
   }
 
   let guideAction = null, focusPart = null, trendNow = null;
@@ -406,6 +518,7 @@
       svg('text', { x: pad, y: h - 1, 'font-size': 10, fill: '#8b98ab' }, t.xStart ?? '0'), svg('text', { x: w - pad, y: h - 1, 'font-size': 10, fill: '#8b98ab', 'text-anchor': 'end' }, t.xLabel)));
   }
   function renderHud() {
+    followReport(); if (applyLayout()) renderStrip();
     const d = station.monitor(sim);
     $('mon-mean').textContent = typeof d.value === 'number' ? fmt(d.value) : d.value; $('mon-unit').textContent = d.unit;
     $('mon-togo').innerHTML = d.note; $('mon-now').innerHTML = d.now;
@@ -501,6 +614,10 @@
     $('views').addEventListener('click', ev => { const b = ev.target.closest('button[data-view]'); if (b && view3d) showView(b.dataset.view); });
     $('speed').addEventListener('click', ev => { const b = ev.target.closest('button[data-speed]'); if (!b) return; timeScale = Number(b.dataset.speed); pressed($('speed'), 'speed', timeScale); });
     $('guide-action').addEventListener('click', () => guideAction?.());
+    $('strip-open').addEventListener('click', () => { stripMode = 'open'; hudClock = 0; });
+    $('strip-close').addEventListener('click', () => { stripMode = 'closed'; hideTip(); hudClock = 0; });
+    $('drawer-close').addEventListener('click', () => { reportOpen = false; hudClock = 0; });
+    $('report-open').addEventListener('click', () => { reportOpen = true; hudClock = 0; });
     $('help-open').addEventListener('click', () => $('help').showModal());
     $('help-goal').replaceChildren(goalPicture());
     $('to-line').addEventListener('click', showOverview);
@@ -527,6 +644,7 @@
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },
       get mode() { return mode; }, get viewing() { return viewing; }, get selected() { return selected; },
+      get panels() { return { strip: $('strip').dataset.open === 'true', report: reportOpen, tiles: tiles.length, reportId }; }, setStrip: next => { stripMode = next; hudClock = 0; },
     };
     last = performance.now(); requestAnimationFrame(frame);
   }

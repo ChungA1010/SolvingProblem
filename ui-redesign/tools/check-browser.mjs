@@ -673,13 +673,16 @@ async function processCrystal(t) {
   t.expect(await lab.fast(`${S}.superheat > 9`, 300, 60000), 'over the next minutes the melt warms toward its new temperature');
   for (let i = 0; i < 10; i++) { await b.wheel(power, 100); await sleep(60); }
   t.expect(await lab.fast(`${S}.superheat < 5.2`, 900, 60000) && (await state()).heater === 105, 'turned back, the melt cools to where it was');
-  const speed = await lab.at(L.dials.speed), dopant = await lab.at(L.dials.dopant);
+  let speed = await lab.at(L.dials.speed), dopant = await lab.at(L.dials.dopant);
   await b.drag(line(dopant, { x: dopant.x + 145, y: dopant.y }, 12)); await sleep(400);
   s = await state(); t.expect(Math.abs(s.dopant - 2.9) < 1e-9, 'the boron dial is set before the seed goes in', `${s.dopant} mg`);
   const seed = await lab.part('seed');
   await b.drag(line(seed, { x: seed.x, y: seed.y + 240 }, 12)); await sleep(500);
   s = await state(); t.expect(s.target === 1, 'pulling the seed down sends it into the melt', `target ${s.target}`);
   t.expect(await lab.fast(`${S}.attached`, 300, 60000), 'the seed touches the melt');
+  // The process instruments come up now and the 3D view moves into the room that is left: the dials are elsewhere on the screen.
+  const settled = async point => { let a = await lab.at(point); for (let i = 0; i < 25; i++) { await sleep(400); const next = await lab.at(point); if (Math.hypot(a.x - next.x, a.y - next.y) < 0.5) return next; a = next; } return a; };
+  speed = await settled(L.dials.speed); dopant = await lab.at(L.dials.dopant);
   for (let i = 0; i < 3; i++) { await b.wheel(dopant, -100); await sleep(50); }
   await sleep(700); s = await state(); const refused = await lab.guide();
   t.expect(s.dopant === 2.9 && s.doped === 2.9 && /바꿀 수 없/.test(refused), 'once the seed is in, the boron is in the melt and its dial is refused', `${s.dopant} mg | ${refused}`);
@@ -704,6 +707,16 @@ async function processCrystal(t) {
   await sleep(700); s = await state(); shown = await lab.monitor();
   t.expect(s.d > 300 && s.d < 310 && Math.abs(shown.value - s.d) < 1.5 && /바디/.test(shown.note), 'the body is inside the range the run sheet asks for', JSON.stringify({ d: s.d, shown }));
   await t.shot('2-body');
+  // While the crystal grows the process instruments are up: four charts, each with its value under the pointer.
+  const strip = await b.evaluate(`(() => { const d = ${PL}; return { ...d.panels, titles: [...document.querySelectorAll('#tiles .tile h3')].map(h => h.innerText.replace(/\\s+/g, ' ').trim()), lines: document.querySelectorAll('#tiles .plot svg polyline').length,
+    bottom: parseFloat(getComputedStyle(document.getElementById('stage')).getPropertyValue('--inset-bottom')) || 0 }; })()`);
+  t.expect(strip.strip && strip.tiles === 4 && strip.lines === 4 && strip.bottom > 100 && /^지름 30\d mm/.test(strip.titles[0]) && /^인상 속도 \d/.test(strip.titles[1]) && /^용융액 1,4\d\d °C/.test(strip.titles[2]) && /^비저항 \d+\.\d Ω·cm/.test(strip.titles[3]),
+    'while the crystal grows the process instruments are up (diameter, pull speed, melt temperature, resistivity) and the 3D view makes room for them', JSON.stringify(strip));
+  const chart = await b.evaluate(`(() => { const r = document.querySelector('#tiles .tile:nth-child(1) .plot').getBoundingClientRect(); return { x: r.left + r.width * 0.6, y: r.top + r.height / 2 }; })()`);
+  await b.mouse('mouseMoved', { x: chart.x - 3, y: chart.y }); await sleep(200); await b.mouse('mouseMoved', chart); await sleep(700);
+  const tip = await b.evaluate(`document.getElementById('viz-tip').hidden ? '' : document.getElementById('viz-tip').innerText.replace(/\\n+/g, ' | ')`);
+  t.expect(/mm 지점/.test(tip) && /지름/.test(tip), 'a chart of the instruments shows its value under the pointer', tip);
+  await b.mouse('mouseMoved', { x: 300, y: 300 }); await sleep(300);
 
   // out of the melt and measured
   const hanging = await lab.part('seed');
@@ -714,6 +727,12 @@ async function processCrystal(t) {
   const landed = await clickOn(b, '#guide-action', 900);
   s = await state(); shown = await lab.monitor();
   t.expect(landed && s.result && s.result.valid && s.result.ok && s.result.necked && Math.abs(s.result.rho - 10) < 1 && /계측값/.test(shown.note), 'the crystal is measured: a body in range, a neck, and the resistivity the run sheet asks for', JSON.stringify(s.result));
+  await sleep(900);
+  const report = await b.evaluate(`(() => { const d = ${PL}, box = document.getElementById('report'), flat = e => e ? e.innerText.replace(/\\s+/g, ' ').trim() : '';
+    return { ...d.panels, verdict: flat(box.querySelector('.verdict')), criteria: [...box.querySelectorAll('.criteria .crit')].map(flat), figure: !!box.querySelector('figure svg'), notes: box.querySelectorAll('.notes li').length, next: flat(box.querySelector('#report-next')),
+      right: parseFloat(getComputedStyle(document.getElementById('stage')).getPropertyValue('--inset-right')) || 0, stray: /object|null|undefined|NaN/.test(box.innerText) }; })()`);
+  t.expect(report.report && !report.strip && /합격/.test(report.verdict) && report.criteria.length === 3 && report.criteria.every(c => /통과|전위 없음/.test(c)) && report.figure && report.notes >= 1 && report.next === '다음: 산화' && report.right > 300 && !report.stray,
+    'the measurement opens the report: the verdict, each criterion against its limit, the crystal in side view, what the result means and the way on', JSON.stringify(report));
   await t.shot('3-measured');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 1 && next.record.by === 'operator' && next.record.ok && Math.abs(next.wafer.substrate.resistivity - s.result.rho) < 1e-9 && !next.wafer.substrate.dislocated, 'the wafer cut from the crystal goes on to oxidation', JSON.stringify(next.record));

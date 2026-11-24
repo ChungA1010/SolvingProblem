@@ -81,9 +81,23 @@
           <div class="trend" id="trend"></div>
           <p class="now" id="mon-now">—</p>
           <div class="spec" id="spec" aria-label="작업 지시"></div>
+          <button type="button" class="link" id="report-open" hidden>계측 리포트<span aria-hidden="true">›</span></button>
         </div>
 
         <div class="guide" aria-live="polite"><span class="step" id="guide-step"></span><p id="guide-text">불러오는 중입니다.</p><button type="button" id="guide-action" hidden></button></div>
+        <button type="button" class="chip-btn" id="strip-open" hidden>공정 계기 <span aria-hidden="true">▴</span></button>
+
+        <!-- Process instruments: come up from the bottom while the equipment runs. The station on show fills the tiles. -->
+        <section class="strip viz" id="strip" data-open="false" aria-label="공정 계기">
+          <div class="tiles" id="tiles"></div>
+          <button type="button" class="icon-btn" id="strip-close" aria-label="공정 계기 접기">▾</button>
+        </section>
+
+        <!-- Metrology report: opens when the station has a measured result. -->
+        <aside class="drawer viz" id="drawer" data-open="false" aria-label="계측 리포트">
+          <header><h2 class="drawer-title">계측 리포트</h2><button type="button" class="icon-btn" id="drawer-close" aria-label="리포트 닫기">✕</button></header>
+          <div class="drawer-body" id="report" aria-live="polite"></div>
+        </aside>
         <div class="focus" id="focus" hidden></div>
         <div class="pill num" id="pill" hidden></div>
         <div class="callout" id="callout" hidden>

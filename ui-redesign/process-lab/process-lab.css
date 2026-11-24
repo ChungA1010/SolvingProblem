@@ -54,17 +54,17 @@
 .line-head h2 { font-size: clamp(21px, 2.1vw, 30px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; word-break: keep-all; }
 .line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: minmax(0, 1fr); gap: 12px 2px; min-height: 0; margin: 0; padding: 0; list-style: none; }
 .line li { display: grid; min-width: 0; min-height: 0; }
-.tile { display: grid; grid-template-rows: minmax(150px, 1fr) auto; min-width: 0; padding: 0; border: 0; background: none; color: inherit; text-align: left; outline: none; }
-.tile .shot { position: relative; overflow: hidden; background: #dde1e7; }
-.tile .shot img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 55%; transition: transform .6s cubic-bezier(.2, .6, .2, 1); }
-.tile:hover .shot img, .tile:focus-visible .shot img { transform: scale(1.035); }
-.tile .cap { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 8px 4px 2px; }
-.tile .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
-.tile .name { font-size: clamp(13px, 1.05vw, 16px); font-weight: 750; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.tile:hover .name, .tile:focus-visible .name { color: var(--brand); }
-.tile .thumb { flex: none; width: 132px; margin-left: auto; }                                     /* the wafer as it leaves this process */
-.tile .thumb svg { display: block; width: 100%; height: 31px; border-radius: 5px; background: #eef1f6; }
-.tile:focus-visible .shot { box-shadow: inset 0 0 0 3px var(--brand); }
+.line .tile { display: grid; grid-template-rows: minmax(150px, 1fr) auto; min-width: 0; padding: 0; border: 0; background: none; color: inherit; text-align: left; outline: none; }
+.line .tile .shot { position: relative; overflow: hidden; background: #dde1e7; }
+.line .tile .shot img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: cover; object-position: 50% 55%; transition: transform .6s cubic-bezier(.2, .6, .2, 1); }
+.line .tile:hover .shot img, .line .tile:focus-visible .shot img { transform: scale(1.035); }
+.line .tile .cap { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 9px 8px 4px 2px; }
+.line .tile .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
+.line .tile .name { font-size: clamp(13px, 1.05vw, 16px); font-weight: 750; letter-spacing: -.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.line .tile:hover .name, .line .tile:focus-visible .name { color: var(--brand); }
+.line .tile .thumb { flex: none; width: 132px; margin-left: auto; }                                     /* the wafer as it leaves this process */
+.line .tile .thumb svg { display: block; width: 100%; height: 31px; border-radius: 5px; background: #eef1f6; }
+.line .tile:focus-visible .shot { box-shadow: inset 0 0 0 3px var(--brand); }
 
 /* The end of a run: how many chips, the wafer map they came from, and one line for each process. */
 .finish { display: flex; align-items: center; gap: 26px; }
@@ -99,6 +99,16 @@
 .callout .basis { margin-top: 7px; font-size: 11.5px; color: var(--muted); }
 .spec { flex-wrap: wrap; }
 
+/* Process instruments and metrology report of a station. The pieces (strip, tile, plot, drawer, criteria) are the CMP
+   lab's own; here the strip holds as many tiles as the station gives, all of one width. */
+.strip { display: block; }
+.strip .tiles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); height: 100%; }
+.strip .tile .plot { margin-top: 4px; }
+.drawer-title { font-size: 13.5px; font-weight: 700; }
+.drawer .figure-box { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #f3f5f9; }
+.drawer .figure-box svg { display: block; width: 100%; height: auto; }
+.drawer figcaption { margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+
 /* What the lab makes, in the help window: the finished chip in section, every layer named after its process. */
 .goal { margin: 0 0 12px; } .goal svg { display: block; width: 100%; height: auto; border-radius: 10px; }
 .goal figcaption { margin-top: 6px; font-size: 12.5px; line-height: 1.5; color: var(--muted); word-break: keep-all; }
@@ -110,11 +120,11 @@
 
 @media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 132px); overflow-x: auto; } }
 @media (max-width: 900px), (max-height: 700px) {                                                 /* no room for two rows of four in the window: the pictures keep their shape and the bench scrolls */
-  .bench[data-view="line"] .bench-inner { min-height: 0; } .line { grid-auto-rows: auto; } .tile { grid-template-rows: auto auto; } .tile .shot { aspect-ratio: 3 / 2; }
+  .bench[data-view="line"] .bench-inner { min-height: 0; } .line { grid-auto-rows: auto; } .line .tile { grid-template-rows: auto auto; } .line .tile .shot { aspect-ratio: 3 / 2; }
 }
 @media (max-width: 900px) { .line { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 2px; } }
 @media (max-width: 720px) {
   .bench, .bench[data-view="line"] { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2, .finish-head h2 { font-size: 25px; }
   .line-head { flex-direction: column; align-items: stretch; } .finish { flex-direction: column; align-items: flex-start; }
 }
-@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } .tile .shot img { transition: none; } .tile:hover .shot img, .tile:focus-visible .shot img { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } .line .tile .shot img { transition: none; } .line .tile:hover .shot img, .line .tile:focus-visible .shot img { transform: none; } }
