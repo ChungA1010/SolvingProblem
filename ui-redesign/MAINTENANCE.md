@@ -11,7 +11,7 @@
 | 모드 선택(홈) | `index.html`, `home/home.css`, `home/home.js`, `home/media/` | 공개 |
 | CMP 팩토리(게임) | `factory/game.html`과 그 폴더의 JS·CSS, `factory/cmp-scene.js`, `factory/media/`, `factory/models/` | 공개 |
 | 학습 실험실(3D 연마 장비) | `lab-3d/lab-3d.html`과 그 폴더 | 공개 |
-| 8대 공정 실험실 | `process-lab/process-lab.html`과 그 폴더 | 공개 (실험판. 홈 화면 위쪽의 탭) |
+| 8대 공정 실험실 | `process-lab/process-lab.html`과 그 폴더 | 공개 (홈 화면 위쪽의 탭. 2026-11-24에 탭 옆의 "실험판" 표시를 뗐다) |
 | 예전 학습 실험실 워크스페이스, MRR 예측, 실험 기록, 학습 가이드, 5회 MRR 도전 | `index.html`의 안쪽 화면(`#lab`, `#prediction` 등). 스크립트는 `factory/`에 있다(`app.js`, `workbench.js`, `mrr-state.js` 등) | 숨김 |
 | 장비 시뮬레이터(PHM 재생) | `lab-sim/lab-sim.html`과 그 폴더 | 숨김 |
 
