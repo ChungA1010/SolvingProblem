@@ -18,6 +18,13 @@
  * After the polish (only with `create({ cleaning: true })`): a polished wafer leaves the pad wet and carrying slurry
  * particles. The cleaner scrubs, rinses and spin-dries it; each wet step removes particles first-order in time.
  * The particle counts, the time constants and the step times are assumptions, shortened so a lesson can show them.
+ * The operator sets how far the brush is pressed into the wafer (the scrub is that much faster; pressed too far it
+ * scratches) and may end a step early.
+ *
+ * From wafer to wafer (both optional, both assumptions shortened for a lesson):
+ *   `wear`  the conditioner cuts the pad, so a pad lasts only so many seconds of conditioning; a pad that is worn out
+ *           can no longer be conditioned and has to be changed, which stops the tool for a while
+ *   `lot`   wafers are counted in lots: how many passed, how long the lot took, good wafers per hour
  */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) module.exports = factory();
@@ -38,6 +45,9 @@
     cleanScrub: 20, cleanRinse: 10, cleanDry: 15,                       // s, steps of the post-CMP clean (assumed, shortened)
     particlesMax: 30,                                                   // particles left on a wafer that may go on (assumed)
     handlingTime: 30, parallelModules: 4,                               // s of wafer transfer per wafer; polishing modules of a production line (both assumed)
+    brushRef: 1.0, brushMax: 2.0, brushSafe: 1.5,                       // mm the scrub brush is pressed into the wafer; beyond brushSafe it scratches (assumed)
+    padLife: 800, exSituMax: 30, padChangeTime: 300,                    // s of conditioning a pad lasts; s one conditioning between wafers counts for; s a pad change stops the tool (assumed, shortened)
+    lotSize: 5,                                                         // wafers in a lot (a production carrier holds 25)
     nodes: 31,
   });
 
@@ -58,6 +68,7 @@
   const PARTICLES_INCOMING = 2;
   const TAU_SCRUB = 4, TAU_RINSE = 6;                                   // s
   const CLEAN_STEPS = Object.freeze(['scrub', 'rinse', 'dry']);
+  const BRUSH_SCRATCH = 0.15;                                           // scratches per second of scrub with the brush pressed in all the way
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const lag = (h, tau) => 1 - Math.exp(-h / tau);
@@ -146,6 +157,8 @@
     const rand = mulberry32(options.seed ?? 1), tool = options.tool || null, baseLevel = options.level ?? 1;
     const cleaning = !!options.cleaning, soilRand = mulberry32((options.seed ?? 1) ^ 0x2C1EA9);   // its own stream: the polish repeats with or without a cleaner
     const stepTime = { scrub: C.cleanScrub, rinse: C.cleanRinse, dry: C.cleanDry };
+    const wear = !!options.wear, lots = !!options.lot;
+    const newLot = id => ({ id, wafers: [], padChanges: 0, exSitu: 0 });
     const N = C.nodes, radius = Float64Array.from({ length: N }, (_, i) => C.waferRadius * i / (N - 1));
     const areaWeight = Float64Array.from({ length: N }, (_, i) => {
       const d = 1 / (N - 1), lo = Math.max(0, i * d - d / 2), hi = Math.min(1, i * d + d / 2);
@@ -153,16 +166,19 @@
     });
     const s = {
       t: 0, level: baseLevel, lastPolish: null,
-      controls: { head: 0, platen: 0, carrier: 0, slurry: 0, zone: 0, conditioner: false },
+      controls: { head: 0, platen: 0, carrier: 0, slurry: 0, zone: 0, conditioner: false, ...(cleaning ? { brush: C.brushRef } : {}) },   // the brush belongs to the cleaner
       gap: C.headTravel, pressure: 0, platenRpm: 0, carrierRpm: 0, flow: 0,
       platenAngle: 0, carrierAngle: 0, sweepPhase: 0,
       coverage: 0, glaze: 1, temp: C.ambient, padWear: 0, slurryTotal: 0,
+      padCut: wear ? C.padLife * clamp(options.padUsed ?? (tool ? tool.status.padShare : 0), 0, 1) : 0, padLeft: 1,   // s of conditioning this pad has had; the share of its life left
+      lot: lots ? newLot(1) : null, lots: [],                             // the lot being run, and the summaries of the finished ones (newest first)
       rate: 0, contact: false, polishing: false,
       cleaner: { phase: 'idle', left: 0 },                                // idle | scrub | rinse | dry | done
       factors: { pressure: 0, speed: 0, slurry: 0, pad: 1, temp: 1, contact: 1, level: 1 },
       wafer: null, monitor: null, alarms: {}, events: [], history: [], waferCount: 0,
     };
-    let lastRevolution = 0, lastSample = -1;
+    let lastRevolution = 0, lastSample = -1, exSitu = 0;                  // exSitu: s of conditioning since the last polish
+    s.padLeft = 1 - s.padCut / C.padLife;
 
     const interp = (film, r) => {
       const x = clamp(r / C.waferRadius, 0, 1) * (N - 1), i = Math.min(N - 2, Math.floor(x)), f = x - i;
@@ -193,6 +209,14 @@
 
     /** Puts a new wafer on the load pedestal. The deposited film is edge-thick or centre-thick by up to 2%. */
     function newWafer() {
+      if (s.lot) {
+        const w = s.wafer;
+        if (w && w.polishTime > 0) {                                      // polished and not measured since: it counts, and not as a good one
+          const seen = s.lot.wafers.find(e => e.id === w.id);
+          if (!seen || seen.polish !== w.polishTime || seen.clean !== w.cleanTime) lotRecord(w, null);
+        }
+        if (s.lot.wafers.length >= C.lotSize) { s.lots.unshift(lotSummary()); if (s.lots.length > 6) s.lots.pop(); s.lot = newLot(s.lot.id + 1); }
+      }
       const mean = C.filmStart + (rand() * 2 - 1) * 25, dome = (rand() < 0.5 ? 1 : -1) * (0.006 + rand() * 0.014);
       const film = Float64Array.from(radius, r => mean * (1 + dome * (2 * (r / C.waferRadius) ** 2 - 1)));
       s.wafer = {
@@ -220,13 +244,19 @@
       return true;
     }
 
-    /** Scrub, rinse, spin-dry: the wet steps take particles off, the last one leaves the wafer dry. */
+    /** Scrub, rinse, spin-dry: the wet steps take particles off, the last one leaves the wafer dry.
+     *  The scrub works in proportion to how far the brush is pressed in; pressed beyond brushSafe it scratches. */
     function clean(h) {
-      const w = s.wafer, k = s.cleaner;
+      const w = s.wafer, k = s.cleaner, brush = s.controls.brush;
       let left = h;
       while (left > 1e-9 && CLEAN_STEPS.includes(k.phase)) {
         const d = Math.min(left, k.left);
-        if (k.phase === 'scrub') w.particles *= Math.exp(-d / TAU_SCRUB);
+        if (k.phase === 'scrub') {
+          w.particles *= Math.exp(-d * (brush / C.brushRef) / TAU_SCRUB);
+          const over = Math.max(0, brush - C.brushSafe) / (C.brushMax - C.brushSafe);
+          if (over > 0 && soilRand() < 1 - Math.exp(-BRUSH_SCRATCH * over * over * d) && w.scratches.length < 80)
+            w.scratches.push({ r: (0.1 + 0.9 * soilRand()) * C.waferRadius, theta: soilRand() * 2 * Math.PI, length: 0.3 + soilRand() * 0.6, t: s.t, by: 'brush' });
+        }
         else if (k.phase === 'rinse') w.particles *= Math.exp(-d / TAU_RINSE);
         w.cleanTime += d; k.left -= d; left -= d;
         if (k.left <= 1e-9) {
@@ -235,6 +265,33 @@
           else { k.phase = 'done'; k.left = 0; w.wet = false; event('clean', `세정 끝: 남은 입자 ${Math.round(w.particles)}개`); }
         }
       }
+    }
+
+    /** Ends the running step of the cleaner now. A spin dry that is cut short leaves the wafer wet. */
+    function nextCleanStep() {
+      const w = s.wafer, k = s.cleaner;
+      if (!w || w.where !== 'cleaner' || !CLEAN_STEPS.includes(k.phase)) return false;
+      const next = CLEAN_STEPS[CLEAN_STEPS.indexOf(k.phase) + 1];
+      if (next) { k.phase = next; k.left = stepTime[next]; }
+      else { k.phase = 'done'; k.left = 0; event('clean', `건조를 일찍 끝냄: 남은 입자 ${Math.round(w.particles)}개, 젖음`); }
+      return true;
+    }
+
+    // ----- lots: every polished wafer counts once, measured or not -----
+    function lotRecord(w, m) {
+      const entry = { id: w.id, measured: !!m, pass: !!m && m.pass, mean: m ? m.mean : null, wiwnu: m ? m.wiwnu : null, polish: w.polishTime, clean: w.cleanTime,
+        time: w.polishTime + w.cleanTime + C.handlingTime, slurry: w.slurryUsed, observed: m?.tool?.observed ?? null, predicted: m?.tool?.predicted ?? null };
+      const at = s.lot.wafers.findIndex(e => e.id === w.id);
+      if (at < 0) s.lot.wafers.push(entry); else s.lot.wafers[at] = entry;
+    }
+    /** The account of a lot: wafers, good ones, the time it took (wafers, pad changes, conditioning between wafers) and good wafers per hour. */
+    function lotSummary(lot = s.lot) {
+      if (!lot) return null;
+      const count = lot.wafers.length, passed = lot.wafers.filter(e => e.pass).length, sum = key => lot.wafers.reduce((a, e) => a + e[key], 0);
+      const time = { wafers: sum('time'), padChange: lot.padChanges * C.padChangeTime, exSitu: lot.exSitu };
+      time.total = time.wafers + time.padChange + time.exSitu;
+      return { id: lot.id, size: C.lotSize, count, passed, done: count >= C.lotSize, yield: count ? passed / count : 0, time, padChanges: lot.padChanges,
+        goodPerHour: time.total > 0 ? passed / time.total * 3600 : 0, slurry: sum('slurry'), wafers: lot.wafers.map(e => ({ ...e })) };
     }
 
     function setAlarm(key, on, text) {
@@ -309,7 +366,19 @@
       const heat = s.polishing ? (mu / MU_REF) * pressureRatio * speedRatio * (0.3 + 0.7 * f.contact) * 1.5 / (1 + 0.5 * s.flow / C.slurryRef) : 0;
       s.temp += (C.ambient + DT_REF * heat - s.temp) * lag(h, s.polishing ? TAU_HEAT : TAU_COOL);
       const glazing = s.polishing ? pressureRatio * speedRatio * (1 + 2 * Math.max(0, (s.temp - 60) / 20)) / TAU_GLAZE : 0;
-      s.glaze = clamp(s.glaze + (conditioning * (1 - s.glaze) / TAU_COND - glazing * s.glaze) * h, 0.05, 1);
+      let dressing = conditioning;
+      if (wear) {
+        // The conditioner cuts the pad. Between wafers only the first exSituMax seconds count, for the pad and for the
+        // clock of the lot: one conditioning step, however long the operator takes to load the next wafer.
+        if (s.polishing) exSitu = 0;
+        if (s.padCut >= C.padLife) dressing = 0;                            // nothing left to cut: the pad stays glazed
+        else if (dressing > 0 && (s.polishing || exSitu < C.exSituMax)) {
+          s.padCut = Math.min(C.padLife, s.padCut + dressing * h);
+          if (!s.polishing) { exSitu += h; if (s.lot) s.lot.exSitu += h; }
+        }
+        s.padLeft = 1 - s.padCut / C.padLife;
+      }
+      s.glaze = clamp(s.glaze + (dressing * (1 - s.glaze) / TAU_COND - glazing * s.glaze) * h, 0.05, 1);
       s.padWear += conditioning * 0.02 * h;
 
       if (w && w.where === 'cleaner') clean(h);
@@ -330,6 +399,7 @@
       setAlarm('hydro', rubbing && f.contact < 0.5, '수막 현상: 속도에 비해 압력이 낮아 거의 깎이지 않습니다');
       setAlarm('still', rubbing && s.carrierRpm < 3 && s.platenRpm > 10, '헤드가 돌지 않아 웨이퍼 한쪽만 깎입니다');
       setAlarm('bare', !!w && w.where === 'head' && w.film.some(v => v <= 0), '막이 다 깎여 실리콘이 드러났습니다');
+      setAlarm('worn', wear && s.padCut >= C.padLife, '패드 수명이 다했습니다: 컨디셔너가 더는 듣지 않습니다. 패드를 교체하세요');
       setAlarm('empty', s.contact && s.pressure > 0.3 && (!w || w.where !== 'head'), '웨이퍼 없이 헤드를 눌렀습니다');
       s.t += h;
     }
@@ -352,6 +422,7 @@
         meanRate: w.polishTime > 0 ? (w.incoming.mean - areaMean(w.film)) / w.polishTime * 60 : 0,
         ok: { thickness: Math.abs(st.mean - C.target) <= C.targetTol, uniformity: st.wiwnu <= C.wiwnuMax, defects: w.scratches.length === 0 },
       };
+      result.brushScratches = w.scratches.filter(x => x.by === 'brush').length;
       if (cleaning) {
         result.particles = Math.round(w.particles); result.wet = w.wet; result.cleanTime = w.cleanTime;
         result.ok.clean = result.particles <= C.particlesMax && !w.wet;
@@ -366,6 +437,7 @@
         tool.observe(w.tool.wafer, observed, context);
         result.tool = { wafer: w.tool.wafer, observed, predicted: w.tool.predicted, next: tool.predict(), ...context, padShare: w.tool.padUsage / tool.model.padUsageSeen };
       }
+      if (s.lot && w.polishTime > 0) { lotRecord(w, result); result.lot = lotSummary(); }
       w.measured = result;
       event('measure', `계측: 평균 ${st.mean.toFixed(0)} nm, 불균일도 ${st.wiwnu.toFixed(1)}%`);
       return result;
@@ -375,6 +447,7 @@
     function replacePad() {
       if (s.contact || s.gap < C.headTravel * 0.5 || s.platenRpm > 1 || (s.wafer && s.wafer.where === 'head')) return false;
       s.glaze = GLAZE_REF; s.coverage = 0; s.padWear = 0; s.temp = C.ambient;   // broken in, dry, at room temperature
+      s.padCut = 0; s.padLeft = 1; exSitu = 0; if (s.lot) s.lot.padChanges += 1;
       if (tool) tool.replacePad();
       event('pad', '패드 교체');
       return true;
@@ -387,12 +460,13 @@
       else if (name === 'slurry') c.slurry = clamp(Number(value) || 0, 0, C.slurryMax);
       else if (name === 'zone') c.zone = clamp(Number(value) || 0, -C.zoneMax, C.zoneMax);
       else if (name === 'conditioner') c.conditioner = Boolean(value);
+      else if (name === 'brush' && cleaning) c.brush = clamp(Number(value) || 0, 0, C.brushMax);
       else throw new Error(`unknown control: ${name}`);
       return c[name];
     }
 
     return {
-      state: s, radius, step, setControl, newWafer, moveWafer, measure, replacePad, tool,
+      state: s, radius, step, setControl, newWafer, moveWafer, measure, replacePad, nextCleanStep, lotSummary, tool,
       filmAt: (r, theta = 0) => s.wafer ? Math.max(0, interp(s.wafer.film, r) - s.wafer.tilt * (r / C.waferRadius) * Math.cos(theta - s.wafer.tiltAngle)) : 0,
       meanThickness: () => s.wafer ? areaMean(s.wafer.film) : 0,
       liveWiwnu: () => s.wafer ? stats(pattern(s.wafer.film, s.wafer.tilt, s.wafer.tiltAngle, 0)).wiwnu : 0,

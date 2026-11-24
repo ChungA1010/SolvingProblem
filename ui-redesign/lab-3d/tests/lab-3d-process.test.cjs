@@ -241,3 +241,123 @@ test('the time of one wafer is polish plus clean plus transfer, and the hourly r
   const idle = M.create({ seed: 1, cleaning: true }); idle.newWafer(); idle.moveWafer('stage');
   assert.equal(idle.measure().cycle.perHour, 0);                              // nothing polished, nothing produced
 });
+
+// ----- operating the cleaner: how far the brush is pressed in, and ending a step early -----
+test('the scrub works in proportion to the brush compression, and the reference setting is the old cleaner (hand-worked)', () => {
+  const sim = polished(), w = sim.state.wafer, soil = w.soil;
+  assert.equal(sim.state.controls.brush, C.brushRef);
+  assert.equal(sim.setControl('brush', 0.5), 0.5); assert.equal(sim.setControl('brush', 9), C.brushMax); sim.setControl('brush', 0.5);
+  sim.moveWafer('cleaner'); sim.step(10);
+  assert.ok(Math.abs(w.particles / soil - Math.exp(-10 * 0.5 / 4)) < 1e-9);     // half the compression: e^(-1.25) = 0.2865 left, against 0.0821 at the reference
+  const lifted = polished(); lifted.setControl('brush', 0); lifted.moveWafer('cleaner'); lifted.step(20);
+  assert.equal(lifted.state.wafer.particles, lifted.state.wafer.soil);          // a brush that does not touch takes nothing off
+});
+
+test('a brush pressed in beyond the safe compression scratches the wafer, and one within it never does', () => {
+  let gentle = 0, hard = 0;
+  for (let seed = 1; seed <= 6; seed++) {
+    const a = polished(seed); a.setControl('brush', C.brushSafe); a.moveWafer('cleaner'); a.step(46); a.moveWafer('stage'); gentle += a.measure().brushScratches;
+    const b = polished(seed); b.setControl('brush', C.brushMax); b.moveWafer('cleaner'); b.step(46); b.moveWafer('stage');
+    const m = b.measure(); hard += m.brushScratches;
+    if (m.brushScratches) { assert.equal(m.ok.defects, false); assert.equal(m.pass, false); }
+    assert.ok(m.particles <= 1);                                                // 2000 e^(-10) e^(-10/6): it does clean
+  }
+  assert.equal(gentle, 0);
+  assert.ok(hard >= 6 && hard <= 36, `scratches ${hard}`);                      // 0.15 a second for 20 s: about 3 a wafer, 18 on six
+});
+
+test('a step of the cleaner can be ended early: less time, more particles, and a dry cut short leaves the wafer wet (hand-worked)', () => {
+  const sim = polished(), w = sim.state.wafer, soil = w.soil, k = sim.state.cleaner;
+  assert.equal(sim.nextCleanStep(), false);                                     // nothing runs yet
+  sim.moveWafer('cleaner'); sim.step(12); assert.equal(sim.nextCleanStep(), true); assert.equal(k.phase, 'rinse');
+  sim.step(10); assert.equal(k.phase, 'dry'); sim.step(15.1); assert.equal(k.phase, 'done'); assert.equal(w.wet, false);
+  assert.ok(Math.abs(w.particles / soil - Math.exp(-12 / 4 - 10 / 6)) < 1e-9);  // 0.00940: about 19 of 2000
+  assert.ok(Math.abs(w.cleanTime - 37) < 1e-6);
+  sim.moveWafer('stage'); const m = sim.measure();
+  assert.equal(m.ok.clean, true); assert.ok(Math.abs(m.cycle.clean - 37) < 1e-6);
+  const cut = polished(); cut.moveWafer('cleaner'); cut.step(32); assert.equal(cut.nextCleanStep(), true);
+  assert.equal(cut.state.cleaner.phase, 'done'); assert.equal(cut.state.wafer.wet, true); assert.equal(cut.nextCleanStep(), false);
+  cut.moveWafer('stage'); assert.equal(cut.measure().ok.clean, false);
+});
+
+// ----- from wafer to wafer: the life of the pad, and lots -----
+/** A tool with pad wear and lots, at the reference settings, pad usage given as a share of its life. */
+function line(options = {}) {
+  const sim = M.create({ seed: options.seed ?? 1, cleaning: true, wear: true, lot: true, padUsed: options.padUsed ?? 0 });
+  for (const [name, value] of [['platen', C.platenRef], ['carrier', C.carrierRef], ['slurry', C.slurryRef], ['conditioner', options.conditioner ?? true]]) sim.setControl(name, value);
+  return sim;
+}
+/** One wafer through the line: polish to the target, clean, measure (or leave it unmeasured). */
+function runWafer(sim, { measure = true, clean = true } = {}) {
+  sim.newWafer(); sim.step(2); sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax);
+  let guard = 0; while (sim.meanThickness() > C.target + 6 && guard++ < 20000) sim.step(0.1);
+  sim.setControl('head', 0); sim.step(4);
+  if (clean) { sim.moveWafer('cleaner'); sim.step(46); }
+  if (!measure) return null;
+  sim.moveWafer('stage'); return sim.measure();
+}
+
+test('without the wear option the pad has no life to lose', () => {
+  const sim = polished(); assert.equal(sim.state.padLeft, 1); assert.equal(sim.state.padCut, 0); assert.equal(sim.state.lot, null); assert.equal(sim.lotSummary(), null);
+});
+
+test('the conditioner cuts the pad while it sweeps; between wafers only the first 30 s count (hand-worked)', () => {
+  const sim = line(); sim.step(50); sim.step(50);                                            // no wafer: one conditioning step
+  const s = sim.state;
+  assert.ok(s.padCut > 26 && s.padCut <= 30, `cut ${s.padCut}`);                // 30 s less the spin-up of the platen
+  assert.ok(Math.abs(s.lot.exSitu - 30) < 0.06);
+  const before = s.padCut, m = runWafer(sim);
+  assert.ok(Math.abs((s.padCut - before) - (m.polishTime + 30)) < 6, `cut in one wafer ${s.padCut - before}, polish ${m.polishTime}`);   // every second of the polish, then one 30 s step while the wafer is cleaned
+  assert.ok(Math.abs(s.padLeft - (1 - s.padCut / C.padLife)) < 1e-12);
+  const idle = line({ conditioner: false }); idle.step(50); idle.step(50); assert.equal(idle.state.padCut, 0);
+});
+
+test('a worn-out pad can no longer be conditioned: it glazes, the alarm says so, and a new pad sets it right', () => {
+  const sim = line({ padUsed: 1 }), s = sim.state;
+  assert.equal(s.padLeft, 0);
+  sim.newWafer(); sim.step(2); sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax); sim.step(60); sim.step(60);   // a step is 60 s at most
+  assert.ok(s.alarms.worn); assert.ok(s.glaze < 0.75, `glaze ${s.glaze}`);      // e^(-120/300) = 0.67 without conditioning; 0.94 with it
+  assert.ok(s.factors.pad < 0.85);
+  sim.setControl('head', 0); sim.step(4); assert.equal(sim.replacePad(), false); // not with a wafer in the head
+  sim.moveWafer('pedestal'); sim.setControl('platen', 0); sim.step(12);
+  assert.equal(sim.replacePad(), true); assert.equal(s.padLeft, 1); assert.equal(s.lot.padChanges, 1);
+  sim.step(1); assert.equal(s.alarms.worn, undefined);
+});
+
+test('a lot counts every polished wafer once, and its time is the wafers plus pad changes plus conditioning between them (hand-worked)', () => {
+  const sim = line({ conditioner: false }), s = sim.state;
+  sim.newWafer(); sim.newWafer();                                               // a wafer that was never polished is not in the lot
+  assert.equal(sim.lotSummary().count, 0);
+  const first = runWafer(sim); assert.equal(first.ok.clean, true);
+  assert.equal(first.lot.count, 1); assert.equal(first.lot.passed, first.pass ? 1 : 0); assert.equal(first.lot.done, false);
+  assert.ok(Math.abs(first.lot.time.total - (first.polishTime + 45 + 30)) < 1e-6);
+  assert.ok(Math.abs(first.lot.goodPerHour - (first.pass ? 3600 / (first.polishTime + 75) : 0)) < 1e-9);
+  sim.measure(); assert.equal(sim.lotSummary().count, 1);                       // measured twice, counted once
+  runWafer(sim, { measure: false });                                            // polished, never measured
+  const third = runWafer(sim, { clean: false });                                // measured wet
+  assert.equal(third.pass, false);
+  let lot = sim.lotSummary();
+  assert.equal(lot.count, 3); assert.equal(lot.wafers[1].measured, false); assert.equal(lot.wafers[1].pass, false);
+  assert.ok(Math.abs(lot.time.wafers - lot.wafers.reduce((a, e) => a + e.polish + e.clean + 30, 0)) < 1e-9);
+  assert.equal(lot.wafers[2].clean, 0);
+  sim.newWafer(); sim.setControl('platen', 0); sim.step(12); assert.equal(sim.replacePad(), true); sim.setControl('platen', C.platenRef);
+  sim.step(8); sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax);
+  let guard = 0; while (sim.meanThickness() > C.target + 6 && guard++ < 20000) sim.step(0.1);
+  sim.setControl('head', 0); sim.step(4); sim.moveWafer('cleaner'); sim.step(46); sim.moveWafer('stage'); sim.measure();
+  const last = runWafer(sim); lot = last.lot;
+  assert.equal(lot.count, 5); assert.equal(lot.done, true); assert.equal(lot.padChanges, 1); assert.equal(lot.time.padChange, 300);
+  assert.equal(lot.time.exSitu, 0);
+  assert.ok(Math.abs(lot.time.total - (lot.time.wafers + 300)) < 1e-9);
+  assert.equal(lot.passed, lot.wafers.filter(e => e.pass).length); assert.ok(lot.passed <= 3);
+  assert.ok(Math.abs(lot.goodPerHour - lot.passed / lot.time.total * 3600) < 1e-9);
+  assert.ok(Math.abs(lot.yield - lot.passed / 5) < 1e-12);
+  assert.equal(s.lot.id, 1); sim.newWafer();                                    // the next wafer opens the next lot
+  assert.equal(s.lot.id, 2); assert.equal(sim.lotSummary().count, 0); assert.equal(s.lots.length, 1); assert.equal(s.lots[0].count, 5);
+});
+
+test('conditioning all through every polish uses a half-used pad up within a lot', () => {
+  const always = line({ padUsed: 0.47 }); let worn = 0;
+  for (let i = 0; i < C.lotSize; i++) { runWafer(always); if (always.state.padLeft === 0 && !worn) worn = i + 1; }
+  assert.ok(worn >= 3 && worn <= 4, `worn out on wafer ${worn}`);               // 424 s left, about 140 s a wafer
+  assert.ok(always.state.alarms.worn);
+});

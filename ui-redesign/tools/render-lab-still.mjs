@@ -24,8 +24,8 @@ const timeout = setTimeout(async () => { console.error('timed out'); await brows
 try {
   await browser.goto(page);
   await browser.until(`!!(${lab} && ${lab}.scene)`, 120000);
-  // Only the tool: no overlays, no rounded frame.
-  await browser.evaluate(`(() => { const s = document.createElement('style'); s.textContent = '.hud, .stage::after { display: none !important } .stage { border: 0 !important; border-radius: 0 !important; box-shadow: none !important }'; document.head.append(s); })()`);
+  // Only the tool: no overlays, no rounded frame, and no scroll bar taking width from the view.
+  await browser.evaluate(`(() => { const s = document.createElement('style'); s.textContent = 'html { overflow: hidden !important } .hud, .stage::after { display: none !important } .stage { border: 0 !important; border-radius: 0 !important; box-shadow: none !important }'; document.head.append(s); })()`);
   await browser.evaluate(`(() => { const d = ${lab}; d.setStrip('closed'); d.scene.holdPixelRatio(${SCALE}); d.setSpeed(16);
     for (const [name, value] of [['platen', 90], ['carrier', 87], ['slurry', 200], ['conditioner', true]]) d.sim.setControl(name, value); })()`);
   await sleep(2500);

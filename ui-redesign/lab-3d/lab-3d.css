@@ -166,7 +166,21 @@ td.num, th.num { text-align: right; }
 .drawer section .plot { flex: none; height: 112px; }
 .stats { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 4px 10px; font-size: 12.5px; }
 .stats dt { color: var(--muted); } .stats dd { font-weight: 650; text-align: right; padding-right: 8px; }
-.throughput .stats, .tool-state .stats { grid-template-columns: 1fr auto; }   /* long labels and values: one pair to a line */
+.throughput .stats, .tool-state .stats, .lot .stats { grid-template-columns: 1fr auto; }   /* long labels and values: one pair to a line */
+/* the lot: its wafers in two small charts, one column a wafer */
+.lot { display: grid; gap: 10px; padding-bottom: 14px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.lot-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; } .lot-head h3 { font-size: 16px; }
+.lot figure { margin: 0; } .lot figcaption { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+.lot-chart { display: block; width: 100%; height: auto; }
+.lot-chart .grid { stroke: var(--viz-grid); stroke-width: 1; } .lot-chart .base { stroke: var(--viz-axis); stroke-width: 1.5; }
+.lot-chart .band { fill: var(--viz-good); opacity: .15; } .lot-chart .tick { font-size: 10.5px; fill: var(--muted); font-variant-numeric: tabular-nums; }
+.lot-chart .ok { fill: var(--viz-good); stroke: #fff; stroke-width: 2; } .lot-chart .ng { fill: none; stroke: var(--viz-critical); stroke-width: 2.6; stroke-linecap: round; }
+.lot-chart .none { fill: #fff; stroke: var(--viz-quiet); stroke-width: 2; }
+.lot-chart .range { fill: var(--viz-quiet); opacity: .4; } .lot-chart .seen { fill: var(--viz-accent); stroke: #fff; stroke-width: 2; }
+.lot-key { display: flex; flex-wrap: wrap; gap: 1px 12px; font-size: 11.5px; color: var(--muted); }
+.lot footer { display: flex; justify-content: flex-end; }
+.past-lots { display: grid; gap: 3px; margin-bottom: 12px; font-size: 12.5px; color: var(--muted); }
+.spec .lot-chip { background: var(--brand-soft); color: var(--brand); font-weight: 700; }
 .drawer footer { display: flex; justify-content: flex-end; gap: 8px; }
 #log { gap: 8px; }
 .log-head, .log-row { display: grid; grid-template-columns: 34px minmax(0, 1.2fr) minmax(0, 1fr) 70px; gap: 4px 12px; align-items: center; }

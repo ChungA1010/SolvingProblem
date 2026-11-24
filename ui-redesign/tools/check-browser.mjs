@@ -243,7 +243,15 @@ async function labOperate(t) {
   await b.drag(line(up, await lab.at(L.cleaner[0], L.carryY, L.cleaner[2]), 16));
   const washing = await reached(b, `${LAB}.sim.state.wafer.where === 'cleaner' && ${LAB}.sim.state.cleaner.phase === 'scrub'`, 15000);
   t.expect(washing, 'pulling the raised head to the cleaner puts the wafer on its chuck and starts the scrub', JSON.stringify(await b.evaluate(`({ where: ${LAB}.sim.state.wafer.where, cleaner: ${LAB}.sim.state.cleaner })`)));
-  await sleep(2500); await lab.shot('2-cleaning');
+  const knob = await lab.at(L.brush[0], L.brush[1], L.brush[2]);
+  await b.drag(line(knob, { x: knob.x + 40, y: knob.y }, 8)); await sleep(300);
+  s = await lab.state(); t.expect(s.controls.brush > C.brushRef && s.controls.brush < C.brushSafe, 'dragging the dial beside the cleaner presses the scrub brush in further', `brush ${s.controls.brush} mm`);
+  await sleep(2200); await lab.shot('2-cleaning');
+  await b.evaluate(`${LAB}.setSpeed(64)`);
+  await reached(b, `${LAB}.sim.state.cleaner.phase === 'rinse'`, 120000); await b.evaluate(`${LAB}.setSpeed(1)`); await sleep(400);
+  await b.click(await lab.at(L.cleaner[0] + 0.05, L.cleaner[1] + 0.004, L.cleaner[2] + 0.07), 200); await sleep(500);
+  const skipped = await b.evaluate(`({ phase: ${LAB}.sim.state.cleaner.phase, clean: ${LAB}.sim.state.wafer.cleanTime, where: ${LAB}.sim.state.wafer.where })`);
+  t.expect(skipped.phase === 'dry' && skipped.where === 'cleaner' && skipped.clean < C.cleanScrub + C.cleanRinse - 1, 'a click on the running cleaner ends the rinse early and the spin dry starts', JSON.stringify(skipped));
   await b.evaluate(`${LAB}.setSpeed(64)`);
   const dried = await reached(b, `${LAB}.sim.state.cleaner.phase === 'done' && !${LAB}.sim.state.wafer.wet`, 120000);
   await b.evaluate(`${LAB}.setSpeed(4)`); await sleep(1500);
@@ -361,6 +369,10 @@ async function labPanels(t) {
   t.expect(/연마 전 모델의 예상 \| ×\d\.\d\d \(\d\.\d\d~\d\.\d\d\)/.test(secondTool) && (await b.evaluate(`${LAB}.sim.tool.status.measured`)) === 2,
     'for the second wafer the report also shows what the model expected before it was polished', secondTool);
 
+  // Two polishes with the conditioner (all of the first, none of the second) have cut the pad: it started about half used.
+  const life = await b.evaluate(`(() => { const d = ${LAB}; return { left: d.sim.state.padLeft, cut: d.sim.state.padCut, chip: document.getElementById('lot-chip').innerText, lot: d.sim.lotSummary() }; })()`);
+  t.expect(life.left > 0.2 && life.left < 0.5 && /로트 1 · 2\/5장/.test(life.chip) && life.lot.count === 2 && !life.lot.done,
+    'the conditioner has used up part of the pad, and the work order shows the lot at two wafers of five', JSON.stringify({ left: life.left, chip: life.chip, count: life.lot.count }));
   // The pad is changed on a tool that stands still, and the model then knows the next wafer is the first on a new pad.
   await b.evaluate(`(() => { const d = ${LAB}; d.sim.setControl('platen', 90); })()`); await sleep(1500);
   let padClick = await lab.clickOn('#pad-change'); await sleep(400);
@@ -375,7 +387,14 @@ async function labPanels(t) {
   let landed = await lab.clickOn('#drawer-tabs button[data-tab="log"]');
   const rows = await b.evaluate(`document.querySelectorAll('#log .log-row').length`);
   t.expect(landed && rows === 2 && (await lab.panels()).drawer.tab === 'log', 'the record tab lists both wafers', `click landed: ${landed}, ${rows} rows`);
+  const lotView = await b.evaluate(`(() => { const d = ${LAB}, lot = d.sim.lotSummary(), host = document.querySelector('#log .lot');
+    return { text: host ? host.innerText.replace(/\\n+/g, ' | ') : '', charts: host ? host.querySelectorAll('.lot-chart').length : 0, marks: host ? host.querySelectorAll('.lot-chart .ok, .lot-chart .ng').length : 0, seen: host ? host.querySelectorAll('.lot-chart .seen').length : 0,
+      passed: lot.passed, count: lot.count, padChanges: lot.padChanges, padChange: lot.time.padChange, total: lot.time.total, wafers: lot.time.wafers, exSitu: lot.time.exSitu, perHour: lot.goodPerHour, left: d.sim.state.padLeft }; })()`);
+  t.expect(new RegExp(`합격 \\| ${lotView.passed} / 2장`).test(lotView.text) && /패드 교체 1회 \| 5분 0초/.test(lotView.text) && /양품 처리량 \| 시간당 \d+\.\d장/.test(lotView.text) && /패드 수명 남음 \| 100%/.test(lotView.text)
+    && lotView.charts === 2 && lotView.marks === 2 && lotView.seen === 2 && lotView.padChange === 300 && lotView.left === 1 && Math.abs(lotView.total - (lotView.wafers + 300 + lotView.exSitu)) < 1e-6 && Math.abs(lotView.perHour - lotView.passed / lotView.total * 3600) < 1e-6,
+    'the record opens with the lot: both wafers on the thickness and tool charts, the good ones, the time with the pad change in it, and good wafers per hour', JSON.stringify(lotView));
   await lab.shot('4-record');
+  await b.evaluate("document.querySelector('#log .log-row:last-child').scrollIntoView({ block: 'end' })"); await sleep(600);   // the lot stands above the list
   landed = await lab.clickOn('#log .log-row:last-child');
   p = await lab.panels(); t.expect(landed && p.drawer.tab === 'report' && p.drawer.selected === p.wafers.at(-1).id, 'choosing a wafer in the record opens its report', `click landed: ${landed}, ${JSON.stringify(p.drawer)}`);
   landed = await lab.clickOn('#drawer-close');

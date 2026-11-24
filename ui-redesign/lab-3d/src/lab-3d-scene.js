@@ -474,8 +474,24 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
   const rinseTop = 0.18, rinseFoot = CLEANER.y - DECK + 0.006;
   rinse.scale.y = rinseTop - rinseFoot; rinse.position.y = (rinseTop + rinseFoot) / 2; rinse.visible = false;
   const cleanPlate = plate(0.09, 0.024, label(['CLEAN'], { bg: '#24272c', fg: '#e9edf3', size: 0.66 }), machine, [CLEANER.x + 0.12, DECK + 0.0012, CLEANER.z + 0.222], [-Math.PI / 2, 0, 0]);
-  if (withCleaner) info('cleaner', cleanerUnit, new THREE.Vector3(CLEANER.x, DECK + 0.056, CLEANER.z));
-  else cleanerUnit.visible = cleanPlate.visible = false;   // on the chuck, so the pointer finds the part there
+  // Brush regulator on the deck beside the cup: how far the scrub brush is pressed into the wafer. Right is harder.
+  const brushDial = new THREE.Group(); brushDial.position.set(CLEANER.x + 0.275, DECK, CLEANER.z + 0.135); brushDial.rotation.y = -0.35; machine.add(brushDial);
+  add(box(0.104, 0.05, 0.104, 0.008), mat.anodized, brushDial, [0, 0.025, 0]);
+  plate(0.096, 0.096, (x, n) => {
+    const h = n / 2; x.fillStyle = '#24272c'; x.fillRect(0, 0, n, n); x.strokeStyle = '#e9edf3'; x.fillStyle = '#e9edf3'; x.textAlign = 'center'; x.textBaseline = 'middle';
+    for (let k = -4; k <= 4; k++) {
+      const a = k * 0.30, major = k % 2 === 0; x.strokeStyle = k > 2 ? '#ff7b6b' : '#e9edf3'; x.lineWidth = major ? n * 0.022 : n * 0.011;   // the last ticks are past the safe compression
+      x.beginPath(); x.moveTo(h + Math.sin(a) * n * 0.31, h - Math.cos(a) * n * 0.31); x.lineTo(h + Math.sin(a) * n * (major ? 0.39 : 0.36), h - Math.cos(a) * n * (major ? 0.39 : 0.36)); x.stroke();
+    }
+    x.font = `700 ${n * 0.095}px "Segoe UI", Arial, sans-serif`; x.fillText('BRUSH', h, n * 0.9);
+  }, brushDial, [0, 0.0508, 0], [-Math.PI / 2, 0, 0]);
+  const brushKnob = new THREE.Group(); brushKnob.position.y = 0.051; brushDial.add(brushKnob);
+  add(cyl(0.024, 0.027, 0.026, 32), std(0x1d2025, 0.3, 0.45, { bumpMap: knurl, bumpScale: 0.03 }), brushKnob, [0, 0.013, 0]);
+  small(cube(0.005, 0.003, 0.02), mat.accent, brushKnob, [0, 0.0275, -0.012]);
+  if (withCleaner) {
+    info('cleaner', cleanerUnit, new THREE.Vector3(CLEANER.x, DECK + 0.056, CLEANER.z));   // on the chuck, so the pointer finds the part there
+    control('brush', brushDial, new THREE.Vector3(brushDial.position.x, DECK + 0.066, brushDial.position.z));
+  } else cleanerUnit.visible = cleanPlate.visible = brushDial.visible = false;
 
   // ----- wafer -----
   const filmCanvas = document.createElement('canvas'); filmCanvas.width = filmCanvas.height = 256;
@@ -541,6 +557,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     } else if (d.name === 'carrier') emit('carrier', d.start + dx * 0.5);
     else if (d.name === 'zone') emit('zone', d.start + dx * 0.001);
     else if (d.name === 'slurry') emit('slurry', d.start + (dx - dy) * 1.4);
+    else if (d.name === 'brush') emit('brush', d.start + dx * 0.008);
     else if (d.name === 'wafer' && raycaster.ray.intersectPlane(d.plane, hit)) {
       carried = hit.clone(); carried.x = THREE.MathUtils.clamp(carried.x, LEFT + 0.1, RIGHT - 0.05); carried.z = THREE.MathUtils.clamp(carried.z, WALL_F + 0.17, FRONT + 0.25);
     }
@@ -560,6 +577,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     const d = drag; drag = null; controls.enabled = true;
     if (!d) return;
     if (d.name === 'wafer' && d.moved) { const target = dropTarget(); carried = null; if (target) on.wafer?.(target); }
+    else if (d.name === 'wafer' && view?.wafer?.where === 'cleaner') on.press?.('cleaner');   // the wafer covers the chuck: a click on it is a click on the cleaner
     else if (d.name === 'conditioner' && !d.moved) emit('conditioner', !current('conditioner'));
     else if (d.name === 'emo' && !d.moved) { emoPressed = 0.3; emit('emo', true); }
     carried = null; on.drag?.(null);
@@ -595,6 +613,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     else if (name === 'platen' || name === 'carrier') emit(name, current(name) + up);
     else if (name === 'slurry') emit('slurry', current('slurry') + up * 5);
     else if (name === 'zone') emit('zone', current('zone') + up * 0.005);
+    else if (name === 'brush') emit('brush', current('brush') + up * 0.05);
   };
   canvas.addEventListener('pointerdown', pointerDown); canvas.addEventListener('pointermove', pointerMove);
   canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerUp);
@@ -714,7 +733,9 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     chuckAngle += dt * (scrubbing ? 5 : phase === 'rinse' ? 9 : phase === 'dry' ? 34 : 0); spinChuck.rotation.y = chuckAngle;
     const brushGoal = scrubbing ? BRUSH_OUT + (BRUSH_IN - BRUSH_OUT) * (0.5 - 0.5 * Math.cos(clock * 2.4)) : BRUSH_PARK;
     brushAngle += (brushGoal - brushAngle) * Math.min(1, dt * (scrubbing ? 6 : 3)); brushArm.rotation.y = -brushAngle;
-    brushHead.position.y += ((scrubbing && brushAngle > BRUSH_OUT - 0.08 ? -0.012 : 0.02) - brushHead.position.y) * Math.min(1, dt * 6);
+    const pressed = (next.controls.brush ?? constants.brushRef) / constants.brushRef;                            // 1 at the reference compression
+    brushKnob.rotation.y = -(pressed * constants.brushRef / constants.brushMax - 0.5) * 2.4;
+    brushHead.position.y += ((scrubbing && brushAngle > BRUSH_OUT - 0.08 ? -0.008 - 0.004 * pressed : 0.02) - brushHead.position.y) * Math.min(1, dt * 6);
     brushHead.rotation.y -= dt * (scrubbing ? 12 : 0);
     rinse.visible = wetStep;
     const inCleaner = next.wafer?.where === 'cleaner' && !carried;
@@ -758,6 +779,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     layout: {
       deck: DECK, padTop: PAD_TOP, armY: ARM_Y, carryY: CARRY_Y, head: HEAD.toArray(), pedestal: PEDESTAL.toArray(), stage: STAGE.toArray(), cleaner: CLEANER.toArray(),
       ring: [HEAD.x, ARM_Y - 0.075, HEAD.z + 0.098], zone: [HEAD.x, ARM_Y + 0.10, HEAD.z + 0.139], valve: [sx, DECK + 0.17, sz + 0.07], cup: [cup.x, DECK + 0.266, cup.z],
+      brush: [brushDial.position.x, DECK + 0.066, brushDial.position.z],
       emo: [emo.position.x, DECK + 0.083, emo.position.z], hmi: hmi.position.toArray(), tower: parts.tower.anchor.toArray(), gauges: parts.gauges.anchor.toArray(),
     },
     filmCanvas, screenCanvas,
