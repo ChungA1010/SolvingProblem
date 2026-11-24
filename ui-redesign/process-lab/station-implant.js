@@ -13,6 +13,10 @@
   const mA = amps => `${(amps * 1000).toFixed(2)} mA`, mass = s => IM.massAt(s.field).toFixed(1);
   /** The ions in the beam as the page writes them: 'P⁺', or 'PH⁺ 86%, P⁺ 14%'. */
   const ionText = ions => !ions.length ? '없음' : ions.length === 1 ? ions[0].name : ions.map(ion => `${ion.name} ${Math.round(ion.share * 100)}%`).join(', ');
+  const power = v => `10${String(Math.round(14 + v)).replace(/\d/g, d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d])}`;      // a tick of the logarithmic axis of the concentration charts: 10¹⁵ for 1 above 10¹⁴
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each measurement, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const tuning = s => s.phase === 'ready' && (Boolean(s.scan) || s.current < C.beam.least);       // no beam to implant with yet: the monitor shows the mass scan
   const REFUSED = {
     implant: s => s.phase === 'implanting' ? '주입하는 중입니다.' : s.phase !== 'ready' ? '이미 주입했습니다. 이온주입은 되돌릴 수 없습니다.' : s.scan ? '질량 스캔이 끝난 뒤에 주입할 수 있습니다.' : '빔 전류가 거의 없습니다. 분석 자석을 이온의 봉우리에 맞추세요.',
@@ -120,6 +124,67 @@
         cells: [['ENERGY', `${fmt(used.keV)} keV`], ['BEAM', mA(s.current)], s.phase === 'ready' || s.phase === 'implanting' ? ['AMU', mass(s)] : ['ANNEAL', `${fmt(s.hot)}°C`]],
         chips: [['BEAM', s.beam], ['IMPLANT', s.phase !== 'ready' && s.phase !== 'implanting'], ['ANNEAL', s.phase === 'done']],
         bar: annealing ? ['ANNEAL', s.progress] : ['DOSE', s.counted / used.dose],
+      };
+    },
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    /** Keeps what the instruments draw over time: beam current, the dose counted so far and the wafer's temperature, from the implant on. */
+    tick(sim) {
+      const s = sim.state, busy = s.phase === 'implanting' || s.phase === 'annealing';
+      if (s.phase === 'ready') { sim.trace = null; return; }
+      const trace = sim.trace || (sim.trace = { from: s.time, points: [] }), t = s.time - trace.from, last = trace.points.at(-1);
+      if (!last || (busy && t - last.t >= (s.phase === 'annealing' ? 5 : 1)) || (!busy && last.phase !== s.phase)) {      // and one point where each step ends
+        trace.points.push({ t, phase: s.phase, current: s.beam ? s.current * 1000 : 0, share: s.used ? 100 * s.counted / s.used.dose : 0, hot: s.hot });
+        if (trace.points.length > 1800) trace.points.splice(0, 2);
+      }
+    },
+    running(sim) { const s = sim.state; return s.phase !== 'ready' && s.phase !== 'done'; },
+    instruments(sim) {
+      const s = sim.state, points = sim.trace ? sim.trace.points : [], o = (s.phase === 'done' && s.result) || sim.outlook();
+      const tMax = Math.max(60, points.length ? points.at(-1).t : 0), time = [[0, '0'], [tMax, clock(tMax)]];
+      const near = (list, x) => list.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, list[0]);
+      const beam = points.map(p => [p.t, p.current]), share = points.map(p => [p.t, p.share]), hot = points.map(p => [p.t, p.hot]);
+      const depth = o.reached ? o.junction : 0, xMax = Math.max(800, Math.ceil(depth * 1.25 / 200) * 200), log = n => Math.max(0, Math.log10(Math.max(1, n)) - 14), level = log(o.substrate);
+      const profile = Array.from({ length: 81 }, (_, i) => [xMax * i / 80, log(o.at(xMax * i / 80))]), beamTop = Math.max(1, Math.ceil(C.beam.current * 1000 * 1.2));
+      return [
+        { title: '빔 전류', unit: 'mA', value: (s.beam ? s.current * 1000 : 0).toFixed(2), label: '시간에 따른 웨이퍼에 닿는 빔 전류',
+          plot: { x: [0, tMax], y: [0, beamTop], yTicks: [0, beamTop], xTicks: time, series: beam, quiet: true },
+          tip: x => { if (!beam.length) return null; const p = near(beam, x); return [clock(p[0]), [[`${p[1].toFixed(2)} mA`, '빔 전류']]]; } },
+        { title: '넣은 양', unit: '%', value: s.used ? fmt(100 * s.counted / s.used.dose) : '0', label: '시간에 따른 넣은 이온의 양, 정한 주입량의 몇 %인지',
+          plot: { x: [0, tMax], y: [0, 100], yTicks: [0, 50, 100], xTicks: time, series: share },
+          tip: x => { if (!share.length) return null; const p = near(share, x); return [clock(p[0]), [[`${fmt(p[1])}%`, '정한 주입량 대비'], ...(s.used ? [[`${sci(s.used.dose * p[1] / 100)} /cm²`, '넣은 양']] : [])]]; } },
+        { title: '웨이퍼 온도', unit: '°C', value: fmt(s.hot), label: '시간에 따른 웨이퍼 온도. 열처리 챔버에서만 오릅니다',
+          plot: { x: [0, tMax], y: [0, 1200], yTicks: [0, 600, 1200], xTicks: time, series: hot, quiet: true },
+          tip: x => { if (!hot.length) return null; const p = near(hot, x); return [clock(p[0]), [[`${fmt(p[1])} °C`, '웨이퍼 온도']]]; } },
+        { title: '접합 깊이', unit: 'nm', value: o.reached ? fmt(o.junction) : '—', label: '깊이에 따른 인 농도 (세로는 로그 눈금). 선은 기판의 붕소 농도이고, 인 농도가 그 선과 만나는 깊이가 접합입니다',
+          plot: { x: [0, xMax], y: [0, 7.3], yTicks: [1, 3, 5, 7], yFormat: power, xTicks: [[0, '표면'], [xMax, `${fmt(xMax)} nm`]], limit: level, limitLabel: '기판의 붕소', series: profile, mark: o.reached ? [o.junction, level] : false },
+          tip: x => { const p = near(profile, x); return [`깊이 ${fmt(p[0])} nm`, [[`${sci(o.at(p[0]))} /cm³`, '인 농도']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (s.phase !== 'done' || !r) return null;
+      const lo = J.target - 4 * J.tolerance, hi = J.target + 4 * J.tolerance, depthOk = r.reached && Math.abs(r.error) <= J.tolerance, surfaceOk = r.surface >= C.spec.surface;
+      const windows = sim.incoming.windows, blocked = sim.incoming.left > 0, placeOk = r.masked && windows && !blocked, log = n => Math.max(0, Math.log10(Math.max(1, n)) - 14), level = log(r.substrate);
+      const xMax = Math.max(800, Math.ceil((r.reached ? r.junction : 0) * 1.25 / 200) * 200), main = r.ions && r.ions[0], notes = [];
+      if (!r.masked) notes.push(sim.incoming.oxide > 0 ? '이온이 산화막을 뚫고 들어가 창 밖에도 접합이 생겼습니다. 에너지가 클수록 이온이 산화막도 깊이 파고듭니다.' : '산화막이 없어 웨이퍼 전면에 접합이 생겼습니다.');
+      if (!r.reached) notes.push(windows ? '인 농도가 어느 깊이에서도 기판의 붕소 농도를 넘지 못해 접합이 생기지 않았습니다.' : '산화막에 창이 없어 이온이 실리콘에 닿지 않았습니다.');
+      else if (!depthOk) notes.push(r.error < 0 ? `접합이 목표보다 ${fmt(-r.error)} nm 얕습니다. 열처리는 더 할 수 있고, 할 때마다 인이 더 깊이 퍼집니다.` : `접합이 목표보다 ${fmt(r.error)} nm 깊습니다. 퍼진 인은 되돌릴 수 없습니다. 에너지가 클수록 깊이 들어가고, 열처리가 뜨겁고 길수록 깊이 퍼집니다.`);
+      if (r.reached && !surfaceOk) notes.push('표면 농도가 모자랍니다. 주입량이 많을수록 농도가 높아지고, 열처리로 인이 퍼질수록 표면의 농도는 낮아집니다.');
+      if (blocked) notes.push('창 바닥에 산화막이 남아 있어 이온이 실리콘에 덜 닿았습니다. 식각에서 창이 끝까지 뚫려야 합니다.');
+      if (main && main.name !== 'P⁺') notes.push(`빔은 ${ionText(r.ions)}이었습니다. 분석 자석이 P⁺의 봉우리에 맞춰져 있지 않으면 다른 이온이 들어갑니다.`);
+      if (r.ok) notes.push('접합 깊이와 표면 농도가 목표 범위 안이고, 이온은 창 안에만 들어갔습니다. 웨이퍼가 나갈 때 창 안에 장벽막을 입힙니다(표준 조건).');
+      return {
+        id: reportId(r), title: '접합', sub: `${ionText(r.ions || [])} · ${fmt(r.keV)} keV · ${sci(r.dose)} /cm²`, pass: r.ok,
+        criteria: [
+          { label: '접합 깊이', value: r.reached ? `${fmt(r.junction)} nm` : '없음', ok: depthOk, fail: !r.reached ? '없음' : r.error < 0 ? '얕음' : '깊음', track: { value: r.reached ? r.junction : 0, lo, hi, band: [J.target - J.tolerance, J.target + J.tolerance] },
+            scale: [fmt(lo), `목표 ${J.target} ± ${J.tolerance}`, fmt(hi)] },
+          { label: '표면 농도', value: `${sci(r.surface)} /cm³`, ok: surfaceOk, fail: '낮음', meter: { value: Math.max(0, Math.log10(Math.max(1, r.surface)) - 17), limit: Math.log10(C.spec.surface) - 17, top: 4 }, scale: [sci(1e17), `${sci(C.spec.surface)} 이상`, sci(1e21)] },
+          { label: '들어간 곳', value: !r.masked ? '창 밖에도' : !windows ? '창이 없음' : blocked ? '창 바닥에 산화막' : '창 안에만', ok: placeOk, fail: '벗어남' },
+        ],
+        figures: [{ caption: '깊이에 따른 인 농도 (/cm³, 세로는 로그 눈금). 선은 기판의 붕소 농도이고, 점이 접합입니다',
+          plot: { x: [0, xMax], y: [0, 7.3], yTicks: [1, 3, 5, 7], yFormat: power, xTicks: [[0, '표면'], [xMax, `${fmt(xMax)} nm`]], limit: level, limitLabel: '기판의 붕소',
+            series: Array.from({ length: 81 }, (_, i) => [xMax * i / 80, log(r.at(xMax * i / 80))]), mark: r.reached ? [r.junction, level] : false } }],
+        notes,
+        stats: [['이온', ionText(r.ions || [])], ['에너지', `${fmt(r.keV)} keV`], ['주입량', `${sci(r.dose)} /cm²`], ['열처리', r.anneals.map(a => `${fmt(a.celsius)} °C ${fmt(a.minutes)}분`).join(' + ') || '없음'], ['산화막 아래의 농도', r.under >= 1e12 ? `${sci(r.under)} /cm³` : '거의 없음']],
       };
     },
     result(sim) {

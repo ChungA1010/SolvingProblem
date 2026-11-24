@@ -306,6 +306,7 @@ export function create({ canvas, on = {}, line = [] }) {
       for (const other of Object.values(stations)) other.group.visible = other.place.visible = other === st;
       if (st.sign) st.sign.visible = false;                     // from this near the large number on the wall is only a piece of itself
       if (cart) cart.visible = false;
+      spot.visible = false;                                    // the line's own light is not reckoned while a machine is in use
       aim(st.offset, false);
     });
     resize();
@@ -318,6 +319,7 @@ export function create({ canvas, on = {}, line = [] }) {
     setView('home', instant || calm, () => {
       for (const st of Object.values(stations)) { st.group.visible = st.place.visible = true; if (st.sign) st.sign.visible = true; }
       if (cart) cart.visible = true;
+      spot.visible = true;
       aim(ZERO, true);
     });
     resize();

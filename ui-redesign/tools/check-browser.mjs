@@ -686,6 +686,30 @@ async function openProcess(t, id) {
       await b.mouse('mouseMoved', { x: 60, y: 420 }); await sleep(500);
       return { under, shown };
     },
+    /**
+     * Waits until the 3D view stands still. Panels that open or close move it, and a point taken before that no longer holds.
+     * Still means: the same place three times running, each time at least two frames after the time before. Counting frames
+     * and not seconds matters: the page lays its panels out on a frame, and a slow display can go a second without one, so
+     * two looks a moment apart can agree before anything has begun to move.
+     */
+    settle: async () => {
+      const look = async () => JSON.parse(await b.evaluate(`JSON.stringify({ frames: ${PL}.frames, at: ${PL}.scene.project(0, 1, 0) })`));
+      let last = await look(), same = 0;
+      for (let i = 0; i < 160 && same < 3; i++) {
+        await sleep(200);
+        const now = await look();
+        if (now.frames - last.frames < 2) continue;
+        same = Math.hypot(now.at.x - last.at.x, now.at.y - last.at.y) < 0.3 ? same + 1 : 0; last = now;
+      }
+      return same >= 3;
+    },
+    /** The process instruments: whether they are up, the heading of each tile, how many charts have a line, and the room they take from the 3D view. */
+    strip: () => b.evaluate(`(() => { const d = ${PL}; return { open: d.panels.strip, titles: [...document.querySelectorAll('#tiles .tile h3')].map(h => h.innerText.replace(/\\s+/g, ' ').trim()), lines: document.querySelectorAll('#tiles .plot svg polyline').length,
+      bottom: parseFloat(getComputedStyle(document.getElementById('stage')).getPropertyValue('--inset-bottom')) || 0 }; })()`),
+    /** The metrology report as it reads: verdict, each criterion in one line, whether it has a figure, how many notes, the way on. */
+    report: () => b.evaluate(`(() => { const d = ${PL}, box = document.getElementById('report'), flat = e => e ? e.innerText.replace(/\\s+/g, ' ').trim() : '';
+      return { open: d.panels.report, verdict: flat(box.querySelector('.verdict')), criteria: [...box.querySelectorAll('.criteria .crit')].map(flat), figure: !!box.querySelector('figure svg'), notes: box.querySelectorAll('.notes li').length,
+        next: flat(box.querySelector('#report-next')), stray: /object|null|undefined|NaN/.test(box.innerText) }; })()`),
     /** Presses the guide's button and reports what the next process received. */
     handOver: async () => {
       const landed = await clickOn(b, '#guide-action', 1900);
@@ -718,8 +742,7 @@ async function processCrystal(t) {
   s = await state(); t.expect(s.target === 1, 'pulling the seed down sends it into the melt', `target ${s.target}`);
   t.expect(await lab.fast(`${S}.attached`, 300, 60000), 'the seed touches the melt');
   // The process instruments come up now and the 3D view moves into the room that is left: the dials are elsewhere on the screen.
-  const settled = async point => { let a = await lab.at(point); for (let i = 0; i < 25; i++) { await sleep(400); const next = await lab.at(point); if (Math.hypot(a.x - next.x, a.y - next.y) < 0.5) return next; a = next; } return a; };
-  speed = await settled(L.dials.speed); dopant = await lab.at(L.dials.dopant);
+  await lab.settle(); speed = await lab.at(L.dials.speed); dopant = await lab.at(L.dials.dopant);
   for (let i = 0; i < 3; i++) { await b.wheel(dopant, -100); await sleep(50); }
   await sleep(700); s = await state(); const refused = await lab.guide();
   t.expect(s.dopant === 2.9 && s.doped === 2.9 && /바꿀 수 없/.test(refused), 'once the seed is in, the boron is in the melt and its dial is refused', `${s.dopant} mg | ${refused}`);
@@ -785,6 +808,10 @@ async function processOxidation(t) {
   await b.drag(line(low, { x: low.x, y: low.y - 240 }, 12)); await sleep(500);
   s = await state(); t.expect(s.target === 1, 'pulling the boat up sends it into the tube', `target ${s.target}`);
   t.expect(await lab.fast(`${S}.sealed`, 1200, 60000), 'the boat closes the tube');
+  await lab.settle();                                             // the process instruments have come up, and the 3D view has moved into the room that is left
+  const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 3 && /^산화막/.test(strip.titles[0]) && /^성장 속도/.test(strip.titles[1]) && /^튜브/.test(strip.titles[2]) && strip.bottom > 100,
+    'with the boat in the tube the process instruments are up: the film, its growth rate and the tube temperature', JSON.stringify(strip));
 
   const dial = await lab.at(L.dial);
   await b.mouse('mouseMoved', dial); await sleep(80); await b.mouse('mousePressed', dial, 1); await sleep(60); await b.mouse('mouseMoved', { x: dial.x + 40, y: dial.y }, 1); await sleep(700);
@@ -820,6 +847,9 @@ async function processOxidation(t) {
   const landed = await clickOn(b, '#guide-action', 900);
   const measured = await lab.state(`s.measured ? { mean: s.measured.mean, ok: s.measured.ok, points: s.measured.points.length } : null`), shown = await lab.monitor();
   t.expect(landed && measured && measured.points === 5 && measured.ok && /계측값/.test(shown.note), 'the thickness is measured at five points and meets the run sheet', JSON.stringify(measured));
+  await sleep(900); const report = await lab.report(), lines = (await lab.strip()).lines;
+  t.expect(report.open && /합격/.test(report.verdict) && report.criteria.length === 1 && /평균 두께/.test(report.criteria[0]) && /통과/.test(report.criteria[0]) && report.figure && report.notes >= 1 && report.next === '다음: 포토' && !report.stray && lines === 3,
+    'the measurement opens the report: the verdict, the mean against its limits, the five places on the wafer, what the result means and the way on', JSON.stringify({ ...report, lines }));
   await t.shot('2-measured');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 2 && measured && Math.abs(next.wafer.oxide - measured.mean) < 1e-9 && next.record.by === 'operator' && next.record.ok, 'the measured film goes on to the next process on the same wafer', JSON.stringify(next.record));
@@ -828,7 +858,7 @@ async function processOxidation(t) {
 async function processPhoto(t) {
   const { b, lab } = await openProcess(t, 'photo'), S = lab.S, L = lab.layout;
   const state = () => lab.state(`({ phase: s.phase, spin: s.controls.spin, dose: s.controls.dose, focus: s.controls.focus, best: s.bestFocus, thickness: s.thickness, reworks: s.reworks, result: s.result && { opening: s.result.opening, ok: s.result.ok } })`);
-  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const press = async name => { await lab.settle(); await b.click(await lab.at(L.buttons[name]), 450); };     // the instruments and the report move the 3D view when they open or close
   await lab.cards();
   let s = await state();
   t.expect(s.phase === 'bare' && s.thickness === 0, 'the cell starts with a bare wafer on the coater', JSON.stringify(s));
@@ -839,16 +869,22 @@ async function processPhoto(t) {
   await press('coat');
   t.expect(await lab.fast(`${S}.phase === 'coated'`, 96), 'the coat button spins the resist on and bakes it');
   s = await state(); t.expect(Math.abs(s.thickness - 1000) < 1, 'at 4,000 rpm the resist is 1,000 nm thick', `${s.thickness} nm`);
+  await lab.settle(); const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 4 && /^회전수/.test(strip.titles[0]) && /^감광막 1,000 nm/.test(strip.titles[1]) && /^노광한 칸 0/.test(strip.titles[2]) && /^창 가운데의 노광량 \d\.\d\d 배/.test(strip.titles[3]) && strip.lines === 4 && strip.bottom > 100,
+    'from the coat on the process instruments are up: spin speed, resist thickness, exposed fields, and the image across the window against what clears the resist', JSON.stringify(strip));
   await press('expose'); await lab.fast(`${S}.phase === 'exposed'`, 96); await press('develop');
   t.expect(await lab.fast(`${S}.phase === 'developed'`, 96), 'expose and develop run in turn and the opening is measured');
   s = await state();
   t.expect(s.result && !s.result.ok && /재작업/.test(await lab.guide()), 'with the dials untouched the opening misses the target, and the page offers the rework', JSON.stringify(s.result));
+  await sleep(1200); let report = await lab.report();
+  t.expect(report.open && /불합격/.test(report.verdict) && report.criteria.length === 2 && /무늬 창이 열림 .*통과/.test(report.criteria[0]) && /창 너비 [\d,]+ nm .*(좁음|넓음)/.test(report.criteria[1]) && report.figure && report.notes === 2 && report.next === '다음: 식각' && !report.stray,
+    'the measurement opens the report: failed, the opening against its limits, the image across the window, why it missed and that it can be done again', JSON.stringify(report));
   await t.shot('1-first-pass');
-  await press('strip'); await sleep(400);
-  s = await state(); t.expect(s.phase === 'bare' && s.reworks === 1 && !s.result, 'the rework button strips the resist for another try', JSON.stringify(s));
+  await press('strip'); await sleep(900);
+  s = await state(); report = await lab.report(); t.expect(s.phase === 'bare' && s.reworks === 1 && !s.result && !report.open, 'the rework button strips the resist for another try, and the report of the stripped pattern goes away', JSON.stringify({ ...s, report: report.open }));
 
   // second pass: dose by dragging its dial, focus by the wheel, read from the wafer monitor before exposing
-  await press('coat'); await lab.fast(`${S}.phase === 'coated'`, 96);
+  await press('coat'); await lab.fast(`${S}.phase === 'coated'`, 96); await lab.settle();
   const before = await lab.monitor(), dose = await lab.at(L.dials.dose), focus = await lab.at(L.dials.focus);
   await b.drag(line(dose, { x: dose.x + 140, y: dose.y }, 12)); await sleep(300);
   for (let i = 0; i < Math.round(Math.abs(s.best) * 10); i++) { await b.wheel(focus, s.best > 0 ? -100 : 100); await sleep(50); }
@@ -861,6 +897,9 @@ async function processPhoto(t) {
   await lab.fast(`${S}.phase === 'exposed'`, 96); await press('develop'); await lab.fast(`${S}.phase === 'developed'`, 96);
   s = await state(); const shown = await lab.monitor();
   t.expect(s.result && s.result.ok && Math.abs(s.result.opening - after.value) < 10 && /계측값/.test(shown.note), 'the developed opening is the one the image predicted and meets the run sheet', JSON.stringify(s.result));
+  await sleep(1200); report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && report.criteria.every(line => /통과/.test(line)) && report.figure && report.next === '다음: 식각' && !report.stray, 'and the report of the second try passes it', JSON.stringify(report));
+  await t.shot('4-report');
   const next = await lab.handOver();
   const carried = next.wafer.resist ? next.wafer.resist.opening : next.wafer.window.width;                    // still resist if the etch has equipment, a window if it was passed
   t.expect(next.landed && next.viewing === 3 && next.record.by === 'operator' && next.record.ok && s.result && Math.abs(carried - s.result.opening) < 1e-9, 'the resist pattern goes on to the etch on the same wafer', JSON.stringify(next.record));
@@ -873,11 +912,15 @@ async function processEtch(t) {
   let s = await state();
   t.expect(s.inside === 0 && !s.plasma && s.floor === 500, 'the wafer waits on the load arm with its resist pattern on', JSON.stringify(s));
   await b.click(await lab.at(L.valves.chf3), 350);
-  const power = await lab.at(L.dials.power), pressure = await lab.at(L.dials.pressure);
+  let power = await lab.at(L.dials.power), pressure = await lab.at(L.dials.pressure);
   await b.drag(line(power, { x: power.x + 150, y: power.y }, 12)); await sleep(500);
   s = await state(); t.expect(s.chf3 && s.power === 300 && !s.plasma, 'gas and power do not strike a plasma while the wafer is outside', JSON.stringify(s));
   await b.click(await lab.at(L.buttons.load), 400);
   t.expect(await reached(b, `${S}.plasma`, 30000), 'with the wafer in and the door shut the plasma strikes');
+  await lab.settle(); power = await lab.at(L.dials.power); pressure = await lab.at(L.dials.pressure);          // the process instruments have come up and the 3D view has moved
+  const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 3 && /^종점 신호/.test(strip.titles[0]) && /^뚫린 면적/.test(strip.titles[1]) && /^가운데 창의 산화막/.test(strip.titles[2]) && strip.bottom > 100,
+    'with the wafer in the chamber the process instruments are up: the endpoint light, the share that is through, the oxide left at the centre', JSON.stringify(strip));
   for (let i = 0; i < 8; i++) { await b.wheel(pressure, 100); await sleep(50); }
   await sleep(300); s = await state(); t.expect(s.pressure === 10, 'the wheel lowers the pressure in steps of 5 mTorr', `${s.pressure} mTorr`);
   await b.click(await lab.at(L.buttons.load), 400); await sleep(700);
@@ -901,6 +944,10 @@ async function processEtch(t) {
   t.expect(await reached(b, `!!${S}.result && ${S}.inside <= 0`, 30000), 'the wafer comes out, the resist is stripped and the window is measured');
   await sleep(900); s = await state();
   t.expect(s.result && s.result.open && s.result.ok && s.result.silicon < 20, 'stopped at the endpoint, the window is open with little silicon lost', JSON.stringify(s.result));
+  const report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && report.criteria.length === 3 && /뚫린 면적 100% .*모두 뚫림/.test(report.criteria[0]) && /실리콘 깎임/.test(report.criteria[1]) && /창 너비/.test(report.criteria[2]) && report.criteria.slice(1).every(line => /통과/.test(line))
+    && report.figure && report.notes >= 1 && report.next === '다음: 증착·이온주입' && !report.stray && !(await lab.strip()).open,
+    'the measurement opens the report: the verdict, the three criteria against their limits, the windows from centre to edge, what the result means and the way on', JSON.stringify(report));
   await t.shot('2-measured');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 4 && next.record.by === 'operator' && next.record.ok && next.wafer.window.open && s.result && Math.abs(next.wafer.window.width - s.result.width) < 1e-9 && !next.wafer.resist, 'the window goes on to the next process on the same wafer', JSON.stringify(next.record));
@@ -909,7 +956,7 @@ async function processEtch(t) {
 async function processImplant(t) {
   const { b, lab } = await openProcess(t, 'deposition'), S = lab.S, L = lab.layout;
   const state = () => lab.state(`({ phase: s.phase, field: s.controls.field, current: s.current, scanning: !!s.scan, scanned: s.spectrum.length, energy: s.controls.energy, dose: s.controls.dose, temperature: s.controls.temperature, minutes: s.controls.minutes, counted: s.counted, beam: s.beam, hot: s.hot, anneals: s.anneals.length, result: s.result && { junction: s.result.junction, surface: s.result.surface, ok: s.result.ok, masked: s.result.masked } })`);
-  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const press = async name => { await lab.settle(); await b.click(await lab.at(L.buttons[name]), 450); };     // the instruments and the report move the 3D view when they open or close
   await lab.cards();
   let s = await state();
   t.expect(s.phase === 'ready' && s.counted === 0 && s.energy === 100 && s.dose === 14, 'the implanter starts with the wafer flat in the end station and no ion in it', JSON.stringify(s));
@@ -950,6 +997,9 @@ async function processImplant(t) {
 
   await press('implant');
   t.expect(await reached(b, `${S}.beam && ${S}.counted > 1e14`, 30000), 'the implant button stands the wafer in the beam and the dose is counted up');
+  await lab.settle(); const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 4 && /^빔 전류 \d\.\d\d mA/.test(strip.titles[0]) && /^넣은 양 \d+ %/.test(strip.titles[1]) && /^웨이퍼 온도 25 °C/.test(strip.titles[2]) && /^접합 깊이/.test(strip.titles[3]) && strip.bottom > 100,
+    'from the implant on the process instruments are up: beam current, the dose counted, the wafer temperature, and the phosphorus against depth', JSON.stringify(strip));
   await sleep(1500); await t.shot('2-implanting');
   t.expect(await lab.fast(`${S}.phase === 'implanted'`, 240), 'the beam stops when the dose on the dial has been counted');
   s = await state(); t.expect(Math.abs(s.counted - 1e15) < 1e9 && !s.beam, 'the wafer holds the dose that was set', `${s.counted}`);
@@ -957,7 +1007,7 @@ async function processImplant(t) {
   t.expect((await state()).phase === 'implanted' && /되돌릴 수 없/.test(await lab.guide()), 'a second implant is refused: implantation cannot be undone', await lab.guide());
 
   // a short anneal leaves the junction too shallow; a second anneal adds to it
-  const temperature = await lab.at(L.dials.temperature), minutes = await lab.at(L.dials.minutes);
+  await lab.settle(); let temperature = await lab.at(L.dials.temperature), minutes = await lab.at(L.dials.minutes);
   await b.drag(line(temperature, { x: temperature.x + 50, y: temperature.y }, 12)); await sleep(300);
   s = await state(); t.expect(s.temperature === 950 && s.minutes === 10, 'the anneal temperature is set on its dial', JSON.stringify(s));
   await press('anneal');
@@ -966,6 +1016,10 @@ async function processImplant(t) {
   t.expect(await lab.fast(`${S}.phase === 'done'`, 1200), 'the anneal ends after the time on the dial and the junction is measured');
   s = await state(); const first = s.result, offered = await lab.guide();
   t.expect(first && !first.ok && first.junction < 250 && /더 할 수 있/.test(offered), 'ten minutes leave the junction too shallow, and the page says the anneal can be repeated', `${JSON.stringify(first)} | ${offered}`);
+  await sleep(1200); let report = await lab.report();
+  t.expect(report.open && /불합격/.test(report.verdict) && report.criteria.length === 3 && /접합 깊이 \d+ nm .*얕음/.test(report.criteria[0]) && /표면 농도/.test(report.criteria[1]) && /들어간 곳 창 안에만 .*통과/.test(report.criteria[2]) && report.figure && report.notes >= 1 && report.next === '다음: 금속배선' && !report.stray,
+    'the measurement opens the report: failed for a shallow junction, with the phosphorus against depth and the word that the anneal can be repeated', JSON.stringify(report));
+  await lab.settle(); minutes = await lab.at(L.dials.minutes);                                                // the report has moved the 3D view
   await b.drag(line(minutes, { x: minutes.x + 50, y: minutes.y }, 12)); await sleep(300);
   s = await state(); t.expect(s.minutes === 20, 'the anneal time is set on its dial', `${s.minutes} min`);
   await press('anneal');
@@ -973,6 +1027,8 @@ async function processImplant(t) {
   s = await state(); const shown = await lab.monitor();
   t.expect(s.result && s.result.ok && s.result.junction > first.junction + 30 && s.result.surface >= 1e19 && /계측값/.test(shown.note) && Math.abs(shown.value - s.result.junction) < 1, 'the two anneals add up: the junction is deeper, inside the target, and the surface is doped enough', JSON.stringify(s.result));
   t.expect(Math.abs(s.result.junction - tuned.value) > 20, 'the first outlook was for the dials as they stood then (ten minutes at 900 C), not for what was done', `outlook ${tuned.value}, measured ${s.result.junction.toFixed(0)} nm`);
+  await sleep(1200); report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && !/불합격/.test(report.verdict) && report.criteria.every(line => /통과/.test(line)) && report.figure && !report.stray, 'and the report of the two anneals together passes it', JSON.stringify(report));
   await t.shot('3-measured');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 5 && next.record.by === 'operator' && next.record.ok && next.wafer.junction && Math.abs(next.wafer.junction.depth - s.result.junction) < 1e-9 && !next.wafer.junction.everywhere && next.wafer.liner === 30, 'the junction goes on to the next process on the same wafer, with the barrier film on it', JSON.stringify(next.record));
@@ -984,7 +1040,7 @@ async function processPlating(t) {
   await lab.cards();
   let s = await state();
   t.expect(s.head === 0 && s.thickness === 0 && s.current === 0 && s.rotation === 30, 'the cell starts with the wafer face up on the raised head and no current', JSON.stringify(s));
-  const current = await lab.at(L.dials.current), rotation = await lab.at(L.dials.rotation);
+  let current = await lab.at(L.dials.current), rotation = await lab.at(L.dials.rotation);
   await b.drag(line(current, { x: current.x + 200, y: current.y }, 12)); await sleep(1200);
   s = await state(); t.expect(s.current === 20 && !s.plating && s.thickness === 0, 'with the wafer out of the bath the current has nowhere to flow', JSON.stringify(s));
 
@@ -992,6 +1048,10 @@ async function processPlating(t) {
   await b.drag(line(up, { x: up.x, y: up.y + 220 }, 12)); await sleep(500);
   s = await state(); t.expect(s.target === 1, 'pulling the head down turns the wafer over and sends it into the bath', `target ${s.target}`);
   t.expect(await lab.fast(`${S}.plating && ${S}.thickness > 40`, 16, 60000), 'once the wafer is in the bath the copper starts to grow');
+  await lab.settle(); current = await lab.at(L.dials.current); rotation = await lab.at(L.dials.rotation);    // the process instruments have come up and the 3D view has moved
+  const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 3 && /^구리 두께/.test(strip.titles[0]) && /^가장자리 − 가운데/.test(strip.titles[1]) && /^가장자리 전류 밀도/.test(strip.titles[2]) && strip.bottom > 100,
+    'with the wafer in the bath the process instruments are up: the copper, how much thicker the edge is, the current density at the edge against its limit', JSON.stringify(strip));
   const down = await lab.at(L.grip.down);
   await b.drag(line(down, { x: down.x, y: down.y - 200 }, 10)); await sleep(1200);
   s = await state(); const locked = await lab.guide();
@@ -1020,6 +1080,10 @@ async function processPlating(t) {
   const landed = await clickOn(b, '#guide-action', 900);
   s = await state(); const shown = await lab.monitor();
   t.expect(landed && s.result && s.result.ok && !s.result.burnt && Math.abs(s.result.thickness - stopped) < 1e-6 && Math.abs(s.result.sheet - 1.68e-6 / (stopped * 1e-7) * 1000) < 1e-6 && /계측값/.test(shown.note), 'the sheet resistance gives the thickness, and it meets the run sheet', JSON.stringify(s.result));
+  await sleep(900); const report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && report.criteria.length === 3 && /가장 얇은 곳/.test(report.criteria[0]) && /가장 두꺼운 곳/.test(report.criteria[1]) && /탄 곳 없음/.test(report.criteria[2]) && report.criteria.every(line => /통과/.test(line))
+    && report.figure && report.notes >= 2 && report.next === '다음: 평탄화' && !report.stray,
+    'the measurement opens the report: the verdict, the thinnest and the thickest place against the limits, the copper across the wafer, what it means and the way on to the polisher', JSON.stringify(report));
   await t.shot('3-measured');
   const handed = await clickOn(b, '#guide-action', 2500);
   const polisher = await reached(b, `${PL}.stage === 1 && ${PL}.station.scene === 'cmp' && document.getElementById('stage').dataset.view === 'cmp'`, 30000);
@@ -1048,11 +1112,14 @@ async function processCmp(t) {
 
   landed = await clickOn(b, '#guide-action', 1500); s = await state();
   t.expect(landed && s.where === 'head', 'the guide\'s button puts the wafer on the head', s.where);
+  await lab.settle(); const strip = await lab.strip();          // with the wafer on the head the process instruments come up and the 3D view moves
+  t.expect(strip.open && strip.titles.length === 3 && /^구리가 덮은 면적 100 %/.test(strip.titles[0]) && /^남은 구리/.test(strip.titles[1]) && /^다운포스/.test(strip.titles[2]) && strip.bottom > 100,
+    'with the wafer on the head the process instruments are up: the area still under copper, the copper left, the downforce', JSON.stringify(strip));
   await sleep(1200); const bare = await lab.hover('pedestal');
   t.expect(bare.under === 'pedestal' && bare.shown === '로드 위치', 'with the wafer gone, the load position shows its own card', JSON.stringify(bare));
   // platen, spindle, slurry and conditioner are set by their controls here; dragging them is what the CMP lab's own check does on this same machine
   await set([['platen', 90], ['carrier', 87], ['slurry', 200], ['conditioner', true]]); await until(`${S}.coverage > 0.3 && ${S}.platenRpm > 85`, 4);
-  const head = await lab.part('head');
+  await lab.settle(); const head = await lab.part('head');
   await b.drag(line(head, { x: head.x, y: head.y + 110 }, 14)); await sleep(1500);
   s = await state(); const pill = await lab.guide();
   t.expect(s.contact && s.pressure > 0.5, 'pulling the head down presses the wafer on the pad', JSON.stringify({ contact: s.contact, pressure: s.pressure }));
@@ -1075,13 +1142,17 @@ async function processCmp(t) {
   t.expect(ahead > 0, 'stopped now, the chips still under copper would fail at EDS as joined', `${ahead} chips`);
   await t.shot('2-clearing'); await b.evaluate(`${PL}.scene.setView('home', true)`); await sleep(1500);
   t.expect(await until(`${K}.covered === 0`, 16), 'polishing on clears the rest');
-  const up = await lab.part('head');
+  await lab.settle(); const up = await lab.part('head');
   await b.drag(line(up, { x: up.x, y: up.y - 240 }, 14)); await sleep(500);
   t.expect(await until(`${S}.gap >= 0.117`, 8, 60000), 'pulling the head up stops the polish and lifts the wafer');
   landed = await clickOn(b, '#guide-action', 1500);
   t.expect(landed && await until(`!!${K}.result`, 4, 60000), 'on the thickness stage the wafer is scanned');
   await sleep(900); s = await state(); const shown = await lab.monitor();
   t.expect(s.where === 'stage' && s.result && s.result.cleared && s.result.ok && s.result.dishing > 0 && s.result.dishing <= 50 && s.result.scratches === 0 && /계측값/.test(shown.note), 'no copper is left over the oxide, the dishing is within the run sheet and there is no scratch', JSON.stringify(s.result));
+  const report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && !/불합격/.test(report.verdict) && report.criteria.length === 3 && /남은 구리 .*다 걷힘/.test(report.criteria[0]) && /접시 파임 .*통과/.test(report.criteria[1]) && /스크래치 없음 .*통과/.test(report.criteria[2])
+    && report.figure && report.notes >= 1 && report.next === '다음: EDS' && !report.stray && !(await lab.strip()).open,
+    'the scan opens the report: no copper left, the dishing against its limit, no scratch, the wafer from above, and the way on', JSON.stringify(report));
   await t.shot('3-scanned');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 6 && next.record.by === 'operator' && next.record.ok && next.wafer.metal && next.wafer.metal.chips.length === 148 && next.wafer.metal.planar && Math.abs(next.wafer.metal.thickness - plated) < 1e-6 && /연마/.test(next.record.text), 'plating and polish go on as one record to the next process, chip by chip', JSON.stringify(next.record));
@@ -1090,7 +1161,7 @@ async function processCmp(t) {
 async function processEds(t) {
   const { b, lab } = await openProcess(t, 'eds'), S = lab.S, L = lab.layout;
   const state = () => lab.state(`({ phase: s.phase, x: s.controls.x, y: s.controls.y, z: s.controls.z, offset: s.offset, contact: s.contact, tested: s.tested, good: s.good, passes: s.passes, queue: s.queue.length, result: s.result && { good: s.result.good, missed: s.result.missed, bins: s.result.bins } })`);
-  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const press = async name => { await lab.settle(); await b.click(await lab.at(L.buttons[name]), 450); };     // the instruments and the report move the 3D view when they open or close
   const clean = await b.evaluate(`${PL}.flow.defects(${PL}.run.wafer.lot).filter(hit => !hit).length`), total = await b.evaluate(`${PL}.flow.DIE_COUNT`);
   await lab.cards();
   let s = await state(), shown = await lab.monitor();
@@ -1101,12 +1172,20 @@ async function processEds(t) {
   // first pass as it stands: every chip reads open
   await press('probe');
   t.expect(await reached(b, `${S}.phase === 'probing' && ${S}.tested > 3`, 30000), 'the probe button steps the chuck from chip to chip');
+  await lab.settle(); const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 4 && /^수율/.test(strip.titles[0]) && /^접촉 저항/.test(strip.titles[1]) && /^누설 전류/.test(strip.titles[2]) && /^순방향 전압/.test(strip.titles[3]) && strip.bottom > 100,
+    'while the wafer is probed the process instruments are up: the yield, and what the tester measures chip by chip against its limits', JSON.stringify(strip));
   await sleep(600); await t.shot('1-probing');
   t.expect(await lab.fast(`${S}.phase === 'done'`, 240), 'the prober goes through the whole wafer');
   s = await state(); let said = await lab.guide();
   t.expect(s.result && s.result.good === 0 && s.result.bins.contact === total && s.result.missed === clean && /접촉 불량이 많/.test(said), 'misaligned, every chip is binned as a contact failure, and the page points at the contact', `${JSON.stringify(s.result)} | ${said}`);
 
+  await sleep(1200); let report = await lab.report();
+  t.expect(report.open && /불합격/.test(report.verdict) && report.criteria.length === 3 && new RegExp(`검사한 칩 ${total} / ${total} .*통과`).test(report.criteria[0]) && new RegExp(`바늘 접촉 양품 ${clean}개를 불량으로 가림`).test(report.criteria[1]) && /양품 0개/.test(report.criteria[2])
+    && report.figure && report.notes >= 2 && report.next === '다음: 패키징' && !report.stray,
+    'the test opens the report: failed, because the needles missed every good chip; the wafer map; what to do about it', JSON.stringify(report));
   // align by the camera, raise the overdrive, check the contact, test the failed chips again
+  await lab.settle();                                             // the report has moved the 3D view
   const x = await lab.at(L.dials.x), y = await lab.at(L.dials.y), z = await lab.at(L.dials.z);
   await b.drag(line(x, { x: x.x - 4 * s.offset.x, y: x.y }, 12)); await sleep(300);
   await b.drag(line(y, { x: y.x - 4 * s.offset.y, y: y.y }, 12)); await sleep(1300);
@@ -1124,6 +1203,8 @@ async function processEds(t) {
   await sleep(900); s = await state(); shown = await lab.monitor();
   t.expect(s.result && s.result.good === clean && s.result.missed === 0 && s.result.bins.contact === 0 && s.result.bins.leak === total - clean, 'the second pass finds every good chip; the chips with a defect leak', JSON.stringify(s.result));
   t.expect(Math.abs(shown.value - clean / total * 100) < 1 && /계측값/.test(shown.note) && shown.trend && await b.evaluate(`document.querySelectorAll('#mon-section svg rect').length === ${total}`), 'the wafer monitor shows the map and the yield', JSON.stringify(shown));
+  await sleep(900); report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && !/불합격/.test(report.verdict) && report.criteria.every(line => /통과|있음/.test(line)) && report.figure && !report.stray, 'and the report of the second pass passes the test: no good chip was missed', JSON.stringify(report));
   await t.shot('3-map');
   const next = await lab.handOver();
   t.expect(next.landed && next.viewing === 7 && next.record.by === 'operator' && next.record.ok && next.wafer.tested.good === clean && next.wafer.tested.dies.length === total, 'the map goes on to packaging: only the good chips will be packaged', JSON.stringify(next.record));
@@ -1132,7 +1213,7 @@ async function processEds(t) {
 async function processBond(t) {
   const { b, lab } = await openProcess(t, 'package'), S = lab.S, L = lab.layout;
   const state = () => lab.state(`({ phase: s.phase, power: s.controls.power, force: s.controls.force, time: s.controls.time, wire: s.wire && { diameter: s.wire.diameter, pulled: s.wire.pulled }, onChip: s.onChip, tests: s.tests, at: s.at, passed: s.passed, result: s.result && { chips: s.result.chips, bonded: s.result.bonded, lost: s.result.lost } })`);
-  const press = async name => b.click(await lab.at(L.buttons[name]), 450);
+  const press = async name => { await lab.settle(); await b.click(await lab.at(L.buttons[name]), 450); };     // the instruments and the report move the 3D view when they open or close
   const good = await b.evaluate(`${PL}.run.wafer.tested.good`);
   await lab.cards();
   let s = await state();
@@ -1151,6 +1232,9 @@ async function processBond(t) {
   await sleep(600); s = await state(); let shown = await lab.monitor(), said = await lab.guide();
   t.expect(!s.tests[0].ok && s.tests[0].force < 3 && Math.abs(shown.value - s.tests[0].force) < 0.06 && /계측값/.test(shown.note) && /덜 됐/.test(said), 'with the dials untouched the wire comes off below the minimum, and the monitor shows where it gave', `${JSON.stringify(s.tests[0])} | ${said}`);
 
+  await lab.settle(); const strip = await lab.strip();
+  t.expect(strip.open && strip.titles.length === 3 && /^풀 강도 \d\.\d gf/.test(strip.titles[0]) && /^완성한 칩 0 개/.test(strip.titles[1]) && /^금선 불량 0 개/.test(strip.titles[2]) && strip.bottom > 100,
+    'from the first test wire on the process instruments are up: the pull strength against its minimum, chips finished, chips lost', JSON.stringify(strip));
   // more power by dragging, more force by dragging, more time with the wheel
   const power = await lab.at(L.dials.power), force = await lab.at(L.dials.force), time = await lab.at(L.dials.time);
   await b.drag(line(power, { x: power.x + 100, y: power.y }, 12)); await sleep(300);
@@ -1171,6 +1255,10 @@ async function processBond(t) {
   t.expect(await lab.fast(`${S}.phase === 'done'`, 240), 'the bonder goes through every good chip');
   await sleep(900); s = await state();
   t.expect(s.result && s.result.bonded === good && s.result.chips === good && s.result.lost === 0, 'with a wire that holds, every good chip is finished', JSON.stringify(s.result));
+  await sleep(600); const report = await lab.report();
+  t.expect(report.open && /합격/.test(report.verdict) && !/불합격/.test(report.verdict) && report.criteria.length === 2 && new RegExp(`완성한 칩 ${good} / ${good} .*통과`).test(report.criteria[0]) && /시험 선의 풀 강도 \d\.\d gf .*통과/.test(report.criteria[1])
+    && report.figure && report.notes >= 2 && report.next === '다음: 공정 기록' && !report.stray && !(await lab.strip()).open,
+    'the end of the run opens the report: every good chip finished, the test wire above the minimum, the wire in side view, and the way to the run sheet', JSON.stringify(report));
   await t.shot('3-done');
   const next = await lab.handOver();
   const sheet = await b.evaluate(`({ finished: ${PL}.run.finished, sheet: !!document.querySelector('.sheet'), title: document.querySelector('.bench h2').textContent, operated: document.querySelectorAll('.sheet tbody tr:not([data-before="true"])').length })`);

@@ -19,6 +19,9 @@
     pull: s => s.phase !== 'setup' ? REFUSED.bond(s) : s.wire ? '이 선은 이미 당겨 봤습니다. 새로 이으세요.' : '먼저 본드 단추로 시험 선을 이으세요.',
     run: s => REFUSED.bond(s),
   };
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each finished run, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const settings = c => `${fmt(c.power)} mW, ${fmt(c.force)} gf, ${fmt(c.time)} ms`;
 
   /** Side view of one wire: ball on the chip's pad, loop, stitch on the lead; after a pull test, where it gave. */
@@ -67,6 +70,9 @@
       if (s.phase === 'bonding' && s.onChip === 0) sim.pulled = [];
       if (s.tests.length > sim.seen) { sim.seen = s.tests.length; sim.pulled.push(s.onChip - 1); }
       if (s.phase === 'running' || s.phase === 'done') sim.pulled = [];
+      // what the instruments draw of the run: chips finished and chips lost, a point for every chip the tool has left
+      const lost = Object.values(s.faults).reduce((a, b) => a + b, 0), n = s.passed + lost, trace = sim.trace || (sim.trace = []);
+      if (s.phase !== 'setup' && s.phase !== 'bonding' && s.phase !== 'pulling' && (!trace.length || trace.at(-1).n !== n)) trace.push({ n, passed: s.passed, lost });
     },
     guide(sim, next) {
       const s = sim.state, last = s.tests.at(-1), r = s.result;
@@ -114,5 +120,43 @@
       };
     },
     result(sim) { const r = sim.state.result; return r ? { chips: r.chips, bonded: r.bonded, lost: r.lost, how: `금선 ${settings(r)}` } : null; },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    running(sim) { const s = sim.state; return s.phase !== 'done' && (s.phase !== 'setup' || s.tests.length > 0); },      // from the first test wire to the end of the run
+    instruments(sim) {
+      const s = sim.state, tests = s.tests.map(p => [p.n, p.force]), run = sim.trace || [], total = Math.max(1, sim.total), lost = Object.values(s.faults).reduce((a, b) => a + b, 0);
+      const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
+      const made = run.map(p => [p.n, p.passed]), bad = run.map(p => [p.n, p.lost]), pulls = Math.max(5, tests.length), badTop = Math.max(5, lost), chips = [[0, '0'], [total, `${fmt(total)}개째`]];
+      return [
+        { title: '풀 강도', unit: 'gf', value: tests.length ? tests.at(-1)[1].toFixed(1) : '—', tone: s.tests.length && !s.tests.at(-1).ok ? 'critical' : '', label: `시험 선을 당겨 본 기록. 선은 최소 기준 ${C.spec.pull.toFixed(0)} gf`,
+          plot: { x: [1, pulls], y: [0, 8], yTicks: [0, 4, 8], xTicks: [[1, '1회'], [pulls, `${pulls}회`]], limit: C.spec.pull, limitLabel: '기준', series: tests },
+          tip: x => { if (!tests.length) return null; const p = near(tests, x), t = s.tests[p[0] - 1]; return [`${p[0]}회째`, [[`${p[1].toFixed(1)} gf`, '풀 강도'], [t.reason === 'wide' ? MODE.wide : MODE[t.mode], '']]]; } },
+        { title: '완성한 칩', unit: '개', value: fmt(s.passed), label: '가동하는 동안 금선을 다 이은 칩의 수',
+          plot: { x: [0, total], y: [0, total], yTicks: [0, total], xTicks: chips, series: made },
+          tip: x => { if (!made.length) return null; const p = near(made, x); return [`${fmt(p[0])}개째 칩`, [[`${fmt(p[1])}개`, '완성']]]; } },
+        { title: '금선 불량', unit: '개', value: fmt(lost), tone: lost ? 'critical' : '', label: '가동하는 동안 금선이 기준에 못 미친 칩의 수',
+          plot: { x: [0, total], y: [0, badTop], yTicks: [0, badTop], xTicks: chips, series: bad, quiet: true },
+          tip: x => { if (!bad.length) return null; const p = near(bad, x); return [`${fmt(p[0])}개째 칩`, [[`${fmt(p[1])}개`, '금선 불량']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (s.phase !== 'done' || !r) return null;
+      const last = s.tests.at(-1), ok = r.chips > 0 && r.lost === 0, notes = [];
+      if (!r.bonded) notes.push('금선을 이을 양품 칩이 없습니다. EDS에서 양품이 나와야 합니다.');
+      else if (!r.lost) notes.push(`양품 칩 ${fmt(r.bonded)}개 모두에 금선을 ${C.wires}개씩 이었습니다. 몰딩을 지나면(표준 조건) 칩이 완성됩니다.`);
+      else notes.push(`칩 ${fmt(r.lost)}개가 금선 불량입니다. ${Object.entries(r.faults).map(([reason, n]) => `${MODE[reason]} ${fmt(n)}개: ${WHY[reason]}`).join(' ')}`);
+      if (r.bonded && !s.tests.length) notes.push('시험 선을 당겨 보지 않고 가동했습니다. 시험 선으로 조건을 확인한 뒤에 가동하면 금선 불량을 미리 볼 수 있습니다.');
+      if (r.bonded) notes.push('풀 테스트는 선을 끊어 보는 검사라 시험 선에만 합니다.');
+      return {
+        id: reportId(r), title: '금선 잇기', sub: settings(r), pass: ok,
+        criteria: [
+          { label: '완성한 칩', value: `${fmt(r.chips)} / ${fmt(r.bonded)}`, ok, fail: r.bonded ? '금선 불량' : '없음', meter: { value: r.chips, limit: Math.max(1, r.bonded), top: Math.max(1, r.bonded) }, scale: ['0', '', `${fmt(r.bonded)}개`] },
+          ...(last ? [{ label: '시험 선의 풀 강도', value: `${last.force.toFixed(1)} gf`, ok: last.ok, fail: last.reason === 'wide' ? '볼이 넓음' : '미달', meter: { value: last.force, limit: C.spec.pull, top: 8 }, scale: ['0', `${C.spec.pull.toFixed(0)} gf 이상`, '8'] }] : []),
+        ],
+        figures: r.bonded ? [{ caption: '금선의 옆모습: 칩의 패드 위에 볼, 리드 쪽에 스티치', node: wireView({ ...BD.bonded(r), pulled: null }) }] : [],
+        notes,
+        stats: [['초음파 출력', `${fmt(r.power)} mW`], ['누르는 힘', `${fmt(r.force)} gf`], ['시간', `${fmt(r.time)} ms`], ['당겨 본 시험 선', `${s.tests.length}개`]],
+      };
+    },
   };
 })();

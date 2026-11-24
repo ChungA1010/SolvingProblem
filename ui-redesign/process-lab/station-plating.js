@@ -6,9 +6,13 @@
   const PL = window.ProcessLabPlating, F = window.ProcessLabFlow, C = PL.constants, T = C.spec, N = C.nodes, LOW = T.target - T.tolerance, HIGH = T.target + T.tolerance;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const fmt = v => Math.round(v).toLocaleString('en-US');
-  const clock = seconds => `${Math.floor(seconds / 60)}분 ${String(Math.round(seconds % 60)).padStart(2, '0')}초`;
+  const clock = seconds => { const whole = Math.round(seconds); return `${Math.floor(whole / 60)}분 ${String(whole % 60).padStart(2, '0')}초`; };   // whole seconds first: 59.6 s is 1분 00초, not 0분 60초
   const mA = density => `${(density * 1000).toFixed(1)} mA/cm²`;
   const pct = v => `${Math.round(v * 100)}%`;
+  const roundUp = v => { const p = 10 ** Math.floor(Math.log10(v)); return [1, 2, 5, 10].map(k => k * p).find(top => top >= v); };   // the next of 1, 2, 5 times a power of ten
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each measurement, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const SVGNS = 'http://www.w3.org/2000/svg';
   function svg(tag, attrs = {}, ...children) {
     const node = document.createElementNS(SVGNS, tag);
@@ -63,7 +67,13 @@
       return sim.setControl('head', clamp(value, 0, 1)) ? null : '전류가 흐르는 동안에는 헤드가 올라가지 않습니다. 전류를 0으로 내리세요.';
     },
     dragEnd(sim, name) { if (name === 'head') sim.setControl('head', sim.state.controls.head > 0.5 ? 1 : 0); },       // the head goes all the way
-    tick(sim) { const s = sim.state; if (s.result && s.head > 0.05) s.result = null; if (s.plating) sim.rotation = s.controls.rotation; },   // back in the bath: the old measurement no longer holds
+    tick(sim) {
+      const s = sim.state; if (s.result && s.head > 0.05) s.result = null;         // back in the bath: the old measurement no longer holds
+      if (!s.plating) return;
+      sim.rotation = s.controls.rotation;
+      const trace = sim.trace || (sim.trace = []);                                // what the instruments draw and the model does not keep: the edge's current density and its limit
+      if (!trace.length || s.seconds - trace.at(-1).t >= 1) { trace.push({ t: s.seconds, edge: s.edge, limit: s.limit }); if (trace.length > 1800) trace.splice(0, 2); }
+    },
     guide(sim, next) {
       const s = sim.state, c = s.controls, r = s.result;
       if (r) {
@@ -124,6 +134,50 @@
     result(sim) {
       const r = sim.state.result; if (!r) return null;
       return { ...handed(sim, r), how: r.thickness > 0 ? `${fmt(sim.rotation ?? sim.state.controls.rotation)} rpm, 최대 ${r.peak.toFixed(1)} A, ${clock(r.seconds)}` : '도금하지 않음' };
+    },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    running(sim) { const s = sim.state; return s.immersed || s.plating; },          // while the wafer is in the bath
+    instruments(sim) {
+      const s = sim.state, h = s.history, trace = sim.trace || [], tMax = Math.max(120, s.seconds), time = [[0, '0'], [tMax, clock(tMax)]];
+      const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
+      const mean = h.map(p => [p.t, p.nm]), gap = h.map(p => [p.t, p.edge - p.centre]), edge = trace.map(p => [p.t, p.edge * 1000]);
+      const top = Math.max(1000, Math.max(...s.profile) * 1.15), gapTop = roundUp(Math.max(100, ...gap.map(p => p[1]))), limit = s.limit * 1000, edgeTop = roundUp(Math.max(limit * 1.25, ...edge.map(p => p[1])));
+      return [
+        { title: '구리 두께', unit: 'nm', value: fmt(s.thickness), label: '도금 시간에 따른 평균 구리 두께. 띠는 목표 범위',
+          plot: { x: [0, tMax], y: [0, top], yTicks: [0, T.target], xTicks: time, band: [LOW, HIGH], series: mean },
+          tip: x => { if (!mean.length) return null; const p = near(mean, x), at = h.reduce((best, q) => Math.abs(q.t - p[0]) < Math.abs(best.t - p[0]) ? q : best, h[0]); return [clock(p[0]), [[`${fmt(p[1])} nm`, '평균'], [`${fmt(at.centre)} nm`, '가운데'], [`${fmt(at.edge)} nm`, '가장자리']]]; } },
+        { title: '가장자리 − 가운데', unit: 'nm', value: fmt(s.profile[N - 1] - s.profile[0]), label: '도금 시간에 따른 가장자리와 가운데의 두께 차이. 가장자리에서 전기를 받아 가장자리가 두껍습니다',
+          plot: { x: [0, tMax], y: [0, gapTop], yTicks: [0, gapTop], xTicks: time, series: gap, quiet: true },
+          tip: x => { if (!gap.length) return null; const p = near(gap, x); return [clock(p[0]), [[`${fmt(p[1])} nm`, '가장자리가 더 두꺼운 만큼']]]; } },
+        { title: '가장자리 전류 밀도', unit: 'mA/cm²', value: (s.plating ? s.edge * 1000 : 0).toFixed(1), tone: s.over ? 'critical' : '', label: '도금 시간에 따른 가장자리의 전류 밀도. 선은 지금 회전수에서의 한계 전류 밀도',
+          plot: { x: [0, tMax], y: [0, edgeTop], yTicks: [0, edgeTop], xTicks: time, limit, limitLabel: '한계', series: edge, quiet: true },
+          tip: x => { if (!edge.length) return null; const p = near(edge, x), at = trace.reduce((best, q) => Math.abs(q.t - p[0]) < Math.abs(best.t - p[0]) ? q : best, trace[0]); return [clock(p[0]), [[`${p[1].toFixed(1)} mA/cm²`, '가장자리'], [`${(at.limit * 1000).toFixed(1)} mA/cm²`, '그때의 한계']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (!r) return null;
+      const lo = T.target - 4 * T.tolerance, hi = T.target + 4 * T.tolerance, scale = [fmt(lo), `${fmt(LOW)}~${fmt(HIGH)}`, fmt(hi)], notes = [];
+      const thinOk = r.thickness > 0 && r.thinnest >= LOW, thickOk = r.thickness > 0 && r.thickest <= HIGH;
+      if (!(r.thickness > 0)) notes.push('구리가 입혀지지 않았습니다. 헤드를 내려 웨이퍼를 도금액에 담그고 전류를 흘려야 합니다.');
+      else {
+        if (r.ok) notes.push('웨이퍼 어디서나 목표 범위 안입니다. 다음 장비에서 산화막 위의 구리를 갈아 내고 창 안의 구리만 남깁니다.');
+        if (!thinOk) notes.push(`가장 얇은 곳이 ${fmt(LOW)} nm에 ${fmt(LOW - r.thinnest)} nm 모자랍니다. 헤드를 다시 담가 더 입힐 수 있습니다.`);
+        if (!thickOk) notes.push(`가장 두꺼운 곳이 ${fmt(HIGH)} nm를 ${fmt(r.thickest - HIGH)} nm 넘었습니다. 입힌 구리는 이 장비에서 줄일 수 없습니다.`);
+        if (r.burnt) notes.push(`가장자리의 전류 밀도가 한계를 넘은 채로 입혀져, 웨이퍼의 ${pct(r.burntShare)}에서 구리가 거칠게 탔습니다. 회전을 올리면 한계가 높아지고, 전류를 내리면 전류 밀도가 낮아집니다.`);
+        notes.push(`웨이퍼는 가장자리에서 전기를 받으므로 가장자리가 가운데보다 두껍게 입혀집니다 (가운데 ${fmt(r.centre)} nm, 가장자리 ${fmt(r.edge)} nm).`);
+      }
+      return {
+        id: reportId(r), title: '구리 막', sub: r.thickness > 0 ? `평균 ${fmt(r.thickness)} nm · ${clock(r.seconds)}` : '도금하지 않음', pass: r.ok,
+        criteria: [
+          { label: '가장 얇은 곳', value: `${fmt(r.thinnest)} nm`, ok: thinOk, fail: '얇음', track: { value: r.thinnest, lo, hi, band: [LOW, HIGH] }, scale },
+          { label: '가장 두꺼운 곳', value: `${fmt(r.thickest)} nm`, ok: thickOk, fail: '두꺼움', track: { value: r.thickest, lo, hi, band: [LOW, HIGH] }, scale },
+          { label: '탄 곳', value: r.burnt ? `면적의 ${pct(r.burntShare)}` : '없음', ok: !r.burnt, fail: '탐' },
+        ],
+        figures: r.thickness > 0 ? [{ caption: '웨이퍼를 가로지른 구리 두께 (가장자리, 가운데, 가장자리). 두 선은 목표 범위입니다', node: profileView(r.profile, r.scorched) }] : [],
+        notes,
+        stats: [['평균 두께', `${fmt(r.thickness)} nm`], ['면저항', r.sheet ? `${r.sheet.toFixed(1)} mΩ/□` : '—'], ['흘린 전하로 계산한 두께', `${fmt(r.byCharge)} nm`], ['도금 시간', clock(r.seconds)], ['가장 큰 전류', `${r.peak.toFixed(1)} A`]],
+      };
     },
   };
 })();

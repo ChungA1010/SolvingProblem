@@ -16,6 +16,9 @@
   const dieText = r => r.good ? `양품 · 접촉 ${ohm(r.resistance)} · 누설 ${amp(r.leak)} · 순방향 ${r.voltage.toFixed(2)} V`
     : r.bin === 'contact' ? `접촉 불량 · ${ohm(r.resistance)}` : r.bin === 'leak' ? `누설 불량 · ${amp(r.leak)}` : `전압 불량 · ${r.voltage.toFixed(2)} V`;
   const share = c => c.tested ? c.good / c.tested * 100 : 0;
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each test run, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const tested = sim => { const c = sim.count(); return { total: c.total, good: c.good, dies: sim.state.results.map(r => r ? { good: r.good, bin: r.bin, text: dieText(r) } : { good: null }) }; };
   const handed = sim => { const c = sim.count(), s = sim.state; return { dies: s.results.map(r => r ? { good: r.good, bin: r.bin, text: dieText(r) } : { good: false, bin: 'contact', text: '검사하지 않음' }), missed: c.missed, how: `오버드라이브 ${fmt(s.controls.z)} µm, 검사 ${s.passes}회` }; };
 
@@ -103,5 +106,50 @@
       };
     },
     result(sim) { return sim.state.phase === 'done' ? handed(sim) : null; },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    running(sim) { return sim.state.phase === 'probing'; },
+    instruments(sim) {
+      const s = sim.state, c = sim.count(), total = DIES.length, chips = [[1, '1번 칩'], [total, `${total}번`]];
+      const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
+      const each = pick => s.results.flatMap((r, i) => { const v = r ? pick(r) : null; return v == null ? [] : [[i + 1, v]]; });      // chip number, value: only what was measured
+      const yields = s.history.map(p => [p.n, p.yield]), tests = Math.max(total, s.history.length);
+      const ohms = each(r => Number.isFinite(r.resistance) ? r.resistance : 2 * L.resistance), leaks = each(r => r.leak == null ? null : r.leak * 1e9), volts = each(r => r.voltage);
+      const last = points => (points.length ? points.at(-1)[1] : null), chip = (points, x) => { const p = near(points, x), r = s.results[p[0] - 1]; return [`${p[0]}번 칩`, [[dieText(r), '']]]; };
+      return [
+        { title: '수율', unit: '%', value: c.tested ? share(c).toFixed(0) : '—', label: '검사한 칩 수에 따른 수율',
+          plot: { x: [0, tests], y: [0, 100], yTicks: [0, 50, 100], xTicks: [[0, '0'], [tests, `${fmt(tests)}번째`]], series: yields },
+          tip: x => { if (!yields.length) return null; const p = near(yields, x); return [`${fmt(p[0])}번째 검사`, [[`${p[1].toFixed(0)}%`, '수율']]]; } },
+        { title: '접촉 저항', unit: 'Ω', value: last(ohms) == null ? '—' : last(ohms) >= 2 * L.resistance ? '∞' : last(ohms).toFixed(1), label: `칩마다 잰 접촉 저항. 선은 기준 ${L.resistance} Ω이고, 닿지 않은 칩은 맨 위에 찍힙니다`,
+          plot: { x: [1, total], y: [0, 2 * L.resistance], yTicks: [0, L.resistance], xTicks: chips, limit: L.resistance, limitLabel: '기준', series: ohms, quiet: true },
+          tip: x => (ohms.length ? chip(ohms, x) : null) },
+        { title: '누설 전류', unit: 'nA', value: last(leaks) == null ? '—' : last(leaks) >= 10 ? fmt(last(leaks)) : last(leaks).toFixed(2), label: `칩마다 잰 역방향 누설 전류. 선은 기준 ${amp(L.leakage)}이고, 그보다 훨씬 큰 값은 맨 위에 찍힙니다`,
+          plot: { x: [1, total], y: [0, 2 * L.leakage * 1e9], yTicks: [0, L.leakage * 1e9], xTicks: chips, limit: L.leakage * 1e9, limitLabel: '기준', series: leaks, quiet: true },
+          tip: x => (leaks.length ? chip(leaks, x) : null) },
+        { title: '순방향 전압', unit: 'V', value: last(volts) == null ? '—' : last(volts).toFixed(2), label: `칩마다 잰 순방향 전압. 띠는 기준 ${L.voltage[0]}~${L.voltage[1]} V`,
+          plot: { x: [1, total], y: [L.voltage[0] - 0.15, L.voltage[1] + 0.15], yTicks: [L.voltage[0], L.voltage[1]], yFormat: v => v.toFixed(2), xTicks: chips, band: L.voltage, series: volts, quiet: true },
+          tip: x => (volts.length ? chip(volts, x) : null) },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (s.phase !== 'done' || !r) return null;
+      const c = sim.count(), rate = share(c), notes = [];
+      notes.push(c.good ? `칩 ${c.total}개 가운데 양품이 ${c.good}개입니다 (수율 ${rate.toFixed(0)}%). 양품만 패키징으로 갑니다.` : '양품이 하나도 없습니다.');
+      if (c.missed) notes.push(`바늘이 패드에 제대로 닿지 않아 양품 ${c.missed}개를 접촉 불량으로 가렸습니다. 바늘 위치(X·Y)와 오버드라이브를 고친 뒤 검사 단추를 누르면 불량으로 나온 칩만 다시 검사합니다.`);
+      if (!c.missed && c.bins.contact) notes.push(`접촉 불량 ${c.bins.contact}개는 칩 안의 길이 끊겼거나 저항이 큰 칩입니다. 창이 끝까지 뚫리지 않았거나, 구리가 긁히거나 탔거나, 접합의 표면 농도가 낮으면 그렇게 됩니다.`);
+      if (c.bins.leak) notes.push(`누설 불량 ${c.bins.leak}개는 역방향으로 전류가 새는 칩입니다. 결함이 떨어진 칩, 결정에 전위가 남은 웨이퍼, 접합이 얕은데 창 아래 실리콘이 깊이 깎인 경우, 산화막 위에 구리가 남아 이웃 칩과 이어진 경우에 생깁니다.`);
+      if (c.bins.voltage) notes.push(`전압 불량 ${c.bins.voltage}개는 순방향 전압이 범위를 벗어난 칩입니다. 웨이퍼의 비저항이 목표와 크게 다르거나, 칩 안의 저항이 커서 전압이 더해지면 그렇게 됩니다.`);
+      return {
+        id: reportId(r), title: '웨이퍼 검사', sub: `오버드라이브 ${fmt(r.overdrive)} µm · 검사 ${r.passes}회`, pass: c.good > 0 && c.missed === 0,
+        criteria: [
+          { label: '검사한 칩', value: `${c.tested} / ${c.total}`, ok: c.tested === c.total, fail: '남음', meter: { value: c.tested, limit: c.total, top: c.total }, scale: ['0', '', `${c.total}개`] },
+          { label: '바늘 접촉', value: c.missed ? `양품 ${c.missed}개를 불량으로 가림` : '양품을 놓치지 않음', ok: c.missed === 0, fail: '접촉 불량' },
+          { label: '양품', value: `${c.good}개 · 수율 ${rate.toFixed(0)}%`, ok: c.good > 0, pass: '있음', fail: '없음', meter: { value: c.good, limit: 1, top: c.total }, scale: ['0', '', `${c.total}개`] },
+        ],
+        figures: [{ caption: '웨이퍼 맵. 초록은 양품이고, 불량은 걸린 검사에 따라 색이 다릅니다', map: tested(sim) }],
+        notes,
+        stats: [['접촉 불량', `${c.bins.contact}개`], ['누설 불량', `${c.bins.leak}개`], ['전압 불량', `${c.bins.voltage}개`], ['오버드라이브', `${fmt(r.overdrive)} µm`], ['검사 횟수', `${r.passes}회`]],
+      };
+    },
   };
 })();

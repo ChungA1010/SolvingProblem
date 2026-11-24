@@ -18,6 +18,9 @@
     return { nm, ...PH.develop({ thickness: nm, dose: used.dose, focus: used.focus - s.bestFocus }) };
   }
   const ready = (s, phases) => phases.includes(s.phase) ? '누를 수 있음' : '지금은 안 됨';
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each measurement, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
 
   (window.ProcessLabStations = window.ProcessLabStations || {}).photo = {
     equipment: 'photo',
@@ -95,6 +98,59 @@
     result(sim) {
       const s = sim.state, r = s.result; if (s.phase !== 'developed' || !r) return null;
       return { thickness: r.thickness, opening: r.opening, how: `${fmt(r.spin)} rpm, ${fmt(r.dose)} mJ/cm², 초점 ${signed(r.focus)} µm${s.reworks ? `, 재작업 ${s.reworks}회` : ''}` };
+    },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    /** Keeps what the instruments draw over time, one attempt at a time: a point every second from the coat to the end of the develop. */
+    tick(sim) {
+      const s = sim.state;
+      if (s.phase === 'bare') { sim.trace = null; return; }                       // stripped: the next attempt starts its own
+      const trace = sim.trace || (sim.trace = { from: s.time, points: [] }), t = s.time - trace.from, last = trace.points.at(-1);
+      if (s.phase !== 'developed' && (!last || t - last.t >= 1)) trace.points.push({ t, rpm: s.rpm, nm: s.thickness, fields: s.fields });
+    },
+    running(sim) { const s = sim.state; return s.phase !== 'bare' && s.phase !== 'developed'; },
+    instruments(sim) {
+      const s = sim.state, points = sim.trace ? sim.trace.points : [], o = s.result || outlook(sim), half = C.mask.pitch / 2;
+      const tMax = Math.max(120, points.length ? points.at(-1).t : 0), time = [[0, '0'], [tMax, `${fmt(tMax)}초`]];
+      const near = (list, x) => list.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, list[0]);
+      const rpm = points.map(p => [p.t, p.rpm]), film = points.map(p => [p.t, p.nm]), fields = points.map(p => [p.t, p.fields]), image = o.profile.map(p => [p.x, p.exposure]);
+      const filmTop = Math.max(2000, ...film.map(p => p[1])), top = Math.max(2, o.peak * 1.12);
+      return [
+        { title: '회전수', unit: 'rpm', value: fmt(s.rpm), label: '시간에 따른 스핀 코터의 회전수',
+          plot: { x: [0, tMax], y: [0, C.spin.max], yTicks: [0, C.spin.max], xTicks: time, series: rpm, quiet: true },
+          tip: x => { if (!rpm.length) return null; const p = near(rpm, x); return [`${fmt(p[0])}초`, [[`${fmt(p[1])} rpm`, '회전수'], [`${fmt(near(film, x)[1])} nm`, '감광막']]]; } },
+        { title: '감광막', unit: 'nm', value: s.thickness > 0 ? fmt(s.thickness) : '—', label: '시간에 따른 감광막 두께. 도는 동안 얇아집니다',
+          plot: { x: [0, tMax], y: [0, filmTop], yTicks: [0, filmTop], xTicks: time, series: film },
+          tip: x => { if (!film.length) return null; const p = near(film, x); return [`${fmt(p[0])}초`, [[`${fmt(p[1])} nm`, '감광막']]]; } },
+        { title: '노광한 칸', unit: `/ ${C.times.fields}`, value: fmt(s.fields), label: '시간에 따른 노광한 칸의 수. 스테퍼는 웨이퍼를 한 칸씩 옮겨 가며 찍습니다',
+          plot: { x: [0, tMax], y: [0, C.times.fields], yTicks: [0, C.times.fields], xTicks: time, series: fields, quiet: true },
+          tip: x => { if (!fields.length) return null; const p = near(fields, x); return [`${fmt(p[0])}초`, [[`${fmt(p[1])}칸`, '노광한 칸']]]; } },
+        { title: '창 가운데의 노광량', unit: '배', value: o.peak.toFixed(2), tone: o.washed || !o.cleared ? 'critical' : '', label: '창을 가로지른 노광량, 감광막이 뚫리는 양의 몇 배인지. 선보다 높은 곳의 감광막이 녹습니다',
+          plot: { x: [-half, half], y: [0, top], yTicks: [0, 1], yFormat: v => String(v), xTicks: [[-half, `−${(half / 1000).toFixed(1)} µm`], [half, `+${(half / 1000).toFixed(1)} µm`]], limit: 1, limitLabel: '뚫리는 양', series: image, mark: [0, o.peak] },
+          tip: x => { const p = near(image, x); return [`가운데에서 ${fmt(p[0])} nm`, [[`${p[1].toFixed(2)}배`, '뚫리는 양 대비']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (s.phase !== 'developed' || !r) return null;
+      const T = C.target, tol = C.tolerance, half = C.mask.pitch / 2, patterned = r.cleared && !r.washed, notes = [];
+      if (r.washed) notes.push(`빛을 가린 곳의 노광량까지 감광막이 뚫리는 양을 넘어(가장 낮은 곳이 ${r.floor.toFixed(2)}배), 감광막이 모두 녹았습니다. 노광량이 너무 많습니다.`);
+      else if (!r.cleared) notes.push(`창 가운데의 노광량이 감광막이 뚫리는 양의 ${r.peak.toFixed(2)}배뿐이라 창이 열리지 않았습니다. 노광량이 모자라거나, 초점이 어긋나 상이 흐려졌습니다.`);
+      else if (r.ok) notes.push('창 너비가 목표 범위 안입니다. 이 감광막이 식각에서 창 밖의 산화막을 가려 줍니다.');
+      else if (r.error < 0) notes.push(`창이 목표보다 ${fmt(-r.error)} nm 좁습니다. 노광량이 많을수록 창이 넓게 열립니다. 초점이 어긋나면 상이 흐려져 창 너비가 달라집니다.`);
+      else notes.push(`창이 목표보다 ${fmt(r.error)} nm 넓습니다. 노광량을 줄이면 창이 좁아집니다.`);
+      if (!r.ok) notes.push('포토는 되돌릴 수 있는 공정입니다. 재작업으로 감광막을 벗기고 처음부터 다시 할 수 있습니다.');
+      return {
+        id: reportId(r), title: '감광막 무늬', sub: `${fmt(r.spin)} rpm · ${fmt(r.dose)} mJ/cm² · 초점 ${signed(r.focus)} µm`, pass: r.ok,
+        criteria: [
+          { label: '무늬', value: r.washed ? '감광막이 모두 녹음' : !r.cleared ? '창이 안 열림' : '창이 열림', ok: patterned, fail: '실패' },
+          { label: '창 너비', value: patterned ? `${fmt(r.opening)} nm` : '—', ok: r.ok, fail: !patterned ? '없음' : r.error < 0 ? '좁음' : '넓음', track: { value: r.opening, lo: T - 4 * tol, hi: T + 4 * tol, band: [T - tol, T + tol] },
+            scale: [fmt(T - 4 * tol), `목표 ${fmt(T)} ± ${fmt(tol)}`, fmt(T + 4 * tol)] },
+        ],
+        figures: [{ caption: '창을 가로지른 노광량 (감광막이 뚫리는 양의 몇 배인지). 선보다 높은 곳의 감광막이 녹아 창이 됩니다',
+          plot: { x: [-half, half], y: [0, Math.max(2, r.peak * 1.12)], yTicks: [0, 1, 2], yFormat: v => String(v), xTicks: [[-half, `−${(half / 1000).toFixed(1)} µm`], [0, '창 가운데'], [half, `+${(half / 1000).toFixed(1)} µm`]], limit: 1, limitLabel: '뚫리는 양', series: r.profile.map(p => [p.x, p.exposure]), mark: [0, r.peak] } }],
+        notes,
+        stats: [['감광막 두께', r.washed ? '없음' : `${fmt(r.thickness)} nm`], ['회전수', `${fmt(r.spin)} rpm`], ['노광량', `${fmt(r.dose)} mJ/cm²`], ['초점 설정', `${signed(r.focus)} µm`], ['재작업', `${s.reworks}회`]],
+      };
     },
   };
 })();

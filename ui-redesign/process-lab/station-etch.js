@@ -4,12 +4,36 @@
   'use strict';
   const ET = window.ProcessLabEtch, F = window.ProcessLabFlow, FILM = window.Lab3DProcess, C = ET.constants;
   const fmt = v => Math.round(v).toLocaleString('en-US');
-  const clock = seconds => `${Math.floor(seconds / 60)}분 ${String(Math.round(seconds % 60)).padStart(2, '0')}초`;
+  const clock = seconds => { const whole = Math.round(seconds); return `${Math.floor(whole / 60)}분 ${String(whole % 60).padStart(2, '0')}초`; };   // whole seconds first: 59.6 s is 1분 00초, not 0분 60초
   const onOff = open => open ? '열림' : '닫힘';
   const share = v => `${fmt(v * 100)}%`;
   const gasText = c => [c.chf3 && 'CHF₃', c.cf4 && 'CF₄'].filter(Boolean).join(' + ') || '가스 없음';
   const rateRows = s => { const r = ET.rates(s.controls); return r ? [['산화막 식각 속도', `${r.oxide.toFixed(0)} nm/분`], ['산화막 : 실리콘', `${(r.oxide / r.silicon).toFixed(1)} : 1`]] : []; };
   const BASIS = '속도와 선택비: 측정 사례의 대표값 (CHF₃ 16:1, CF₄ 1.2:1)';
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs = {}, ...children) {
+    const node = document.createElementNS(SVGNS, tag);
+    for (const [key, value] of Object.entries(attrs)) if (value != null) node.setAttribute(key, value);
+    for (const child of children) if (child != null) node.append(child);
+    return node;
+  }
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each measurement, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
+  /** One window at each place from the centre to the edge of the wafer: the oxide beside it, what is left on its floor, and the bite into the silicon. */
+  function windowsAcross(r, oxide) {
+    const left = Array.from(r.profile.left), loss = Array.from(r.profile.siliconLoss), width = Array.from(r.profile.width), n = left.length, cell = 240 / n, top = 14, base = 50, tall = base - top;
+    const root = svg('svg', { viewBox: '0 0 240 78', preserveAspectRatio: 'xMidYMid meet', role: 'img', 'aria-label': `가운데에서 가장자리까지 창 ${n}곳: 남은 산화막 ${left.map(v => fmt(v)).join(', ')} nm, 깎인 실리콘 ${loss.map(v => fmt(v)).join(', ')} nm` });
+    root.append(svg('rect', { x: 0, y: 0, width: 240, height: 78, fill: '#f3f5f9' }), svg('rect', { x: 0, y: base, width: 240, height: 78 - base, fill: '#9aa3b2' }));
+    if (!r.stripped) root.append(svg('rect', { x: 0, y: top, width: 240, height: tall, fill: '#9cc3f5' }));
+    for (let j = 0; j < n && !r.stripped && width[j] > 0; j++) {
+      const w = Math.min(cell * 0.62, cell * 0.42 * width[j] / C.spec.width.target), x = j * cell + (cell - w) / 2, floor = oxide > 0 ? tall * Math.min(1, left[j] / oxide) : 0, bite = Math.min(78 - base - 4, loss[j] * 5 * tall / Math.max(1, oxide));
+      root.append(svg('rect', { x, y: top - 1, width: w, height: tall - floor + 1 + bite, fill: '#f3f5f9' }));
+      if (floor <= 0.01 && bite > 0.2) root.append(svg('path', { d: `M${x},${base + bite} h${w}`, stroke: '#dc2626', 'stroke-width': 1.2 }));
+    }
+    root.append(svg('text', { x: 4, y: 74, 'font-size': 9, fill: '#fff' }, '가운데'), svg('text', { x: 236, y: 74, 'font-size': 9, fill: '#fff', 'text-anchor': 'end' }, '가장자리'));
+    return root;
+  }
 
   (window.ProcessLabStations = window.ProcessLabStations || {}).etch = {
     equipment: 'etch',
@@ -90,6 +114,50 @@
       const s = sim.state, r = now ? sim.measure() : s.result; if (!r || (!now && s.inside > 0)) return null;
       const how = sim.recipe ? `${sim.recipe.gas}, ${fmt(sim.recipe.power)} W, ${fmt(sim.recipe.pressure)} mTorr, ${clock(r.seconds)}` : '식각하지 않음';
       return { oxide: r.oxide, stripped: r.stripped, width: r.width, depth: r.depth, open: r.open, opened: r.opened, left: r.left, siliconLoss: r.siliconLoss, profile: r.profile, how };
+    },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    running(sim) { const s = sim.state; return s.inside >= 1; },                  // while the wafer is in the chamber
+    instruments(sim) {
+      const s = sim.state, h = s.history, tMax = Math.max(120, h.length ? h.at(-1).t : 0), start = sim.incoming.oxide;
+      const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
+      const signal = h.map(p => [p.t, p.signal]), opened = h.map(p => [p.t, 100 * (p.opened || 0)]), floor = h.map(p => [p.t, p.floor]);
+      const time = [[0, '0'], [tMax, clock(tMax)]], top = Math.max(0.5, ...signal.map(p => p[1])) * 1.15;
+      return [
+        { title: '종점 신호', unit: '', value: s.signal.toFixed(2), label: '시간에 따른 종점 신호: 산화막이 깎일 때 나오는 빛의 세기',
+          plot: { x: [0, tMax], y: [0, top], yTicks: [0, +(top / 1.15).toFixed(2)], yFormat: v => v.toFixed(1), xTicks: time, series: signal },
+          tip: x => { if (!signal.length) return null; const p = near(signal, x); return [clock(p[0]), [[p[1].toFixed(2), '종점 신호'], [`${fmt(near(opened, x)[1])}%`, '뚫린 면적']]]; } },
+        { title: '뚫린 면적', unit: '%', value: fmt(100 * s.opened), label: '시간에 따른 뚫린 면적: 창이 실리콘까지 뚫린 곳이 웨이퍼에서 차지하는 비율',
+          plot: { x: [0, tMax], y: [0, 100], yTicks: [0, 50, 100], xTicks: time, series: opened, quiet: true },
+          tip: x => { if (!opened.length) return null; const p = near(opened, x); return [clock(p[0]), [[`${fmt(p[1])}%`, '뚫린 면적']]]; } },
+        { title: '가운데 창의 산화막', unit: 'nm', value: fmt(s.floor), label: '시간에 따른 가운데 창 바닥의 산화막 두께. 가운데가 가장 늦게 뚫립니다',
+          plot: { x: [0, tMax], y: [0, Math.max(100, start)], yTicks: [0, Math.max(100, start)], xTicks: time, series: floor, quiet: true },
+          tip: x => { if (!floor.length) return null; const p = near(floor, x); return [clock(p[0]), [[`${fmt(p[1])} nm`, '가운데 창에 남은 산화막']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = s.result; if (!r || s.inside > 0) return null;
+      const S = C.spec, W = S.width, widths = Array.from(r.profile.width), widthOk = r.width > 0 && widths.every(w => Math.abs(w - W.target) <= W.tolerance), lossOk = r.siliconLoss <= S.siliconLoss, notes = [];
+      if (r.stripped) notes.push('산화막이 모두 깎여 나가 마스크로 쓸 막이 남지 않았습니다. 감광막이 없거나 다 닳은 뒤에도 식각이 이어졌습니다.');
+      else if (r.width <= 0) notes.push('감광막에 열린 곳이 없어 창이 생기지 않았습니다. 포토에서 창이 열려야 합니다.');
+      else {
+        if (!r.open) notes.push(`창이 웨이퍼 면적의 ${share(r.opened)}에서만 뚫렸습니다. 이 장비는 가장자리를 가운데보다 조금 빨리 깎으므로 가운데가 가장 늦게 뚫립니다. 종점 신호가 바닥까지 내려와야 웨이퍼 전체가 뚫린 것입니다. 덜 뚫린 칩은 EDS에서 불량이 됩니다.`);
+        else notes.push(`창이 웨이퍼 전체에서 뚫렸습니다. 가장자리가 먼저 뚫리므로, 가운데가 뚫릴 때까지 가장자리의 실리콘이 그만큼 더 깎입니다.`);
+        if (!lossOk) notes.push(`실리콘이 가장 많이 깎인 곳에서 ${fmt(r.siliconLoss)} nm입니다 (기준 ${S.siliconLoss} nm 이하). 창이 뚫린 뒤에도 식각이 이어졌거나, 실리콘도 잘 깎는 가스를 썼습니다. 산화막만 골라 깎는 가스일수록 뚫린 뒤에 실리콘이 덜 깎입니다.`);
+        if (!widthOk) notes.push(`창 너비가 평균 ${fmt(r.width)} nm입니다 (목표 ${fmt(W.target)} ± ${W.tolerance} nm). 창은 포토에서 연 감광막의 너비에서 시작해, 옆으로 깎인 만큼 넓어집니다. 압력이 높을수록 옆으로도 많이 깎입니다.`);
+      }
+      return {
+        id: reportId(r), title: '식각한 창', sub: sim.recipe ? `${sim.recipe.gas} · ${fmt(sim.recipe.power)} W · ${fmt(sim.recipe.pressure)} mTorr · ${clock(r.seconds)}` : '식각하지 않음', pass: r.ok,
+        criteria: [
+          { label: '뚫린 면적', value: share(r.opened), ok: r.open, pass: '모두 뚫림', fail: '덜 뚫림', meter: { value: 100 * r.opened, limit: 100, top: 100 }, scale: ['0', '', '100%'] },
+          { label: '실리콘 깎임 (최대)', value: `${fmt(r.siliconLoss)} nm`, ok: lossOk, fail: '초과', meter: { value: r.siliconLoss, limit: S.siliconLoss, top: 2 * S.siliconLoss }, scale: ['0', `${S.siliconLoss} nm 이하`, `${2 * S.siliconLoss}`] },
+          { label: '창 너비 (평균)', value: `${fmt(r.width)} nm`, ok: widthOk, fail: '범위 밖', track: { value: r.width, lo: W.target - 4 * W.tolerance, hi: W.target + 4 * W.tolerance, band: [W.target - W.tolerance, W.target + W.tolerance] },
+            scale: [fmt(W.target - 4 * W.tolerance), `목표 ${fmt(W.target)} ± ${W.tolerance}`, fmt(W.target + 4 * W.tolerance)] },
+        ],
+        figures: [{ caption: '가운데(왼쪽)에서 가장자리(오른쪽)까지의 창. 파란색은 산화막, 창 아래로 파인 곳은 깎인 실리콘입니다 (깊이를 5배로 그렸습니다)', node: windowsAcross(r, sim.incoming.oxide) }],
+        notes,
+        stats: [['식각 시간', clock(r.seconds)], ['남은 감광막 (가장 얇은 곳)', `${fmt(r.resistLeft)} nm`], ['가운데 창에 남은 산화막', `${fmt(r.left)} nm`], ['옆으로 깎인 길이 (최대)', `${fmt(r.undercut)} nm`]],
+      };
     },
   };
 })();

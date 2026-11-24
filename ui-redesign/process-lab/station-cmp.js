@@ -14,7 +14,10 @@
     return node;
   }
   const fmt = (v, digits = 0) => Number(v).toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
-  const clock = seconds => `${Math.floor(seconds / 60)}분 ${String(Math.round(seconds % 60)).padStart(2, '0')}초`;
+  const clock = seconds => { const whole = Math.round(seconds); return `${Math.floor(whole / 60)}분 ${String(whole % 60).padStart(2, '0')}초`; };   // whole seconds first: 59.6 s is 1분 00초, not 0분 60초
+  const measuredOnce = new WeakMap(); let measurements = 0;
+  /** A number for each scan, so the page can tell a new report from the one it already shows. */
+  const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const pct = v => `${fmt(v * 100)}%`;
   const downforce = s => s.contact ? s.pressure : 0;
   const zoneText = z => { const p = Math.round(z * 100); return p === 0 ? '균등' : `${p > 0 ? '가운데' : '가장자리'} +${Math.abs(p)}%`; };
@@ -166,6 +169,50 @@
     result(sim) {
       const s = sim.state, r = sim.stack.result; if (!r || s.wafer.where !== 'stage') return null;
       return { polish: polishOf(sim), how: `${sim.plated.how} · 연마 ${clock(r.seconds)}` };
+    },
+
+    // ----- process instruments and metrology report (the frame is in app.js) -----
+    /** Keeps what the instruments draw and the model does not: the downforce, a point for every second of polishing. */
+    tick(sim) {
+      const s = sim.state, w = s.wafer, trace = sim.trace || (sim.trace = []);
+      if (w.where === 'head' && s.polishing && (!trace.length || w.polishTime - trace.at(-1).t >= 1)) { trace.push({ t: w.polishTime, psi: downforce(s) }); if (trace.length > 1800) trace.splice(0, 2); }
+    },
+    running(sim) { return sim.state.wafer.where === 'head'; },                    // while the wafer is on the head
+    instruments(sim) {
+      const s = sim.state, k = sim.stack, h = k.history, trace = sim.trace || [], tMax = Math.max(120, h.length ? h.at(-1).t : 0), time = [[0, '0'], [tMax, clock(tMax)]];
+      const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
+      const covered = h.map(p => [p.t, 100 * p.covered]), mean = h.map(p => [p.t, p.mean]), force = trace.map(p => [p.t, p.psi]);
+      const top = Math.max(100, sim.incoming.thickness || 0, ...mean.map(p => p[1])), forceTop = Math.max(6, Math.ceil(Math.max(0, ...force.map(p => p[1]))));
+      return [
+        { title: '구리가 덮은 면적', unit: '%', value: fmt(100 * k.covered), label: '연마 시간에 따른 구리가 덮고 있는 면적. 0이 되면 다 걷힌 것입니다',
+          plot: { x: [0, tMax], y: [0, 100], yTicks: [0, 50, 100], xTicks: time, series: covered },
+          tip: x => { if (!covered.length) return null; const p = near(covered, x); return [clock(p[0]), [[`${fmt(p[1])}%`, '구리가 덮은 면적'], [`${fmt(near(mean, x)[1])} nm`, '남은 구리 (평균)']]]; } },
+        { title: '남은 구리', unit: 'nm', value: fmt(k.mean), label: '연마 시간에 따른 산화막 위에 남은 구리의 평균 두께',
+          plot: { x: [0, tMax], y: [0, top], yTicks: [0, top], xTicks: time, series: mean, quiet: true },
+          tip: x => { if (!mean.length) return null; const p = near(mean, x); return [clock(p[0]), [[`${fmt(p[1])} nm`, '남은 구리 (평균)']]]; } },
+        { title: '다운포스', unit: 'psi', value: fmt(downforce(s), 1), label: '연마 시간에 따른 헤드가 웨이퍼를 누르는 압력',
+          plot: { x: [0, tMax], y: [0, forceTop], yTicks: [0, forceTop], xTicks: time, series: force, quiet: true },
+          tip: x => { if (!force.length) return null; const p = near(force, x); return [clock(p[0]), [[`${fmt(p[1], 1)} psi`, '다운포스']]]; } },
+      ];
+    },
+    report(sim) {
+      const s = sim.state, r = sim.stack.result; if (!r || s.wafer.where !== 'stage') return null;
+      const limit = K.spec.dishing, dishOk = r.dishingMax <= limit, clean = r.scratches.length === 0, notes = [];
+      if (!r.cleared) notes.push(`구리가 가장 두꺼운 곳에 ${fmt(r.residue)} nm 남았습니다. 산화막 위에 구리가 남은 칩은 이웃 칩과 이어져 EDS에서 불량이 됩니다. 헤드에 다시 올려 더 갈 수 있습니다.`);
+      if (r.cleared && !dishOk) notes.push(`창 안의 구리가 가장 깊은 곳에서 ${fmt(r.dishingMax)} nm 파였습니다 (기준 ${limit} nm 이하). 구리가 다 걷힌 뒤에도 갈면 무른 구리가 산화막보다 빨리 깎여 접시처럼 파입니다.`);
+      if (!clean) notes.push(`스크래치가 ${r.scratches.length}개 났습니다. 슬러리 없이 마른 패드에 닿으면 긁힙니다. 긁힌 칩은 구리 길이 끊겨 EDS에서 불량이 됩니다.`);
+      if (r.ok) notes.push('구리가 다 걷혔고 접시 파임이 기준 안입니다. 창 안에만 구리가 남아 칩마다 따로 떨어진 길이 됩니다.');
+      return {
+        id: reportId(r), title: '평탄화한 웨이퍼', sub: `연마 ${clock(r.seconds)}`, pass: r.ok,
+        criteria: [
+          { label: '남은 구리 (가장 두꺼운 곳)', value: `${fmt(r.residue)} nm`, ok: r.cleared, pass: '다 걷힘', fail: '남음' },
+          { label: '접시 파임 (최대)', value: `${fmt(r.dishingMax)} nm`, ok: dishOk, fail: '초과', meter: { value: r.dishingMax, limit, top: 2 * limit }, scale: ['0', `${limit} nm 이하`, `${2 * limit}`] },
+          { label: '스크래치', value: clean ? '없음' : `${r.scratches.length}개`, ok: clean, fail: '긁힘' },
+        ],
+        figures: [{ caption: '웨이퍼를 위에서 본 모습. 금색은 구리가 남은 곳, 회색은 장벽막, 파란색은 산화막이 드러난 곳입니다', node: ringsView(sim) }],
+        notes,
+        stats: [['연마 시간', clock(r.seconds)], ['접시 파임 (평균)', `${fmt(r.dishingMean)} nm`], ['스크래치', `${r.scratches.length}개`]],
+      };
     },
   };
   STATIONS.metal = [plating, cmp];

@@ -97,6 +97,8 @@
 .drawer-title { font-size: 13.5px; font-weight: 700; }
 .drawer .figure-box { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #f3f5f9; }
 .drawer .figure-box svg { display: block; width: 100%; height: auto; }
+.drawer .figure-box.chart { padding: 8px 6px 4px; background: var(--panel); } .drawer .figure-box.chart .plot { height: 128px; }
+.drawer .figure-box .legend { padding: 6px 10px 8px; background: var(--panel); }
 .drawer figcaption { margin-bottom: 4px; font-size: 12px; color: var(--muted); }
 
 /* What the lab makes, in the help window: the finished chip in section, every layer named after its process. */

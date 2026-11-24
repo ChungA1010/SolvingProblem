@@ -23,10 +23,10 @@
  *   result(sim)          the measured result to hand to the next process, or null while there is none
  *   running(sim)         optional: true while the equipment is at work; the process instruments are up while it is
  *   instruments(sim)     optional: the tiles of the process instruments, [{ title, unit, value, tone, plot, tip }]. plot is what plot() draws
- *                        ({ x, y: domains, series: [[x, y]], yTicks, xTicks: [[x, label]], band: [lo, hi], limit, limitLabel, quiet }); tip(x) gives [title, [[value, label] ...]] for the pointer
+ *                        ({ x, y: domains, series: [[x, y]], yTicks, xTicks: [[x, label]], band: [lo, hi], limit, limitLabel, quiet, mark: [x, y] | false }); tip(x) gives [title, [[value, label] ...]] for the pointer
  *   report(sim)          optional: the metrology report once something is measured, { id, title, sub, pass, criteria, figures, notes, stats }.
  *                        criteria: [{ label, value, ok, track: { value, lo, hi, band: [lo, hi] } | meter: { value, limit, top, atLeast }, scale: [left, middle, right] }];
- *                        figures: [{ caption, node }]; notes: [text]; stats: [[name, value]]. A new id opens the report.
+ *                        figures: [{ caption, node | plot | map }] (an SVG the station drew, a chart as plot() draws it, or a tested wafer for the wafer map); notes: [text]; stats: [[name, value]]. A new id opens the report.
  *   interim(wafer, result)  for a piece that is not the last of its process: the wafer as it goes on to the next piece
  */
 (function () {
@@ -450,7 +450,8 @@
     for (const [v, label] of o.xTicks || []) text(label, px(v), H - 3, px(v) < m.l + 14 ? 'start' : px(v) > W - m.r - 16 ? 'end' : 'middle');
     const points = o.series;
     if (points.length > 1) root.append(svg('polyline', { class: `line${o.quiet ? ' quiet' : ''}`, points: points.map(p => `${px(p[0]).toFixed(1)},${py(p[1]).toFixed(1)}`).join(' ') }));
-    if (points.length) { const p = points.at(-1); root.append(svg('circle', { class: 'dot', cx: px(p[0]), cy: py(p[1]), r: 4 })); }
+    const marked = o.mark === false ? null : o.mark || points.at(-1);          // the dot: the newest point, or the one the station marks, or none
+    if (marked) root.append(svg('circle', { class: 'dot', cx: px(marked[0]), cy: py(marked[1]), r: 4 }));
     if (o.cursor != null && points.length) { const p = points.reduce((best, q) => Math.abs(q[0] - o.cursor) < Math.abs(best[0] - o.cursor) ? q : best, points[0]); root.append(svg('line', { class: 'cursor', x1: px(p[0]), x2: px(p[0]), y1: m.t, y2: H - m.b }), svg('circle', { class: 'dot', cx: px(p[0]), cy: py(p[1]), r: 4 })); }
     host.replaceChildren(root);
     host._invert = offsetX => x0 + (x1 - x0) * clamp((offsetX - m.l) / (W - m.l - m.r || 1), 0, 1);
@@ -493,13 +494,20 @@
     return el('li', {}, el('div', { class: 'crit' }, el('span', { text: c.label }), el('b', { text: c.value }), verdict(c.ok, c.pass, c.fail)), bar,
       c.scale ? el('div', { class: 'scale num' }, c.scale.map(text => el('span', { text }))) : null);
   }
+  /** A figure of the report: an SVG the station drew, a chart, or a wafer map. A chart is drawn once its box is in the page and has a size. */
+  function figureBox(f) {
+    if (!f.plot) return el('div', { class: 'figure-box' }, f.map ? [waferMap(f.map), mapLegend(f.map)] : f.node);
+    const host = el('div', { class: 'plot', role: 'img', 'aria-label': f.caption });
+    requestAnimationFrame(() => plot(host, f.plot));
+    return el('div', { class: 'figure-box chart' }, host);
+  }
   function renderReport(r) {
-    const result = station.result(sim), list = stationsOf(run.at), following = stage < list.length - 1 ? list[stage + 1].title : F.STEPS[run.at + 1] ? F.STEPS[run.at + 1].name : '끝';
+    const result = station.result(sim), list = stationsOf(run.at), following = stage < list.length - 1 ? list[stage + 1].title : F.STEPS[run.at + 1] ? F.STEPS[run.at + 1].name : '공정 기록';
     $('report').replaceChildren(...[                                      // replaceChildren takes nodes one by one: no lists, no nulls
       el('div', { class: 'report-head' }, el('div', {}, el('h3', { text: r.title }), r.sub ? el('p', { class: 'sub', text: r.sub }) : null),
         el('span', { class: `verdict ${r.pass ? 'pass' : 'fail'}` }, el('span', { 'aria-hidden': 'true', text: r.pass ? '✓' : '✕' }), r.pass ? '합격' : '불합격')),
       el('ul', { class: 'criteria' }, r.criteria.map(criterion)),
-      (r.figures || []).map(f => el('figure', {}, el('figcaption', { text: f.caption }), el('div', { class: 'figure-box' }, f.node))),
+      (r.figures || []).map(f => el('figure', {}, el('figcaption', { text: f.caption }), figureBox(f))),
       r.notes && r.notes.length ? el('section', {}, el('h4', { text: '결과 풀이' }), el('ul', { class: 'notes' }, r.notes.map(text => el('li', { text })))) : null,
       r.stats && r.stats.length ? el('section', {}, el('h4', { text: '기록' }), el('dl', { class: 'stats' }, r.stats.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { class: 'num', text: v })]))) : null,
       el('footer', {}, el('button', { type: 'button', class: 'btn', id: 'report-redo', text: stage > 0 ? '이 장비만 다시' : '이 공정 다시', onclick: () => { if (stage > 0) restage(); else redo(run.at); } }),
@@ -614,7 +622,8 @@
       if (!p) box.hidden = true;
       else {
         const up = p.y >= 230, covers = p.x + canvas.left + 280 > monitor.left && (up ? p.y + canvas.top - 240 : p.y + canvas.top) < monitor.bottom + 8;     // the card would lie over the wafer monitor
-        box.dataset.side = p.x > canvas.width - 320 || covers ? 'left' : 'right'; box.dataset.vert = up ? 'up' : 'down';
+        const taken = parseFloat($('stage').style.getPropertyValue('--inset-right')) || 0;                 // the report covers that much of the right while it is open
+        box.dataset.side = p.x > canvas.width - taken - 320 || covers ? 'left' : 'right'; box.dataset.vert = up ? 'up' : 'down';
       }
     }
     const pill = $('pill'), part = dragging && station.parts[dragging];
@@ -622,8 +631,9 @@
     const focus = $('focus'); focus.hidden = !focusPart || hovered === focusPart || Boolean(dragging) || Boolean(view3d.gliding) || !place(focus, focusPart);
   }
 
+  let frames = 0;                                                 // frames drawn since the page opened: the checks wait by them, because a slow display draws few
   function frame(now) {
-    const elapsed = Math.max(0, (now - last) / 1000), dt = Math.min(0.05, elapsed); last = now;      // the process never jumps more than 0.05 s of screen time
+    const elapsed = Math.max(0, (now - last) / 1000), dt = Math.min(0.05, elapsed); last = now; frames++;      // the process never jumps more than 0.05 s of screen time
     if (mode === 'station' && sim) {
       sim.step(dt * timeScale); station.tick?.(sim); station.frame?.(sim, dt, timeScale);
       const shown = station.view(sim);
@@ -678,7 +688,7 @@
       get stage() { return stage; }, get entries() { return entries; },
       setSpeed: v => { timeScale = v; }, get speed() { return timeScale; },
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },
-      get mode() { return mode; }, get viewing() { return viewing; }, get selected() { return selected; },
+      get mode() { return mode; }, get viewing() { return viewing; }, get selected() { return selected; }, get frames() { return frames; },
       get panels() { return { strip: $('strip').dataset.open === 'true', report: reportOpen, tiles: tiles.length, reportId }; }, setStrip: next => { stripMode = next; hudClock = 0; },
     };
     last = performance.now(); requestAnimationFrame(frame);
