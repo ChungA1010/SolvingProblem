@@ -2,6 +2,9 @@
  * this file adds the route, the line the lab opens on, the bench views and what the wafer monitor needs here.
  * Words are few on purpose: the equipment itself and pictures of the wafer carry the page. */
 
+/* Korean is broken between words, not inside one, wherever a line of this page wraps; a word longer than its line still breaks. */
+body { word-break: keep-all; overflow-wrap: break-word; }
+
 /* Route: the eight processes in order, one slim row. A step shows the wafer as it leaves that process under the pointer. */
 .route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .stop { position: relative; display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 9px 12px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
@@ -17,7 +20,7 @@
 .stop[data-state="current"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--brand); }
 .route-pop { position: fixed; z-index: 40; width: 236px; padding: 9px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); pointer-events: none; }
 .route-pop svg { display: block; width: 100%; height: 62px; border-radius: 6px; background: #eef1f6; }
-.route-pop p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; }
+.route-pop p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
 .title h1 { cursor: pointer; } .title h1:hover { color: var(--brand); }
 
 .stage { height: calc(100vh - 150px); min-height: 520px; }
@@ -31,7 +34,7 @@
 .bench-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
 .bench-head .no { font-size: 13px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
 .bench-head h2 { font-size: 30px; font-weight: 800; letter-spacing: -.03em; line-height: 1.15; }
-.bench-head p { max-width: 36em; margin-top: 5px; font-size: 14.5px; color: var(--muted); word-break: keep-all; }
+.bench-head p { max-width: 36em; margin-top: 5px; font-size: 14.5px; color: var(--muted); }
 .bench-actions { display: flex; flex: none; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
 .bench-actions .btn { padding: 9px 18px; font-size: 14.5px; white-space: nowrap; }
 .figure { position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #f3f5f9; }
@@ -42,19 +45,19 @@
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 12px; color: var(--muted); }
 .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; border-radius: 2px; vertical-align: -1px; }
 .legend .scale { margin-left: auto; }
-.result { font-size: 16px; font-weight: 650; word-break: keep-all; } .result[data-tone="bad"] { color: var(--danger); }
-.assumed { font-size: 12.5px; color: var(--muted); word-break: keep-all; }
+.result { font-size: 16px; font-weight: 650; } .result[data-tone="bad"] { color: var(--danger); }
+.assumed { font-size: 12.5px; color: var(--muted); }
 
 /* The line: where the lab opens. The whole line stands in the 3D view (src/process-lab-scene.js). The page lays one
    heading over the top of the picture and hangs a card on the machine under the pointer. */
 .line-head { position: absolute; right: 0; bottom: 0; z-index: 1; display: grid; justify-items: end; gap: 16px; max-width: min(560px, 100%); padding: 0 34px 34px 16px; text-align: right; pointer-events: none; }
-.line-head h2 { font-size: clamp(21px, 2.1vw, 30px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; word-break: keep-all; }
+.line-head h2 { font-size: clamp(21px, 2.1vw, 30px); font-weight: 800; letter-spacing: -.03em; line-height: 1.2; }
 .line-head .btn { pointer-events: auto; box-shadow: var(--shadow); }
 .line-tag { position: absolute; z-index: 2; width: 236px; padding: 10px; border: 1px solid #ffffffc0; border-radius: 12px; background: #fffffff0; backdrop-filter: blur(10px); box-shadow: var(--shadow); pointer-events: none; }
 .line-tag .name { display: flex; align-items: baseline; gap: 7px; margin-bottom: 7px; font-size: 15px; font-weight: 750; letter-spacing: -.01em; }
 .line-tag .no { font-size: 12px; font-weight: 700; color: var(--brand); font-variant-numeric: tabular-nums; }
 .line-tag svg { display: block; width: 100%; height: 62px; border-radius: 6px; background: #eef1f6; }
-.line-tag svg + p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); word-break: keep-all; }
+.line-tag svg + p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
 
 /* The end of a run: how many chips, the wafer map they came from, and one line for each process. */
 .finish { display: flex; align-items: center; gap: 26px; }
@@ -100,10 +103,15 @@
 .drawer .figure-box.chart { padding: 8px 6px 4px; background: var(--panel); } .drawer .figure-box.chart .plot { height: 128px; }
 .drawer .figure-box .legend { padding: 6px 10px 8px; background: var(--panel); }
 .drawer figcaption { margin-bottom: 4px; font-size: 12px; color: var(--muted); }
+.drawer .stats dd { white-space: nowrap; }   /* the labels here are long: they wrap, a value keeps its unit beside it */
+/* A long report scrolls, and its way on stays in reach: the foot of the report rides at the bottom of the drawer.
+   The room under it is the foot's own, not the drawer's: browsers differ on whether a sticky box may enter its scroller's padding. */
+#report { padding-bottom: 0; }
+#report > footer { position: sticky; bottom: 0; margin: -12px -16px 0; padding: 12px 16px 16px; border-radius: 0 0 17px 17px; background: linear-gradient(to top, #fff calc(100% - 12px), #fff0); }
 
 /* What the lab makes, in the help window: the finished chip in section, every layer named after its process. */
 .goal { margin: 0 0 12px; } .goal svg { display: block; width: 100%; height: auto; border-radius: 10px; }
-.goal figcaption { margin-top: 6px; font-size: 12.5px; line-height: 1.5; color: var(--muted); word-break: keep-all; }
+.goal figcaption { margin-top: 6px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
 
 /* The polisher of the CMP lab has a canvas of its own; one of the two canvases shows at a time. */
 #scene-cmp { position: absolute; inset: 0; width: 100%; height: 100%; display: none; outline: none; touch-action: none; }

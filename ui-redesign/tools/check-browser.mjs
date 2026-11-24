@@ -12,7 +12,8 @@
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
 //   The pages are opened from this folder, or from the copy of the site given with --site (tools/export-site.mjs makes one).
-// The 3D pages render in software at about 3 frames per second, so a full run takes several minutes.
+// The 3D pages render in software at about 3 frames per second (the whole line of the 8-process lab at about 1.5),
+// so a full run takes about an hour: the twelve process checks alone took 35 minutes on 2026-11-25.
 // Needs Node 22 or newer and Chrome or Edge (see tools/headless-browser.mjs). The exit code is 1 if anything failed.
 import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -971,7 +972,8 @@ async function processImplant(t) {
   t.expect((await state()).phase === 'ready' && /빔 전류가 거의 없/.test(await lab.guide()), 'the implant is refused without a beam, and the page says why', await lab.guide());
   await press('scan');
   t.expect(await reached(b, `!!${S}.scan`, 5000), 'the scan button sweeps the magnet');
-  t.expect(await lab.fast(`!${S}.scan && ${S}.spectrum.length > 1000`, 1, 30000), 'the scan records the beam current over the whole field');
+  // 8 s of process time at 1x: the page never takes more than 0.05 s a frame, so that is 160 frames, about a minute at 3 frames a second
+  t.expect(await lab.fast(`!${S}.scan && ${S}.spectrum.length > 1000`, 1, 150000), 'the scan records the beam current over the whole field');
   await sleep(900); tuning = await lab.monitor(); await t.shot('1-mass-scan');
   const peaks = await b.evaluate(`(() => { const points = [...document.querySelectorAll('#trend path')].map(p => p.getAttribute('d') || ''); return { paths: points.length, marker: points.some(d => /^M[\\d.]+,[\\d.]+ V/.test(d)) }; })()`);
   t.expect(tuning.trend && peaks.marker && /패러데이/.test(tuning.note), 'the monitor plots the scan with a mark where the magnet stands', JSON.stringify(peaks));
@@ -1440,7 +1442,7 @@ const CHECKS = {
   'process-cmp': { run: processCmp, minutes: 10, about: 'process-lab/process-lab.html, the polisher of the CMP lab as the second equipment of metallization: clear the copper, scan' },
   'process-eds': { run: processEds, minutes: 10, about: 'process-lab/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
   'process-bond': { run: processBond, minutes: 10, about: 'process-lab/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
-  'process-all': { run: processAll, minutes: 10, about: 'process-lab/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
+  'process-all': { run: processAll, minutes: 14, about: 'process-lab/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 
