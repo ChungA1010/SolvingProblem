@@ -63,7 +63,7 @@
 node --test "*/tests/*.test.cjs" "tests/*.test.cjs"   # 단위 테스트 전부. 1초쯤 걸린다 (따옴표째로 쓴다)
 node --test "lab-3d/tests/*.test.cjs"                 # 한 부분만: factory, lab-3d, process-lab, lab-sim
 node tools/check-browser.mjs       # 브라우저 검사 전부. 오래 걸린다
-node tools/check-browser.mjs home  # 일부만. 이름: home, game, lab-hover, lab-operate, lab-panels, process-route, process-<공정>, standalone ("lab", "process"처럼 앞부분만 써도 된다)
+node tools/check-browser.mjs home  # 일부만. 이름: home, game, lab-hover, lab-operate, lab-panels, lab-lot, process-route, process-<공정>, standalone ("lab", "process"처럼 앞부분만 써도 된다)
 node tools/build-scenes.mjs        # 3D 번들 다시 만들기. 이름(lab-3d, process-lab)을 주면 그것만
 node tools/build-standalone.mjs    # 사이트 전체를 한 파일로: standalone/CMP-Lab.html
 node tools/export-site.mjs         # 올릴 파일만 site/ 폴더에 모으기
@@ -113,6 +113,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-hover` | 장면의 부품과 카드가 일대일인지, 창 크기 두 가지에서 부품마다 제 카드가 뜨고 사라지는지 |
 | `lab-operate` | 웨이퍼 장착, 플래튼, 스핀들, 밸브, 구역 조절기, 컨디셔너, 가압, 휠, 연마, 헤드 올리기, 계측까지 부품을 끌어서 한 장을 처리하기. 끄는 동안의 값 표시, 장비 화면 확대, 비상 정지 |
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
+| `lab-lot` | 로트 다섯 장을 끝까지 돌리기: 컨디셔너를 계속 쓰면 패드 수명이 로트 안에서 끝나 경보가 뜨는지, 패드를 바꾼 뒤의 로트 시간, 로트 결과 화면과 안내, 다음 로트, 계측하지 않고 넘긴 웨이퍼 |
 | `process-route` | 첫 화면, 공정을 눌러 바로 시작해 공정 기록까지, 앞 공정을 같은 웨이퍼로 다시 하기 (장비 없이 표준 조건으로) |
 | `process-flow` | 같은 흐름을 장비를 켠 채로: 누르면 장비가 열리는지, 이 공정 다시, 표준 조건으로 넘기기, 앞 공정으로 돌아가기 |
 | `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-cmp`, `process-eds`, `process-bond` ([PROCESS-LAB.md](process-lab/PROCESS-LAB.md)) |

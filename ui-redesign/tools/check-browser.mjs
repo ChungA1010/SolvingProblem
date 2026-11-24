@@ -7,7 +7,7 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html] [--site folder]
-//   checks: home, game, lab-hover, lab-operate, lab-panels, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
+//   checks: home, game, lab-hover, lab-operate, lab-panels, lab-lot, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
@@ -401,6 +401,84 @@ async function labPanels(t) {
   p = await lab.panels(); t.expect(landed && !p.drawer.open && p.right === 0, 'closing the report gives the room back to the 3D view', `click landed: ${landed}, ${JSON.stringify(p)}`);
   landed = await lab.clickOn('#log-open');
   p = await lab.panels(); t.expect(landed && p.drawer.open, 'the film monitor\'s record link opens it again', `click landed: ${landed}, ${JSON.stringify(p.drawer)}`);
+}
+
+// A whole lot through the tool by the page's hooks: five wafers, the pad worn out on the way and changed, the result of the
+// lot, the lot after it, and a wafer that is passed on without a measurement.
+async function labLot(t) {
+  const { b, lab } = await openLab(t);
+  const C = await b.evaluate(`${LAB}.constants`), SIZE = C.lotSize;
+  const RECIPE = { platen: 90, carrier: 87, slurry: 200, conditioner: true };                   // the conditioner sweeps all the time: that is what wears the pad out
+  const view = () => b.evaluate(`(() => { const d = ${LAB}, s = d.sim.state, action = document.getElementById('guide-action');
+    return { lot: d.sim.lotSummary(), past: s.lots.map(p => ({ id: p.id, count: p.count, passed: p.passed })), left: s.padLeft, worn: !!s.alarms.worn, alarms: document.getElementById('alarms').innerText,
+      chip: document.getElementById('lot-chip').innerText, guide: document.getElementById('guide-text').innerText, action: action.hidden ? '' : action.innerText, drawer: d.drawer }; })()`);
+  const brief = v => JSON.stringify({ chip: v.chip, guide: v.guide, action: v.action, left: v.left, worn: v.worn, alarms: v.alarms, lot: { id: v.lot.id, count: v.lot.count, passed: v.lot.passed, done: v.lot.done, time: v.lot.time, padChanges: v.lot.padChanges }, past: v.past, drawer: v.drawer });
+  const lift = async () => { await b.evaluate(`${LAB}.sim.setControl('head', 0)`); await b.until(`${LAB}.sim.state.gap > 0.1`, 30000); };
+  /** One wafer: polish to just above the target, lift, clean to the end, measure. `measured` is how many wafers the record then holds. */
+  const runWafer = async measured => {
+    await lab.startPolishing(RECIPE); await lab.polishTo(566); await lift();
+    await b.evaluate(`(() => { const d = ${LAB}; d.onWafer('cleaner'); d.setSpeed(64); })()`);
+    await b.until(`${LAB}.sim.state.cleaner.phase === 'done'`, 120000); await b.evaluate(`${LAB}.setSpeed(4)`);
+    await b.evaluate(`${LAB}.onWafer('stage')`);
+    await b.until(`${LAB}.drawer.open && ${LAB}.attempts.length === ${measured} && !!${LAB}.sim.state.wafer.measured`, 30000); await sleep(1200);
+  };
+
+  let v = await view();
+  t.expect(new RegExp(`로트 1 · 0/${SIZE}장`).test(v.chip) && v.lot.count === 0 && v.left > 0.4 && v.left < 0.6 && !v.worn, 'the work order starts on lot 1 with no wafer in it, on a pad that is about half used', brief(v));
+
+  // Wafer 1 with the scrub brush pressed in all the way: it cleans, and it scratches (about three scratches; none once in twenty).
+  await b.evaluate(`${LAB}.sim.setControl('brush', ${C.brushMax})`);
+  await runWafer(1);
+  const first = await b.evaluate(`(() => { const m = ${LAB}.attempts[0].m; return { brush: m.brushScratches, scratches: m.scratches, defects: m.ok.defects, clean: m.ok.clean, notes: document.querySelector('#report .notes').innerText }; })()`);
+  t.expect(first.clean === true && (first.brush > 0) === /세정기의 솔을 너무 깊이/.test(first.notes) && first.scratches >= first.brush && (first.brush === 0 || first.defects === false),
+    'a brush pressed in all the way cleans the wafer, and the report names the scratches it left whenever it left any', JSON.stringify(first));
+  t.note(`the brush at ${C.brushMax} mm left ${first.brush} scratch(es) on wafer 1`);
+  await b.evaluate(`${LAB}.sim.setControl('brush', ${C.brushRef})`);
+
+  for (let n = 2; n <= SIZE - 1; n++) { await b.evaluate(`${LAB}.newWafer()`); await sleep(500); await runWafer(n); }
+  v = await view();
+  t.expect(v.lot.count === SIZE - 1 && !v.lot.done && new RegExp(`로트 1 · ${SIZE - 1}/${SIZE}장`).test(v.chip) && new RegExp(`로트 ${SIZE - 1}/${SIZE}장`).test(v.guide) && v.action === '새 웨이퍼',
+    'one wafer before the end, the work order and the guide count the wafers of the lot', brief(v));
+  t.expect(v.left === 0 && v.worn && /패드 수명이 다했습니다/.test(v.alarms), 'with the conditioner sweeping all the time the pad is worn out inside the lot, and the alarm says to change it', brief(v));
+  await lab.shot('1-pad-worn-out');
+
+  await b.evaluate(`(() => { const d = ${LAB}; d.setSpeed(16); for (const name of ['platen', 'carrier', 'slurry']) d.sim.setControl(name, 0); d.sim.setControl('conditioner', false); })()`);
+  await reached(b, `${LAB}.sim.state.platenRpm < 1`, 60000);
+  let landed = await lab.clickOn('#pad-change'); await sleep(700);
+  v = await view();
+  t.expect(landed && v.left === 1 && !v.worn && !/패드 수명이 다했습니다/.test(v.alarms) && v.lot.padChanges === 1 && v.lot.time.padChange === C.padChangeTime, 'a new pad ends the alarm, and the time the change takes goes on the lot', brief(v));
+
+  await b.evaluate(`${LAB}.newWafer()`); await sleep(500); await runWafer(SIZE);
+  v = await view();
+  t.expect(v.lot.done && v.lot.count === SIZE && v.drawer.tab === 'report' && new RegExp(`1번 로트의 ${SIZE}장을 모두 돌렸습니다`).test(v.guide) && v.action === '로트 결과', 'when the last wafer of the lot is measured, the guide says so and offers the result of the lot', brief(v));
+  landed = await lab.clickOn('#guide-action', 1200);
+  const result = await b.evaluate(`(() => { const d = ${LAB}, lot = d.sim.lotSummary(), host = document.querySelector('#log .lot'), action = document.getElementById('guide-action'), count = s => host ? host.querySelectorAll(s).length : 0;
+    const whole = Math.round(lot.time.total), one = v => v.toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    return { tab: d.drawer.tab, text: host ? host.innerText.replace(/\\n+/g, ' | ') : '', verdict: host?.querySelector('.verdict')?.innerText.replace(/\\s+/g, ' ').trim() || '', button: host?.querySelector('footer button')?.innerText || '',
+      marks: count('.lot-chart .ok, .lot-chart .ng, .lot-chart .none'), seen: count('.lot-chart .seen'), ranges: count('.lot-chart .range'), guide: document.getElementById('guide-text').innerText, action: action.hidden ? '' : action.innerText,
+      clock: Math.floor(whole / 60) + '분 ' + (whole % 60) + '초', perHour: one(lot.goodPerHour), rate: lot.goodPerHour, passed: lot.passed, count: lot.count, time: lot.time }; })()`);
+  t.expect(landed && result.tab === 'log' && result.verdict === `합격 ${result.passed}/${result.count}` && result.button === '새 로트' && result.marks === SIZE && result.seen === SIZE && result.ranges === SIZE - 1,
+    'the record opens on the finished lot: a mark for every wafer, what each showed of the tool against what the model expected, the verdict, and the way to the next lot', JSON.stringify({ ...result, text: undefined }));
+  t.expect(result.text.includes(`걸린 시간 | ${result.clock}`) && /패드 교체 1회 \| 5분 0초/.test(result.text) && result.text.includes(`양품 처리량 | 시간당 ${result.perHour}장`)
+    && Math.abs(result.time.total - (result.time.wafers + result.time.padChange + result.time.exSitu)) < 1e-6 && Math.abs(result.rate - result.passed / result.time.total * 3600) < 1e-6,
+    'the time of the lot is its wafers, the pad change and the conditioning between wafers, in minutes and whole seconds, and good wafers per hour follow from it', result.text);
+  t.expect(new RegExp(`^1번 로트가 끝났습니다\\. 합격 ${result.passed}/${result.count}장\\.$`).test(result.guide.trim()) && result.action === '새 로트', 'with the result open, the guide names the lot and offers the next one', JSON.stringify({ guide: result.guide, action: result.action }));
+  t.note(`lot 1: ${result.passed} of ${result.count} passed, ${result.clock}, ${result.perHour} good wafers an hour`);
+  await lab.shot('2-lot-result');
+
+  landed = await lab.clickOn('#guide-action', 900);
+  v = await view();
+  t.expect(landed && v.lot.id === 2 && v.lot.count === 0 && new RegExp(`로트 2 · 0/${SIZE}장`).test(v.chip) && v.past.length === 1 && v.past[0].id === 1 && v.past[0].count === SIZE && !v.drawer.open, 'the next wafer opens lot 2, and lot 1 is kept', brief(v));
+
+  // A wafer that is polished and passed on without a measurement counts in its lot, and not as a good one.
+  await lab.startPolishing(RECIPE); await lab.polishTo(900); await lift();
+  await b.evaluate(`${LAB}.newWafer()`); await sleep(600);
+  landed = await lab.clickOn('#log-open', 1200);
+  const next = await b.evaluate(`(() => { const d = ${LAB}, lot = d.sim.lotSummary(), log = document.getElementById('log'), text = s => (log.querySelector(s)?.innerText || '').replace(/\\n+/g, ' | ');
+    return { tab: d.drawer.tab, count: lot.count, passed: lot.passed, measured: lot.wafers.map(e => e.measured), none: log.querySelectorAll('.lot .lot-chart .none').length, lot: text('.lot'), past: text('.past-lots') }; })()`);
+  t.expect(landed && next.tab === 'log' && next.count === 1 && next.passed === 0 && next.measured[0] === false && next.none === 1 && /합격 \| 0 \/ 1장/.test(next.lot) && new RegExp(`로트 1 · 합격 ${result.passed}/${SIZE}장`).test(next.past),
+    'a wafer polished and passed on unmeasured is in lot 2 as a failed one, with its own mark, and lot 1 stands below as one line', JSON.stringify(next));
+  await lab.shot('3-next-lot');
 }
 
 // ----- 8-process lab -----
@@ -1183,6 +1261,7 @@ const CHECKS = {
   'lab-hover': { run: labHover, minutes: 8, about: 'lab-3d/lab-3d.html, a card for every part' },
   'lab-operate': { run: labOperate, minutes: 10, about: 'lab-3d/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'lab-3d/lab-3d.html, instrument strip, report and record over two wafers' },
+  'lab-lot': { run: labLot, minutes: 14, about: 'lab-3d/lab-3d.html, a lot of five wafers: the pad worn out and changed, the result of the lot, the lot after it' },
   'process-route': { run: processRoute, minutes: 4, about: 'process-lab/process-lab.html, the route of eight processes: start anywhere, run to the sheet' },
   'process-flow': { run: processFlow, minutes: 6, about: 'process-lab/process-lab.html, with the equipment on: open at a click, the same process again, pass by the standard recipe, go back' },
   'process-crystal': { run: processCrystal, minutes: 10, about: 'process-lab/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },

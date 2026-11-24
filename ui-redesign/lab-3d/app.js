@@ -313,7 +313,7 @@
     if (w.where === 'stage') {
       const m = w.measured, lot = sim.lotSummary();
       const text = m?.pass ? '기준을 모두 맞췄습니다.' : m && m.ok.clean === false && m.ok.thickness ? '세정이 모자랍니다. 세정기에 다시 놓을 수 있습니다.' : '기준에 못 미쳤습니다. 두꺼우면 헤드로 옮겨 더 연마할 수 있습니다.';
-      if (lot?.done) return drawer.open && drawer.tab === 'log' ? [7, `로트 ${lot.id}이 끝났습니다. 합격 ${lot.passed}/${lot.count}장.`, '새 로트', () => newWafer()] : [7, `${text} 로트 ${lot.id}의 ${lot.size}장을 모두 돌렸습니다.`, '로트 결과', () => showDrawer('log')];
+      if (lot?.done) return drawer.open && drawer.tab === 'log' ? [7, `${lot.id}번 로트가 끝났습니다. 합격 ${lot.passed}/${lot.count}장.`, '새 로트', () => newWafer()] : [7, `${text} ${lot.id}번 로트의 ${lot.size}장을 모두 돌렸습니다.`, '로트 결과', () => showDrawer('log')];   // "N번 로트가": the particle does not depend on the number
       return [7, lot && lot.count ? `${text} 로트 ${lot.count}/${lot.size}장.` : text, '새 웨이퍼', () => newWafer()];
     }
     if (w.where === 'cleaner') {
@@ -562,7 +562,7 @@
     draw();
   }
   // ----- the lot: wafer after wafer on one tool -----
-  const clock = v => v >= 60 ? `${fmt(Math.floor(v / 60))}분 ${fmt(v % 60)}초` : `${fmt(v)}초`;
+  const clock = v => { const t = Math.round(v); return t >= 60 ? `${fmt(Math.floor(t / 60))}분 ${fmt(t % 60)}초` : `${fmt(t)}초`; };   // whole seconds first: 659.7 s is 11분 0초, not 10분 60초
   /** Frame of a small chart with one column per wafer of the lot. Returns the root, the x of a column and a y scale. */
   function lotFrame(lot, lo, hi, ticks, label) {
     const W = 320, H = 104, m = { l: 34, r: 8, t: 8, b: 18 }, x = i => m.l + (i + 0.5) / lot.size * (W - m.l - m.r), y = v => m.t + (H - m.t - m.b) * (1 - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo));
