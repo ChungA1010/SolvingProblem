@@ -128,8 +128,8 @@ test('the measurement has 49 points, follows the work order and repeats for the 
   assert.deepEqual(M.rings.map(r => r[1]).reduce((x, y) => x + y, 0), 49);
   assert.equal(a.result.mean, b.result.mean); assert.equal(a.result.wiwnu, b.result.wiwnu);
   assert.notEqual(a.result.mean, other.result.mean);
-  assert.equal(a.result.ok.thickness, Math.abs(a.result.mean - C.target) <= C.targetTol);
-  assert.equal(a.result.ok.uniformity, a.result.wiwnu <= C.wiwnuMax);
+  assert.equal(a.result.ok.thickness, Math.abs(Math.round(a.result.mean) - C.target) <= C.targetTol);            // on the numbers as the report prints them
+  assert.equal(a.result.ok.uniformity, Number(a.result.wiwnu.toFixed(2)) <= C.wiwnuMax);
   assert.equal(a.result.pass, a.result.ok.thickness && a.result.ok.uniformity && a.result.ok.defects);
   assert.ok(Math.abs(a.result.removed - (a.result.incoming - a.result.mean)) < 1e-9);
   const thick = polish({ seed: 3, stop: 700 });
@@ -360,4 +360,136 @@ test('conditioning all through every polish uses a half-used pad up within a lot
   for (let i = 0; i < C.lotSize; i++) { runWafer(always); if (always.state.padLeft === 0 && !worn) worn = i + 1; }
   assert.ok(worn >= 3 && worn <= 4, `worn out on wafer ${worn}`);               // 424 s left, about 140 s a wafer
   assert.ok(always.state.alarms.worn);
+});
+
+// ----- one statement of each number: what the page shows is what the report judges -----
+
+test('at the reference condition the pressure, speed and slurry factors read x1, and 250 x the seven factors is the rate at any setting', () => {
+  const ref = start(); ref.step(60);
+  for (const key of ['pressure', 'speed', 'slurry']) assert.ok(Math.abs(ref.state.factors[key] - 1) < 2e-3, `${key} ${ref.state.factors[key]} at the reference condition`);
+  for (const [platen, carrier, pressure, zone] of [[90, 87, 3, 0], [90, 0, 3, 0], [60, 150, 3, 0.1], [30, 150, 2, -0.1], [150, 30, 5, 0], [5, 150, 3, 0], [0, 87, 3, 0]]) {
+    const sim = start({ platen, carrier, pressure, zone }); sim.step(15);
+    const s = sim.state, f = s.factors, product = C.rateRef * f.pressure * f.speed * f.slurry * f.pad * f.temp * f.contact * f.level;
+    assert.ok(s.rate > 50 && Math.abs(product / s.rate - 1) < 1e-9, `${platen}/${carrier} rpm: rate ${s.rate}, product ${product}`);
+  }
+  const still = start({ platen: 0, carrier: 87 }); still.step(15);
+  assert.ok(Math.abs(still.state.factors.speed - 0.5) < 0.05, `a head that turns on a standing platen: the wafer moves at about half the reference speed on average, x${still.state.factors.speed}`);
+});
+
+test('the mean thickness is one number: the monitor, the record of the polish, the amount removed and the report', () => {
+  const weights = M.rings.map(([r, count], k, all) => { const inner = k ? (all[k - 1][0] + r) / 2 : 0, outer = k < all.length - 1 ? (r + all[k + 1][0]) / 2 : C.waferRadius; return (outer * outer - inner * inner) / C.waferRadius ** 2 / count; });
+  for (let seed = 1; seed <= 12; seed++) {
+    const { sim, result } = polish({ seed, stop: 552 });
+    const byArea = result.points.reduce((sum, p) => sum + p.weight * p.value, 0) / result.points.reduce((sum, p) => sum + p.weight, 0);
+    assert.ok(Math.abs(result.mean - byArea) < 1e-9, 'the mean of the report is the mean over the area of its 49 points');
+    assert.ok(Math.abs(result.mean - sim.state.monitor.mean) < 1, `seed ${seed}: the monitor read ${sim.state.monitor.mean} last, the metrology finds ${result.mean}`);
+    assert.ok(Math.abs(sim.state.history.at(-1).mean - sim.state.monitor.mean) < 1e-9, 'the record ends on the last reading of the monitor');
+    assert.ok(Math.abs(result.removed - (result.incoming - result.mean)) < 1e-9 && Math.abs(result.meanRate * result.polishTime / 60 - result.removed) < 1e-9, 'removed = incoming - mean = mean rate x time');
+    assert.equal(result.ok.thickness, true, `seed ${seed}: lifted inside the band by the monitor, measured ${result.mean}`);
+  }
+  const point = result => result.points.find(p => p.r > 0.14).weight / result.points.find(p => p.r === 0).weight;
+  const fresh = M.create({ seed: 3 }); fresh.newWafer(); fresh.moveWafer('stage');
+  const unpolished = fresh.measure();
+  assert.ok(Math.abs(point(unpolished) - weights[3] / weights[0]) < 1e-9 && point(unpolished) > 0.45 && point(unpolished) < 0.6, 'a point of the outer ring stands for about half the area of an inner one: its band ends at the wafer edge');
+  assert.ok(Math.abs(unpolished.points.reduce((sum, p) => sum + p.weight, 0) - 1) < 1e-9, 'the 49 points stand for the whole wafer');
+  for (let seed = 1; seed <= 12; seed++) {
+    const sim = M.create({ seed }); sim.newWafer(); sim.moveWafer('stage');
+    const m = sim.measure();
+    assert.ok(m.removed >= 0 && m.removed < 1 && m.meanRate === 0, `seed ${seed}: an unpolished wafer has lost ${m.removed} nm`);
+  }
+});
+
+test('the verdict is on the numbers as the report prints them: 575 nm passes a work order of 550 +- 25, 3.00% passes a limit of 3%', () => {
+  const flat = (value, seed) => { const sim = M.create({ seed }); sim.newWafer(); sim.state.wafer.film.fill(value); sim.moveWafer('stage'); return sim.measure(); };
+  const top = C.target + C.targetTol, bottom = C.target - C.targetTol, seen = { 'over the top, reads the top': 0, 'over the top': 0, 'under the bottom, reads the bottom': 0, 'under the bottom': 0 };
+  for (let seed = 1; seed <= 8; seed++) for (const value of [top + 0.25, top + 0.75, bottom - 0.25, bottom - 0.75]) {
+    const m = flat(value, seed), reads = Math.round(m.mean);
+    assert.equal(m.ok.thickness, reads >= bottom && reads <= top, `${m.mean} nm reads ${reads} nm`);
+    if (m.mean > top) seen[reads === top ? 'over the top, reads the top' : 'over the top']++;
+    if (m.mean < bottom) seen[reads === bottom ? 'under the bottom, reads the bottom' : 'under the bottom']++;
+  }
+  for (const [kind, count] of Object.entries(seen)) assert.ok(count >= 4, `${count} measurements ${kind}`);
+  // a dome of just the height at which the non-uniformity is a hair over the limit
+  const dome = height => { const sim = M.create({ seed: 5 }), w = sim.newWafer(); w.film.forEach((_, i) => { w.film[i] = C.target + height * (1 - 2 * (sim.radius[i] / C.waferRadius) ** 2); }); sim.moveWafer('stage'); return sim.measure(); };
+  let lo = 0, hi = 80;
+  for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (dome(mid).wiwnu < C.wiwnuMax + 0.002) lo = mid; else hi = mid; }
+  const edge = dome(hi);
+  assert.ok(edge.wiwnu > C.wiwnuMax && edge.wiwnu < C.wiwnuMax + 0.005, `non-uniformity ${edge.wiwnu}`);
+  assert.equal(edge.ok.uniformity, true, 'it reads 3.00%');
+  assert.equal(dome(hi * 1.02).ok.uniformity, false);
+});
+
+test('no alarm when nothing is wrong: a lift, a touch-down and a new wafer in the middle of a polish raise none', () => {
+  const sim = start({ seed: 5 }), seen = new Set(), watch = seconds => { for (let t = 0; t < seconds; t += 0.05) { sim.step(0.05); for (const key of Object.keys(sim.state.alarms)) seen.add(key); } };
+  watch(60); sim.setControl('head', 0); watch(20);
+  assert.deepEqual([...seen], [], 'through a reference polish and its lift');
+  sim.setControl('head', 1 + C.pressureRef / C.pressureMax); watch(8);
+  sim.newWafer(); sim.setControl('head', 0); watch(10);
+  assert.deepEqual([...seen], [], 'the head is let off: it is not pressed on an empty pad');
+  sim.setControl('head', 1 + C.pressureRef / C.pressureMax); watch(6);
+  assert.deepEqual([...seen], ['empty'], 'pressed with the wafer still on the load position');
+});
+
+test('a head pressed on a platen that stands raises an alarm, and the film monitor keeps its last reading', () => {
+  const sim = start({ platen: 0, carrier: 87 });
+  sim.step(6);
+  const read = sim.state.monitor.t, shown = sim.state.monitor.mean, before = sim.meanThickness();
+  sim.step(30);
+  assert.ok(sim.state.alarms.stopped, JSON.stringify(Object.keys(sim.state.alarms)));
+  assert.ok(sim.state.rate > 50 && before - sim.meanThickness() > 30, 'the head alone polishes the wafer');
+  assert.equal(sim.state.monitor.t, read); assert.equal(sim.state.monitor.mean, shown);
+  assert.ok(sim.state.t - sim.state.monitor.t > 30, 'the age of the reading is there to be shown');
+  assert.equal(sim.state.history.at(-1).mean, shown, 'the record holds what the monitor read');
+  sim.setControl('platen', C.platenRef); sim.step(6);
+  assert.equal(sim.state.alarms.stopped, undefined); assert.ok(sim.state.monitor.t > read && Math.abs(sim.state.monitor.mean - sim.meanThickness()) < 4);
+});
+
+test('the record of a polish keeps the polish: waiting in the raised head adds nothing, and a long polish is thinned, not cut', () => {
+  const sim = start({ seed: 2 }); sim.step(0.05);
+  const first = sim.state.history[0];
+  assert.ok(first && Math.abs(first.mean - sim.state.wafer.incoming.mean) < 1e-9, 'it starts as the wafer comes onto the head');
+  sim.step(60); sim.setControl('head', 0); sim.step(6);
+  const length = sim.state.history.length, last = sim.state.history.at(-1);
+  assert.equal(last.rate, 0, 'its last sample is taken as the wafer leaves the pad');
+  for (let i = 0; i < 21; i++) sim.step(60);                                  // more than twenty minutes in the raised head
+  assert.equal(sim.state.history.length, length); assert.equal(sim.state.history[0], first); assert.equal(sim.state.history.at(-1), last);
+  const slow = start({ seed: 2, platen: 30, carrier: 28, pressure: 1 });
+  for (let i = 0; i < 30; i++) slow.step(60);                                  // half an hour on the pad
+  const h = slow.state.history;
+  assert.ok(h.length > 600 && h.length <= 1201, `${h.length} samples`);
+  assert.ok(Math.abs(h[0].mean - slow.state.wafer.incoming.mean) < 1e-9 && h.at(-1).t - h[0].t > 1790, 'from the first second to the last');
+  for (let i = 1; i < h.length; i++) assert.ok(h[i].t > h[i - 1].t);
+});
+
+test('a new wafer stops the cleaner, and the report knows how long the wafer was cleaned since its last polish', () => {
+  const sim = M.create({ seed: 4, cleaning: true }); sim.newWafer();
+  for (const [name, value] of [['platen', C.platenRef], ['carrier', C.carrierRef], ['slurry', C.slurryRef]]) sim.setControl(name, value);
+  sim.step(12); sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax); sim.step(60); sim.setControl('head', 0); sim.step(6);
+  sim.moveWafer('cleaner'); for (let i = 0; i < 2; i++) sim.step(30);
+  assert.equal(sim.state.cleaner.phase, 'done');
+  sim.moveWafer('stage');
+  const cleaned = sim.measure();
+  assert.ok(Math.abs(cleaned.cleanSince - cleaned.cleanCycle) < 1e-6 && cleaned.cleanCycle === C.cleanScrub + C.cleanRinse + C.cleanDry && cleaned.ok.clean);
+  sim.moveWafer('head'); sim.setControl('head', 1 + C.pressureRef / C.pressureMax); sim.step(20); sim.setControl('head', 0); sim.step(6);
+  sim.moveWafer('stage');
+  const again = sim.measure();
+  assert.equal(again.cleanSince, 0, 'polished again: not cleaned since'); assert.ok(again.cleanTime > 40 && again.ok.clean === false);
+  sim.moveWafer('cleaner'); sim.step(3);
+  assert.equal(sim.state.cleaner.phase, 'scrub');
+  sim.newWafer();
+  assert.equal(sim.state.cleaner.phase, 'idle'); assert.equal(sim.state.cleaner.left, 0);
+  sim.step(30); assert.equal(sim.state.cleaner.phase, 'idle');
+});
+
+test('a pad change names what is in its way: the wafer on the head, the turning platen, the head that is not up', () => {
+  const sim = M.create({ seed: 1 }); sim.newWafer();
+  assert.deepEqual(sim.padBlocks(), []); assert.equal(sim.replacePad(), true);
+  sim.setControl('head', 0.6); sim.step(8);                                   // lowered, not on the pad
+  assert.deepEqual(sim.padBlocks(), ['head']); assert.equal(sim.replacePad(), false);
+  sim.setControl('head', 0); sim.step(8); sim.setControl('platen', 60); sim.step(4);
+  assert.deepEqual(sim.padBlocks(), ['platen']); assert.equal(sim.replacePad(), false);
+  sim.moveWafer('head');
+  assert.deepEqual(sim.padBlocks(), ['wafer', 'platen']);
+  sim.setControl('platen', 0); sim.step(20); sim.moveWafer('pedestal');
+  assert.deepEqual(sim.padBlocks(), []); assert.equal(sim.replacePad(), true);
 });

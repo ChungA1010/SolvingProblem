@@ -64,7 +64,7 @@
   }
   /** Whether a wire is good: strong enough, pad whole, ball on the pad. `reason` names the first fault. */
   function judge(wire) {
-    const pull = pullTest(wire), reason = wire.crater > K.crater.limit ? 'crater' : wire.diameter > K.pad ? 'wide' : pull.force < K.spec.pull ? pull.mode : null;
+    const pull = pullTest(wire), reason = wire.crater > K.crater.limit ? 'crater' : wire.diameter > K.pad ? 'wide' : Number(pull.force.toFixed(1)) < K.spec.pull ? pull.mode : null;   // the force as it is printed, to a tenth of a gf
     return { ok: !reason, reason, pull };
   }
 
@@ -79,7 +79,7 @@
       progress: 0,                             // 0..1 through the wire being bonded or pulled
       wire: null,                              // the last test wire: what bonded() gives, with `pulled` once it has been tested
       onChip: 0,                               // test wires on the dummy chip under the tool (it is changed after the fourth)
-      tests: [],                               // pull tests so far: { n, force, mode, ok }
+      tests: [],                               // pull tests so far: { n, force, mode, ok, reason, at: the settings the wire was made with }
       at: 0, wireAt: 0, passed: 0, faults: {}, // the run: chip being wired, wire on it, chips finished good, chips lost by fault
       chipOk: true, used: null, result: null,
     };
@@ -109,7 +109,7 @@
         if (state.progress >= 1) { state.wire = state.pending; state.pending = null; state.wire.pulled = null; state.onChip += 1; state.phase = 'setup'; }
       } else if (state.phase === 'pulling') {
         state.progress = Math.min(1, state.progress + dt / K.times.pull);
-        if (state.progress >= 1) { const verdict = judge(state.wire); state.wire.pulled = verdict.pull; state.tests.push({ n: state.tests.length + 1, force: verdict.pull.force, mode: verdict.pull.mode, ok: verdict.ok, reason: verdict.reason }); state.phase = 'setup'; }
+        if (state.progress >= 1) { const verdict = judge(state.wire); state.wire.pulled = verdict.pull; state.tests.push({ n: state.tests.length + 1, force: verdict.pull.force, mode: verdict.pull.mode, ok: verdict.ok, reason: verdict.reason, at: { power: state.wire.power, force: state.wire.force, time: state.wire.time } }); state.phase = 'setup'; }
       } else if (state.phase === 'running') {
         let left = dt;
         while (left > 0 && state.phase === 'running') {

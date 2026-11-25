@@ -174,7 +174,7 @@ test('the operator\'s probing decides which chips count as good', () => {
   assert.equal(run.wafer.tested.good, GOOD); assert.equal(run.wafer.tested.dies, dies); finish(run); assert.equal(run.wafer.packaged.chips, GOOD);
   const poor = F.createRun('eds'), lost = dies.map((die, i) => i < 10 && die.good ? { good: false, bin: 'contact' } : die), missed = lost.filter((die, i) => !die.good && dies[i].good).length;
   const flagged = F.complete(poor, { dies: lost, missed });
-  assert.equal(flagged.ok, false); assert.match(flagged.text, /탐침이 제대로 닿지 않아/); assert.equal(poor.wafer.tested.good, GOOD - missed);
+  assert.equal(flagged.ok, false); assert.match(flagged.text, /바늘이 제대로 닿지 않아/); assert.equal(poor.wafer.tested.good, GOOD - missed);
   const dead = F.createRun('deposition'); F.complete(dead, { depth: 700, surface: 5e19, masked: false }); F.complete(dead);
   const all = F.complete(dead, { dies: dies.map(() => ({ good: false, bin: 'leak' })), missed: 0 });
   assert.equal(all.ok, false); assert.match(all.text, /모두 불량 · 이온이 산화막을 뚫고/);
@@ -203,6 +203,62 @@ test('the operator\'s crystal decides the wafer: its resistivity, and whether th
   assert.ok(truth.some(die => die.good) && leaky.every(die => !die.good && die.leak > ED.constants.limits.leakage), 'the prober finds a dislocated wafer leaking on every chip');
   const undoped = ED.truths({ wafer: { ...F.arriving(6), substrate: { ...F.STANDARD.substrate, resistivity: 13280 } }, dies: F.dies(), killed: [], seed: 5 });
   assert.ok(undoped.every(die => !die.good && die.voltage < ED.constants.limits.voltage[0]), 'on an undoped wafer the diode\'s forward voltage is too low');
+});
+
+test('the wafer test by the standard recipe says of a wafer\'s resistivity what the prober says: far from 10 ohm cm every chip fails on forward voltage', () => {
+  const ED = require('../eds-model.js'), probe = { touching: true, resistance: ED.probeResistance(50) };
+  // not looked at: 0.11 to 0.12 and 250 to 295 ohm cm, the two ends of the range, where the prober itself passes some chips and fails others
+  for (const resistivity of [0.05, 0.09, 0.105, 0.13, 0.2, 1, 2.9, 9.8, 10, 30, 100, 200, 240, 300, 400, 1000, 13280]) {
+    const wafer = { ...F.arriving(6), substrate: { ...F.STANDARD.substrate, resistivity } };
+    const probed = ED.truths({ wafer, dies: F.dies(), killed: [], seed: 5 }).map(truth => ED.evaluate(truth, probe)), good = probed.filter(die => die.good).length;
+    assert.ok(good === 0 || good === probed.length, `at ${resistivity} ohm cm the prober is of one mind (${good} good)`);
+    const standard = F.apply('eds', wafer);
+    assert.equal(standard.wafer.tested.good > 0, good > 0, `${resistivity} ohm cm: the standard test passes ${standard.wafer.tested.good}, the prober ${good}`);
+    assert.equal(standard.record.ok, good > 0);
+    if (!good) { assert.ok(probed.every(die => die.bin === 'voltage')); assert.match(standard.wafer.tested.reason, /비저항/); }
+  }
+  // the wafer of an operator who put no boron in: the run sheet at EDS, and what packaging then gets
+  const run = F.createRun('wafer'); F.complete(run, { resistivity: 13280, dislocated: false, diameter: 305, body: 120 }); finish(run);
+  assert.equal(run.wafer.tested.good, 0); assert.match(run.wafer.tested.reason, /비저항/); assert.equal(run.wafer.packaged.chips, 0);
+});
+
+test('with the prober\'s model at hand, the wafer test by the standard recipe finds what the prober finds, chip for chip, whatever the wafer', () => {
+  const ED = require('../eds-model.js');
+  /** A run brought to the wafer test: `start` done by hand with `result`, everything else by the standard recipe. */
+  const upTo = (start, result, lot) => { const run = F.createRun(start, lot); F.complete(run, result); while (run.at < 6) F.complete(run); return run; };
+  const cases = {
+    'all by the standard recipe': upTo('wafer', undefined, 3),
+    'no boron in the crystal': upTo('wafer', { resistivity: 13280, dislocated: false, diameter: 305, body: 120 }, 7),
+    'a junction far too shallow': upTo('deposition', { depth: 60, surface: 3e19, peak: 3e19, masked: true }, 11),
+    'silicon etched away deeper than the junction': upTo('etch', { oxide: 500, width: 1030, depth: 500, open: true, opened: 1, left: 0, siliconLoss: 320 }, 16491),
+    'the surface just at the doping the run sheet asks for': upTo('deposition', { depth: 300, surface: F.SPEC.junction.surface, peak: 2e19, masked: true }, 5),
+    'the surface a little under it': upTo('deposition', { depth: 300, surface: 0.93e19, peak: 2e19, masked: true }, 5),
+    'a wafer far from its resistivity, where the prober passes some chips': upTo('wafer', { resistivity: 270, dislocated: false, diameter: 305, body: 120 }, 5),
+    'windows shut at the centre': upTo('etch', { oxide: 500, width: 1030, depth: 500, open: false, opened: 0.5, left: 30, siliconLoss: 4, profile: { left: Array.from({ length: 31 }, (_, j) => Math.max(0, 30 - 2 * j)), siliconLoss: Array.from({ length: 31 }, () => 4), width: Array.from({ length: 31 }, () => 1030) } }, 9),
+  };
+  F.setTester(ED.standardTest);
+  try {
+    for (const [name, run] of Object.entries(cases)) {
+      const wafer = run.wafer, probed = ED.truths({ wafer, dies: F.dies(), killed: F.defects(wafer.lot), seed: wafer.lot }), standard = F.apply('eds', wafer), found = standard.wafer.tested;
+      assert.deepEqual(found.dies.map(die => die.good), probed.map(truth => truth.good), `${name}: the standard test and the prober, chip by chip`);
+      assert.equal(found.good, probed.filter(truth => truth.good).length); assert.equal(standard.record.ok, found.good > 0);
+      if (!found.good) { assert.ok(found.reason && found.reason.length > 4, `${name}: every chip failed, and the run sheet says of what`); assert.match(standard.record.text, /모두 불량/); }
+      else assert.equal(found.reason, null);
+    }
+    assert.match(F.apply('eds', cases['no boron in the crystal'].wafer).wafer.tested.reason, /비저항/);
+    assert.match(F.apply('eds', cases['a junction far too shallow'].wafer).wafer.tested.reason, /누설/);
+    assert.equal(F.apply('eds', cases['the surface just at the doping the run sheet asks for'].wafer).wafer.tested.good, F.defects(5).filter(hit => !hit).length, 'at the run sheet\'s limit no chip is lost to it');
+  } finally { F.setTester(null); }
+  assert.equal(F.apply('eds', cases['a junction far too shallow'].wafer).wafer.tested.good > 0, true, 'without the prober\'s model the test goes by the faults it knows by name');
+});
+
+test('a process passed by the standard recipe is judged by its run sheet like one done by hand', () => {
+  const all = finish(F.createRun('wafer'));
+  assert.deepEqual(all.records.map(record => record.ok), Array(8).fill(true), 'the standard wafer passes every row, and every row says so');
+  // an oxide grown far too thin by hand: the standard etch, a fixed time, goes on into the silicon past its limit
+  const thin = F.createRun('oxidation'); F.complete(thin, { mean: 100 }); F.complete(thin);
+  const etched = F.complete(thin);
+  assert.equal(etched.step, 'etch'); assert.equal(etched.by, 'standard'); assert.equal(thin.wafer.window.siliconLoss, 25); assert.equal(etched.ok, false); assert.match(etched.text, /25 nm/); assert.match(etched.text, /20 nm 이하/);
 });
 
 test('a run can be taken back to a process it has been through, keeping what came before it', () => {
@@ -291,4 +347,28 @@ test('an etch stopped before the centre opened: the chips there fail as closed w
   const truth = ED.truths({ wafer: run.wafer, dies: F.dies(), killed: F.defects(1), seed: 5 });
   truth.forEach((t, i) => { if (tested.dies[i].bin === 'closed') assert.ok(t.closed && !t.good); });
   assert.equal(truth.filter(t => t.good).length, tested.good, 'the prober and the standard test agree on which chips are good');
+});
+
+// ----- a verdict is on the number as it is printed -----
+
+test('a value that reads as the limit is at the limit: the run sheet judges the numbers it prints', () => {
+  const S = F.SPEC;
+  // resistivity, printed with one decimal: 11.0 is inside 10 +- 1, 11.1 is not
+  const crystal = rho => F.apply('wafer', F.arriving(0), { resistivity: rho, diameter: 305, body: 150 }).record;
+  assert.equal(crystal(11.04).ok, true); assert.match(crystal(11.04).text, /비저항 11\.0 Ω·cm/);
+  assert.equal(crystal(11.06).ok, false); assert.match(crystal(11.06).text, /비저항 11\.1 Ω·cm/);
+  assert.equal(crystal(8.96).ok, true); assert.equal(crystal(8.94).ok, false);
+  // oxide, printed in whole nm
+  const oxide = mean => F.apply('oxidation', F.arriving(1), { mean }).record, top = S.oxide.target + S.oxide.tolerance, bottom = S.oxide.target - S.oxide.tolerance;
+  assert.equal(oxide(top + 0.4).ok, true); assert.match(oxide(top + 0.4).text, new RegExp(`산화막 ${top} nm`));
+  assert.equal(oxide(top + 0.6).ok, false); assert.equal(oxide(bottom - 0.4).ok, true); assert.equal(oxide(bottom - 0.6).ok, false);
+  // the window in the resist
+  const photo = opening => F.apply('photo', F.arriving(2), { thickness: 1000, opening }).record.ok, wide = S.opening.target + S.opening.tolerance, narrow = S.opening.target - S.opening.tolerance;
+  assert.equal(photo(wide + 0.4), true); assert.equal(photo(wide + 0.6), false); assert.equal(photo(narrow - 0.4), true); assert.equal(photo(narrow - 0.6), false);
+  // the junction: its depth in whole nm, the surface concentration with two digits
+  const J = S.junction, implant = (depth, surface) => F.implanted(F.arriving(4), { depth, surface, peak: surface, masked: true }).ok;
+  assert.equal(implant(J.target + J.tolerance + 0.4, 5e19), true); assert.equal(implant(J.target + J.tolerance + 0.6, 5e19), false);
+  assert.equal(implant(J.target, 9.96e18), true, 'it prints as 1.0e19'); assert.equal(implant(J.target, 9.94e18), false, 'it prints as 9.9e18');
+  assert.equal(F.sci(9.96e18), F.sci(1e19)); assert.equal(F.readSci(9.96e18), 1e19); assert.equal(F.readSci(9.94e18), 9.9e18);
+  assert.equal(F.read(524.5), 525); assert.equal(F.read(10.96, 1), 11); assert.equal(F.read(0.15, 1), Number((0.15).toFixed(1)), 'rounded by the function that prints it');
 });

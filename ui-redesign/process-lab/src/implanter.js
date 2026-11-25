@@ -149,7 +149,7 @@ export function buildImplanter(kit) {
     glowMaterial.opacity = Math.abs(holder.position.x - ANNEAL) < 0.03 ? strength * 0.7 : 0;
     paintWafer(view);
     for (const [name, dial] of Object.entries(dials)) dial.set(view.controls[name]);
-    buttons.scan.set(view.phase === 'ready' && !view.scanning, dt, false); buttons.implant.set(view.phase === 'ready' && !view.scanning, dt, false); buttons.anneal.set(view.phase === 'implanted' || view.phase === 'done', dt, false);
+    buttons.scan.set(view.phase === 'ready' && !view.scanning, dt, false); buttons.implant.set(view.beamReady ?? (view.phase === 'ready' && !view.scanning), dt, false); buttons.anneal.set(view.phase === 'implanted' || view.phase === 'done', dt, false);
     tower.set(view.alarm ? 2 : view.phase === 'implanting' || view.phase === 'annealing' ? 0 : 1, dt, clock);
   }
 

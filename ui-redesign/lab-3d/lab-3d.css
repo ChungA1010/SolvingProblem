@@ -10,7 +10,9 @@
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
 html, body { margin: 0; }
-body { background: var(--ground); color: var(--ink); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; }
+/* The page is a column as high as the window: the top bar, then the stage with whatever height is left (see main and .stage).
+   Korean is broken between words, not inside one, wherever a line wraps; a word longer than its line still breaks. */
+body { background: var(--ground); color: var(--ink); font: 14px/1.5 var(--font); -webkit-font-smoothing: antialiased; display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; word-break: keep-all; overflow-wrap: break-word; }
 button { font: inherit; color: inherit; cursor: pointer; }
 h1, h2, h3, h4, p, dl, dd, figure { margin: 0; }
 .num { font-variant-numeric: tabular-nums; }
@@ -19,24 +21,26 @@ h1, h2, h3, h4, p, dl, dd, figure { margin: 0; }
 .back { display: inline-flex; align-items: center; gap: 4px; color: var(--muted); text-decoration: none; font-weight: 600; white-space: nowrap; }
 .back:hover { color: var(--brand); }
 .title { flex: 1; min-width: 0; }
-.title h1 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
-.title p { color: var(--muted); font-size: 12.5px; }
+.title h1 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; }
+.title p { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .top-actions { display: flex; align-items: center; gap: 8px; }
-.btn { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius-control); padding: 7px 14px; font-weight: 600; }
+.btn { border: 1px solid var(--line); background: var(--panel); border-radius: var(--radius-control); padding: 7px 14px; font-weight: 600; white-space: nowrap; }
 .btn:hover { border-color: var(--brand); color: var(--brand); }
 .btn:disabled { opacity: .45; cursor: default; border-color: var(--line); color: inherit; }
 .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
 .btn.primary:hover { filter: brightness(1.06); color: #fff; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius-control); overflow: hidden; background: var(--panel); }
-.seg button { border: 0; background: none; padding: 7px 12px; font-weight: 600; color: var(--muted); }
+.seg button { border: 0; background: none; padding: 7px 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .seg button + button { border-left: 1px solid var(--line); }
 .seg button[aria-pressed="true"] { background: var(--brand-soft); color: var(--brand); }
 .icon-btn { width: 28px; height: 28px; border: 0; border-radius: 8px; background: none; color: var(--muted); font-size: 13px; display: grid; place-items: center; }
 .icon-btn:hover { background: #eef2f7; color: var(--ink); }
 
-/* One screen: the 3D view fills the window and every panel lives inside it. */
-main { padding: 14px 20px; max-width: 1720px; margin: 0 auto; }
-.stage { --inset-right: 0px; --inset-bottom: 0px; position: relative; height: calc(100vh - 100px); min-height: 560px; border-radius: var(--radius-panel); overflow: hidden; background: #dde1e7; box-shadow: var(--shadow); border: 1px solid var(--line); }
+/* One screen: the 3D view fills the window and every panel lives inside it. The stage takes the height the window has
+   left under the top bar (and whatever else a page puts above it), so nothing is cut off in a low window; only under
+   its least height, which is what the monitor and the instruments need one above the other, does the page scroll. */
+main { flex: 1 1 auto; display: flex; flex-direction: column; width: 100%; padding: 14px 20px; max-width: 1720px; margin: 0 auto; }
+.stage { --inset-right: 0px; --inset-bottom: 0px; position: relative; flex: 1 1 0; min-height: 372px; border-radius: var(--radius-panel); overflow: hidden; background: #dde1e7; box-shadow: var(--shadow); border: 1px solid var(--line); }
 .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 85% 80% at 50% 42%, transparent 62%, #1e293b1c); }
 #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
 .hud { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
@@ -52,6 +56,7 @@ main { padding: 14px 20px; max-width: 1720px; margin: 0 auto; }
 .readout .big small { font-size: 13px; font-weight: 600; color: var(--muted); margin-left: 3px; }
 .readout .to-go { font-size: 12.5px; color: var(--muted); }
 .readout .to-go b { color: var(--ink); }
+#mon-mean[data-old="true"] { color: var(--faint); }   /* the monitor has not read for a while: the platen stands or turns slowly */
 .meter { position: relative; height: 6px; border-radius: 6px; background: #e5eaf2; margin-top: 10px; overflow: hidden; }
 .meter i { position: absolute; top: 0; bottom: 0; background: #10b98155; }
 .meter u { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--brand); border-radius: 6px; mix-blend-mode: multiply; }
@@ -61,8 +66,14 @@ main { padding: 14px 20px; max-width: 1720px; margin: 0 auto; }
 .monitor .link { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-top: 9px; padding: 7px 0 0; border: 0; border-top: 1px solid var(--line); background: none; font-size: 12.5px; font-weight: 600; color: var(--muted); }
 .monitor .link b { color: var(--ink); margin: 0 auto 0 5px; } .monitor .link:hover { color: var(--brand); }
 
-.guide { position: absolute; left: calc(50% - var(--inset-right) / 2); bottom: calc(16px + var(--inset-bottom)); transform: translateX(-50%); max-width: min(620px, calc(100% - 300px - var(--inset-right))); pointer-events: auto; background: #ffffffe6; backdrop-filter: blur(10px); border: 1px solid #ffffffc0; color: var(--ink); border-radius: 999px; padding: 7px 8px 7px 9px; box-shadow: var(--shadow); display: flex; gap: 10px; align-items: center; transition: bottom .28s ease, left .28s ease; }
-.stage[data-strip="open"] .guide { left: 14px; transform: none; }                /* beside the instruments, clear of the deck */
+.guide { position: absolute; left: calc(50% - var(--inset-right) / 2); bottom: calc(16px + var(--inset-bottom)); transform: translateX(-50%); max-width: min(620px, calc(100% - 300px - var(--inset-right))); pointer-events: auto; background: #ffffffe6; backdrop-filter: blur(10px); border: 1px solid #ffffffc0; color: var(--ink); border-radius: 22px; padding: 7px 8px 7px 9px; box-shadow: var(--shadow); display: flex; gap: 10px; align-items: center; transition: bottom .28s ease, left .28s ease; }
+/* Beside the instruments the guide lies at the left, clear of the deck. --guide-room is the width the page finds free
+   there, to the left of the machine as it is framed (applyLayout): a long guide takes more lines rather than lie over it. */
+.stage[data-strip="open"] .guide { left: 14px; transform: none; max-width: min(620px, var(--guide-room, 100vw), calc(100% - 28px)); }
+/* Beside a machine that leaves the guide little room (a low or a narrow window with the instruments open) the sentence takes the whole width and the step and the button share a row under it: a long sentence stays a few lines high. */
+.stage[data-guide="narrow"] .guide { flex-wrap: wrap; row-gap: 6px; padding: 9px 9px 8px; border-radius: 18px; }
+.stage[data-guide="narrow"] .guide p { order: -1; flex: 1 1 100%; padding: 0 4px; }
+.stage[data-guide="narrow"] .guide button { margin-left: auto; }
 .guide .step { flex: none; font-size: 11px; font-weight: 700; background: var(--brand-soft); color: var(--brand); border-radius: 999px; padding: 3px 9px; white-space: nowrap; }
 .guide p { flex: 1; font-size: 13.5px; font-weight: 600; padding-right: 8px; }
 .guide button { flex: none; border: 0; border-radius: 999px; padding: 5px 12px; background: var(--brand); color: #fff; font-weight: 650; font-size: 12.5px; }
@@ -98,13 +109,14 @@ main { padding: 14px 20px; max-width: 1720px; margin: 0 auto; }
 .state { font-style: normal; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
 .state > span, .verdict > span { margin-right: 4px; }
 .state.ok { color: var(--success-ink); background: var(--success-soft); } .state.ng { color: var(--danger); background: var(--danger-soft); }
+.state.none { color: var(--muted); background: var(--ground); box-shadow: inset 0 0 0 1px var(--line); }   /* worked on again and not measured since */
 .viz-tip { position: fixed; z-index: 40; pointer-events: none; max-width: 280px; background: #1e293bf5; color: #fff; border-radius: 10px; padding: 8px 10px; box-shadow: 0 8px 24px #1e293b40; font-size: 12px; line-height: 1.45; }
 .tip-title { font-size: 11px; color: #cbd5e1; margin-bottom: 3px; }
 .tip-row { display: flex; gap: 8px; align-items: baseline; } .tip-row b { font-size: 13px; font-weight: 700; } .tip-row span { color: #cbd5e1; }
 .tip-note { margin-top: 5px; color: #e2e8f0; }
 
 /* Process instruments: up from the bottom while a wafer is being polished. */
-.strip { position: absolute; left: 14px; right: calc(14px + var(--inset-right)); bottom: 14px; height: 172px; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(216px, 1fr) minmax(0, 1.05fr) minmax(0, .66fr); background: #fffffff2; backdrop-filter: blur(12px); border: 1px solid #fff; border-radius: 16px; box-shadow: 0 2px 4px #1e293b12, 0 12px 32px #1e293b26; transform: translateY(calc(100% + 20px)); opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .2s ease, right .28s ease; }
+.strip { position: absolute; left: 14px; right: calc(14px + var(--inset-right)); bottom: 14px; height: 172px; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(216px, 1fr) minmax(0, 1.05fr) minmax(0, .66fr); grid-template-rows: minmax(0, 1fr); background: #fffffff2; backdrop-filter: blur(12px); border: 1px solid #fff; border-radius: 16px; box-shadow: 0 2px 4px #1e293b12, 0 12px 32px #1e293b26; transform: translateY(calc(100% + 20px)); opacity: 0; pointer-events: none; transition: transform .28s ease, opacity .2s ease, right .28s ease; }
 .strip[data-open="true"] { transform: none; opacity: 1; pointer-events: auto; }
 .tile { min-width: 0; padding: 10px 12px 8px; display: flex; flex-direction: column; }
 .tile + .tile { border-left: 1px solid var(--line); }
@@ -183,7 +195,7 @@ td.num, th.num { text-align: right; }
 .spec .lot-chip { background: var(--brand-soft); color: var(--brand); font-weight: 700; }
 .drawer footer { display: flex; justify-content: flex-end; gap: 8px; }
 #log { gap: 8px; }
-.log-head, .log-row { display: grid; grid-template-columns: 34px minmax(0, 1.2fr) minmax(0, 1fr) 70px; gap: 4px 12px; align-items: center; }
+.log-head, .log-row { display: grid; grid-template-columns: 34px minmax(0, 1.2fr) minmax(0, 1fr) 86px; gap: 4px 12px; align-items: center; }
 .log-head { font-size: 11px; color: var(--faint); padding: 0 11px; }
 .log-row { border: 1px solid var(--line); background: #fff; border-radius: 12px; padding: 9px 10px; text-align: left; }
 .log-row:hover { border-color: var(--brand); } .log-row[aria-pressed="true"] { border-color: var(--brand); background: var(--brand-soft); }
@@ -210,9 +222,9 @@ td.num, th.num { text-align: right; }
 .callout { position: absolute; width: 0; height: 0; z-index: 2; }
 .callout::before { content: ""; position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--brand); box-shadow: 0 0 0 3px #ffffffe6, 0 2px 6px #1e293b55; }
 .callout::after { content: ""; position: absolute; left: 0; top: -1px; width: 27px; height: 2px; background: var(--brand); transform-origin: 0 50%; transform: rotate(-38deg); }
-.callout .info { position: absolute; left: 21px; bottom: 16px; width: 252px; background: #fffffff5; backdrop-filter: blur(10px); border: 1px solid #fff; border-radius: 14px; box-shadow: 0 2px 4px #1e293b12, 0 12px 32px #1e293b26; padding: 11px 13px 12px; animation: rise .12s ease-out; }
-.callout[data-side="left"] .info { left: auto; right: 21px; } .callout[data-side="left"]::after { transform: rotate(-142deg); }
-.callout[data-vert="down"] .info { bottom: auto; top: 16px; } .callout[data-vert="down"]::after { transform: rotate(38deg); }
+.callout .info { position: absolute; left: calc(21px + var(--dx, 0px)); bottom: calc(16px - var(--dy, 0px)); width: 252px; background: #fffffff5; backdrop-filter: blur(10px); border: 1px solid #fff; border-radius: 14px; box-shadow: 0 2px 4px #1e293b12, 0 12px 32px #1e293b26; padding: 11px 13px 12px; animation: rise .12s ease-out; }
+.callout[data-side="left"] .info { left: auto; right: calc(21px - var(--dx, 0px)); } .callout[data-side="left"]::after { transform: rotate(-142deg); }
+.callout[data-vert="down"] .info { bottom: auto; top: calc(16px + var(--dy, 0px)); }   /* --dx, --dy: moved along its edge by what would be outside the stage (placeCard) */ .callout[data-vert="down"]::after { transform: rotate(38deg); }
 .callout[data-vert="down"][data-side="left"]::after { transform: rotate(142deg); }
 @keyframes rise { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 .callout h3 { font-size: 14.5px; font-weight: 720; letter-spacing: -.01em; }
@@ -239,7 +251,21 @@ dialog .check input { width: 16px; height: 16px; accent-color: var(--brand); }
   .monitor { width: 214px; } #film { width: 52px; height: 52px; } .guide { max-width: calc(100% - 28px); }
 }
 @media (max-width: 780px) { .strip { grid-template-columns: minmax(0, 1fr) minmax(200px, 1fr); } .tile.profile { display: none; } .tile.rate { padding-right: 34px; } }
-@media (max-height: 760px) { .strip { height: 152px; } .plot.small { flex-basis: 38px; } }
+/* A narrow window (a phone held upright): the buttons of the top bar take a row of their own and scroll sideways there
+   rather than push the page wider than the window; the monitor keeps to its reading. */
+@media (max-width: 720px) {
+  .topbar { flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; } .title p { display: none; }
+  .top-actions { flex: 1 1 100%; min-width: 0; overflow-x: auto; scrollbar-width: none; } .top-actions > * { flex: none; }
+  main { padding: 10px 12px; }
+  .views { max-width: calc(100% - 28px); overflow-x: auto; scrollbar-width: none; border-radius: var(--radius-control); } .views .seg { display: flex; width: max-content; }
+  .monitor { top: 56px; width: 178px; padding: 9px 11px 9px; } #film { width: 40px; height: 40px; } .readout .big { font-size: 24px; } .monitor .spec { display: none; }
+  .tile.rate h3 .by { display: none; }                                         /* the heading keeps to the rate; the factors under it say the rest */
+}
+/* A window that is not high: lower instruments. The one row of the strip is as high as the strip (grid-template-rows above),
+   so its tiles give way inside it; the seven factors then stand closer together. */
+@media (max-height: 760px) { .strip { height: 152px; } .plot.small { flex-basis: 38px; } .frow .name, .frow b { line-height: 1.2; } }
+/* A low window (a small laptop with the browser's own bars): the top bar gives its second line and some of its air to the stage. */
+@media (max-height: 640px) { .topbar { padding-block: 8px; } .title p { display: none; } main { padding-block: 10px; } }
 @media (prefers-reduced-motion: reduce) {
   .alarm, .callout .info { animation: none; } .focus::before { animation: none; transform: none; opacity: 1; } .focus::after { display: none; }
   .strip, .drawer, .monitor, .guide { transition: none; }

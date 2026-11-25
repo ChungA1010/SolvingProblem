@@ -97,7 +97,7 @@ export function buildEtcher(kit) {
     paintWafer(view);
     for (const [name, dial] of Object.entries(dials)) dial.set(view.controls[name]);
     for (const [name, valve] of Object.entries(valves)) valve.set(view.controls[name], dt);
-    load.set(!view.plasma, dt, false);
+    load.set(view.loadable ?? !view.plasma, dt, false);                       // lit while the door answers: not under plasma, and not for a wafer that has been measured
     tower.set(view.alarm ? 2 : view.plasma ? 0 : 1, dt, clock);
   }
 

@@ -6,7 +6,7 @@
   const PL = window.ProcessLabPlating, F = window.ProcessLabFlow, C = PL.constants, T = C.spec, N = C.nodes, LOW = T.target - T.tolerance, HIGH = T.target + T.tolerance;
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const fmt = v => Math.round(v).toLocaleString('en-US');
-  const clock = seconds => { const whole = Math.round(seconds); return `${Math.floor(whole / 60)}분 ${String(whole % 60).padStart(2, '0')}초`; };   // whole seconds first: 59.6 s is 1분 00초, not 0분 60초
+  const clock = seconds => { const whole = Math.round(seconds); return whole < 60 ? `${whole}초` : `${Math.floor(whole / 60)}분 ${String(whole % 60).padStart(2, '0')}초`; };   // whole seconds first: 59.6 s is 1분 00초, not 59초 or 0분 60초; under a minute only the seconds
   const mA = density => `${(density * 1000).toFixed(1)} mA/cm²`;
   const pct = v => `${Math.round(v * 100)}%`;
   const roundUp = v => { const p = 10 ** Math.floor(Math.log10(v)); return [1, 2, 5, 10].map(k => k * p).find(top => top >= v); };   // the next of 1, 2, 5 times a power of ten
@@ -50,14 +50,14 @@
       head: { name: '도금 헤드', role: '웨이퍼를 뒤집어 도금액에 담그고 돌립니다. 가장자리를 누르는 접점으로 전류를 넣어, 웨이퍼가 음극이 되어 구리가 붙습니다.', how: '아래로 끌면 담그고 위로 끌면 꺼냅니다. 전류가 흐르는 동안에는 올라가지 않습니다.',
         rows: s => [['위치', s.immersed ? '도금액 안' : s.head < 0.02 ? '위' : '이동 중'], ['회전', `${fmt(s.spin)} rpm`]], pill: s => s.controls.head > 0.5 ? '담그기' : '꺼내기' },
       current: { name: '도금 전류', role: '웨이퍼로 흘리는 전류입니다. 클수록 구리가 빨리 붙습니다. 도금액이 실어 나를 수 있는 한계를 넘으면 그 자리의 도금이 탑니다.', how: '좌우로 끌거나 휠을 굴립니다. 0으로 내리면 도금이 멈춥니다.', basis: '계산: 패러데이 법칙 (두께 = M·Q / nFρA)',
-        rows: s => [['설정', `${s.controls.current.toFixed(1)} A`], ['전류 밀도 (평균)', mA(s.controls.current / C.area)], ...(s.plating ? [['가장자리', mA(s.edge)]] : []), ['평균으로 붙는 속도', `${fmt(PL.rate(Math.min(s.controls.current / C.area, s.limit)) * 60)} nm/분`]], pill: s => `${s.controls.current.toFixed(1)} A` },
-      rotation: { name: '웨이퍼 회전', role: '웨이퍼를 돌리면 새 도금액이 표면으로 밀려와, 흘릴 수 있는 전류의 한계가 올라갑니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '계산: Levich 식 (한계 ∝ √회전수). 확산 계수는 대표값',
+        rows: s => [['설정', `${s.controls.current.toFixed(1)} A`], ['전류 밀도 (평균)', mA(s.controls.current / C.area)], ...(s.plating ? [['가장자리', mA(s.edge)]] : []), ['평균으로 붙는 속도', `${fmt(PL.rate(Math.min(s.controls.current / C.area, s.limit)) * 60)} nm/min`]], pill: s => `${s.controls.current.toFixed(1)} A` },
+      rotation: { name: '웨이퍼 회전', role: '웨이퍼를 돌리면 새 도금액이 표면으로 밀려와, 흘릴 수 있는 전류의 한계가 올라갑니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '계산: Levich 식 (한계 ∝ √회전수). 확산 계수는 대푯값',
         rows: s => [['설정', `${fmt(s.controls.rotation)} rpm`], ['한계 전류 밀도', mA(PL.limit(s.controls.rotation))]], pill: s => `${fmt(s.controls.rotation)} rpm` },
       cell: { name: '도금조', role: '황산구리 도금액이 담겨 있습니다. 구리 이온(Cu²⁺)이 웨이퍼에서 전자 둘을 받아 구리가 됩니다. 전류가 한계를 넘으면 표면의 구리 이온이 바닥나 수소가 나옵니다.', basis: '표면 농도 = 도금액 농도 × (1 − 전류 ÷ 한계)',
         rows: s => [['구리 농도', `${C.bath.copper} mol/L`], ['가장자리 표면의 농도', s.plating ? `${fmt(clamp(1 - s.edge / s.limit, 0, 1) * 100)}%` : '100%']] },
       anode: { name: '구리 양극', role: '녹으면서 도금액에 구리 이온을 채워 줍니다.', rows: () => [] },
       rectifier: { name: '정류기', role: '직류를 흘립니다. 흘린 전하(전류 × 시간)가 붙는 구리의 양을 정합니다.', rows: s => [['전류', s.plating ? `${s.controls.current.toFixed(1)} A` : '0 A'], ['흘린 전하', `${(s.charge / 3600).toFixed(3)} Ah`], ['전하로 환산한 두께', `${fmt(PL.thicknessOf(s.charge))} nm`]] },
-      wafer: { name: '웨이퍼', role: '전류는 가장자리의 접점으로 들어와 얇은 구리막을 지나 가운데로 퍼집니다. 막이 얇을 때는 막의 저항 때문에 가장자리로 전류가 몰려, 가장자리가 더 두꺼워집니다.', basis: '계산: 막의 저항과 표면 반응으로 푼 반지름 방향 전류 분포. 반응 상수는 특허 US 6,074,544의 측정에 맞춘 값, 셀 저항은 대표값',
+      wafer: { name: '웨이퍼', role: '전류는 가장자리의 접점으로 들어와 얇은 구리막을 지나 가운데로 퍼집니다. 막이 얇을 때는 막의 저항 때문에 가장자리로 전류가 몰려, 가장자리가 더 두꺼워집니다.', basis: '계산: 막의 저항과 표면 반응으로 푼 반지름 방향 전류 분포. 반응 상수는 특허 US 6,074,544의 측정에 맞춘 값, 셀 저항은 대푯값',
         rows: s => [['구리 (평균)', `${fmt(s.thickness)} nm`], ['가운데 · 가장자리', `${fmt(s.profile[0])} · ${fmt(s.profile[N - 1])} nm`]] },
       hmi: { name: '장비 화면', role: '전류, 회전, 흘린 전하를 보여 줍니다.', how: '누르면 가까이에서 봅니다.', rows: () => [] },
       tower: { name: '신호등', role: '초록은 도금 중, 노랑은 대기, 빨강은 한계 전류 초과입니다.', rows: s => [['상태', s.over ? '가장자리가 한계 초과' : s.plating ? '도금 중' : '대기']] },
@@ -80,8 +80,8 @@
         const thin = r.thickness > 0 && r.thinnest < LOW, thick = r.thickest > HIGH;
         const text = !(r.thickness > 0) ? '구리가 붙지 않았습니다.'
           : `구리 평균 ${fmt(r.thickness)} nm, 가운데 ${fmt(r.centre)} · 가장자리 ${fmt(r.edge)} nm. ${r.ok ? '웨이퍼 어디서나 목표 범위 안입니다.' : [
-            thin ? `가장 얇은 곳이 목표보다 ${fmt(LOW - r.thinnest)} nm 모자랍니다. 다시 담가 더 올릴 수 있습니다.` : '',
-            thick ? `가장 두꺼운 곳이 목표보다 ${fmt(r.thickest - HIGH)} nm 두껍습니다.` : '',
+            thin ? `가장 얇은 곳이 목표 범위보다 ${fmt(LOW - r.thinnest)} nm 모자랍니다. 다시 담가 더 올릴 수 있습니다.` : '',
+            thick ? `가장 두꺼운 곳이 목표 범위보다 ${fmt(r.thickest - HIGH)} nm 두껍습니다.` : '',
             r.burnt ? `한계 전류를 넘겨 가장자리가 탔습니다 (면적의 ${pct(r.burntShare)}).` : ''].filter(Boolean).join(' ')}`;
         return [text, `다음: ${next}`, 'finish', thin || !(r.thickness > 0) ? 'head' : null];
       }
@@ -158,7 +158,7 @@
     report(sim) {
       const s = sim.state, r = s.result; if (!r) return null;
       const lo = T.target - 4 * T.tolerance, hi = T.target + 4 * T.tolerance, scale = [fmt(lo), `${fmt(LOW)}~${fmt(HIGH)}`, fmt(hi)], notes = [];
-      const thinOk = r.thickness > 0 && r.thinnest >= LOW, thickOk = r.thickness > 0 && r.thickest <= HIGH;
+      const thinOk = r.thickness > 0 && Math.round(r.thinnest) >= LOW, thickOk = r.thickness > 0 && Math.round(r.thickest) <= HIGH;   // as printed
       if (!(r.thickness > 0)) notes.push('구리가 입혀지지 않았습니다. 헤드를 내려 웨이퍼를 도금액에 담그고 전류를 흘려야 합니다.');
       else {
         if (r.ok) notes.push('웨이퍼 어디서나 목표 범위 안입니다. 다음 장비에서 산화막 위의 구리를 갈아 내고 창 안의 구리만 남깁니다.');
@@ -168,7 +168,7 @@
         notes.push(`웨이퍼는 가장자리에서 전기를 받으므로 가장자리가 가운데보다 두껍게 입혀집니다 (가운데 ${fmt(r.centre)} nm, 가장자리 ${fmt(r.edge)} nm).`);
       }
       return {
-        id: reportId(r), title: '구리 막', sub: r.thickness > 0 ? `평균 ${fmt(r.thickness)} nm · ${clock(r.seconds)}` : '도금하지 않음', pass: r.ok,
+        id: reportId(r), title: '구리막', sub: r.thickness > 0 ? `평균 ${fmt(r.thickness)} nm · ${clock(r.seconds)}` : '도금하지 않음', pass: r.ok,
         criteria: [
           { label: '가장 얇은 곳', value: `${fmt(r.thinnest)} nm`, ok: thinOk, fail: '얇음', track: { value: r.thinnest, lo, hi, band: [LOW, HIGH] }, scale },
           { label: '가장 두꺼운 곳', value: `${fmt(r.thickest)} nm`, ok: thickOk, fail: '두꺼움', track: { value: r.thickest, lo, hi, band: [LOW, HIGH] }, scale },

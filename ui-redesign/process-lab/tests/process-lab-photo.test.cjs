@@ -89,6 +89,35 @@ test('the cell coats, exposes and develops in that order, and a wafer can be str
   assert.equal(sim.setControl('strip', true), true); assert.equal(s.phase, 'bare'); assert.equal(s.result, null); assert.equal(s.reworks, 1);
 });
 
+test('the spin of a coat is the dial as COAT found it: turned afterwards, it changes neither the film nor what is put on record', () => {
+  const cell = M.create({ seed: 5 }), s = cell.state, run = seconds => { for (let t = 0; t < seconds; t += 0.25) cell.step(0.25); };
+  cell.setControl('coat', true); run(10); assert.equal(s.rpm, 4000);
+  cell.setControl('spin', 1500); run(1); assert.equal(s.rpm, 4000, 'a coat under way keeps its speed');
+  run(34); assert.equal(s.rpm, 0, 'the spin is over, the bake runs'); assert.equal(s.thickness, 1000);
+  cell.setControl('spin', 6000); run(1); assert.equal(s.thickness, 1000, 'the dial does not reach a film that has been spun');
+  run(60); assert.equal(s.phase, 'coated'); assert.equal(s.thickness, 1000);
+  cell.setControl('dose', 240); cell.setControl('focus', s.bestFocus); cell.setControl('expose', true); run(40); cell.setControl('develop', true); run(61);
+  assert.equal(s.phase, 'developed'); assert.equal(s.result.spin, 4000); assert.equal(s.result.thickness, 1000);
+  cell.setControl('strip', true); cell.setControl('coat', true); run(91);
+  assert.equal(s.thickness, M.thickness(6000), 'the next coat takes the dial as it stands now');
+});
+
+test('a resist that washes away is gone from the wafer; a window whose middle stays shut is told from one that does not open at all', () => {
+  const cell = M.create({ seed: 5 }), s = cell.state, run = seconds => { for (let t = 0; t < seconds; t += 0.25) cell.step(0.25); };
+  cell.setControl('spin', 6000); cell.setControl('dose', 400); cell.setControl('focus', 4);
+  cell.setControl('coat', true); run(91); cell.setControl('expose', true); run(40); cell.setControl('develop', true); run(61);
+  assert.ok(s.result.washed && !s.result.ok); assert.equal(s.thickness, 0); assert.equal(s.result.thickness, 0);
+  assert.equal(cell.setControl('coat', true), false, 'the wafer is reworked before it is coated again'); assert.equal(cell.setControl('strip', true), true);
+  // in focus, the image of this line is brightest beside its middle: a dose just short of clearing the middle clears the shoulders
+  const image = M.aerialImage(0), middle = image.intensity[(image.x.length - 1) / 2], brightest = Math.max(...image.intensity);
+  assert.ok(brightest > middle * 1.02, `${brightest} against ${middle} in the middle`);
+  const between = C.resist.clear / ((middle + brightest) / 2), ridge = M.develop({ thickness: 1000, dose: between, focus: 0 });
+  assert.ok(!ridge.cleared && ridge.partial && !ridge.washed && ridge.opening === 0 && ridge.peak < 1, JSON.stringify({ ...ridge, profile: undefined }));
+  const shut = M.develop({ thickness: 1000, dose: 0.9 * C.resist.clear / brightest, focus: 0 });
+  assert.ok(!shut.cleared && !shut.partial);
+  assert.equal(M.develop({ thickness: 1000, dose: 240, focus: 0 }).partial, false);
+});
+
 test('dials stay inside their ranges', () => {
   const sim = M.create();
   sim.setControl('spin', 99999); assert.equal(sim.state.controls.spin, C.spin.max);

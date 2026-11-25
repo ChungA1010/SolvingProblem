@@ -74,12 +74,21 @@
       const removed = removedAt(i) + f * (removedAt(i + 1) - removedAt(i)) + w.tilt * (r / C.waferRadius) * Math.cos(theta - w.tiltAngle);
       return stackAt(removed, plated[i] + f * (plated[i + 1] - plated[i]), incoming.depth, incoming.liner);
     }
+    /**
+     * What the instruments read. A wafer that did not turn with its head is polished more on one side (w.tilt, as at()
+     * and the scan have it), so each place along the radius is looked at round its circle: the copper there is the mean
+     * round the circle, and the place counts as covered by the share of the circle that still has copper.
+     */
     function refresh() {
       let covered = 0;
+      const wedge = Math.abs(w.tilt), ROUND = 12;                                                    // twelve places round a circle: the thickest and the thinnest are among them
       for (let i = 0; i < N; i++) {
         const s = stackAt(removedAt(i), plated[i], incoming.depth, incoming.liner);
-        stack.copper[i] = s.copper; stack.dishing[i] = s.dishing; stack.liner[i] = s.liner; stack.erosion[i] = s.erosion;
-        if (s.copper > K.cleared) covered += weights[i];
+        stack.dishing[i] = s.dishing; stack.liner[i] = s.liner; stack.erosion[i] = s.erosion;
+        if (!(wedge > 0)) { stack.copper[i] = s.copper; if (s.copper > K.cleared) covered += weights[i]; continue; }
+        let sum = 0, under = 0;
+        for (let a = 0; a < ROUND; a++) { const copper = stackAt(removedAt(i) + wedge * (i / (N - 1)) * Math.cos(2 * Math.PI * a / ROUND), plated[i], incoming.depth, incoming.liner).copper; sum += copper; if (copper > K.cleared) under++; }
+        stack.copper[i] = sum / ROUND; covered += weights[i] * under / ROUND;
       }
       stack.covered = Math.round(covered * 1e9) / 1e9; stack.mean = areaMean(stack.copper); stack.centre = stack.copper[0]; stack.edge = stack.copper[N - 1];
     }
@@ -93,16 +102,17 @@
     /** The scan on the thickness stage: copper left and dishing across the wafer, scratches, and the verdict. */
     function measure() {
       refresh();
-      let residue = 0, deepest = 0;
+      let residue = 0, deepest = 0, unfilled = 0;
+      for (let i = 0; i < N; i++) unfilled = Math.max(unfilled, incoming.depth - plated[i]);          // how far the plating fell short of filling the windows, before any polish
       for (let i = 0; i < N; i++) for (const side of [-1, 1]) {                                        // the thick side and the thin side of a wedge
         const s = stackAt(removedAt(i) + side * Math.abs(w.tilt) * (i / (N - 1)), plated[i], incoming.depth, incoming.liner);
         residue = Math.max(residue, s.copper); deepest = Math.max(deepest, s.dishing);
       }
       stack.result = {
         radius: Array.from(model.radius, r => r * 1000), copper: Array.from(stack.copper), dishing: Array.from(stack.dishing), erosion: Array.from(stack.erosion), tilt: w.tilt, tiltAngle: w.tiltAngle,
-        residue, cleared: residue <= K.cleared, dishingMean: areaMean(stack.dishing), dishingMax: deepest,
-        scratches: w.scratches.map(s => ({ r: s.r * 1000, theta: s.theta, length: s.length })), seconds: w.polishTime, slurry: w.slurryUsed, hottest: w.maxTemp,
-        ok: residue <= K.cleared && deepest <= K.spec.dishing && w.scratches.length === 0,
+        residue, cleared: residue <= K.cleared, dishingMean: areaMean(stack.dishing), dishingMax: deepest, unfilled: Math.max(0, unfilled),
+        scratches: w.scratches.map(s => ({ r: s.r * 1000, theta: s.theta, length: s.length, by: s.by })), seconds: w.polishTime, slurry: w.slurryUsed, hottest: w.maxTemp,
+        ok: residue <= K.cleared && Math.round(deepest) <= K.spec.dishing && w.scratches.length === 0,   // the dishing as it is printed, in whole nm
       };
       return stack.result;
     }

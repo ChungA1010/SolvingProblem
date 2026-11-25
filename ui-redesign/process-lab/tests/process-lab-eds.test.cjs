@@ -13,9 +13,9 @@ const align = sim => { sim.setControl('x', -sim.state.offset.x); sim.setControl(
 const probeAll = sim => { assert.equal(sim.setControl('probe', true), true); run(sim, DIES.length * 0.9 + 2); assert.equal(sim.state.phase, 'done'); return sim.state.result; };
 
 test('the contact resistivity falls steeply with the surface doping', () => {
-  near(M.contactResistivity(1e20), 1e-6, 1e-9, 'at 1e20 per cm3'); near(M.contactResistivity(1e19), 1e-4, 1e-9, 'at 1e19 per cm3');
-  near(M.contactResistivity(1.66e19), 2.21e-5, 0.02, 'at 1.66e19 per cm3');                 // 1e-6 x exp(2.130e10 x (2.454e-10 - 1e-10))
-  assert.ok(M.contactResistivity(3e18) > 1e-2 && M.contactResistivity(1e17) > 1e3 && M.contactResistivity(0) === Infinity);
+  near(M.contactResistivity(1e20), 1e-6, 1e-9, 'at 1e20 per cm3'); near(M.contactResistivity(1e19), 5e-5, 1e-9, 'at 1e19 per cm3');
+  near(M.contactResistivity(1.66e19), 1.39e-5, 0.02, 'at 1.66e19 per cm3');                 // 1e-6 x exp(1.809e10 x (2.454e-10 - 1e-10)), 1.809e10 = ln(50) / (3.162e-10 - 1e-10)
+  assert.ok(M.contactResistivity(3e18) > 5e-3 && M.contactResistivity(1e17) > 1e3 && M.contactResistivity(0) === Infinity);   // 5.6e-3 at 3e18: 560 ohm over the contact of a chip
 });
 
 test('the diode on a 10 ohm cm wafer: 0.63 V at 1 mA and 19 pA of leakage at 5 V', () => {
@@ -99,6 +99,12 @@ test('what went wrong earlier shows as a bin on every chip', () => {
   assert.equal(bins(finish('deposition', { depth: 60, surface: 3e19, masked: true })).bins.leak, DIES.length, 'a junction too shallow leaks');
   assert.equal(bins(finish('metal', { thickness: 1000, burnt: false })).bins.leak, DIES.length, 'copper left on the oxide joins the chips');
   assert.equal(bins(finish('metal', { thickness: 0, burnt: false })).bins.contact, DIES.length, 'no copper, no path');
-  const marginal = bins(finish('deposition', { depth: 300, surface: 1.03e19, masked: true }));
-  assert.ok(marginal.good > 0 && marginal.bins.contact > 0 && marginal.missed === 0, `at the limit of the surface doping some chips pass and some do not: ${JSON.stringify(marginal.bins)}`);
+  // the run sheet asks for 1e19 per cm3 at the surface: a wafer just at it passes on every chip that has no defect, also with needles as poor as the guide lets by
+  const limit = finish('deposition', { depth: 300, surface: F.SPEC.junction.surface, masked: true }), atLimit = bins(limit);
+  assert.equal(atLimit.bins.contact, 0, `at the run sheet's surface doping: ${JSON.stringify(atLimit.bins)}`); assert.equal(atLimit.good, CLEAN);
+  const poor = prober(limit); align(poor); poor.setControl('z', 35); assert.ok(M.probeResistance(35) > 2.5 && M.probeResistance(35) < M.constants.limits.resistance / 3);
+  assert.equal(probeAll(poor).bins.contact, 0, 'needles of 2.8 ohm still leave it room');
+  // well under it the contact gives out, first where the doping is lowest
+  const marginal = bins(finish('deposition', { depth: 300, surface: 0.82e19, masked: true }));
+  assert.ok(marginal.good > 0 && marginal.bins.contact > 0 && marginal.missed === 0, `well under the surface doping asked for, some chips pass and some do not: ${JSON.stringify(marginal.bins)}`);
 });

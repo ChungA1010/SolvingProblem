@@ -21,6 +21,10 @@
  *     away within a minute; below the melting point the melt starts to freeze and the crystal spreads.
  *   Neck: a run thinner than 5 mm for at least 30 mm lets the dislocations of the seed grow out (Dash neck); the two
  *     numbers are representative. Without it the crystal counts as dislocated.
+ *   End of a crystal: the puller stops pulling when its pull chamber is full (1250 mm of crystal, what the chamber of
+ *     this puller holds once the crystal is lifted) or when nine tenths of the charge have frozen (the rest stays in
+ *     the crucible); both numbers are assumed. The seed has to be lifted more than half its way for the crystal to
+ *     leave the melt: a hand that only moves it a little leaves the crystal growing.
  *   Left out: melting the charge, rotation, oxygen from the crucible, the tail, the melt level falling as the crystal
  *     grows, and how the pull speed decides the crystal's point defects. The automatic diameter control is an ideal one:
  *     it knows the melt's superheat and sets the speed for it.
@@ -36,7 +40,8 @@
     silicon: { solid: 2.33, liquid: 2.57, melting: 1414 },         // g/cm3, g/cm3, C
     boron: { M: 10.81, k: 0.8 },                                   // g/mol, segregation coefficient
     holeMobility: 470, residual: 1e12,                             // cm2/Vs; acceptors per cm3 that undoped silicon is taken to have
-    melt: 250,                                                     // kg of silicon in the crucible
+    melt: 250, usable: 0.9,                                        // kg of silicon in the crucible; the share of it a crystal can take
+    stroke: 1250,                                                  // mm of crystal the pull chamber holds
     pull: { min: 0, max: 14, step: 0.1, reference: 1 },            // mm/min; at the reference speed the crystal holds the reference radius
     radius: { reference: 150, seed: 6, widest: 172, lost: 1 },     // mm; thinner than `lost` the crystal comes off the melt
     flux: 0.03,                                                    // mm/min of pull the melt's heat counts for, per K of superheat
@@ -62,8 +67,8 @@
   const steadySuperheat = kW => (kW - K.heater.melting) * K.heater.perKW;
   /** Boron atoms per cm3 of melt for `mg` of boron in `kg` of silicon. */
   const meltConcentration = (mg, kg = K.melt) => mg * 1e-3 / K.boron.M * AVOGADRO / (kg * 1000 / K.silicon.liquid);
-  /** Boron per cm3 in the crystal that freezes when the share `fraction` of the melt has frozen. */
-  const solidConcentration = (melt, fraction = 0) => K.boron.k * melt * Math.pow(1 - fraction, K.boron.k - 1);
+  /** Boron per cm3 in the crystal that freezes when the share `fraction` of the melt has frozen (the law holds short of the last of the melt). */
+  const solidConcentration = (melt, fraction = 0) => K.boron.k * melt * Math.pow(1 - clamp(fraction, 0, 0.99), K.boron.k - 1);
   /** Resistivity (ohm cm) of p-type silicon with `acceptors` per cm3. */
   const resistivity = acceptors => 1 / (Q * K.holeMobility * (acceptors + K.residual));
 
@@ -73,6 +78,7 @@
       time: 0, controls: { seed: 0, speed: 0, dopant: 0, auto: false, heater: K.heater.start },   // seed: 0 up, 1 down in the melt; heater in kW
       superheat: steadySuperheat(K.heater.start), meltback: 0, meltedBack: false,   // K above the melting point; s a dipped seed has spent in a melt too hot for it
       seed: 0, attached: false, ended: false, lost: false,
+      full: null,                              // why the puller has stopped pulling this crystal: 'stroke' (the pull chamber is full) or 'melt' (the charge is used up); null while it can grow
       doped: null,                             // mg of boron in the melt, fixed when the seed first touches it
       length: 0, radius: K.radius.seed, mass: 0,          // mm pulled, mm, kg frozen
       profile: [],                             // the crystal from the seed end: { z, r, m } every 2 mm
@@ -94,7 +100,7 @@
       return true;
     }
     function begin() {
-      Object.assign(state, { attached: true, ended: false, lost: false, meltedBack: false, meltback: 0, length: 0, radius: K.radius.seed, mass: 0, profile: [{ z: 0, r: K.radius.seed, m: 0 }], thin: 0, necked: false, shouldered: false, run: 0, body: { from: 0, to: 0, length: 0 }, result: null });
+      Object.assign(state, { attached: true, ended: false, lost: false, full: null, meltedBack: false, meltback: 0, length: 0, radius: K.radius.seed, mass: 0, profile: [{ z: 0, r: K.radius.seed, m: 0 }], thin: 0, necked: false, shouldered: false, run: 0, body: { from: 0, to: 0, length: 0 }, result: null });
       if (state.doped == null) state.doped = state.controls.dopant;
     }
     function grow(dz) {
@@ -117,13 +123,16 @@
       if (growing() && state.length < 20 && state.superheat > K.superheat.meltback) state.meltback += dt; else state.meltback = 0;
       if (state.meltback >= K.superheat.seconds) { state.attached = false; state.lost = true; state.meltedBack = true; c.seed = 0; c.auto = false; state.meltback = 0; }   // the seed melts away
       if (growing()) {
-        if (c.seed < 1) { state.ended = true; c.auto = false; state.profile.push({ z: state.length, r: state.radius, m: state.mass }); }      // the seed is lifted: the crystal leaves the melt
-        else {
+        if (c.seed < 0.5) { state.ended = true; c.auto = false; state.profile.push({ z: state.length, r: state.radius, m: state.mass }); }    // the seed is lifted more than half its way: the crystal leaves the melt
+        else if (!state.full) {
+          const held = () => Math.round(clamp(speedFor(target, state.superheat) * (1 + 0.5 * (state.radius - target) / target), K.pull.min, K.pull.max) * 1000) / 1000;
+          if (c.auto) c.speed = held();                             // the controller sets the speed before anything is pulled: a speed of 0 does not hold it off
           let left = c.speed * dt / 60;
-          while (left > 1e-12 && growing()) {
-            if (c.auto) c.speed = Math.round(clamp(speedFor(target, state.superheat) * (1 + 0.5 * (state.radius - target) / target), K.pull.min, K.pull.max) * 1000) / 1000;
+          while (left > 1e-12 && growing() && !state.full) {
+            if (c.auto) c.speed = held();
             const dz = Math.min(0.5, left); grow(dz); left -= dz;
             if (state.radius < K.radius.lost) { state.attached = false; state.lost = true; state.meltedBack = false; c.seed = 0; c.auto = false; }
+            else if (state.length >= K.stroke || state.mass >= K.usable * K.melt) { state.full = state.length >= K.stroke ? 'stroke' : 'melt'; c.auto = false; }   // the puller pulls no further
           }
         }
       }
@@ -136,12 +145,12 @@
     /** The crystal out of the puller: its body, whether it has a neck, and the resistivity of a wafer cut from the middle of the body. Null while it is in. */
     function measure() {
       if (!canMeasure()) return null;
-      const b = state.body, S = K.spec, valid = b.length >= S.body, inBody = state.profile.filter(p => p.z >= b.from && p.z <= b.to), mid = (b.from + b.to) / 2;
+      const b = state.body, S = K.spec, valid = Math.round(b.length) >= S.body, inBody = state.profile.filter(p => p.z >= b.from && p.z <= b.to), mid = (b.from + b.to) / 2;
       const at = state.profile.reduce((best, p) => Math.abs(p.z - mid) < Math.abs(best.z - mid) ? p : best, state.profile[0]), fraction = at.m / K.melt;
       const rho = resistivity(solidConcentration(meltConcentration(state.doped || 0), fraction));
-      const diameter = inBody.length ? 2 * inBody.reduce((sum, p) => sum + p.r, 0) / inBody.length : 2 * state.radius;
+      const diameter = inBody.length ? 2 * inBody.reduce((sum, p) => sum + p.r, 0) / inBody.length : 2 * Math.max(...state.profile.map(p => p.r));   // with no body in range: where the crystal is widest
       state.result = { valid, diameter, body: b.length, length: state.length, necked: state.necked, dislocated: !state.necked, resistivity: rho, fraction, dopant: state.doped || 0,
-        ok: valid && state.necked && Math.abs(rho - S.resistivity.target) <= S.resistivity.tolerance };
+        ok: valid && state.necked && Math.abs((rho >= 100 ? Math.round(rho) : Number(rho.toFixed(1))) - S.resistivity.target) <= S.resistivity.tolerance };   // on the numbers as they are printed: whole mm, and a resistivity with one decimal
       return state.result;
     }
     return { state, constants, setControl, step, canMeasure, measure, growing };

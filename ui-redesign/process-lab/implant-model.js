@@ -265,9 +265,10 @@
     }
     function measure() {
       const o = outcome({ parts: state.used.parts, Dt: state.Dt }), S2 = constants.spec;
-      const depth = o.reached && Math.abs(o.junction - S2.junction.target) <= S2.junction.tolerance;
-      return { ...o, keV: state.used.keV, dose: state.used.dose, ions: state.used.ions, anneals: state.anneals.slice(), error: o.junction - S2.junction.target,
-        ok: depth && o.masked && incoming.windows && !(incoming.left > 0) && o.surface >= S2.surface };
+      // Judged on the numbers as they are printed: the depth in whole nm, the concentration with two digits.
+      const error = Math.round(o.junction) - S2.junction.target, depth = o.reached && Math.abs(error) <= S2.junction.tolerance, surfaceOk = (o.surface > 0 ? Number(o.surface.toExponential(1)) : 0) >= S2.surface;
+      return { ...o, keV: state.used.keV, dose: state.used.dose, ions: state.used.ions, anneals: state.anneals.slice(), error, surfaceOk,
+        ok: depth && o.masked && incoming.windows && !(incoming.left > 0) && surfaceOk };
     }
     return { state, constants, incoming, substrate, setControl, step, outcome, now, outlook };
   }

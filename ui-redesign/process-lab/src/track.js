@@ -82,7 +82,7 @@ export function buildTrack(kit) {
   const hmi = parts.screen(c.x, 1.31, c.front);
   const dials = {
     spin: parts.dial('spin', c.x - 0.27, 0.99, c.front, { min: 1500, max: 6000, major: 1500, minor: 500, unit: 'rpm', perPixel: 15, wheel: 50, title: 'SPIN' }),
-    dose: parts.dial('dose', c.x, 0.99, c.front, { min: 0, max: 400, major: 100, minor: 20, unit: 'mJ', perPixel: 1, wheel: 2, title: 'DOSE' }),
+    dose: parts.dial('dose', c.x, 0.99, c.front, { min: 20, max: 400, major: 100, minor: 20, unit: 'mJ', perPixel: 1, wheel: 2, title: 'DOSE' }),
     focus: parts.dial('focus', c.x + 0.27, 0.99, c.front, { min: -4, max: 4, major: 2, minor: 0.5, unit: 'µm', perPixel: 0.02, wheel: 0.1, title: 'FOCUS', format: v => `${v > 0 ? '+' : ''}${v.toFixed(1)}` }),
   };
   const buttons = {

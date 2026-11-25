@@ -35,6 +35,8 @@
   const $ = id => document.getElementById(id), SVGNS = 'http://www.w3.org/2000/svg';
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const fmt = v => Math.round(v).toLocaleString('en-US');
+  /** A value of a report's record with each of its parts kept whole (a number stays beside its unit); a list joined by " + " may still break between two parts. */
+  const whole = value => String(value).split(' + ').map(part => part.replace(/ /g, ' ')).join(' + ');
   function el(tag, attrs = {}, ...children) {
     const node = document.createElement(tag);
     for (const [key, value] of Object.entries(attrs)) {
@@ -148,7 +150,7 @@
   const picture = (index, wafer, thumb = false, from = 0) => index <= 5 ? section(wafer, thumb, from) : index === 6 ? waferMap(wafer.tested, thumb) : packagePicture(wafer.packaged, thumb);
   const frameTop = (...wafers) => Math.max(0, Math.min(150, ...wafers.filter(w => w.substrate).map(reach)) - 34);
   function legend(wafer) {
-    return el('p', { class: 'legend' }, layersOf(wafer).map(key => el('span', {}, el('i', { style: `background:${INK[key]}` }), NAMES[key])), el('span', { class: 'scale', text: '세로를 1.6배 늘려 그렸습니다' }));
+    return el('p', { class: 'legend' }, layersOf(wafer).map(key => el('span', {}, el('i', { style: `background:${INK[key]}` }), NAMES[key])), el('span', { class: 'scale', text: '세로를 1.6배로 늘려 그렸습니다' }));
   }
 
   // ----- state -----
@@ -170,7 +172,7 @@
   const stops = [];
   let popped = -1;                                              // the step whose picture of the wafer is on show
   function waferAfter(i) {
-    if (!run) return F.arriving(i + 1);
+    if (!run) return F.arriving(i + 1, seed);
     if (i < run.at) return after[i];
     let wafer = run.wafer, k = run.at;
     if (stationLive()) { wafer = i === k || !station.forecast ? station.live(sim, stageWafer) : station.forecast(sim, stageWafer); k += 1; }   // in the equipment now; for the later stops, what it is heading for
@@ -203,8 +205,13 @@
       s.button.dataset.state = !run ? 'todo' : run.finished || i < viewing ? 'done' : i === viewing ? 'current' : 'todo';
       s.button.setAttribute('aria-pressed', String(i === selected));
       if (run && !run.finished && i === viewing) s.button.setAttribute('aria-current', 'step'); else s.button.removeAttribute('aria-current');
-      const [tone, text] = !record ? ['', ''] : record.ok === false ? ['bad', record.by === 'operator' ? '✕ 규격 밖' : '✕ 불량'] : record.by === 'operator' ? ['ok', '✓ 직접'] : ['', '표준'];
-      s.mark.dataset.tone = tone; s.mark.textContent = text;
+      // a sign and a word; where the stop is too narrow for the name beside them, the word is kept for a screen reader and the sign stands alone (process-lab.css)
+      const [tone, sign, word] = !record ? ['', '', ''] : record.ok === false ? ['bad', '✕', '불합격'] : record.by === 'operator' ? ['ok', '✓', '직접'] : ['', '', '표준'];
+      const shown = `${tone}${sign}${word}`;
+      if (s.mark.dataset.shown !== shown) {
+        s.mark.dataset.shown = shown; s.mark.dataset.tone = tone;
+        s.mark.replaceChildren(...(sign ? [el('span', { 'aria-hidden': 'true', text: sign })] : []), ...(word ? [el('span', { class: sign ? 'word' : '', text: word })] : []));
+      }
     });
     renderPop();
   }
@@ -276,7 +283,7 @@
   function showChoice(i) {
     selected = i;
     const mine = entries[i], done = Boolean(mine) && (run.finished || i < run.at), record = done ? run.records.find(r => r.step === F.STEPS[i].id) : null;
-    const incoming = mine ? mine.wafer : F.arriving(i === 0 ? 1 : i), from = done ? frameTop(incoming, after[i]) : frameTop(incoming), same = i <= 5;
+    const incoming = mine ? mine.wafer : F.arriving(i === 0 ? 1 : i, seed), from = done ? frameTop(incoming, after[i]) : frameTop(incoming), same = i <= 5;
     showBench([
       head(i, [
         el('button', { type: 'button', class: 'btn', id: 'back', text: run.finished ? '공정 기록으로' : '하던 공정으로', onclick: () => { if (run.finished) { selected = F.STEPS.length - 1; showFinished(); renderRoute(); } else select(viewing); } }),
@@ -287,18 +294,18 @@
       i === 6 && done ? mapLegend(after[i].tested) : i <= 6 ? legend(done ? after[i] : incoming) : null,
       record ? el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }) : null,
       el('p', { class: 'assumed', text: mine ? '다시 하면 이 공정과 그 뒤 공정의 결과가 지워집니다. 새로 시작하면 지금 웨이퍼는 버립니다.'
-        : `새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 지난 것으로 치고, 지금 웨이퍼는 버립니다.` }),
+        : i === 0 ? '새로 시작하면 지금 웨이퍼는 버립니다.' : `새로 시작하면 앞의 공정 ${i}개는 표준 조건으로 지난 것으로 치고, 지금 웨이퍼는 버립니다.` }),
     ]);
     renderRoute();
   }
-  function showPass(i, before, record) {
+  function showPass(i, before, record, piece = null) {
     const next = F.STEPS[i + 1], same = i <= 5, from = frameTop(before, run.wafer);
     runBench = [
       head(i, el('button', { type: 'button', class: 'btn primary', id: 'next-step', text: next ? `다음: ${next.name}` : '공정 기록 보기', onclick: enter })),
       el('div', { class: 'figure' }, same ? section(before, false, from) : picture(i, run.wafer), same ? el('div', { class: 'after' }, section(run.wafer, false, from)) : null),
       same ? legend(run.wafer) : i === 6 ? mapLegend(run.wafer.tested) : null,
       el('p', { class: 'result', 'data-tone': record.ok === false ? 'bad' : '', text: record.text }),
-      el('p', { class: 'assumed', text: '표준 조건으로 지났습니다. 수치는 가정값입니다.' }),
+      el('p', { class: 'assumed', text: piece ? `${piece}는 표준 조건으로 지났습니다. 그 수치는 가정값입니다.` : '표준 조건으로 지났습니다. 수치는 가정값입니다.' }),
     ];
     showBench(runBench);
   }
@@ -316,13 +323,13 @@
         el('tbody', {}, run.records.map((record, i) => {
           const row = el('tr', { 'data-before': String(Boolean(record.before)) },
             el('td', { class: 'no', text: String(i + 1) }), el('td', { class: 'name', text: F.STEPS[i].name }), el('td', { class: 'text' }, el('span', { text: record.text })),
-            el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '' }, record.ok === false ? '✕ 불량' : record.ok ? '✓ 통과' : '—',
+            el('td', { class: 'state', 'data-tone': record.ok === false ? 'bad' : record.ok ? 'ok' : '' }, record.ok === false ? '✕ 불합격' : record.ok ? '✓ 합격' : '—',
               el('small', { text: record.before ? '시작 전' : record.by === 'operator' ? '직접' : '표준' })),
             el('td', { class: 'again' }, entries[i] ? el('button', { type: 'button', class: 'link', 'data-redo': String(i), 'aria-label': `${F.STEPS[i].name}부터 이 웨이퍼로 다시`, text: '다시', onclick: () => redo(i) }) : null));
           row.addEventListener('click', ev => { if (!ev.target.closest('button')) row.classList.toggle('open'); });
           return row;
         }))),
-      el('p', { class: 'assumed', text: '줄을 누르면 그 공정에서 한 일이 다 보입니다. 표준으로 지난 공정의 수치는 가정값입니다.' }),
+      el('p', { class: 'assumed', text: '표준으로 지난 공정의 수치는 가정값입니다.' }),
     ];
     showBench(runBench);
   }
@@ -346,7 +353,8 @@
   /** Finishes the process the run is at by the standard recipe. What its equipment had already measured (the first of two pieces) is kept. */
   function pass() {
     const i = run.at, before = run.wafer, record = F.complete(run, staged.length ? Object.assign({}, ...staged) : undefined);
-    after[i] = run.wafer; sim = null; station = null; showPass(i, before, record);
+    const piece = staged.length && station && station.title ? station.title : null;      // the first machine of this process was run by hand: only this one goes by the standard recipe
+    after[i] = run.wafer; sim = null; station = null; showPass(i, before, record, piece);
   }
   /** Back to process i with the wafer this run brought to it: what the earlier processes made stays, the rest is done again. */
   function redo(i) {
@@ -359,6 +367,7 @@
   function skip() { if (stationLive()) { pass(); renderRoute(); } }
   function select(i) {
     if (!run) { start(i); return; }                               // nothing in hand: the equipment of that process opens at once
+    if (!run.finished && i === run.at && !entries[i]) { enter(); return; }      // the wafer stands before this process (the one before it was passed): go on with it
     if (!run.finished && i === viewing) { selected = i; if (stationLive()) showStation(mode === 'line'); else showBench(runBench); renderRoute(); return; }
     showChoice(i);
   }
@@ -374,6 +383,11 @@
     station: onLine,
     wafer: target => { if (!sim || !station.wafer) return; const refused = station.wafer(sim, target); if (refused) flash(refused); hudClock = 0; },
     refuse: () => flash('헤드를 끝까지 올린 뒤에 웨이퍼를 꺼낼 수 있습니다.'),
+    context: alive => {                                       // the graphics context was lost, or has come back: said in the guide, and on the first screen (which has no guide) in its heading
+      const title = $('line-title'); title.dataset.usual ??= title.textContent;
+      title.textContent = alive ? title.dataset.usual : '그래픽 장치와 연결이 끊겨 3D 화면이 멈췄습니다. 돌아오면 다시 그립니다.';
+      flash(alive ? '3D 화면을 다시 그렸습니다.' : '그래픽 장치와 연결이 끊겨 3D 화면이 멈췄습니다. 돌아오면 다시 그립니다.', alive ? 3.5 : 600);
+    },
   };
   /**
    * The 3D view a station is shown in: this lab's scene with the station's machine of the line in use, or the polisher of
@@ -384,7 +398,7 @@
     if (cmp && !polisher && window.CMPLab3DScene) polisher = window.CMPLab3DScene.create({ canvas: $('scene-cmp'), constants: FILM.constants, on: sceneEvents });
     if (cmp && !polisher) return null;
     $('stage').dataset.view = cmp ? 'cmp' : 'own';
-    if (!cmp) { $('scene').setAttribute('aria-label', '공정 장비. 부품을 끌거나 눌러 조작합니다.'); if (scene.active !== next.equipment) scene.mount(next.equipment, fly); }
+    if (!cmp) { $('scene').setAttribute('aria-label', '공정 장비. 부품을 끌거나 눌러 조작합니다.'); if (scene.active !== next.equipment) { scene.mount(next.equipment, fly); pressed($('views'), 'view', 'home'); } }
     return cmp ? polisher : scene;
   }
   /** The equipment in use on show again, as it was left: from the line the camera flies to it. */
@@ -394,6 +408,7 @@
     const fly = next.scene !== 'cmp' && (mode === 'line' || (mode === 'station' && view3d === scene && scene.active !== next.equipment));
     const target = sceneOf(next, fly);
     if (!target) { console.warn('process-lab: the polisher could not be shown, so the polish goes by the standard recipe'); pass(); return; }
+    if (!fly) target.setInsets({}, true);                         // a cut: no panel is open on the equipment that comes into use, so its picture is not left framed for the panels of the one before
     station = next; view3d = target; scanning = false; sim = station.create(stageWafer, seed, { base: run.wafer, results: staged });
     for (const name of Object.keys(view3d.parts)) if (!station.parts[name]) console.warn(`process-lab: no card for part "${name}"`);
     $('views').replaceChildren(...station.views.map(([view, text]) => el('button', { type: 'button', 'data-view': view, 'aria-pressed': 'false', text })));
@@ -447,7 +462,13 @@
     if (o.band && o.band[1] > y0 && o.band[0] < y1) root.append(svg('rect', { class: 'band', x: m.l, y: py(o.band[1]), width: W - m.l - m.r, height: Math.max(1, py(o.band[0]) - py(o.band[1])) }));
     if (o.limit !== undefined && o.limit > y0 && o.limit < y1) { root.append(svg('line', { class: 'limit', x1: m.l, x2: W - m.r, y1: py(o.limit), y2: py(o.limit) })); if (o.limitLabel) text(o.limitLabel, W - m.r, py(o.limit) - 4, 'end'); }
     root.append(svg('line', { class: 'axis', x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b }));
-    for (const [v, label] of o.xTicks || []) text(label, px(v), H - 3, px(v) < m.l + 14 ? 'start' : px(v) > W - m.r - 16 ? 'end' : 'middle');
+    // Labels along the bottom. On a narrow chart one that would run into the label before it is left out; the last one stays.
+    const along = (o.xTicks || []).map(([v, label]) => {
+      const at = px(v), anchor = at < m.l + 14 ? 'start' : at > W - m.r - 16 ? 'end' : 'middle', wide = [...label].reduce((sum, ch) => sum + (ch.codePointAt(0) > 0x2e7f ? 10.5 : 6.1), 0);
+      return { label, at, anchor, from: at - (anchor === 'start' ? 0 : anchor === 'end' ? wide : wide / 2), to: at + (anchor === 'start' ? wide : anchor === 'end' ? 0 : wide / 2) };
+    }), shown = [];
+    for (const tick of along) { if (!shown.length || tick.from > shown.at(-1).to + 5) shown.push(tick); else if (tick === along.at(-1) && shown.length > 1) shown[shown.length - 1] = tick; }
+    for (const tick of shown) text(tick.label, tick.at, H - 3, tick.anchor);
     const points = o.series;
     if (points.length > 1) root.append(svg('polyline', { class: `line${o.quiet ? ' quiet' : ''}`, points: points.map(p => `${px(p[0]).toFixed(1)},${py(p[1]).toFixed(1)}`).join(' ') }));
     const marked = o.mark === false ? null : o.mark || points.at(-1);          // the dot: the newest point, or the one the station marks, or none
@@ -509,8 +530,8 @@
       el('ul', { class: 'criteria' }, r.criteria.map(criterion)),
       (r.figures || []).map(f => el('figure', {}, el('figcaption', { text: f.caption }), figureBox(f))),
       r.notes && r.notes.length ? el('section', {}, el('h4', { text: '결과 풀이' }), el('ul', { class: 'notes' }, r.notes.map(text => el('li', { text })))) : null,
-      r.stats && r.stats.length ? el('section', {}, el('h4', { text: '기록' }), el('dl', { class: 'stats' }, r.stats.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { class: 'num', text: v })]))) : null,
-      el('footer', {}, el('button', { type: 'button', class: 'btn', id: 'report-redo', text: stage > 0 ? '이 장비만 다시' : '이 공정 다시', onclick: () => { if (stage > 0) restage(); else redo(run.at); } }),
+      r.stats && r.stats.length ? el('section', {}, el('h4', { text: '기록' }), el('dl', { class: 'stats' }, r.stats.flatMap(([k, v]) => [el('dt', { text: k }), el('dd', { class: 'num', text: whole(v) })]))) : null,
+      el('footer', {}, el('button', { type: 'button', class: 'btn', id: 'report-redo', text: stage > 0 ? (station.title ? `${station.title}만 다시` : '이 장비만 다시') : '이 공정 다시', onclick: () => { if (stage > 0) restage(); else redo(run.at); } }),
         result ? el('button', { type: 'button', class: 'btn primary', id: 'report-next', text: `다음: ${following}`, onclick: finishStation }) : null),
     ].flat().filter(Boolean));
   }
@@ -524,6 +545,9 @@
     const right = reportOpen && box.clientWidth - panel.offsetWidth >= 560 ? panel.offsetWidth + 14 : 0, bottom = stripOpen ? strip.offsetHeight + 14 : 0;
     box.style.setProperty('--inset-right', `${right}px`); box.style.setProperty('--inset-bottom', `${bottom}px`); box.dataset.strip = stripOpen ? 'open' : 'closed';
     view3d.setInsets?.({ right, bottom });
+    const stands = stripOpen ? view3d.homeBox : null;             // beside the instruments the guide lies to the left of the machine: it is as wide as the room there, and no narrower than it can be read
+    const room = stands ? Math.max(250, Math.round(stands.left) - 26) : Infinity;
+    box.style.setProperty('--guide-room', stands ? `${room}px` : '100vw'); box.dataset.guide = room < 340 ? 'narrow' : 'wide';   // narrow: the sentence gets the whole width, the step and the button a row under it
     return stripOpen;
   }
   /** A measurement that is new opens the report; the same one stays as the operator left it. */
@@ -613,6 +637,23 @@
     $('co-how').replaceChildren(...(part.how ? [document.createTextNode(part.how)] : []), ...(part.basis ? [el('span', { class: 'basis', style: part.how ? 'display:block' : '', text: part.basis })] : []));
     box.hidden = false;
   }
+  /**
+   * Puts a part's card beside the point it belongs to: to the right and above where it has the room, otherwise on the side
+   * where the least of it would be outside the free part of the stage or over a panel. What is still outside is taken up
+   * by moving the card along its edge, so that a tall card is whole in a low window. Sizes are the card's own, measured.
+   * `height` is what the instruments leave free and `full` the whole stage: a card too tall for the first may lie over them.
+   */
+  function placeCard(box, at, width, height, avoid = [], full = height) {
+    const info = box.firstElementChild, w = info.offsetWidth, h = info.offsetHeight, M = 8, X = 21, Y = 16, room = h + 2 * M <= height ? height : full;
+    const tried = [['right', 'up'], ['left', 'up'], ['right', 'down'], ['left', 'down']].map(([side, vert]) => {
+      const left = side === 'right' ? at.x + X : at.x - X - w, top = vert === 'up' ? at.y - Y - h : at.y + Y;
+      const dx = Math.max(0, M - left) - Math.max(0, left + w - (width - M)), dy = Math.max(0, M - top) - Math.max(0, top + h - (room - M));
+      const over = avoid.some(r => left + dx < r.right + M && left + dx + w > r.left - M && top + dy < r.bottom + M && top + dy + h > r.top - M);
+      return { side, vert, dx, dy, cost: (over ? 1e6 : 0) + Math.abs(dx) + Math.abs(dy) };
+    });
+    const best = tried.reduce((a, b) => (b.cost < a.cost ? b : a));
+    box.dataset.side = best.side; box.dataset.vert = best.vert; box.style.setProperty('--dx', `${best.dx}px`); box.style.setProperty('--dy', `${best.dy}px`);
+  }
   function positionOverlays() {
     const stage = $('stage').getBoundingClientRect(), canvas = stage;                 // both canvases fill the stage
     const place = (node, name) => { const p = name && view3d.screenOf(name); if (!p || !p.visible) return false; node.style.left = `${p.x + canvas.left - stage.left}px`; node.style.top = `${p.y + canvas.top - stage.top}px`; return p; };
@@ -621,9 +662,9 @@
       const p = place(box, hovered), monitor = $('monitor').getBoundingClientRect();
       if (!p) box.hidden = true;
       else {
-        const up = p.y >= 230, covers = p.x + canvas.left + 280 > monitor.left && (up ? p.y + canvas.top - 240 : p.y + canvas.top) < monitor.bottom + 8;     // the card would lie over the wafer monitor
-        const taken = parseFloat($('stage').style.getPropertyValue('--inset-right')) || 0;                 // the report covers that much of the right while it is open
-        box.dataset.side = p.x > canvas.width - taken - 320 || covers ? 'left' : 'right'; box.dataset.vert = up ? 'up' : 'down';
+        const covered = name => parseFloat($('stage').style.getPropertyValue(name)) || 0;                    // what the report (right) and the instruments (bottom) cover while they are open
+        placeCard(box, { x: p.x, y: p.y }, stage.width - covered('--inset-right'), stage.height - covered('--inset-bottom'),
+          [{ left: monitor.left - stage.left, right: monitor.right - stage.left, top: monitor.top - stage.top, bottom: monitor.bottom - stage.top }], stage.height);   // not over the wafer monitor
       }
     }
     const pill = $('pill'), part = dragging && station.parts[dragging];
@@ -690,6 +731,8 @@
       get run() { return run; }, get sim() { return sim; }, get station() { return station; }, get parts() { return station ? station.parts : {}; },
       get mode() { return mode; }, get viewing() { return viewing; }, get selected() { return selected; }, get frames() { return frames; },
       get panels() { return { strip: $('strip').dataset.open === 'true', report: reportOpen, tiles: tiles.length, reportId }; }, setStrip: next => { stripMode = next; hudClock = 0; },
+      point: name => sceneEvents.hover(name),                  // shows the card of a part as the pointer over it would (checks)
+      say: (text, seconds) => flash(text, seconds),            // puts a notice into the guide, as a refused move would (checks)
     };
     last = performance.now(); requestAnimationFrame(frame);
   }

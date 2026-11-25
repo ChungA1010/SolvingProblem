@@ -72,18 +72,20 @@
 
   /**
    * What development leaves: the width of the opening at the bottom of the resist.
-   * `cleared` is false when the opening never clears; `washed` is true when even the dark area clears and no resist is left.
+   * `cleared` is false when the middle of the opening does not clear; `partial` then says that its shoulders did (the image of
+   * this line has two humps, so a dose just short of clearing the middle leaves a ridge of resist there); `washed` is true
+   * when even the dark area clears and no resist is left.
    */
   function develop({ thickness: nm, dose, focus }) {
     const image = aerialImage(focus), threshold = doseToClear(nm), n = image.x.length, mid = (n - 1) / 2;
     const exposure = Array.from(image.intensity, v => v * dose / threshold);       // 1 = just cleared
     const profile = Array.from(image.x, (x, i) => ({ x, exposure: exposure[i] }));
     const peak = exposure[mid], floor = Math.min(...exposure);
-    if (floor >= 1) return { opening: 0, cleared: true, washed: true, peak, floor, profile };
-    if (peak < 1) return { opening: 0, cleared: false, washed: false, peak, floor, profile };
+    if (floor >= 1) return { opening: 0, cleared: true, washed: true, partial: false, peak, floor, profile };
+    if (peak < 1) return { opening: 0, cleared: false, washed: false, partial: Math.max(...exposure) >= 1, peak, floor, profile };
     let edge = image.x[n - 1];
     for (let i = mid; i < n - 1; i++) if (exposure[i + 1] < 1) { edge = image.x[i] + (image.x[i + 1] - image.x[i]) * (exposure[i] - 1) / (exposure[i] - exposure[i + 1]); break; }
-    return { opening: 2 * edge, cleared: true, washed: false, peak, floor, profile };
+    return { opening: 2 * edge, cleared: true, washed: false, partial: false, peak, floor, profile };
   }
 
   /** A coat, expose and develop cell handling one wafer. Times are seconds; `step(dt)` advances it. */
@@ -95,6 +97,7 @@
       phase: 'bare',                              // bare, coating, coated, exposing, exposed, developing, developed
       progress: 0, rpm: 0, fields: 0, shutter: false,
       thickness: 0, used: null,                   // resist on the wafer (nm) and the settings it was exposed with
+      spun: null,                                 // rpm the resist on the wafer was (or is being) spun at: the dial as it stood when COAT was pressed
       bestFocus: Math.round((random() * 2 - 1) * constants.focusDrift * 10) / 10,   // where this wafer is in focus, on the focus dial (um)
       result: null, reworks: 0,
     };
@@ -105,10 +108,10 @@
       if (name === 'spin') c.spin = snap(value, constants.spin);
       else if (name === 'dose') c.dose = snap(value, constants.dose);
       else if (name === 'focus') c.focus = Math.round(snap(value, constants.focus) * 10) / 10;
-      else if (name === 'coat') { if (state.phase !== 'bare') return false; state.phase = 'coating'; state.progress = 0; }
+      else if (name === 'coat') { if (state.phase !== 'bare') return false; state.phase = 'coating'; state.progress = 0; state.spun = c.spin; }
       else if (name === 'expose') { if (state.phase !== 'coated') return false; state.phase = 'exposing'; state.progress = 0; state.fields = 0; state.used = { dose: c.dose, focus: c.focus }; }
       else if (name === 'develop') { if (state.phase !== 'exposed') return false; state.phase = 'developing'; state.progress = 0; }
-      else if (name === 'strip') { if (!['coated', 'exposed', 'developed'].includes(state.phase)) return false; state.phase = 'bare'; state.thickness = 0; state.fields = 0; state.used = null; state.result = null; state.reworks += 1; }
+      else if (name === 'strip') { if (!['coated', 'exposed', 'developed'].includes(state.phase)) return false; state.phase = 'bare'; state.thickness = 0; state.spun = null; state.fields = 0; state.used = null; state.result = null; state.reworks += 1; }
       else return false;
       return true;
     }
@@ -118,9 +121,9 @@
       if (state.phase === 'coating') {
         state.progress = Math.min(1, state.progress + dt / (T.coat + T.bake));
         const spinning = state.progress * (T.coat + T.bake) < T.coat;
-        state.rpm = spinning ? state.controls.spin : 0;
-        state.thickness = thickness(state.controls.spin) * (spinning ? 1 + 2 * (1 - Math.min(1, state.progress * (T.coat + T.bake) / T.coat)) : 1);   // thins out while it spins
-        if (state.progress >= 1) { state.phase = 'coated'; state.thickness = thickness(state.controls.spin); }
+        state.rpm = spinning ? state.spun : 0;
+        state.thickness = thickness(state.spun) * (spinning ? 1 + 2 * (1 - Math.min(1, state.progress * (T.coat + T.bake) / T.coat)) : 1);   // thins out while it spins
+        if (state.progress >= 1) { state.phase = 'coated'; state.thickness = thickness(state.spun); }
       } else if (state.phase === 'exposing') {
         state.progress = Math.min(1, state.progress + dt / (T.field * T.fields));
         state.fields = Math.min(T.fields, Math.floor(state.progress * T.fields)); state.shutter = state.progress < 1;
@@ -130,8 +133,9 @@
         if (state.progress >= 1) {
           const d = develop({ thickness: state.thickness, dose: state.used.dose, focus: state.used.focus - state.bestFocus });
           const opening = d.cleared && !d.washed ? d.opening * (1 + 0.006 * (random() - 0.5)) : 0;                    // measurement scatter
-          state.result = { ...d, opening, thickness: d.washed ? 0 : state.thickness, dose: state.used.dose, focus: state.used.focus, spin: state.controls.spin,
-            error: opening - constants.target, ok: Math.abs(opening - constants.target) <= constants.tolerance };
+          if (d.washed) state.thickness = 0;                                                                         // nothing of the resist is left on the wafer
+          state.result = { ...d, opening, thickness: state.thickness, dose: state.used.dose, focus: state.used.focus, spin: state.spun,
+            error: Math.round(opening) - constants.target, ok: Math.abs(Math.round(opening) - constants.target) <= constants.tolerance };   // on the width as it is printed, in whole nm
           state.phase = 'developed';
         }
       }

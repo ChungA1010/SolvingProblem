@@ -41,7 +41,7 @@
   <header class="topbar">
     <a class="back" href="../index.html" aria-label="CMP Lab 홈으로">‹ CMP Lab</a>
     <div class="title">
-      <h1 id="to-line" title="여덟 장비 한눈에 보기">8대 공정 실험실</h1>
+      <h1 id="to-line" title="공정 라인 한눈에 보기">8대 공정 실험실</h1>
     </div>
     <div class="top-actions">
       <button type="button" class="btn" id="redo" hidden>이 공정 다시</button>
@@ -65,7 +65,7 @@
       <div class="bench" id="bench"></div>
       <!-- Where the lab opens: the whole line stands in the 3D view. Over its top lies this heading; the card hangs on the machine under the pointer. -->
       <div class="line-head" id="line-head">
-        <h2 id="line-title">웨이퍼 한 장이 여덟 장비를 거쳐 칩이 됩니다</h2>
+        <h2 id="line-title">웨이퍼 한 장이 여덟 공정을 거쳐 칩이 됩니다</h2>
         <div class="bench-actions">
           <button type="button" class="btn primary" id="line-back" hidden>하던 공정으로</button>
           <button type="button" class="btn primary" id="line-start">처음부터 시작</button>
@@ -126,7 +126,7 @@
 
   <dialog id="help" aria-labelledby="help-title">
     <h2 id="help-title">조작법</h2>
-    <figure class="goal"><div id="help-goal"></div><figcaption>만드는 것은 다이오드 칩입니다. 구리가 산화막의 창을 통해 n+ 영역에 닿아 있습니다. 7번 EDS에서 칩마다 전기로 검사해 양품을 가리고, 8번 패키징에서 양품만 금선으로 잇습니다.</figcaption></figure>
+    <figure class="goal"><div id="help-goal"></div><figcaption>만드는 것은 다이오드 칩입니다. 구리가 산화막의 창을 통해 n+ 접합에 닿아 있습니다. 7번 EDS에서 칩마다 전기로 검사해 양품을 가리고, 8번 패키징에서 양품만 금선으로 잇습니다.</figcaption></figure>
     <ul>
       <li><b>공정 고르기</b>: 첫 화면의 장비나 위쪽 줄의 공정을 누르면 그 장비로 가고, 거기서부터 패키징까지 같은 웨이퍼로 이어 갑니다. 위쪽 줄의 공정에 마우스를 올리면 그 공정을 지난 웨이퍼의 단면이 나옵니다. 하던 도중에 다른 공정을 누르면, 지금 웨이퍼로 그 공정을 다시 할지 새 웨이퍼로 시작할지 고릅니다. 제목을 누르면 첫 화면으로 갑니다.</li>
       <li><b>다시 하기, 넘기기</b>: 오른쪽 위의 <b>이 공정 다시</b>는 같은 웨이퍼로 이 공정을 처음부터 다시 합니다. <b>표준 조건으로 넘기기</b>는 이 공정을 표준 조건으로 지나갑니다.</li>
@@ -135,7 +135,7 @@
       <li><b>시간</b>: 오른쪽 위 단추로 시간을 빨리 흐르게 할 수 있습니다.</li>
       <li><b>시점</b>: 빈 곳을 끌면 시점이 돌고, 휠로 확대합니다. 왼쪽 위 단추는 정해 둔 시점으로 갑니다.</li>
     </ul>
-    <p class="scope" id="scope-note">계산은 공개된 식과 상수를 쓰고, 어떤 식인지는 부품 카드에 적혀 있습니다. 장비의 속도 같은 값은 대표값이며 특정 장비의 실측값이 아닙니다. 표준 조건으로 넘긴 공정의 수치는 가정입니다.</p>
+    <p class="scope" id="scope-note">계산은 공개된 식과 상수를 쓰고, 어떤 식인지는 부품 카드에 적혀 있습니다. 장비의 속도 같은 값은 대푯값이며 특정 장비의 실측값이 아닙니다. 표준 조건으로 넘긴 공정의 수치는 가정입니다.</p>
     <form method="dialog"><button class="btn primary">닫기</button></form>
   </dialog>
 </body>

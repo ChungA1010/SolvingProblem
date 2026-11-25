@@ -2,9 +2,6 @@
  * this file adds the route, the line the lab opens on, the bench views and what the wafer monitor needs here.
  * Words are few on purpose: the equipment itself and pictures of the wafer carry the page. */
 
-/* Korean is broken between words, not inside one, wherever a line of this page wraps; a word longer than its line still breaks. */
-body { word-break: keep-all; overflow-wrap: break-word; }
-
 /* Route: the eight processes in order, one slim row. A step shows the wafer as it leaves that process under the pointer. */
 .route { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); margin-bottom: 10px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .stop { position: relative; display: flex; align-items: baseline; gap: 6px; min-width: 0; padding: 9px 12px 10px; border: 0; border-left: 1px solid var(--line); background: none; text-align: left; }
@@ -14,7 +11,10 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 .stop:focus-visible { outline: 2px solid var(--brand); outline-offset: -2px; }
 .stop .no { font-size: 11px; font-weight: 700; color: var(--faint); font-variant-numeric: tabular-nums; }
 .stop .name { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.stop .mark { margin-left: auto; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--faint); }
+.stop .mark { margin-left: auto; display: inline-flex; gap: 3px; font-size: 11px; font-weight: 700; white-space: nowrap; color: var(--faint); }
+/* A stop too narrow for its name beside the mark (a window under about 1450 px: "증착·이온주입" with "✕ 불합격") keeps the name whole: the sign stands alone, the word stays for a screen reader. */
+.stop { container-type: inline-size; }
+@container (max-width: 176px) { .stop .mark .word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); } }
 .stop .mark[data-tone="ok"] { color: var(--success-ink); } .stop .mark[data-tone="bad"] { color: var(--danger); }
 .stop[data-state="todo"] .name { color: var(--muted); }
 .stop[data-state="current"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--brand); }
@@ -23,7 +23,6 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 .route-pop p { margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
 .title h1 { cursor: pointer; } .title h1:hover { color: var(--brand); }
 
-.stage { height: calc(100vh - 150px); min-height: 520px; }
 .stage[data-mode="bench"] { background: var(--panel); }
 .stage[data-mode="bench"]::after, .stage[data-mode="bench"] #scene, .stage[data-mode="bench"] .hud, .stage[data-mode="station"] .bench { display: none; }
 .stage[data-mode="line"] .bench, .stage[data-mode="line"] .hud, .stage:not([data-mode="line"]) .line-head, .stage:not([data-mode="line"]) .line-tag { display: none; }
@@ -95,7 +94,7 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 /* Process instruments and metrology report of a station. The pieces (strip, tile, plot, drawer, criteria) are the CMP
    lab's own; here the strip holds as many tiles as the station gives, all of one width. */
 .strip { display: block; }
-.strip .tiles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); height: 100%; }
+.strip .tiles { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); height: 100%; }
 .strip .tile .plot { margin-top: 4px; }
 .drawer-title { font-size: 13.5px; font-weight: 700; }
 .drawer .figure-box { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: #f3f5f9; }
@@ -103,7 +102,6 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 .drawer .figure-box.chart { padding: 8px 6px 4px; background: var(--panel); } .drawer .figure-box.chart .plot { height: 128px; }
 .drawer .figure-box .legend { padding: 6px 10px 8px; background: var(--panel); }
 .drawer figcaption { margin-bottom: 4px; font-size: 12px; color: var(--muted); }
-.drawer .stats dd { white-space: nowrap; }   /* the labels here are long: they wrap, a value keeps its unit beside it */
 /* A long report scrolls, and its way on stays in reach: the foot of the report rides at the bottom of the drawer.
    The room under it is the foot's own, not the drawer's: browsers differ on whether a sticky box may enter its scroller's padding. */
 #report { padding-bottom: 0; }
@@ -118,9 +116,14 @@ body { word-break: keep-all; overflow-wrap: break-word; }
 .stage[data-mode="station"][data-view="cmp"] #scene-cmp { display: block; }
 .stage[data-view="cmp"] #scene { display: none; }
 
-@media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 132px); overflow-x: auto; } }
+@media (max-width: 1100px) { .route { grid-template-columns: repeat(8, 132px); overflow-x: auto; scrollbar-width: thin; } }
 @media (max-width: 720px) {
   .bench { padding: 18px 16px; } .bench-head { flex-direction: column; align-items: stretch; } .bench-head h2, .finish-head h2 { font-size: 25px; }
   .line-head { gap: 10px; padding: 0 16px 18px; } .finish { flex-direction: column; align-items: flex-start; }
+  .trend, .monitor .now { display: none; }                                                    /* the monitor keeps to its reading */
+  .strip .tiles { grid-auto-columns: minmax(168px, 1fr); overflow-x: auto; scrollbar-width: thin; }   /* a tile keeps a width a chart can be read at; the strip scrolls sideways */
 }
+/* A low window: the monitor gives up its small chart before it would meet the instruments under it (the puller's
+   monitor is the highest, 247 px with the chart; tools/check-browser.mjs process-fit measures all of them at 1280 x 552). */
+@media (max-height: 570px) { .trend { display: none; } }
 @media (prefers-reduced-motion: reduce) { .figure .after { animation: none; } }

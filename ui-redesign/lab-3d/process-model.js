@@ -63,11 +63,14 @@
   const MU_WET = 0.30, MU_DRY = 0.25;
   const HYDRO_S = 3, HYDRO_POWER = 5;
   const RINGS = Object.freeze([[0, 1], [0.049, 8], [0.098, 16], [0.147, 24]]);   // 49-point pattern
+  /** The share of the wafer's area one point of each ring stands for: the ring's band (half-way to its neighbours, the last one out to the edge) over its points. The outer ring's points lie closer together: each counts for about half of one of the others. */
+  const POINT_AREA = Object.freeze(RINGS.map(([r, count], k) => { const inner = k ? (RINGS[k - 1][0] + r) / 2 : 0, outer = k < RINGS.length - 1 ? (r + RINGS[k + 1][0]) / 2 : C.waferRadius; return (outer * outer - inner * inner) / (C.waferRadius * C.waferRadius) / count; }));
   const TOOL_MIN_REMOVED = 20;        // nm; a wafer polished less than this says nothing about the tool
   const PARTICLES_POLISHED = 2000, PARTICLES_SPREAD = 0.15;             // particles on a wafer as it leaves the pad, and their wafer-to-wafer spread
   const PARTICLES_INCOMING = 2;
   const TAU_SCRUB = 4, TAU_RINSE = 6;                                   // s
   const CLEAN_STEPS = Object.freeze(['scrub', 'rinse', 'dry']);
+  const SAMPLE_EVERY = 0.5, HISTORY_MAX = 1200;                          // the record of a polish: a sample every half second, thinned to every second one when it is full
   const BRUSH_SCRATCH = 0.15;                                           // scratches per second of scrub with the brush pressed in all the way
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
@@ -164,6 +167,18 @@
       const d = 1 / (N - 1), lo = Math.max(0, i * d - d / 2), hi = Math.min(1, i * d + d / 2);
       return hi * hi - lo * lo;
     });
+    // The wafer as a whole at the reference condition: its mean speed, how well it is wetted where it moves, and how the
+    // pressure is spread over it (the edge). The rate and the three factors are taken against these, so that the reference
+    // condition polishes at the reference rate and reads x1 on every factor.
+    const REF = (() => {
+      const edge = edgeGain(1); let speed = 0, wetted = 0, pressed = 0;
+      for (let i = 0; i < N; i++) {
+        const x = radius[i] / C.waferRadius, v = meanSpeed(C.platenRef, C.carrierRef, radius[i]) / V_REF;
+        const wet = slurryFactor(COVERAGE_REF * (1 - STARVE * (1 - COVERAGE_REF) * (1 - x))) / SLURRY_REF, local = 1 + edge * Math.exp(-(C.waferRadius - radius[i]) / EDGE_LENGTH);
+        speed += areaWeight[i] * v; wetted += areaWeight[i] * v * wet; pressed += areaWeight[i] * v * wet * local;
+      }
+      return { speed, slurry: wetted / speed, spread: pressed / wetted };
+    })();
     const s = {
       t: 0, level: baseLevel, lastPolish: null,
       controls: { head: 0, platen: 0, carrier: 0, slurry: 0, zone: 0, conditioner: false, ...(cleaning ? { brush: C.brushRef } : {}) },   // the brush belongs to the cleaner
@@ -178,6 +193,7 @@
       wafer: null, monitor: null, alarms: {}, events: [], history: [], waferCount: 0,
     };
     let lastRevolution = 0, lastSample = -1, exSitu = 0;                  // exSitu: s of conditioning since the last polish
+    let sampleEvery = SAMPLE_EVERY, onPad = false;                         // the record of the polish: s between its samples, and whether the last one was taken on the pad
     s.padLeft = 1 - s.padCut / C.padLife;
 
     const interp = (film, r) => {
@@ -189,22 +205,33 @@
 
     function pattern(film, tilt, tiltAngle, noise) {
       const points = [];
-      for (const [r, count] of RINGS) for (let k = 0; k < count; k++) {
+      RINGS.forEach(([r, count], ring) => { for (let k = 0; k < count; k++) {
         const theta = (k + (count > 1 ? 0.5 : 0)) * 2 * Math.PI / count;
         const value = Math.max(0, interp(film, r) - tilt * (r / C.waferRadius) * Math.cos(theta - tiltAngle) + (noise ? gauss(rand) * noise : 0));
-        points.push({ r, theta, x: r * Math.cos(theta), y: r * Math.sin(theta), value });
-      }
+        points.push({ r, theta, x: r * Math.cos(theta), y: r * Math.sin(theta), value, weight: POINT_AREA[ring] });
+      } });
       return points;
     }
     function stats(points) {
-      const v = points.map(p => p.value), mean = v.reduce((a, b) => a + b, 0) / v.length;
-      const sd = Math.sqrt(v.reduce((a, b) => a + (b - mean) ** 2, 0) / (v.length - 1));
-      return { mean, min: Math.min(...v), max: Math.max(...v), range: Math.max(...v) - Math.min(...v), sd, wiwnu: mean > 0 ? 100 * sd / mean : 0 };
+      const v = points.map(p => p.value), plain = v.reduce((a, b) => a + b, 0) / v.length;
+      const sd = Math.sqrt(v.reduce((a, b) => a + (b - plain) ** 2, 0) / (v.length - 1));
+      // The mean thickness is the mean over the wafer's area, each point counting for the share of the wafer it stands for:
+      // the same mean as the film monitor and the trend show. The non-uniformity is the spread of the 49 points as they are.
+      const mean = points.reduce((sum, p) => sum + p.weight * p.value, 0) / points.reduce((sum, p) => sum + p.weight, 0);
+      return { mean, min: Math.min(...v), max: Math.max(...v), range: Math.max(...v) - Math.min(...v), sd, wiwnu: plain > 0 ? 100 * sd / plain : 0 };
     }
+    /**
+     * The mean thickness of a wafer as this lab states it everywhere: the mean over the wafer's area of the 49 points the
+     * metrology measures, here without its noise. The film monitor, the trend, the amount removed and the report all
+     * give this one number: what the monitor read last on the pad is what the metrology finds, to within their noise.
+     * (The 49 points lean toward the edge, where the film is thinnest after a polish: the true mean over the area,
+     * which the removal rate is reckoned from, lies up to a few nm higher.)
+     */
+    const siteMean = (film, w) => stats(pattern(film, w.tilt, w.tiltAngle, 0)).mean;
     function reading(clean) {
       const w = s.wafer;
       const profile = Float64Array.from(w.film, v => Math.max(0, v + (clean ? 0 : gauss(rand) * 1.2)));
-      return { t: s.t, mean: areaMean(profile), profile, wiwnu: stats(pattern(w.film, w.tilt, w.tiltAngle, 0)).wiwnu };
+      return { t: s.t, mean: siteMean(w.film, w) + areaMean(profile) - areaMean(w.film), profile, wiwnu: stats(pattern(w.film, w.tilt, w.tiltAngle, 0)).wiwnu };   // the scan's own noise on top
     }
 
     /** Puts a new wafer on the load pedestal. The deposited film is edge-thick or centre-thick by up to 2%. */
@@ -222,13 +249,14 @@
       s.wafer = {
         id: ++s.waferCount, where: 'pedestal', film, start: Float64Array.from(film), tilt: 0, tiltAngle: rand() * 2 * Math.PI,
         scratches: [], polishTime: 0, clock: 0, slurryUsed: 0, maxTemp: C.ambient, peakPressure: 0, pressureTime: 0,
-        incoming: { mean: areaMean(film), edgeMinusCentre: film[N - 1] - film[0] }, measured: null,
+        incoming: { mean: areaMean(film), area: areaMean(film), edgeMinusCentre: film[N - 1] - film[0] }, measured: null,   // mean: as the lab states it (set below); area: the true mean over the area
         tool: null, nominal: 0,           // the tool state this wafer met, and what the same polish would have removed at level 1
-        particles: PARTICLES_INCOMING, wet: false, cleanTime: 0,
+        particles: PARTICLES_INCOMING, wet: false, cleanTime: 0, cleanSince: 0,   // cleanSince: s of cleaning since it was last polished
         soil: PARTICLES_POLISHED * (1 + PARTICLES_SPREAD * (soilRand() * 2 - 1)),   // what one polish leaves on this wafer
       };
-      s.level = baseLevel;
-      s.history = []; lastSample = -1;
+      s.wafer.incoming.mean = siteMean(film, s.wafer);
+      s.level = baseLevel; s.cleaner.phase = 'idle'; s.cleaner.left = 0;      // the cleaner stops: its wafer is gone
+      s.history = []; lastSample = -1; sampleEvery = SAMPLE_EVERY; onPad = false;
       s.monitor = reading(true);
       event('wafer', `웨이퍼 ${s.wafer.id} 준비`);
       return s.wafer;
@@ -258,7 +286,7 @@
             w.scratches.push({ r: (0.1 + 0.9 * soilRand()) * C.waferRadius, theta: soilRand() * 2 * Math.PI, length: 0.3 + soilRand() * 0.6, t: s.t, by: 'brush' });
         }
         else if (k.phase === 'rinse') w.particles *= Math.exp(-d / TAU_RINSE);
-        w.cleanTime += d; k.left -= d; left -= d;
+        w.cleanTime += d; w.cleanSince += d; k.left -= d; left -= d;
         if (k.left <= 1e-9) {
           const next = CLEAN_STEPS[CLEAN_STEPS.indexOf(k.phase) + 1];
           if (next) { k.phase = next; k.left = stepTime[next]; }
@@ -324,8 +352,9 @@
 
       const vCentre = meanSpeed(s.platenRpm, s.carrierRpm, 0), speedRatio = vCentre / V_REF, pressureRatio = s.pressure / C.pressureRef;
       const f = s.factors;
-      f.pressure = pressureRatio; f.speed = speedRatio;
-      f.slurry = slurryFactor(s.coverage) / SLURRY_REF;
+      f.pressure = pressureRatio; f.slurry = slurryFactor(s.coverage) / SLURRY_REF;
+      const speeds = Float64Array.from(radius, r => meanSpeed(s.platenRpm, s.carrierRpm, r) / V_REF);        // at each place of the wafer
+      f.speed = areaMean(speeds) / REF.speed;                               // over the whole wafer: a head that turns faster or slower than the platen changes it
       f.pad = (PAD_FLOOR + (1 - PAD_FLOOR) * s.glaze) / PAD_REF;
       f.temp = arrhenius(s.temp);
       f.contact = s.contact && s.pressure > 0.02 ? hydro(speedRatio / Math.max(pressureRatio, 0.05)) : 1;   // has no meaning until the wafer is pressed
@@ -339,26 +368,32 @@
       f.level = s.level;
       let rate = 0;
       if (s.polishing) {
-        const edge = edgeGain(pressureRatio), common = C.rateRef / 60 * f.level * f.pressure * f.pad * f.temp * f.contact;
+        const edge = edgeGain(pressureRatio), common = C.rateRef / 60 / (REF.speed * REF.slurry * REF.spread) * f.level * pressureRatio * f.pad * f.temp * f.contact;
+        let wetted = 0, pressed = 0;                                          // sums over the wafer's area of speed x slurry, and of speed x slurry x how the pressure is spread
         for (let i = 0; i < N; i++) {
           const x = radius[i] / C.waferRadius;
           const local = (1 + c.zone * (1 - 2 * x * x)) * (1 + edge * Math.exp(-(C.waferRadius - radius[i]) / EDGE_LENGTH));   // zone balance has zero area mean
-          const speed = meanSpeed(s.platenRpm, s.carrierRpm, radius[i]) / V_REF;
+          const speed = speeds[i];
           const wet = slurryFactor(s.coverage * (1 - STARVE * (1 - s.coverage) * (1 - x))) / SLURRY_REF;
           const removed = Math.min(w.film[i], common * local * speed * wet * h);
           w.film[i] -= removed; rate += areaWeight[i] * removed / h;
+          wetted += areaWeight[i] * speed * wet; pressed += areaWeight[i] * speed * wet * local;
         }
+        // The seven factors on show are the wafer's as a whole, and their product is the rate: the speed is the mean over
+        // the wafer (above), the slurry is what the wafer gets where it moves, and the pressure carries how it is spread
+        // (the zone balance and the edge). With head and platen at the same speed they are what they are at the centre.
+        if (f.speed > 0 && wetted > 0) { f.slurry = wetted / (f.speed * REF.speed) / REF.slurry; f.pressure = pressureRatio * pressed / wetted / REF.spread; }
         // A wafer that does not turn is polished faster on its outboard side: a wedge, not a ring.
         w.tilt += rate * (C.waferRadius / C.centerDistance) / (1 + (s.carrierRpm / 1.5) ** 2) * h;
         w.polishTime += h; w.slurryUsed += s.flow / 60 * h; w.pressureTime += s.pressure * h;
         w.nominal += rate * h / Math.max(s.level / baseLevel, 1e-6); s.lastPolish = s.t;
         w.peakPressure = Math.max(w.peakPressure, s.pressure); w.maxTemp = Math.max(w.maxTemp, s.temp);
-        if (cleaning) { w.particles = Math.max(w.particles, w.soil); w.wet = true; }   // slurry on the surface again
+        if (cleaning) { w.particles = Math.max(w.particles, w.soil); w.wet = true; w.cleanSince = 0; }   // slurry on the surface again
         if (s.platenRpm > 5) {
           const dry = Math.max(0, 0.16 - s.coverage) / 0.16;
-          const hazard = 1.2 * pressureRatio * speedRatio * dry + (s.temp > 72 ? 0.08 : 0) + (s.glaze < 0.3 ? 0.03 : 0);
+          const starved = 1.2 * pressureRatio * speedRatio * dry, hot = s.temp > 72 ? 0.08 : 0, dull = s.glaze < 0.3 ? 0.03 : 0, hazard = starved + hot + dull;
           if (hazard > 0 && rand() < 1 - Math.exp(-hazard * h) && w.scratches.length < 80)
-            w.scratches.push({ r: (0.15 + 0.85 * rand()) * C.waferRadius, theta: rand() * 2 * Math.PI, length: 0.3 + rand() * 0.9, t: s.t });
+            w.scratches.push({ r: (0.15 + 0.85 * rand()) * C.waferRadius, theta: rand() * 2 * Math.PI, length: 0.3 + rand() * 0.9, t: s.t, by: starved >= hot && starved >= dull ? 'dry' : hot >= dull ? 'hot' : 'glazed' });   // by: the largest of the three hazards then
         }
       }
       s.rate = rate * 60;
@@ -387,20 +422,27 @@
         const revolution = Math.floor(s.platenAngle / (2 * Math.PI));
         if (w.where === 'head' && s.contact && revolution !== lastRevolution) s.monitor = reading(false);   // one scan per platen turn
         lastRevolution = revolution;
-        if (w.where === 'head' && Math.floor(w.clock * 2) !== lastSample) {
-          lastSample = Math.floor(w.clock * 2);
-          s.history.push({ t: w.clock, rate: s.rate, temp: s.temp, pressure: s.pressure, platen: s.platenRpm, coverage: s.coverage, mean: areaMean(w.film) });
-          if (s.history.length > 1200) s.history.shift();
+        // The record of the polish is what the instruments read: one sample as the wafer comes onto the head, samples while it
+        // is on the pad, and one as it leaves the pad. A wafer that waits in the raised head adds nothing. When the record is
+        // full every second sample goes and the samples come half as often, so that a long polish stays whole.
+        const slot = Math.floor(w.clock / sampleEvery);
+        if (w.where === 'head' && (s.contact || onPad || !s.history.length) && (slot !== lastSample || onPad !== s.contact)) {
+          lastSample = slot; onPad = s.contact;
+          const h = s.history;
+          h.push({ t: w.clock, rate: s.rate, temp: s.temp, pressure: s.pressure, platen: s.platenRpm, coverage: s.coverage, mean: s.monitor.mean });
+          if (h.length > HISTORY_MAX) { for (let i = 0; 2 * i < h.length; i++) h[i] = h[2 * i]; h.length = Math.ceil(h.length / 2); sampleEvery *= 2; lastSample = Math.floor(w.clock / sampleEvery); }
         }
       }
       const rubbing = s.polishing && s.platenRpm > 5;
+      const pressing = command > 1 && s.pressure >= 0.9 * pressureTarget;       // the head is asked to press and the pressure has arrived: not while it rises, and not while it is let off for a lift
       setAlarm('dry', rubbing && s.coverage < 0.16, '슬러리 부족: 마른 패드에 닿아 표면이 긁힙니다');
       setAlarm('hot', s.temp > C.tempAlarm, '패드 과열: 압력이나 속도를 낮추거나 슬러리를 늘리세요');
-      setAlarm('hydro', rubbing && f.contact < 0.5, '수막 현상: 속도에 비해 압력이 낮아 거의 깎이지 않습니다');
+      setAlarm('hydro', rubbing && pressing && f.contact < 0.5, '수막 현상: 속도에 비해 압력이 낮아 거의 깎이지 않습니다');
+      setAlarm('stopped', s.polishing && pressing && s.platenRpm < 4.5, '플래튼이 돌지 않습니다: 웨이퍼가 고르게 깎이지 않습니다');   // under the 5 rpm from which the guide takes the platen as turning (a platen set to 5 comes up to it from below)
       setAlarm('still', rubbing && s.carrierRpm < 3 && s.platenRpm > 10, '헤드가 돌지 않아 웨이퍼 한쪽만 깎입니다');
       setAlarm('bare', !!w && w.where === 'head' && w.film.some(v => v <= 0), '막이 다 깎여 실리콘이 드러났습니다');
       setAlarm('worn', wear && s.padCut >= C.padLife, '패드 수명이 다했습니다: 컨디셔너가 더는 듣지 않습니다. 패드를 교체하세요');
-      setAlarm('empty', s.contact && s.pressure > 0.3 && (!w || w.where !== 'head'), '웨이퍼 없이 헤드를 눌렀습니다');
+      setAlarm('empty', command > 1 && s.contact && s.pressure > 0.3 && (!w || w.where !== 'head'), '웨이퍼 없이 헤드를 눌렀습니다');
       s.t += h;
     }
 
@@ -416,15 +458,16 @@
       const points = pattern(w.film, w.tilt, w.tiltAngle, 1.0), st = stats(points);
       const profile = Array.from(radius, (r, i) => ({ r, start: w.start[i], end: w.film[i], removed: w.start[i] - w.film[i] }));
       const result = {
-        waferId: w.id, points, ...st, incoming: w.incoming.mean, removed: w.incoming.mean - st.mean, error: st.mean - C.target,
+        waferId: w.id, points, ...st, incoming: w.incoming.mean, removed: Math.max(0, w.incoming.mean - st.mean), error: st.mean - C.target,
         profile, tilt: w.tilt, scratches: w.scratches.length, polishTime: w.polishTime, slurryUsed: w.slurryUsed, maxTemp: w.maxTemp,
         meanPressure: w.polishTime > 0 ? w.pressureTime / w.polishTime : 0,
-        meanRate: w.polishTime > 0 ? (w.incoming.mean - areaMean(w.film)) / w.polishTime * 60 : 0,
-        ok: { thickness: Math.abs(st.mean - C.target) <= C.targetTol, uniformity: st.wiwnu <= C.wiwnuMax, defects: w.scratches.length === 0 },
+        meanRate: w.polishTime > 0 ? Math.max(0, w.incoming.mean - st.mean) / w.polishTime * 60 : 0,                  // what was removed, as measured, over the time it took
+        ok: { thickness: Math.abs(Math.round(st.mean) - C.target) <= C.targetTol, uniformity: Number(st.wiwnu.toFixed(2)) <= C.wiwnuMax, defects: w.scratches.length === 0 },   // as read: whole nm, and the non-uniformity to two places
       };
       result.brushScratches = w.scratches.filter(x => x.by === 'brush').length;
       if (cleaning) {
         result.particles = Math.round(w.particles); result.wet = w.wet; result.cleanTime = w.cleanTime;
+        result.cleanSince = w.cleanSince; result.cleanCycle = CLEAN_STEPS.reduce((sum, step) => sum + stepTime[step], 0);   // cleaning since the last polish, and what the whole cycle takes
         result.ok.clean = result.particles <= C.particlesMax && !w.wet;
       }
       result.pass = Object.values(result.ok).every(Boolean);
@@ -433,7 +476,7 @@
       result.cycle = { polish: w.polishTime, clean: w.cleanTime, handling: C.handlingTime, total, perHour: w.polishTime > 0 ? 3600 / total : 0 };
       if (tool && w.tool && w.nominal >= TOOL_MIN_REMOVED) {
         // What this wafer says about the tool: removed against what the same polish removes on a tool at its mean.
-        const observed = (w.incoming.mean - areaMean(w.film)) / w.nominal, context = { rested: w.tool.rested, afterPadChange: w.tool.afterPadChange };
+        const observed = ((w.incoming.area ?? w.incoming.mean) - areaMean(w.film)) / w.nominal, context = { rested: w.tool.rested, afterPadChange: w.tool.afterPadChange };
         tool.observe(w.tool.wafer, observed, context);
         result.tool = { wafer: w.tool.wafer, observed, predicted: w.tool.predicted, next: tool.predict(), ...context, padShare: w.tool.padUsage / tool.model.padUsageSeen };
       }
@@ -443,9 +486,11 @@
       return result;
     }
 
+    /** What keeps the pad from being changed now: 'wafer' on the head, 'platen' turning, 'head' not up. Empty when the tool stands ready. */
+    const padBlocks = () => [...(s.wafer && s.wafer.where === 'head' ? ['wafer'] : []), ...(s.platenRpm > 1 ? ['platen'] : []), ...(s.contact || s.gap < C.headTravel * 0.5 ? ['head'] : [])];
     /** Fits a new pad. The tool must stand still with the head up; false when it does not. */
     function replacePad() {
-      if (s.contact || s.gap < C.headTravel * 0.5 || s.platenRpm > 1 || (s.wafer && s.wafer.where === 'head')) return false;
+      if (padBlocks().length) return false;
       s.glaze = GLAZE_REF; s.coverage = 0; s.padWear = 0; s.temp = C.ambient;   // broken in, dry, at room temperature
       s.padCut = 0; s.padLeft = 1; exSitu = 0; if (s.lot) s.lot.padChanges += 1;
       if (tool) tool.replacePad();
@@ -466,9 +511,9 @@
     }
 
     return {
-      state: s, radius, step, setControl, newWafer, moveWafer, measure, replacePad, nextCleanStep, lotSummary, tool,
+      state: s, radius, step, setControl, newWafer, moveWafer, measure, replacePad, padBlocks, nextCleanStep, lotSummary, tool,
       filmAt: (r, theta = 0) => s.wafer ? Math.max(0, interp(s.wafer.film, r) - s.wafer.tilt * (r / C.waferRadius) * Math.cos(theta - s.wafer.tiltAngle)) : 0,
-      meanThickness: () => s.wafer ? areaMean(s.wafer.film) : 0,
+      meanThickness: () => s.wafer ? siteMean(s.wafer.film, s.wafer) : 0,
       liveWiwnu: () => s.wafer ? stats(pattern(s.wafer.film, s.wafer.tilt, s.wafer.tiltAngle, 0)).wiwnu : 0,
     };
   }

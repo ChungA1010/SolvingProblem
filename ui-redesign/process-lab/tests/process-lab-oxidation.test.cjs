@@ -166,3 +166,13 @@ test('Massoud\'s time constants read with +E/kT: minutes long, and shorter in a 
     assert.ok(r.tau1 < previous && r.tau1 > 0.5 && r.tau2 > r.tau1, `${celsius} C: ${r.tau1.toFixed(2)} and ${r.tau2.toFixed(2)} min`); previous = r.tau1;
   }
 });
+
+test('the oxide is judged on the mean as it is printed: 525 nm is inside 500 +- 25 nm, 526 nm is not', () => {
+  // the film that measures a given mean, found for one seed (the five points carry the noise of the instrument)
+  const measured = oxide => { const sim = M.create({ target: 500, tolerance: 25, seed: 7, oxide }); return sim.measure(); };
+  const filmFor = mean => { let lo = mean - 20, hi = mean + 20; for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (measured(mid).mean < mean) lo = mid; else hi = mid; } return hi; };
+  const at = measured(filmFor(525.3)), over = measured(filmFor(525.7)), low = measured(filmFor(474.7)), under = measured(filmFor(474.3));
+  assert.ok(Math.abs(at.mean - 525.3) < 0.01 && Math.abs(over.mean - 525.7) < 0.01, `${at.mean}, ${over.mean}`);
+  assert.equal(at.ok, true); assert.equal(at.error, 25); assert.equal(over.ok, false); assert.equal(over.error, 26);
+  assert.equal(low.ok, true); assert.equal(low.error, -25); assert.equal(under.ok, false); assert.equal(under.error, -26);
+});

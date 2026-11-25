@@ -91,8 +91,8 @@ export function makeParts(kit) {
     const cap = facing(add(cyl(0.026, 0.026, 0.016, 28), new THREE.MeshStandardMaterial({ color, emissive: color, emissiveIntensity: 0.08, roughness: 0.35 }), g, [0, 0, 0.02]), 'z');
     cap.userData.fixed = true;
     plate(0.11, 0.04, label([text], { bg: '#f3f4f6', fg: '#1f2933', size: 0.6 }), root, [x, y - 0.062, z + 0.0012]);
-    control(name, g, new THREE.Vector3(x, y, z + 0.03), { click: true });
-    let down = 0;
+    let down = 0;                                              // s the cap still has to stay in
+    control(name, g, new THREE.Vector3(x, y, z + 0.03), { click: true, press() { down = 0.25; } });   // the cap goes in under the finger, whether the machine answers the press or not
     return { at: [x, y, z + 0.03], set(lit, dt, pressed) { if (pressed) down = 0.25; down = Math.max(0, down - dt); cap.position.z = 0.02 - 0.007 * Math.min(1, down / 0.1); cap.material.emissiveIntensity = lit ? 1.5 : 0.08; } };
   }
 

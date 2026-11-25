@@ -44,16 +44,17 @@ export function create({ canvas, on = {}, line = [] }) {
     if (!context) return null;
     renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true });
   } catch { return null; }
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2), frames = 0, slowFrames = 0, adaptive = true;      // stepped down if the display cannot keep up
+  let ratioCap = 2;                                           // the most the picture is rendered at; stepped down if the display cannot keep up
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, ratioCap), frames = 0, slowFrames = 0, adaptive = true;
   renderer.setPixelRatio(pixelRatio);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.9;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xdde1e7); scene.fog = new THREE.Fog(0xdde1e7, 11, 26);
-  const pmrem = new THREE.PMREMGenerator(renderer), room = new RoomEnvironment();
-  const environment = pmrem.fromScene(room, 0.04); scene.environment = environment.texture; scene.environmentIntensity = 0.85;
-  room.dispose(); pmrem.dispose();
+  /** The light of the room on every surface, baked once, and again when the graphics context comes back after it was lost. */
+  const bakeEnvironment = () => { const pmrem = new THREE.PMREMGenerator(renderer), room = new RoomEnvironment(), baked = pmrem.fromScene(room, 0.04); room.dispose(); pmrem.dispose(); return baked; };
+  let environment = bakeEnvironment(); scene.environment = environment.texture; scene.environmentIntensity = 0.85;
   scene.add(new THREE.HemisphereLight(0xf6f9ff, 0xa9b2c2, 0.42));
   const key = new THREE.DirectionalLight(0xfff7ec, 2.25); key.position.set(-3.0, 7.4, 4.4); key.target.position.set(0.1, 1.2, 0); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.014; key.shadow.radius = 4;
@@ -154,7 +155,7 @@ export function create({ canvas, on = {}, line = [] }) {
   // ----- the line: every piece of equipment stands in the room; one of them is in use at a time, or none -----
   const GAP = 1.5, RAIL_Z = 1.75, WALL = { behind: 0.95, height: 12, length: 220, sign: 4.42 };   // m: floor between two machines; the rail, in front of the row of fronts (z = 0); the wall behind the deepest machine, and how high the numbers on it are
   const stations = {}, row = [];                              // equipment -> { name, group, parts, equipment, offset, min, max, centre, width, place }; row: the same in the order they stand
-  const ZERO = new THREE.Vector3(), at = new THREE.Vector3();
+  const ZERO = new THREE.Vector3(), at = new THREE.Vector3(), shadowEye = new THREE.OrthographicCamera();
   let equipment = null, VIEWS = { home: [[3, 2, 5], [0, 1.2, 0]] }, active = null, lineHover = null, lineMarked = null, lit = null, cart = null;
   let extent = { left: -3, right: 3, top: 3, back: -3, near: 1, front: 3 }, lineView = [[-6, 5, 12], [0, 1, 0]], lineTouched = false, lineAngles = null;
   const origin = () => (active ? stations[active].offset : ZERO);
@@ -283,14 +284,26 @@ export function create({ canvas, on = {}, line = [] }) {
   function aim(centre, wide) {
     const reach = (extent.right - extent.left) / 2 + 4, k = wide ? Math.max(2.4, reach / 7) : 1;
     key.position.set(centre.x - 3.0 * k, 7.4 * k, centre.z + 4.4 * k); key.target.position.set(centre.x + 0.1, 1.2, centre.z); key.target.updateMatrixWorld();
-    Object.assign(key.shadow.camera, wide ? { left: -reach, right: reach, top: 10, bottom: -8, near: 0.5, far: 10 * k + 30 } : { left: -2.6, right: 2.6, top: 3.2, bottom: -2.2, near: 0.5, far: 18 });
+    if (wide && row.length) {
+      // The box of the light's own camera, fitted round what stands in the line: the machines up to the tallest, the wall
+      // behind them, and the rail in front with its carriage and its buffer stops. Reckoned as the light sees it.
+      shadowEye.position.copy(key.position); shadowEye.lookAt(key.target.position); shadowEye.updateMatrixWorld();
+      const tall = Math.max(...row.map(st => st.max.y)) + 0.3, box = { left: Infinity, right: -Infinity, bottom: Infinity, top: -Infinity, near: Infinity, far: -Infinity };
+      for (let i = 0; i < 8; i++) {
+        at.set(i & 1 ? extent.right + 2.8 : extent.left - 2.8, i & 2 ? tall : 0, i & 4 ? RAIL_Z + 0.5 : extent.back).applyMatrix4(shadowEye.matrixWorldInverse);
+        box.left = Math.min(box.left, at.x); box.right = Math.max(box.right, at.x); box.bottom = Math.min(box.bottom, at.y); box.top = Math.max(box.top, at.y);
+        box.near = Math.min(box.near, -at.z); box.far = Math.max(box.far, -at.z);
+      }
+      Object.assign(key.shadow.camera, { left: box.left - 0.3, right: box.right + 0.3, top: box.top + 0.3, bottom: box.bottom - 0.3, near: Math.max(0.5, box.near - 1), far: box.far + 1 });
+    } else Object.assign(key.shadow.camera, { left: -2.6, right: 2.6, top: 3.2, bottom: -2.2, near: 0.5, far: 18 });
     const size = wide ? Math.min(4096, renderer.capabilities.maxTextureSize) : 2048;
     if (key.shadow.mapSize.x !== size) { key.shadow.mapSize.set(size, size); key.shadow.map?.dispose(); key.shadow.map = null; }
     key.shadow.camera.updateProjectionMatrix();
   }
   const calm = Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
   const haze = { near: 11, far: 26 };                         // where the room fades into its background; on the way between the line and a machine it closes in and opens again
-  const lineHaze = distance => { haze.near = distance * 1.1; haze.far = distance * 3.4; controls.maxDistance = distance * 1.5; };
+  let reach = 11;                                             // how far the camera may go from what it looks at: of the machine in use, or of the line. Lifted while it glides (settle)
+  const lineHaze = distance => { haze.near = distance * 1.1; haze.far = distance * 3.4; reach = distance * 1.5; if (!glide) controls.maxDistance = reach; };
   /**
    * Puts a piece of equipment in use: its parts answer the pointer and its views are the views. The rest of the line
    * steps out, so the machine can be seen from every side. `fly` takes the camera there through the haze instead of putting it there.
@@ -298,29 +311,34 @@ export function create({ canvas, on = {}, line = [] }) {
   function mount(name, fly = false) {
     if (!EQUIPMENT[name]) throw new Error(`no equipment for ${name}`);
     const st = stations[name] || build(name);
-    endGlide();
+    endGlide(); unlight();
     active = name; root = st.group; parts = st.parts; equipment = st.equipment; VIEWS = equipment.views;
     hovered = null; drag = null; press = null; lineHover = null; lineMarked = null; canvas.style.cursor = '';
-    haze.near = 11; haze.far = 26; controls.maxDistance = 11;
+    haze.near = 11; haze.far = 26; reach = 11;
     setView('home', !fly || calm, () => {
       for (const other of Object.values(stations)) other.group.visible = other.place.visible = other === st;
       if (st.sign) st.sign.visible = false;                     // from this near the large number on the wall is only a piece of itself
       if (cart) cart.visible = false;
       spot.visible = false;                                    // the line's own light is not reckoned while a machine is in use
       aim(st.offset, false);
+      snapFrame(name);                                         // from here the picture is framed for this machine
     });
     resize();
   }
+  /** The parts of the machine that is being left let go of their glow: nothing goes on easing it out once they are no longer the parts in use. */
+  function unlight() { for (const p of Object.values(parts)) if (p.glow) { p.glow = 0; for (const m of p.materials) m.emissiveIntensity = 0; } }
   /** No piece in use: the camera shows the whole line, and a click on a machine picks it (on.station). */
   function showLine(instant = false) {
-    endGlide();
+    endGlide(); unlight();
     active = null; root = null; parts = {}; equipment = null; hovered = null; drag = null; press = null; canvas.style.cursor = '';
     lineHaze(fitLine()); VIEWS = { home: lineView }; lineTouched = false;
+    fitted = canvas.clientWidth && canvas.clientHeight ? `${canvas.clientWidth}x${canvas.clientHeight}` : '';   // a canvas that is not laid out has no size to fit: the line is fitted when it has one (resize)
     setView('home', instant || calm, () => {
       for (const st of Object.values(stations)) { st.group.visible = st.place.visible = true; if (st.sign) st.sign.visible = true; }
       if (cart) cart.visible = true;
       spot.visible = true;
       aim(ZERO, true);
+      snapFrame(null);                                         // the line is fitted by its own camera (fitLine), at full scale
     });
     resize();
   }
@@ -351,7 +369,8 @@ export function create({ canvas, on = {}, line = [] }) {
 
   // ----- interaction: hover any part, move the controls, orbit the rest -----
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), hit = new THREE.Vector3(), tmp = new THREE.Vector3();
-  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, clock = 0;
+  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, clock = 0, drawn = false;
+  const flying = () => Boolean(glide?.dip);                    // on the way between the line and a machine: the room changes, and nothing answers the pointer
   const setNdc = ev => { const r = canvas.getBoundingClientRect(); ndc.set((ev.clientX - r.left) / r.width * 2 - 1, 1 - (ev.clientY - r.top) / r.height * 2); raycaster.setFromCamera(ndc, camera); };
   function partAt(ev) {
     if (!root) return null;
@@ -366,8 +385,11 @@ export function create({ canvas, on = {}, line = [] }) {
   function beginDrag(found, ev) {
     const how = parts[found.name].how, base = { name: found.name, x: ev.clientX, y: ev.clientY, moved: false, start: current(found.name) };
     if (how.drag === 'lift') {
-      camera.getWorldDirection(tmp); tmp.y = 0; tmp.normalize();
+      camera.getWorldDirection(tmp); const down = Math.abs(tmp.y); tmp.y = 0; tmp.normalize();
       base.plane = new THREE.Plane().setFromNormalAndCoplanarPoint(tmp, found.point); base.y0 = found.point.y;
+      // Seen from steeply above, the pointer's ray runs almost along that plane and a few px would take the part its whole
+      // way. The height then follows the pointer up and down the screen, at the size the part has in the picture.
+      if (down > 0.75) base.perPixel = 2 * camera.position.distanceTo(found.point) / (camera.projectionMatrix.elements[5] * canvas.clientHeight);
     }
     return base;
   }
@@ -375,13 +397,17 @@ export function create({ canvas, on = {}, line = [] }) {
     const d = drag, dx = ev.clientX - d.x, dy = ev.clientY - d.y, how = parts[d.name].how;
     if (!d.moved && Math.hypot(dx, dy) < 4) return;
     if (!d.moved) { d.moved = true; on.drag?.(d.name); }
-    if (how.drag === 'lift') { setNdc(ev); if (raycaster.ray.intersectPlane(d.plane, hit)) emit(d.name, d.start + (hit.y - d.y0) / how.travel); }
+    if (how.drag === 'lift') {
+      if (d.perPixel) emit(d.name, d.start - dy * d.perPixel / how.travel);
+      else { setNdc(ev); if (raycaster.ray.intersectPlane(d.plane, hit)) emit(d.name, d.start + (hit.y - d.y0) / how.travel); }
+    }
     else if (how.drag === 'slide') emit(d.name, d.start + (dx - dy) * how.perPixel);
   }
-  function endDrag() {
-    const d = drag; drag = null; controls.enabled = true;
+  /** Lets go of the part held. `click`: the press ended on it, so a press that did not move works a button; a press that was taken away (cancelled, lost) works nothing. */
+  function endDrag(click = true) {
+    const d = drag; drag = null; if (!flying()) controls.enabled = true;
     if (!d) return;
-    if (!d.moved && parts[d.name].how.click) emit(d.name, !current(d.name));
+    if (click && !d.moved && parts[d.name].how.click) { parts[d.name].how.press?.(); emit(d.name, !current(d.name)); }
     on.drag?.(null, d.moved ? d.name : null);
   }
   function setHover(found) {
@@ -391,40 +417,72 @@ export function create({ canvas, on = {}, line = [] }) {
     canvas.style.cursor = !found ? '' : found.kind === 'info' ? 'help' : parts[name].how.click ? 'pointer' : 'grab';
     on.hover?.(name, found?.kind ?? null);
   }
+  // One pointer holds a part, or presses, at a time: a second finger or button is not listened to until the first has let go.
   const pointerDown = ev => {
-    if (ev.button !== 0) return;
-    if (!active) { const name = stationAt(ev); press = name ? { station: name, x: ev.clientX, y: ev.clientY } : null; return; }   // the view still turns from here; a press that does not move picks the machine
+    if (ev.button !== 0 || flying()) return;
+    if (drag) { if (ev.pointerId !== drag.pointer) return; cancelPointer(); }                                   // the same pointer presses again: the end of its last press was not heard
+    if (press) { if (ev.pointerId !== press.pointer) return; press = null; }
+    if (!active) { const name = stationAt(ev); press = name ? { station: name, x: ev.clientX, y: ev.clientY, pointer: ev.pointerId } : null; return; }   // the view still turns from here; a press that does not move picks the machine
     const found = partAt(ev); if (!found) return;
-    if (found.kind === 'info') { press = { name: found.name, x: ev.clientX, y: ev.clientY }; return; }       // the view still orbits from here
-    drag = beginDrag(found, ev); controls.enabled = false;
+    if (found.kind === 'info') { press = { name: found.name, x: ev.clientX, y: ev.clientY, pointer: ev.pointerId }; return; }       // the view still orbits from here
+    drag = beginDrag(found, ev); drag.pointer = ev.pointerId; controls.enabled = false;
     try { canvas.setPointerCapture(ev.pointerId); } catch { /* synthetic events have no capture */ }
   };
+  /** The press was taken away before it ended on the canvas (the button let go in another window, a system gesture): nothing is clicked. */
+  const cancelPointer = () => { press = null; endDrag(false); };
   const pointerMove = ev => {
-    if (drag) { moveDrag(ev); return; }
+    if (drag) {
+      if (ev.pointerId !== drag.pointer) return;
+      if (ev.pointerType === 'mouse' && !(ev.buttons & 1)) { cancelPointer(); return; }                         // the button was let go where the canvas did not hear of it
+      moveDrag(ev); return;
+    }
+    if (press && ev.pointerId === press.pointer && Math.hypot(ev.clientX - press.x, ev.clientY - press.y) >= 5) press.moved = true;   // the view was turned: not a click, wherever it ends
     if (!ev.buttons) pendingHover = { clientX: ev.clientX, clientY: ev.clientY };                              // resolved once per frame
   };
   const pointerUp = ev => {
-    if (press && !drag) { const p = press; press = null; if (Math.hypot(ev.clientX - p.x, ev.clientY - p.y) < 5) { if (p.station) on.station?.('pick', p.station); else on.press?.(p.name); } }
-    press = null; endDrag();
+    if (drag) { if (ev.pointerId === drag.pointer) endDrag(); return; }
+    if (!press || ev.pointerId !== press.pointer) return;
+    const p = press; press = null;
+    if (!p.moved && !flying() && Math.hypot(ev.clientX - p.x, ev.clientY - p.y) < 5) { if (p.station) on.station?.('pick', p.station); else on.press?.(p.name); }
   };
+  const pointerCancel = ev => { if (ev.pointerId === (drag ? drag.pointer : press?.pointer)) cancelPointer(); };
+  // One detent of a wheel is one step of a control, however the wheel reports it; a touchpad sends many small moves,
+  // which add up to steps. A roll to the side moves nothing, and a pinch is the camera's.
+  const rolled = { name: null, sum: 0, at: 0 };
+  function wheelSteps(ev, name) {
+    if (!ev.deltaY) return 0;
+    const turn = ev.deltaY / (ev.deltaMode === 1 ? 3 : ev.deltaMode === 2 ? 1 : 100);                           // in detents: from lines, pages or px
+    if (Math.abs(turn) >= 0.5) { rolled.sum = 0; return -Math.sign(turn) * Math.max(1, Math.round(Math.abs(turn))); }
+    if (rolled.name !== name || ev.timeStamp - rolled.at > 400) rolled.sum = 0;
+    rolled.name = name; rolled.at = ev.timeStamp; rolled.sum += turn;
+    const steps = Math.trunc(rolled.sum); rolled.sum -= steps;
+    return -steps;                                             // rolled away from the hand: up
+  }
   const onWheel = ev => {
+    if (flying()) { ev.preventDefault(); ev.stopImmediatePropagation(); return; }
     if (!active) return;                                        // over the line the wheel is the camera's
-    const found = partAt(ev); if (!found || found.kind !== 'control' || !parts[found.name].how.wheel) return;
-    ev.preventDefault(); ev.stopImmediatePropagation();
-    emit(found.name, current(found.name) + (ev.deltaY < 0 ? 1 : -1) * parts[found.name].how.wheel);
+    const found = partAt(ev); if (!found || found.kind !== 'control' || !parts[found.name].how.wheel || ev.ctrlKey) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();         // over a control the wheel never moves the camera, whichever way it is rolled
+    const steps = wheelSteps(ev, found.name);
+    if (steps) emit(found.name, current(found.name) + steps * parts[found.name].how.wheel);
   };
+  const onMenu = ev => ev.preventDefault();                     // no browser menu over the picture: while a part is held it would swallow the end of the press
+  const onCaptureLost = ev => { if (drag && ev.pointerId === drag.pointer) cancelPointer(); };
   const pointerLeave = () => { pendingHover = null; if (!active) setLineHover(null); else if (!drag) setHover(null); };
   canvas.addEventListener('pointerdown', pointerDown); canvas.addEventListener('pointermove', pointerMove);
-  canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerUp);
+  canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerCancel);
   canvas.addEventListener('wheel', onWheel, { passive: false }); canvas.addEventListener('pointerleave', pointerLeave);
+  canvas.addEventListener('contextmenu', onMenu); canvas.addEventListener('lostpointercapture', onCaptureLost); window.addEventListener('blur', cancelPointer);
   const controls = new OrbitControls(camera, canvas);
   controls.enableDamping = true; controls.dampingFactor = 0.12; controls.rotateSpeed = 0.7; controls.zoomSpeed = 0.8; controls.panSpeed = 0.6;
   controls.minDistance = 0.8; controls.maxDistance = 11; controls.minPolarAngle = 0.05; controls.maxPolarAngle = Math.PI * 0.495;
 
   let glide = null;
   const DIP = 0.4, ease = t => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2), smooth = t => t * t * (3 - 2 * t);
+  /** The camera is where it stays: it keeps within reach of what it looks at again, and the view can be taken hold of. */
+  function settle() { controls.maxDistance = reach; if (!drag) controls.enabled = true; }
   /** Ends a glide where it is: what it was to change is changed, and the haze is where it belongs. */
-  function endGlide() { const g = glide; glide = null; if (!g) return; g.change?.(); scene.fog.near = haze.near; scene.fog.far = haze.far; }
+  function endGlide() { const g = glide; glide = null; if (!g) return; g.change?.(); settle(); scene.fog.near = haze.near; scene.fog.far = haze.far; }
   /**
    * Goes to a named view of the piece in use (or of the line): at once, or in a glide that takes longer the farther it is.
    * `change` is what the room has to change on the way (who stands in it, the light). A glide then goes through the haze:
@@ -433,39 +491,120 @@ export function create({ canvas, on = {}, line = [] }) {
   function setView(name = 'home', instant = false, change = null) {
     const v = VIEWS[name]; if (!v) return;
     endGlide();
+    if (!active && name === 'home') lineTouched = false;        // the line as it is fitted: it is fitted again when the window changes
     const position = new THREE.Vector3(...v[0]).add(origin()), target = new THREE.Vector3(...v[1]).add(origin());
-    if (instant) { change?.(); camera.position.copy(position); controls.target.copy(target); controls.update(); scene.fog.near = haze.near; scene.fog.far = haze.far; return; }
+    if (instant) { change?.(); settle(); camera.position.copy(position); controls.target.copy(target); controls.update(); scene.fog.near = haze.near; scene.fog.far = haze.far; return; }
     const far = camera.position.distanceTo(position);
     glide = { from: camera.position.clone(), fromTarget: controls.target.clone(), position, target, t: 0, seconds: change ? 1.6 : THREE.MathUtils.clamp(0.4 + far * 0.045, 0.4, 1.2),
       change, dip: Boolean(change), haze: { near: scene.fog.near, far: scene.fog.far } };
+    controls.maxDistance = Infinity;                            // the way there may be longer than the view at its end allows: no jump at the start
+    if (change) controls.enabled = false;                       // a flight between the line and a machine cannot be taken hold of: it would be left half-way, in a room that has already changed
   }
-  controls.addEventListener('start', () => { endGlide(); lineTouched = true; });
-  // Panels of the page can cover the right and the bottom of the view; the picture then moves into the free area.
-  // Only the principal point moves; the zoom is corrected so the scale stays the same.
-  const inset = { right: 0, bottom: 0, x: 0, y: 0 };
+  // Taking hold of the view ends a glide between two views where it is. The line counts as turned only when the view has
+  // moved by the time it is let go: a click that turns nothing leaves it to be fitted to the window again.
+  let held = null;
+  controls.addEventListener('start', () => { endGlide(); held = { position: camera.position.clone(), target: controls.target.clone() }; });
+  controls.addEventListener('end', () => { if (held && (held.position.distanceToSquared(camera.position) > 1e-8 || held.target.distanceToSquared(controls.target) > 1e-8)) lineTouched = true; held = null; });
+  // Panels of the page can cover the right and the bottom of the view; the picture then moves into the free area: the
+  // point looked at goes to the middle of what is free. Only the principal point moves, and the scale stays the same,
+  // as long as the machine in use, seen from its home view, still fits into what is free. Where it does not (a low or
+  // a narrow window), the point looked at leaves the middle by what it takes, and the picture is drawn smaller by
+  // what is still missing. With no panel open nothing of this changes the picture.
+  const MARGIN = 12;                                           // px kept clear between the machine and the edge of what is free
+  const inset = { right: 0, bottom: 0 };                       // covered sizes asked by the page (CSS px)
+  const frame = { x: 0, y: 0, scale: 1, of: null };            // as applied: the principal point is x left of and y above the middle of the canvas (CSS px), and the scale; `of`: the machine this is reckoned for
+  const lens = new THREE.PerspectiveCamera(), corner = new THREE.Vector3();
+  let spread = null, spreadKey = '';
+  /**
+   * How far a machine reaches from the point looked at in its home view on a canvas of this size: px to the left, right,
+   * top and bottom at full scale. A side that runs out of the canvas counts as far as the canvas goes: the home view may
+   * cut a machine on purpose, and then it keeps as much of the free area as it has of the whole. Null when a corner of
+   * the machine is beside or behind that camera.
+   */
+  function homeSpread(name, w, h) {
+    const key = `${name} ${w}x${h}`; if (key === spreadKey) return spread;
+    spreadKey = key; spread = null;
+    const st = stations[name], v = st?.equipment.views?.home; if (!v) return null;
+    lens.fov = w / h < 1.2 ? 46 : 34; lens.aspect = w / h; lens.zoom = 1;
+    lens.position.set(v[0][0], v[0][1], v[0][2]).add(st.offset); lens.lookAt(corner.set(v[1][0], v[1][1], v[1][2]).add(st.offset));
+    lens.updateMatrixWorld(); lens.updateProjectionMatrix();
+    const s = { left: 0, right: 0, top: 0, bottom: 0 };
+    for (let i = 0; i < 8; i++) {
+      corner.set(i & 1 ? st.max.x : st.min.x, i & 2 ? st.max.y : st.min.y, i & 4 ? st.max.z : st.min.z).add(st.offset).applyMatrix4(lens.matrixWorldInverse);
+      if (corner.z > -0.2) return null;
+      corner.applyMatrix4(lens.projectionMatrix);
+      s.left = Math.max(s.left, -corner.x * w / 2); s.right = Math.max(s.right, corner.x * w / 2); s.top = Math.max(s.top, corner.y * h / 2); s.bottom = Math.max(s.bottom, -corner.y * h / 2);
+    }
+    s.left = Math.min(s.left, w / 2 - MARGIN); s.right = Math.min(s.right, w / 2 - MARGIN); s.top = Math.min(s.top, h / 2 - MARGIN); s.bottom = Math.min(s.bottom, h / 2 - MARGIN);
+    return spread = s;
+  }
+  /** Where the principal point and the scale belong on a canvas of this size, with the panels as the page has them now. */
+  function frameGoal(w, h) {
+    const freeW = w - inset.right, freeH = h - inset.bottom, goal = { x: inset.right / 2, y: inset.bottom / 2, scale: 1 };
+    const s = frame.of ? homeSpread(frame.of, w, h) : null;
+    if (!s) return goal;
+    const k = goal.scale = THREE.MathUtils.clamp(Math.min((freeW - 2 * MARGIN) / (s.left + s.right), (freeH - 2 * MARGIN) / (s.top + s.bottom)), 0.3, 1);
+    goal.x -= THREE.MathUtils.clamp(0, MARGIN + k * s.left - freeW / 2, freeW / 2 - MARGIN - k * s.right);     // to the right by this much
+    goal.y += THREE.MathUtils.clamp(0, MARGIN + k * s.bottom - freeH / 2, freeH / 2 - MARGIN - k * s.top);     // up by this much
+    return goal;
+  }
   function applyView() {
     const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
-    const a = 2 * inset.x, b = 2 * inset.y;
-    camera.aspect = (w + a) / (h + b); camera.zoom = h / (h + b); camera.fov = w / h < 1.2 ? 46 : 34;
-    if (a > 0.5 || b > 0.5) camera.setViewOffset(w + a, h + b, a, b, w, h); else camera.clearViewOffset();
+    const moved = Math.abs(frame.x) > 0.25 || Math.abs(frame.y) > 0.25, dx = moved ? Math.abs(frame.x) : 0, dy = moved ? Math.abs(frame.y) : 0, W = w + 2 * dx, H = h + 2 * dy;
+    camera.aspect = W / H; camera.zoom = frame.scale * h / H; camera.fov = w / h < 1.2 ? 46 : 34;         // a window of w x h in a picture of W x H whose middle is the principal point
+    if (moved) camera.setViewOffset(W, H, dx + frame.x, dy + frame.y, w, h); else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
-  function setInsets({ right = 0, bottom = 0 } = {}) { inset.right = Math.max(0, right); inset.bottom = Math.max(0, bottom); }
+  /** What the page's panels cover of the view (CSS px). The picture eases into what is left; `instant` puts it there at once. */
+  function setInsets({ right = 0, bottom = 0 } = {}, instant = false) { inset.right = Math.max(0, right); inset.bottom = Math.max(0, bottom); if (instant) snapFrame(); }
   function followInsets(dt) {
-    const goalX = inset.right / 2, goalY = inset.bottom / 2;
-    if (Math.abs(goalX - inset.x) < 0.5 && Math.abs(goalY - inset.y) < 0.5) return;
-    const k = Math.min(1, dt * 8); inset.x += (goalX - inset.x) * k; inset.y += (goalY - inset.y) * k; applyView();
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    const goal = frameGoal(w, h);
+    if (Math.abs(goal.x - frame.x) < 0.5 && Math.abs(goal.y - frame.y) < 0.5 && Math.abs(goal.scale - frame.scale) < 0.001) return;
+    const k = Math.min(1, dt * 8); frame.x += (goal.x - frame.x) * k; frame.y += (goal.y - frame.y) * k; frame.scale += (goal.scale - frame.scale) * k; applyView();
   }
-  let fitted = '';
+  /** Puts the frame where it belongs at once: for a machine that has just come into use (or the line), and for a canvas that has changed its size. */
+  function snapFrame(of = frame.of) {
+    frame.of = of;
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    Object.assign(frame, frameGoal(w, h)); applyView();
+  }
+  let fitted = '', sized = '';
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
-    renderer.setSize(w, h, false); applyView();
-    if (!active && row.length && !lineTouched && fitted !== `${w}x${h}`) {                                   // the line is fitted to the picture again until someone has turned the view
+    const size = `${w}x${h}@${pixelRatio}`, changed = size !== sized; sized = size;
+    renderer.setSize(w, h, false); snapFrame();
+    if (!active && row.length && fitted !== `${w}x${h}`) {                                                    // the line is fitted to a picture of this shape
       fitted = `${w}x${h}`; lineHaze(fitLine()); VIEWS = { home: lineView };
-      if (glide) { glide.position.fromArray(lineView[0]); glide.target.fromArray(lineView[1]); } else setView('home', true);
+      if (glide) { glide.position.fromArray(lineView[0]); glide.target.fromArray(lineView[1]); }
+      else if (!lineTouched) setView('home', true);            // and shown so, until someone has turned the view: then it is the way home that is new
+      else { scene.fog.near = haze.near; scene.fog.far = haze.far; }
     }
+    if (changed && drawn) render();                             // a canvas that changes its size is cleared: drawn again at once, it does not flash
   }
   const observer = new ResizeObserver(resize); observer.observe(canvas);
+  // The display's own ratio changes when the page is zoomed or the window goes to another monitor: the picture follows it.
+  let ratioQuery = null;
+  function watchRatio() {
+    ratioQuery?.removeEventListener('change', onRatio);
+    ratioQuery = window.matchMedia?.(`(resolution: ${window.devicePixelRatio || 1}dppx)`) ?? null; ratioQuery?.addEventListener('change', onRatio);
+  }
+  function onRatio() {
+    if (disposed) return;
+    const next = Math.min(window.devicePixelRatio || 1, ratioCap);
+    if (adaptive && next !== pixelRatio) { pixelRatio = next; renderer.setPixelRatio(pixelRatio); resize(); }
+    watchRatio();
+  }
+  watchRatio();
+  // A graphics context that is lost (the driver, a sleeping laptop) leaves the canvas blank until it comes back. three.js
+  // sets itself up again; the baked light of the room and the shadow map are made anew here, and the page is told.
+  const onContextLost = () => { on.context?.(false); };
+  const onContextBack = () => {
+    environment = bakeEnvironment(); scene.environment = environment.texture;   // what was baked before went with the old context: there is nothing of it left to free
+    key.shadow.map = null;
+    on.context?.(true);
+  };
+  canvas.addEventListener('webglcontextlost', onContextLost); canvas.addEventListener('webglcontextrestored', onContextBack);
 
   /** Screen position (CSS px inside the canvas) of a named part, for the card drawn by the page. */
   function screenOf(name) {
@@ -478,8 +617,8 @@ export function create({ canvas, on = {}, line = [] }) {
   function update(next, dt = 0.016) {
     view = next; clock += dt;
     frames++; if (dt > 0.034) slowFrames++;
-    if (frames >= 90) { if (adaptive && slowFrames > 60 && pixelRatio > 1) { pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
-    if (pendingHover) { const ev = pendingHover; pendingHover = null; if (!active) setLineHover(stationAt(ev)); else if (!drag) setHover(partAt(ev)); }
+    if (frames >= 90) { if (adaptive && slowFrames > 60 && pixelRatio > 1) { ratioCap = pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
+    if (pendingHover && !flying()) { const ev = pendingHover; pendingHover = null; if (!active) setLineHover(stationAt(ev)); else if (!drag) setHover(partAt(ev)); }
     if (active && next) equipment.update(next, dt, clock);
     moveCart(dt);
     // the machine of the line the pointer is on (or the page points at) stands in a pool of light, on a lit patch of floor
@@ -508,11 +647,11 @@ export function create({ canvas, on = {}, line = [] }) {
       if (g.change && g.t >= DIP) { g.change(); g.change = null; }                                             // the room changes while it is out of sight
       const thick = !g.dip ? 1 : g.t < DIP ? 1 - 0.9 * smooth(g.t / DIP) : 0.1 + 0.9 * smooth((g.t - DIP) / (1 - DIP));
       scene.fog.near = (g.haze.near + (haze.near - g.haze.near) * k) * thick; scene.fog.far = (g.haze.far + (haze.far - g.haze.far) * k) * thick;
-      if (g.t >= 1) glide = null;
+      if (g.t >= 1) { glide = null; settle(); }
     }
     controls.update();
   }
-  function render() { if (!disposed) renderer.render(scene, camera); }
+  function render() { if (disposed) return; drawn = true; renderer.render(scene, camera); }
 
   if (line.length) showLine(true);
   return {
@@ -534,8 +673,16 @@ export function create({ canvas, on = {}, line = [] }) {
     /** The machine of the line under a pointer position, or null (used by the browser checks). */
     stationAt(clientX, clientY) { return active ? null : stationAt({ clientX, clientY }); },
     /** Places the camera freely, in the coordinates of the piece in use (checks). */
-    lookFrom(position, target) { glide = null; camera.position.set(position[0], position[1], position[2]).add(origin()); controls.target.set(target[0], target[1], target[2]).add(origin()); controls.update(); },
+    lookFrom(position, target) { endGlide(); camera.position.set(position[0], position[1], position[2]).add(origin()); controls.target.set(target[0], target[1], target[2]).add(origin()); controls.update(); },
     holdPixelRatio(ratio) { adaptive = false; pixelRatio = ratio; renderer.setPixelRatio(ratio); resize(); },
+    /** How the picture is framed now: the principal point x left of and y above the middle of the canvas (CSS px), the scale, and the machine it is reckoned for (checks). */
+    get frame() { return { x: frame.x, y: frame.y, scale: frame.scale, of: frame.of }; },
+    /** Where the machine in use stands in the picture when it is seen from its home view, as framed now: { left, right, top, bottom } in CSS px inside the canvas, or null (the line, or a machine that cannot be reckoned). The page keeps its guide clear of it. */
+    get homeBox() {
+      const w = canvas.clientWidth, h = canvas.clientHeight, s = frame.of && w && h ? homeSpread(frame.of, w, h) : null; if (!s) return null;
+      const x = w / 2 - frame.x, y = h / 2 - frame.y, k = frame.scale;
+      return { left: x - k * s.left, right: x + k * s.right, top: y - k * s.top, bottom: y + k * s.bottom };
+    },
     /** Names of every part that answers to the pointer, with its kind ('control' or 'info'). */
     get parts() { return Object.fromEntries(Object.entries(parts).map(([name, p]) => [name, p.kind])); },
     /** Name of the part under a pointer position, or null (used by the browser checks). */
@@ -550,8 +697,10 @@ export function create({ canvas, on = {}, line = [] }) {
     dispose() {
       disposed = true; observer.disconnect(); controls.dispose();
       canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointermove', pointerMove);
-      canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp);
+      canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerCancel);
       canvas.removeEventListener('wheel', onWheel); canvas.removeEventListener('pointerleave', pointerLeave);
+      canvas.removeEventListener('contextmenu', onMenu); canvas.removeEventListener('lostpointercapture', onCaptureLost); window.removeEventListener('blur', cancelPointer);
+      canvas.removeEventListener('webglcontextlost', onContextLost); canvas.removeEventListener('webglcontextrestored', onContextBack); ratioQuery?.removeEventListener('change', onRatio);
       for (const t of textures) t.dispose(); environment.dispose(); renderer.dispose();
     },
   };

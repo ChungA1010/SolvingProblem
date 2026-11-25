@@ -7,13 +7,13 @@
 // links between the pages, and that nothing is fetched from the internet.
 //
 // Usage: node tools/check-browser.mjs [check ...] [--out folder] [--file single-file.html] [--site folder]
-//   checks: home, game, lab-hover, lab-operate, lab-panels, lab-lot, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, standalone.
+//   checks: home, game, lab-hover, lab-operate, lab-panels, lab-lot, lab-fit, lab-context, process-route, process-flow, process-crystal, process-oxidation, process-photo, process-etch, process-implant, process-plating, process-cmp, process-eds, process-bond, process-all, process-fit, process-context, standalone.
 //   A prefix selects several ("lab", "process"); none runs them all.
 //   Screenshots go to evidence/browser-check/ (kept out of git), or to the folder given with --out.
 //   The standalone check opens standalone/CMP-Lab.html, or the file given with --file.
 //   The pages are opened from this folder, or from the copy of the site given with --site (tools/export-site.mjs makes one).
 // The 3D pages render in software at about 3 frames per second (the whole line of the 8-process lab at about 1.5),
-// so a full run takes about an hour: the twelve process checks alone took 35 minutes on 2026-11-25.
+// so a full run takes about an hour: the fourteen process checks alone took 47 minutes on 2026-11-25, the six lab checks 15.
 // Needs Node 22 or newer and Chrome or Edge (see tools/headless-browser.mjs). The exit code is 1 if anything failed.
 import { existsSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -346,7 +346,7 @@ async function labPanels(t) {
   const cleanRow = () => b.evaluate(`[...document.querySelectorAll('#report .criteria li')].map(li => li.innerText.replace(/\\s+/g, ' ').trim()).find(row => /남은 입자/.test(row)) || ''`);
   const result = () => b.evaluate(`(() => { const m = ${LAB}.attempts[0].m; return { particles: m.particles, wet: m.wet, clean: m.ok.clean, pass: m.pass, cycle: m.cycle, notes: document.querySelector('#report .notes').innerText }; })()`);
   let row = await cleanRow(), m = await result();
-  t.expect(/미달/.test(row) && /젖음/.test(row) && m.particles > 1500 && m.wet && m.clean === false && !m.pass && /세정하지 않아/.test(m.notes),
+  t.expect(/초과/.test(row) && /젖음/.test(row) && m.particles > 1500 && m.wet && m.clean === false && !m.pass && /세정하지 않아/.test(m.notes),
     'a wafer measured straight off the pad fails on the particles left on its wet surface, and the report says why', `${row} ${JSON.stringify(m)}`);
   const through = await b.evaluate(`(document.querySelector('#report .throughput')?.innerText || '').replace(/\\n+/g, ' | ')`);
   t.expect(/처리량/.test(through) && /이 장비 한 대 \| 시간당 \d+\.\d장/.test(through) && /양산 구성 \(연마 모듈 4대\) \| 시간당 \d+장/.test(through) && m.cycle.clean === 0 && Math.abs(m.cycle.perHour - 3600 / (m.cycle.polish + 30)) < 1e-6,
@@ -396,7 +396,7 @@ async function labPanels(t) {
   const lotView = await b.evaluate(`(() => { const d = ${LAB}, lot = d.sim.lotSummary(), host = document.querySelector('#log .lot');
     return { text: host ? host.innerText.replace(/\\n+/g, ' | ') : '', charts: host ? host.querySelectorAll('.lot-chart').length : 0, marks: host ? host.querySelectorAll('.lot-chart .ok, .lot-chart .ng').length : 0, seen: host ? host.querySelectorAll('.lot-chart .seen').length : 0,
       passed: lot.passed, count: lot.count, padChanges: lot.padChanges, padChange: lot.time.padChange, total: lot.time.total, wafers: lot.time.wafers, exSitu: lot.time.exSitu, perHour: lot.goodPerHour, left: d.sim.state.padLeft }; })()`);
-  t.expect(new RegExp(`합격 \\| ${lotView.passed} / 2장`).test(lotView.text) && /패드 교체 1회 \| 5분 0초/.test(lotView.text) && /양품 처리량 \| 시간당 \d+\.\d장/.test(lotView.text) && /패드 수명 남음 \| 100%/.test(lotView.text)
+  t.expect(new RegExp(`합격 \\| ${lotView.passed} / 2장`).test(lotView.text) && /패드 교체 1회 \| 5분 00초/.test(lotView.text) && /양품 처리량 \| 시간당 \d+\.\d장/.test(lotView.text) && /패드 수명 남음 \| 100%/.test(lotView.text)
     && lotView.charts === 2 && lotView.marks === 2 && lotView.seen === 2 && lotView.padChange === 300 && lotView.left === 1 && Math.abs(lotView.total - (lotView.wafers + 300 + lotView.exSitu)) < 1e-6 && Math.abs(lotView.perHour - lotView.passed / lotView.total * 3600) < 1e-6,
     'the record opens with the lot: both wafers on the thickness and tool charts, the good ones, the time with the pad change in it, and good wafers per hour', JSON.stringify(lotView));
   await lab.shot('4-record');
@@ -462,10 +462,10 @@ async function labLot(t) {
     const whole = Math.round(lot.time.total), one = v => v.toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
     return { tab: d.drawer.tab, text: host ? host.innerText.replace(/\\n+/g, ' | ') : '', verdict: host?.querySelector('.verdict')?.innerText.replace(/\\s+/g, ' ').trim() || '', button: host?.querySelector('footer button')?.innerText || '',
       marks: count('.lot-chart .ok, .lot-chart .ng, .lot-chart .none'), seen: count('.lot-chart .seen'), ranges: count('.lot-chart .range'), guide: document.getElementById('guide-text').innerText, action: action.hidden ? '' : action.innerText,
-      clock: Math.floor(whole / 60) + '분 ' + (whole % 60) + '초', perHour: one(lot.goodPerHour), rate: lot.goodPerHour, passed: lot.passed, count: lot.count, time: lot.time }; })()`);
+      clock: Math.floor(whole / 60) + '분 ' + String(whole % 60).padStart(2, '0') + '초', perHour: one(lot.goodPerHour), rate: lot.goodPerHour, passed: lot.passed, count: lot.count, time: lot.time }; })()`);
   t.expect(landed && result.tab === 'log' && result.verdict === `합격 ${result.passed}/${result.count}` && result.button === '새 로트' && result.marks === SIZE && result.seen === SIZE && result.ranges === SIZE - 1,
     'the record opens on the finished lot: a mark for every wafer, what each showed of the tool against what the model expected, the verdict, and the way to the next lot', JSON.stringify({ ...result, text: undefined }));
-  t.expect(result.text.includes(`걸린 시간 | ${result.clock}`) && /패드 교체 1회 \| 5분 0초/.test(result.text) && result.text.includes(`양품 처리량 | 시간당 ${result.perHour}장`)
+  t.expect(result.text.includes(`걸린 시간 | ${result.clock}`) && /패드 교체 1회 \| 5분 00초/.test(result.text) && result.text.includes(`양품 처리량 | 시간당 ${result.perHour}장`)
     && Math.abs(result.time.total - (result.time.wafers + result.time.padChange + result.time.exSitu)) < 1e-6 && Math.abs(result.rate - result.passed / result.time.total * 3600) < 1e-6,
     'the time of the lot is its wafers, the pad change and the conditioning between wafers, in minutes and whole seconds, and good wafers per hour follow from it', result.text);
   t.expect(new RegExp(`^1번 로트가 끝났습니다\\. 합격 ${result.passed}/${result.count}장\\.$`).test(result.guide.trim()) && result.action === '새 로트', 'with the result open, the guide names the lot and offers the next one', JSON.stringify({ guide: result.guide, action: result.action }));
@@ -584,9 +584,15 @@ async function processFlow(t) {
   const etcher = await onMachine(b, 'etch');
   if (etcher) await b.click(etcher, 500);
   const opened = Boolean(etcher) && await opens('etch'), flying = opened && await b.evaluate(`${PL}.scene.gliding`);
+  const dials = () => b.evaluate(`JSON.stringify(${PL}.sim.state.controls)`), before = opened ? await dials() : '';
+  if (flying) { await b.click(etcher, 60); await b.wheel(etcher, -100); await sleep(200); }       // a second press and a wheel notch while the camera is on its way: a double click, an impatient hand
+  const still = flying && await b.evaluate(`${PL}.scene.gliding`);
   const arrived = opened && await reached(b, `!${PL}.scene.gliding && ${PL}.scene.active === 'etch'`, 120000);
   const top = await b.evaluate(`({ redo: !document.getElementById('redo').hidden, skip: !document.getElementById('skip').hidden, start: ${PL}.run ? ${PL}.run.start : -1 })`);
   t.expect(opened && flying && arrived && top.start === 3 && top.redo && top.skip, 'a click on a machine of the line opens that equipment at once, and the camera flies to it', JSON.stringify({ ...top, found: Boolean(etcher), opened, flying, arrived }));
+  const there = arrived ? await b.evaluate(`(() => { const s = ${PL}.scene, c = document.getElementById('scene'), p = s.project(0, 1, 0); return { x: Math.round(p.x), y: Math.round(p.y), width: c.clientWidth, height: c.clientHeight }; })()`) : null;
+  t.expect(still && there && there.x > 0 && there.x < there.width && there.y > 0 && there.y < there.height && (await dials()) === before,
+    'a second press and a wheel notch during the flight do not stop it or work a control: the camera arrives with the machine in the picture', JSON.stringify({ still, there }));
   let landed = opened;
   const step = await b.evaluate(`(() => { const r = document.querySelector('.stop:nth-child(4)').getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
   await b.mouse('mouseMoved', { x: step.x - 4, y: step.y }); await sleep(200); await b.mouse('mouseMoved', step); await sleep(900);
@@ -1180,7 +1186,7 @@ async function processEds(t) {
   await sleep(600); await t.shot('1-probing');
   t.expect(await lab.fast(`${S}.phase === 'done'`, 240), 'the prober goes through the whole wafer');
   s = await state(); let said = await lab.guide();
-  t.expect(s.result && s.result.good === 0 && s.result.bins.contact === total && s.result.missed === clean && /접촉 불량이 많/.test(said), 'misaligned, every chip is binned as a contact failure, and the page points at the contact', `${JSON.stringify(s.result)} | ${said}`);
+  t.expect(s.result && s.result.good === 0 && s.result.bins.contact === total && s.result.missed === clean && new RegExp(`바늘이 제대로 닿지 않아 양품 ${clean}개가 불량으로`).test(said) && /바늘 위치와 오버드라이브/.test(said), 'misaligned, every chip is binned as a contact failure, and the page says that the needles missed the good chips and what to look at', `${JSON.stringify(s.result)} | ${said}`);
 
   await sleep(1200); let report = await lab.report();
   t.expect(report.open && /불합격/.test(report.verdict) && report.criteria.length === 3 && new RegExp(`검사한 칩 ${total} / ${total} .*통과`).test(report.criteria[0]) && new RegExp(`바늘 접촉 양품 ${clean}개를 불량으로 가림`).test(report.criteria[1]) && /양품 0개/.test(report.criteria[2])
@@ -1221,7 +1227,7 @@ async function processBond(t) {
   let s = await state();
   t.expect(s.phase === 'setup' && !s.wire && s.tests.length === 0 && good > 100, 'the bonder starts with a failed chip under the tool and no wire on it', JSON.stringify(s));
   await press('pull'); await sleep(500);
-  t.expect(/먼저 본드/.test(await lab.guide()), 'a pull test is refused before there is a wire, and the page says why', await lab.guide());
+  t.expect(/먼저 시험 본딩 단추로/.test(await lab.guide()), 'a pull test is refused before there is a wire, and the page names the button that makes one', await lab.guide());
 
   // a test wire with the dials as they stand: it comes off
   await press('bond');
@@ -1232,7 +1238,7 @@ async function processBond(t) {
   await press('pull');
   t.expect(await lab.fast(`${S}.tests.length === 1`, 16, 90000), 'the pull button pulls it until it gives');
   await sleep(600); s = await state(); let shown = await lab.monitor(), said = await lab.guide();
-  t.expect(!s.tests[0].ok && s.tests[0].force < 3 && Math.abs(shown.value - s.tests[0].force) < 0.06 && /계측값/.test(shown.note) && /덜 됐/.test(said), 'with the dials untouched the wire comes off below the minimum, and the monitor shows where it gave', `${JSON.stringify(s.tests[0])} | ${said}`);
+  t.expect(!s.tests[0].ok && s.tests[0].force < 3 && Math.abs(shown.value - s.tests[0].force) < 0.06 && /계측값/.test(shown.note) && /덜 붙었/.test(said), 'with the dials untouched the wire comes off below the minimum, and the monitor shows where it gave', `${JSON.stringify(s.tests[0])} | ${said}`);
 
   await lab.settle(); const strip = await lab.strip();
   t.expect(strip.open && strip.titles.length === 3 && /^풀 강도 \d\.\d gf/.test(strip.titles[0]) && /^완성한 칩 0 개/.test(strip.titles[1]) && /^금선 불량 0 개/.test(strip.titles[2]) && strip.bottom > 100,
@@ -1334,8 +1340,214 @@ async function processAll(t) {
   await set([['power', 80], ['force', 30], ['time', 15], ['run', true]]); await until(`${S}.phase === 'done'`, 240);
   passed('8 packaging: the good chips are wired, and the run ends with its sheet', await handOver(7, null));
   const sheet = await b.evaluate(`({ rows: [...document.querySelectorAll('.sheet tbody tr')].map(row => ({ who: row.querySelector('.state small').textContent, state: row.querySelector('.state').textContent })), chips: ${PL}.run.wafer.packaged.chips, title: document.querySelector('.bench h2').textContent, substrate: ${PL}.run.wafer.substrate.resistivity })`);
-  t.expect(sheet.rows.length === 8 && sheet.rows.every(row => row.who === '직접' && /통과/.test(row.state)) && sheet.chips === map.good && sheet.title.includes(String(sheet.chips)) && Math.abs(sheet.substrate - 10) < 1, 'the sheet lists eight processes, all operated by hand and all passed, and the chips made from the crystal that was grown', JSON.stringify(sheet));
+  t.expect(sheet.rows.length === 8 && sheet.rows.every(row => row.who === '직접' && /합격/.test(row.state) && !/불합격/.test(row.state)) && sheet.chips === map.good && sheet.title.includes(String(sheet.chips)) && Math.abs(sheet.substrate - 10) < 1, 'the sheet lists eight processes, all operated by hand and all passed, and the chips made from the crystal that was grown', JSON.stringify(sheet));
   await t.shot('1-run-sheet');
+}
+
+// ----- the labs in windows of other sizes -----
+// Both labs fill the window: the stage takes the height the window has left, the panels lie inside it, and the 3D
+// picture is framed in what the panels leave free (applyView in the two scenes). The checks above use a large window.
+// These two open a lab in a large window, in the window a small laptop has (a 1366 x 768 or a 1280 x 720 screen less
+// the browser's own bars) and at a phone's width, and look at numbers: does the page scroll, do the panels meet, how
+// far does the machine run out of the free area. Flights are cut short (reduced motion), since the framing is the subject.
+const ANY = '(window.ProcessLabDebug || window.Lab3DDebug)';
+/** In the page: the box of the machine in use against what the panels leave free, the frame of the picture, the panels and the page. */
+const FIT = `(() => {
+  const lab = window.ProcessLabDebug, own = ${ANY}.scene, stage = document.getElementById('stage'), box = stage.getBoundingClientRect();
+  const css = name => parseFloat(stage.style.getPropertyValue(name)) || 0, held = own.__held || null;
+  const right = held ? held.right : css('--inset-right'), bottom = held ? held.bottom : css('--inset-bottom');
+  let min, max, deck = null;
+  if (lab) { const st = own.lineLayout.find(entry => entry.name === own.active); if (!st) return null; min = st.min; max = st.max; }
+  else { const b = own.box; min = b.min; max = b.max; deck = Math.max(...b.deckFront.map(p => own.project(p[0], p[1], p[2]).y)); }   // of the polisher the deck has to stay clear; its cabinet may go under a panel
+  let l = Infinity, r = -Infinity, t = Infinity, b = -Infinity;
+  for (let i = 0; i < 8; i++) { const p = own.project(i & 1 ? max[0] : min[0], i & 2 ? max[1] : min[1], i & 4 ? max[2] : min[2]); l = Math.min(l, p.x); r = Math.max(r, p.x); t = Math.min(t, p.y); b = Math.max(b, p.y); }
+  const w = box.width, h = box.height, rect = id => { const n = document.getElementById(id); if (!n || n.hidden) return null; const q = n.getBoundingClientRect(); return q.width ? { top: q.top - box.top, bottom: q.bottom - box.top, left: q.left - box.left, right: q.right - box.left } : null; };
+  const strip = document.getElementById('strip'), edge = strip.getBoundingClientRect();
+  const spill = strip.dataset.open !== 'true' ? 0 : Math.max(0, ...[...strip.querySelectorAll('.tile *')].map(n => { const q = n.getBoundingClientRect(); return q.width && q.height ? q.bottom - edge.bottom : 0; }));
+  return { stage: [Math.round(w), Math.round(h)], frame: own.frame, out: { left: Math.round(-l), top: Math.round(-t), right: Math.round(r - (w - right)), bottom: Math.round((deck ?? b) - (h - bottom)) },
+    wider: document.documentElement.scrollWidth - innerWidth, longer: document.documentElement.scrollHeight - innerHeight, monitor: rect('monitor'), strip: rect('strip'), guide: rect('guide-text'), spill: Math.round(spill) };
+})()`;
+/** The frame of the picture holds still over three looks: the panels are where they belong and the picture has followed. */
+async function framed(b) {
+  let last = '', same = 0;
+  for (let i = 0; i < 60 && same < 3; i++) { await sleep(450); const now = await b.evaluate(`JSON.stringify(${ANY}.scene.frame)`); same = now === last ? same + 1 : 0; last = now; }
+  return b.evaluate(FIT);
+}
+/** Tells the scene that a report covers the right of the view, without the page having one: the page's own word is kept out until released. */
+const holdInsets = (b, insets) => b.evaluate(`(() => { const s = ${ANY}.scene; if (!s.__real) s.__real = s.setInsets; s.setInsets = () => {}; s.__held = ${JSON.stringify(insets)}; s.__real(s.__held); })()`);
+const releaseInsets = b => b.evaluate(`(() => { const s = ${ANY}.scene; if (s.__real) { s.setInsets = s.__real; delete s.__real; delete s.__held; } })()`);
+/** What is wrong with a framing under panels, in words. `bare` is the same machine with no panel open: a side its home view cuts on purpose may stay cut as far. */
+function fitFaults(now, bare) {
+  const faults = [];
+  if (now.wider > 0 || now.longer > 0) faults.push(`the page is ${Math.max(0, now.wider)} px wider and ${Math.max(0, now.longer)} px longer than the window`);
+  if (now.monitor && now.strip && now.monitor.bottom > now.strip.top - 2) faults.push(`the monitor ends ${Math.round(now.monitor.bottom - now.strip.top)} px under the top of the instruments`);
+  if (now.spill > 1) faults.push(`a tile of the instruments runs ${now.spill} px out of their strip`);
+  for (const side of ['left', 'top', 'right', 'bottom']) if (now.out[side] > Math.max(0, bare.out[side]) + 3) faults.push(`its ${side} is ${now.out[side]} px outside what is free (${bare.out[side]} with no panel)`);
+  return faults;
+}
+const untouched = frame => Math.abs(frame.x) < 1 && Math.abs(frame.y) < 1 && Math.abs(frame.scale - 1) < 0.003;
+const WINDOWS = [[1600, 1000], [1366, 633], [1280, 552]];
+const NARROW = `(() => { const title = document.querySelector('.title h1').getBoundingClientRect(); return { wider: document.documentElement.scrollWidth - innerWidth, longer: document.documentElement.scrollHeight - innerHeight, title: Math.round(title.height), bar: Math.round(document.querySelector('.topbar').getBoundingClientRect().height) }; })()`;
+/** The three states of one machine in the window as it is: no panel, the instruments, the instruments and a report. Returns what is wrong, by state. */
+async function fitStates(b, openStrip) {
+  const bare = await framed(b); if (!bare) return { bare: ['no machine is in use'] };
+  const wrong = { bare: untouched(bare.frame) && bare.wider <= 0 && bare.longer <= 0 ? [] : [`with no panel the picture is moved or the page scrolls: ${JSON.stringify({ frame: bare.frame, wider: bare.wider, longer: bare.longer })}`] };
+  await b.evaluate(openStrip); await sleep(900);
+  const strip = await framed(b); wrong.strip = fitFaults(strip, bare);
+  await holdInsets(b, { right: 418, bottom: (strip.stage[1] - strip.strip.top) });
+  wrong.both = fitFaults(await framed(b), bare);
+  await releaseInsets(b);
+  return wrong;
+}
+const faultList = found => Object.entries(found).flatMap(([name, by]) => Object.entries(by).flatMap(([state, faults]) => faults.map(fault => `${name}, ${state}: ${fault}`)));
+
+/**
+ * Shows the card of every part that is in the picture, one after the other, as the pointer over the part would, and
+ * returns the cards that are cut by the edge of what the panels leave free (a card taller than that: by the edge of the
+ * stage) or that lie over the monitor. `D`: the page's
+ * debug object (its parts, its scene, point()).
+ */
+const cardFaults = (b, D) => b.evaluate(`(async () => {
+  const d = ${D}, stage = document.getElementById('stage'), frames = n => new Promise(done => { const tick = () => (n-- > 0 ? requestAnimationFrame(tick) : done()); tick(); });
+  const covered = name => parseFloat(stage.style.getPropertyValue(name)) || 0, faults = [];
+  let shown = 0;
+  for (const name of Object.keys(d.parts)) {
+    const at = d.scene.screenOf(name); if (!at || !at.visible) continue;
+    d.point(name); await frames(3);
+    const box = document.getElementById('callout'); if (box.hidden) continue;
+    shown++;
+    const all = stage.getBoundingClientRect(), free = { left: all.left, top: all.top, right: all.right - covered('--inset-right'), bottom: all.bottom - covered('--inset-bottom') };
+    const card = box.firstElementChild.getBoundingClientRect(), monitor = document.getElementById('monitor').getBoundingClientRect();
+    const floor = card.height + 16 <= free.bottom - free.top ? free.bottom : all.bottom;                // a card too tall for what the instruments leave free may lie over them, not out of the stage
+    const out = Math.max(free.left - card.left, card.right - free.right, free.top - card.top, card.bottom - floor);
+    if (out > 1) faults.push(name + ': ' + Math.round(out) + ' px of its card (' + Math.round(card.height) + ' px high) outside');
+    else if (card.left < monitor.right && card.right > monitor.left && card.top < monitor.bottom && card.bottom > monitor.top) faults.push(name + ': its card lies over the monitor');
+  }
+  d.point(null); await frames(2);
+  return { shown, faults };
+})()`);
+
+/** The longest sentences a machine says after a measurement, about as long as they get: the guide has to hold them in a low window too. */
+const LONG_GUIDE = '창이 웨이퍼 면적의 62%에서만 뚫렸습니다. 가운데 쪽 창 바닥에 산화막이 최대 118 nm 남았습니다. 감광막을 벗겨서 다시 깎을 수는 없습니다. 바늘 위치와 오버드라이브를 확인하면 불량 칩만 다시 검사할 수 있습니다.';
+/** In the page: where the guide lies among the other panels of the stage, and what it lies over. */
+const GUIDE = `(() => { const stage = document.getElementById('stage').getBoundingClientRect(), box = selector => { const q = document.querySelector(selector).getBoundingClientRect(); return { left: q.left - stage.left, right: q.right - stage.left, top: q.top - stage.top, bottom: q.bottom - stage.top }; };
+  const guide = box('.guide'), strip = box('#strip'), meets = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  return { height: Math.round(guide.bottom - guide.top), width: Math.round(guide.right - guide.left), faults: [guide.top < 0 ? 'it runs ' + Math.round(-guide.top) + ' px out of the top of the stage' : '', meets(guide, box('#monitor')) ? 'it lies over the monitor' : '',
+    meets(guide, box('.views')) ? 'it lies over the view buttons' : '', document.getElementById('strip').dataset.open === 'true' && guide.bottom > strip.top + 1 ? 'it lies over the instruments' : ''].filter(Boolean) }; })()`;
+
+async function labFit(t) {
+  const b = await t.open({ width: 1600, height: 1000, room: [1760, 1140] });
+  await b.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  for (const [width, height] of WINDOWS) {
+    await b.viewport(width, height);
+    await b.goto(`${pageUrl('lab-3d')}?seed=11`);
+    if (!(await reached(b, `!!(${LAB} && ${LAB}.scene)`, 60000))) throw new Error('the 3D tool did not start');
+    await sleep(2500);
+    const found = { polisher: await fitStates(b, `${LAB}.setStrip('open')`) }, faults = faultList(found);
+    t.expect(!faults.length, `${width} x ${height}: the page does not scroll, the panels lie apart, and under them the polisher keeps its deck clear and its top in the picture`, faults.join(' | '));
+    if (height < 700) await t.shot(`${width}x${height}-instruments`);
+    await b.evaluate(`${LAB}.setStrip('open')`); await framed(b);
+    const cards = await cardFaults(b, LAB);
+    t.expect(cards.shown >= 10 && !cards.faults.length, `${width} x ${height}: the card of every part is whole beside the instruments, and none lies over the film monitor (${cards.shown} cards)`, cards.faults.join(' | '));
+  }
+  await b.viewport(390, 844);
+  await b.goto(`${pageUrl('lab-3d')}?seed=11`);
+  if (!(await reached(b, `!!(${LAB} && ${LAB}.scene)`, 60000))) throw new Error('the 3D tool did not start at a phone\'s width');
+  await sleep(2500); await b.evaluate(`${LAB}.setStrip('open')`); await sleep(1500);
+  const narrow = await b.evaluate(NARROW);
+  t.expect(narrow.wider <= 0 && narrow.title < 34, 'at a phone\'s width the page is no wider than the window and its title stays on one line', JSON.stringify(narrow));
+  await t.shot('390x844');
+}
+
+async function processFit(t) {
+  const b = await t.open({ width: 1600, height: 1000, room: [1760, 1140] });
+  await b.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  for (const [width, height] of [WINDOWS[0], WINDOWS[2]]) {
+    await b.viewport(width, height);
+    await b.goto(pageUrl('process-lab'));
+    if (!(await reached(b, `!!${PL}`, 60000))) throw new Error('the page did not start');
+    await sleep(3000);
+    const line = await b.evaluate(NARROW);
+    t.expect(line.wider <= 0 && line.longer <= 0, `${width} x ${height}: the line fits the window, the page does not scroll`, JSON.stringify(line));
+    const found = {}, steps = await b.evaluate(`${PL}.flow.STEPS.length`), cut = [], tall = [], said = [];
+    let seen = 0;
+    for (let i = 0; i < steps; i++) {
+      await b.evaluate(`${PL}.start(${i})`); await sleep(600);
+      const name = await b.evaluate(`${PL}.mode === 'station' ? ${PL}.scene.active : null`);
+      if (!name) { found[`process ${i + 1}`] = { bare: ['its machine did not open'] }; continue; }
+      found[name] = await fitStates(b, `${PL}.setStrip('open')`);
+      if (name === 'oxidation') { await b.evaluate(`${PL}.setStrip('open')`); await framed(b); await t.shot(`${width}x${height}-furnace`); }   // the tallest machine under the instruments
+      if (height < 700) {                                                                       // the low window: the cards of the parts, from the front and at the control panel, beside the instruments
+        await b.evaluate(`${PL}.setStrip('open')`); await framed(b);
+        for (const view of ['home', 'panel']) {
+          if (!(await b.evaluate(`${PL}.scene.views.includes('${view}')`))) continue;
+          await b.evaluate(`${PL}.scene.setView('${view}', true)`); await sleep(400);
+          const cards = await cardFaults(b, PL);
+          seen += cards.shown; cut.push(...cards.faults.map(fault => `${name}, ${view}: ${fault}`));
+        }
+        await b.evaluate(`${PL}.scene.setView('home', true)`);
+        await b.evaluate(`${PL}.say(${JSON.stringify(LONG_GUIDE)}, 20)`); await sleep(1200);                // the longest a machine says, beside the instruments
+        const guide = await b.evaluate(GUIDE);
+        tall.push(guide.height); said.push(...guide.faults.map(fault => `${name}: with a long sentence the guide is ${guide.width} x ${guide.height} px and ${fault}`));
+        await b.evaluate(`${PL}.say('', 0)`);
+      }
+    }
+    if (height < 700) t.expect(tall.length === steps && !said.length, `${width} x ${height}: the guide holds the longest sentence a machine says without leaving the stage or lying over another panel (${Math.max(0, ...tall)} px high at most)`, said.join(' | '));
+    if (height < 700) t.expect(seen >= 60 && !cut.length, `${width} x ${height}: the card of every part of every machine is whole, and none lies over the wafer monitor (${seen} cards)`, cut.join(' | '));
+    const faults = faultList(found);
+    t.expect(Object.keys(found).length === steps && !faults.length, `${width} x ${height}: every machine of the line stays in what its panels leave free (${Object.keys(found).join(', ')})`, faults.join(' | '));
+  }
+  await b.viewport(390, 844);
+  await b.goto(`${pageUrl('process-lab')}?start=oxidation`);
+  if (!(await reached(b, `!!${PL} && ${PL}.mode === 'station'`, 60000))) throw new Error('the furnace did not open at a phone\'s width');
+  await sleep(2500); await b.evaluate(`${PL}.setStrip('open')`); await sleep(1500);
+  const narrow = await b.evaluate(NARROW);
+  t.expect(narrow.wider <= 0 && narrow.title < 34, 'at a phone\'s width the page is no wider than the window and its title stays on one line', JSON.stringify(narrow));
+  await t.shot('390x844');
+}
+
+// ----- a graphics context that is lost and comes back -----
+// The driver, a sleeping laptop or too many 3D pages can take the context away. three.js sets itself up again when it
+// returns; what the scenes baked once (the light of the room) they have to bake again, or the metal parts stay black.
+/** Mean brightness and the share of dark pixels of the 3D picture. It is drawn again for the reading: a WebGL canvas keeps its picture only until it is shown. */
+const picture = (b, D, canvas) => b.evaluate(`(() => { const c = document.getElementById('${canvas}'), probe = document.createElement('canvas'); probe.width = 96; probe.height = 60;
+  const g = probe.getContext('2d', { willReadFrequently: true }); ${D}.scene.render(); g.drawImage(c, 0, 0, 96, 60);
+  const px = g.getImageData(0, 0, 96, 60).data; let sum = 0, dark = 0;
+  for (let i = 0; i < px.length; i += 4) { const v = (px[i] + px[i + 1] + px[i + 2]) / 3; sum += v; if (v < 48) dark++; }
+  return { mean: Math.round(sum / (px.length / 4) * 10) / 10, dark: Math.round(dark / (px.length / 4) * 1000) / 1000 }; })()`);
+/** Loses the context of a canvas and gives it back. `said`: a page expression for the text in which the page speaks of it. */
+async function contextBack(t, b, D, canvas, said, what) {
+  await sleep(1500);
+  const before = await picture(b, D, canvas);
+  const lost = await b.evaluate(`(() => { const gl = document.getElementById('${canvas}').getContext('webgl2'), ext = gl && gl.getExtension('WEBGL_lose_context'); if (!ext) return false; window.__lose = ext; ext.loseContext(); return true; })()`);
+  if (!lost) { t.note(`${what}: this browser cannot take a context away on request (no WEBGL_lose_context), so this was not checked`); return; }
+  const told = await reached(b, `/그래픽 장치/.test(${said})`, 20000);
+  await b.evaluate('window.__lose.restoreContext()');
+  const back = await reached(b, `!/그래픽 장치/.test(${said})`, 40000);
+  await sleep(3000);
+  const after = await picture(b, D, canvas);
+  t.expect(told && back && before.mean > 60 && Math.abs(after.mean - before.mean) < 8 && after.dark < before.dark + 0.04,
+    `${what}: while the graphics context is lost the page says so, and when it is back the picture is as it was`, JSON.stringify({ told, back, before, after }));
+}
+async function labContext(t) {
+  const b = await t.open({ width: 1280, height: 800 });
+  await b.goto(`${pageUrl('lab-3d')}?seed=11`);
+  if (!(await reached(b, `!!(${LAB} && ${LAB}.scene)`, 60000))) throw new Error('the 3D tool did not start');
+  await contextBack(t, b, LAB, 'scene', `document.getElementById('alarms').innerText`, 'the polisher of the learning lab');
+  await t.shot('lab-after-restore');
+}
+async function processContext(t) {
+  const b = await t.open({ width: 1280, height: 800 });
+  await b.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  await b.goto(pageUrl('process-lab'));
+  if (!(await reached(b, `!!${PL} && ${PL}.mode === 'line'`, 60000))) throw new Error('the page did not start');
+  await contextBack(t, b, PL, 'scene', `document.getElementById('line-title').textContent`, 'the line of the 8-process lab');
+  t.expect(await b.evaluate(`document.getElementById('line-title').textContent`) === '웨이퍼 한 장이 여덟 공정을 거쳐 칩이 됩니다', 'and the first screen has its heading again');
+  await t.shot('line-after-restore');
+  await b.evaluate(`${PL}.start(1)`);
+  if (!(await reached(b, `${PL}.mode === 'station' && ${PL}.scene.active === 'oxidation'`, 60000))) throw new Error('the furnace did not open');
+  await contextBack(t, b, PL, 'scene', `document.getElementById('guide-text').textContent`, 'the furnace of the 8-process lab');
+  await t.shot('furnace-after-restore');
 }
 
 // ----- single-file build -----
@@ -1431,6 +1643,8 @@ const CHECKS = {
   'lab-operate': { run: labOperate, minutes: 10, about: 'lab-3d/lab-3d.html, one wafer polished and measured by dragging the parts' },
   'lab-panels': { run: labPanels, minutes: 12, about: 'lab-3d/lab-3d.html, instrument strip, report and record over two wafers' },
   'lab-lot': { run: labLot, minutes: 14, about: 'lab-3d/lab-3d.html, a lot of five wafers: the pad worn out and changed, the result of the lot, the lot after it' },
+  'lab-fit': { run: labFit, minutes: 9, about: 'lab-3d/lab-3d.html in a large window, in a small laptop\'s and at a phone\'s width: no scrolling, the panels apart, the polisher in what they leave free' },
+  'lab-context': { run: labContext, minutes: 3, about: 'lab-3d/lab-3d.html: the graphics context taken away and given back' },
   'process-route': { run: processRoute, minutes: 4, about: 'process-lab/process-lab.html, the line it opens on and the route of eight processes: start at any machine, run to the sheet' },
   'process-flow': { run: processFlow, minutes: 6, about: 'process-lab/process-lab.html, with the equipment on: fly to a machine of the line, the same process again, pass by the standard recipe, go back, out to the line' },
   'process-crystal': { run: processCrystal, minutes: 10, about: 'process-lab/process-lab.html, the crystal puller: neck, shoulder, body under the diameter controller, measured' },
@@ -1443,6 +1657,8 @@ const CHECKS = {
   'process-eds': { run: processEds, minutes: 10, about: 'process-lab/process-lab.html, the wafer prober: a misaligned pass, then aligned and retested to the wafer map' },
   'process-bond': { run: processBond, minutes: 10, about: 'process-lab/process-lab.html, the wire bonder: test wires pulled, then every good chip wired' },
   'process-all': { run: processAll, minutes: 14, about: 'process-lab/process-lab.html, one wafer through all eight pieces of equipment, by their controls' },
+  'process-fit': { run: processFit, minutes: 18, about: 'process-lab/process-lab.html in a large window, in a small laptop\'s and at a phone\'s width: no scrolling, the panels apart, every machine in what they leave free' },
+  'process-context': { run: processContext, minutes: 5, about: 'process-lab/process-lab.html: the graphics context taken away and given back, on the line and at a machine' },
   standalone: { run: standalone, minutes: 10, about: 'the single-file build, opened with the network cut off' },
 };
 

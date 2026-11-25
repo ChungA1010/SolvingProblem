@@ -42,8 +42,8 @@ test('copper comes off twice as fast as the oxide of the CMP lab under the same 
 
 test('the copper clears from where the polish is fastest; polishing on dishes what cleared first', () => {
   const sim = polishing(), k = sim.stack;
-  while (k.covered === 1) sim.step(0.5);
-  const first = k.copper.findIndex(v => v <= C.cleared); assert.ok(first >= 0 && k.mean > 5, `the first place clears while ${k.mean.toFixed(0)} nm are still left on average`);
+  while (k.copper.every(v => v > C.cleared)) sim.step(0.5);                  // until a ring is clear all round: the thin side of a wafer that is not quite level clears a moment sooner
+  const first = k.copper.findIndex(v => v <= C.cleared); assert.ok(first >= 0 && k.covered < 1 && k.mean > 5, `the first place clears while ${k.mean.toFixed(0)} nm are still left on average`);
   while (k.covered > 0) sim.step(0.5);
   assert.ok(k.dishing[first] > 2 && k.dishing[first] === Math.max(...k.dishing), 'the place that cleared first is dished most');
   near(k.dishing[first], C.dishing * (sim.state.wafer.start[first] - sim.state.wafer.film[first] - 800), 1e-9, 'a quarter of the polishing after it cleared');
@@ -94,7 +94,7 @@ test('the copper comes in as the plating left it: where it is thicker it clears 
   const even = polishing(R.pressureRef, { thickness: 800 }), heavy = polishing(R.pressureRef, { thickness: 800, profile: ramp });
   near(heavy.stack.mean, ramp.reduce((sum, x, j) => sum + x * M.weights[j], 0), 1e-9, 'the copper over the area');
   assert.ok(heavy.stack.centre < heavy.stack.edge && heavy.profile.length === N);
-  const firstClear = sim => { while (sim.stack.covered === 1) run(sim, 0.5); return { centre: sim.stack.copper[0], edge: sim.stack.copper[N - 1] }; };
+  const firstClear = sim => { while (sim.stack.copper.every(v => v > C.cleared)) run(sim, 0.5); return { centre: sim.stack.copper[0], edge: sim.stack.copper[N - 1] }; };   // until a ring is clear all round
   const a = firstClear(even), b = firstClear(heavy);
   assert.ok(a.edge <= C.cleared && a.centre > 10, `an even film clears at the edge first: ${JSON.stringify(a)}`);
   assert.ok(b.centre <= C.cleared && b.edge > 50, `heavy at the edge, it clears at the centre first: ${JSON.stringify(b)}`);

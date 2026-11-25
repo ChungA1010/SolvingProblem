@@ -13,10 +13,10 @@
   }
   const fmt = v => Math.round(v).toLocaleString('en-US');
   const MODE = { lift: '볼이 패드에서 떨어짐', neck: '선이 볼 바로 위에서 끊어짐', stitch: '리드 쪽이 떨어짐', crater: '패드가 뜯겨 나감', wide: '볼이 패드보다 넓음' };
-  const WHY = { lift: '접합이 덜 됐습니다.', stitch: '접합이 덜 됐습니다.', neck: '선이 약해졌습니다.', crater: '너무 세게 붙여 패드가 깨졌습니다.', wide: '볼이 패드 밖으로 퍼졌습니다.' };
+  const WHY = { lift: '덜 붙었습니다.', stitch: '덜 붙었습니다.', neck: '선이 약해졌습니다.', crater: '너무 세게 붙여 패드가 깨졌습니다.', wide: '볼이 패드 밖으로 퍼졌습니다.' };
   const REFUSED = {
     bond: s => s.phase === 'running' ? '가동 중입니다.' : s.phase === 'done' ? '금선 잇기가 끝났습니다.' : '진행 중입니다.',
-    pull: s => s.phase !== 'setup' ? REFUSED.bond(s) : s.wire ? '이 선은 이미 당겨 봤습니다. 새로 이으세요.' : '먼저 본드 단추로 시험 선을 이으세요.',
+    pull: s => s.phase !== 'setup' ? REFUSED.bond(s) : s.wire ? '이 선은 이미 당겨 봤습니다. 새로 이으세요.' : '먼저 시험 본딩 단추로 시험 선을 이으세요.',
     run: s => REFUSED.bond(s),
   };
   const measuredOnce = new WeakMap(); let measurements = 0;
@@ -48,21 +48,21 @@
     speeds: [[1, '1×'], [4, '4×'], [16, '16×']], defaultSpeed: 1,
     create(wafer, seed) { const sim = BD.create({ chips: wafer.tested ? wafer.tested.good : 0, seed }); sim.wafer = wafer; sim.pulled = []; sim.seen = 0; return sim; },
     parts: {
-      power: { name: '초음파 출력', role: '캐필러리를 떨어 금선을 패드에 비벼 붙이는 힘입니다. 모자라면 붙지 않고, 지나치면 패드가 깨지고 선이 약해집니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '접합의 반응은 대표 곡선 (방향은 본딩 자료, 수치는 가정)',
+      power: { name: '초음파 출력', role: '캐필러리를 떨어 금선을 패드에 비벼 붙이는 힘입니다. 모자라면 붙지 않고, 지나치면 패드가 깨지고 선이 약해집니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '붙는 세기의 곡선은 대푯값 (방향은 본딩 자료, 수치는 가정)',
         rows: s => [['설정', `${fmt(s.controls.power)} mW`], ['초음파 에너지', `${BD.energy(s.controls.power, s.controls.time).toFixed(2)} mJ`]], pill: s => `${fmt(s.controls.power)} mW` },
       force: { name: '누르는 힘', role: '캐필러리가 볼을 누르는 힘입니다. 약하면 미끄러져 진동이 전해지지 않고, 세면 진동이 눌려 죽고 볼이 넓게 퍼집니다.', how: '좌우로 끌거나 휠을 굴립니다.', rows: s => [['설정', `${fmt(s.controls.force)} gf`]], pill: s => `${fmt(s.controls.force)} gf` },
       time: { name: '본딩 시간', role: '초음파를 거는 시간입니다. 길수록 에너지가 많이 들어갑니다.', how: '좌우로 끌거나 휠을 굴립니다.', rows: s => [['설정', `${fmt(s.controls.time)} ms`], ['초음파 에너지', `${BD.energy(s.controls.power, s.controls.time).toFixed(2)} mJ`]], pill: s => `${fmt(s.controls.time)} ms` },
       bond: { name: '시험 본딩', role: '불량 칩 위에 금선 하나를 천천히 이어 봅니다. 볼을 패드에 붙이고, 고리를 만들어 리드에 붙인 뒤 끊습니다.', how: '누릅니다.', rows: s => [['이 칩에 이은 선', `${s.onChip} / ${C.wires}`]] },
-      pull: { name: '풀 테스트', role: '방금 이은 선을 고리로 당겨, 끊어지거나 떨어질 때의 힘과 그 자리를 봅니다. 선은 못 쓰게 됩니다.', how: '누릅니다.', basis: `기준: 25 µm 금선 ${C.spec.pull.toFixed(1)} gf 이상 (MIL-STD-883 2011)`, rows: s => [['해 본 횟수', `${s.tests.length}회`]] },
+      pull: { name: '풀 테스트', role: '방금 이은 선을 갈고리로 당겨, 끊어지거나 떨어질 때의 힘과 그 자리를 봅니다. 선은 못 쓰게 됩니다.', how: '누릅니다.', basis: `기준: 25 µm 금선 ${C.spec.pull.toFixed(0)} gf 이상 (MIL-STD-883 시험법 2011)`, rows: s => [['해 본 횟수', `${s.tests.length}회`]] },
       run: { name: '가동', role: '지금 조건으로 양품 칩 전부에 금선을 잇습니다. 시작하면 조건을 바꿔도 이 웨이퍼에는 적용되지 않습니다.', how: '누릅니다.', rows: (s) => [['칩마다 금선', `${C.wires}개`]] },
       head: { name: '본드 헤드', role: '초음파 혼 끝의 캐필러리로 금선을 누르고 떨어 붙입니다. 금선 끝을 녹여 만든 볼을 패드에, 반대쪽을 리드에 붙입니다.', rows: s => [['상태', s.phase === 'bonding' || s.phase === 'running' ? '본딩 중' : '대기']] },
       spool: { name: '금선', role: `지름 ${C.wire.diameter} µm의 금선입니다. 머리카락 굵기의 3분의 1쯤 됩니다.`, rows: () => [['끊어지는 힘', `약 ${C.wire.breaking} gf`]] },
       stage: { name: '히터 블록', role: '리드프레임을 붙잡고 데웁니다. 데워야 낮은 초음파 출력으로도 금이 붙습니다.', rows: () => [['온도', `${C.temperature} °C`]] },
       chip: { name: '리드프레임과 칩', role: '웨이퍼에서 잘라 낸 칩을 리드프레임에 붙여 놓았습니다. 칩의 패드와 리드를 금선으로 이으면 칩이 바깥과 통합니다. 그림은 보이도록 크게 그렸습니다.', rows: s => [['금선을 이은 칩', `${s.passed + Object.values(s.faults).reduce((a, b) => a + b, 0)}개`]] },
-      puller: { name: '풀 테스터', role: '고리를 금선 가운데에 걸고 들어 올려, 견디는 힘을 잽니다.', basis: `계산: 선의 장력 = 당기는 힘 ÷ ${BD.pullFactor().toFixed(2)} (고리 높이 ${C.loop.height} µm, 길이 ${C.loop.span / 1000} mm의 정역학)`,
+      puller: { name: '풀 테스터', role: '갈고리를 금선 가운데에 걸고 들어 올려, 견디는 힘을 잽니다.', basis: `계산: 선의 장력 = 당기는 힘 ÷ ${BD.pullFactor().toFixed(2)} (고리 높이 ${C.loop.height} µm, 길이 ${C.loop.span / 1000} mm의 정역학)`,
         rows: s => { const last = s.tests.at(-1); return last ? [['마지막 측정', `${last.force.toFixed(1)} gf`], ['끊어진 자리', MODE[last.mode]]] : [['마지막 측정', '없음']]; } },
       hmi: { name: '장비 화면', role: '조건과 이은 칩 수를 보여 줍니다.', how: '누르면 가까이에서 봅니다.', rows: () => [] },
-      tower: { name: '신호등', role: '초록은 본딩 중, 노랑은 대기입니다.', rows: s => [['상태', s.phase === 'running' || s.phase === 'bonding' ? '본딩 중' : '대기']] },
+      tower: { name: '신호등', role: '초록은 본딩 중, 노랑은 대기입니다. 받지 않는 조작을 하면 빨강이 깜박입니다.', rows: s => [['상태', s.phase === 'running' || s.phase === 'bonding' ? '본딩 중' : '대기']] },
     },
     control(sim, name, value) { return sim.setControl(name, value) ? null : REFUSED[name] ? REFUSED[name](sim.state) : null; },
     tick(sim) {                                                     // which test wires on the chip under the tool have been pulled off
@@ -80,8 +80,8 @@
       if (s.phase === 'running') return [`칩 ${fmt(Math.min(s.at + 1, sim.total))} / ${fmt(sim.total)}에 금선을 잇는 중입니다.`, null, null, null];
       if (s.phase === 'bonding') return ['시험 선을 잇는 중입니다.', null, null, null];
       if (s.phase === 'pulling') return ['선을 당기는 중입니다.', null, null, null];
-      if (s.wire && !s.wire.pulled) return ['풀 단추를 눌러 방금 이은 선을 당겨 보세요.', null, null, 'pull'];
-      if (!last) return ['초음파 출력, 누르는 힘, 시간을 정하고 본드 단추로 시험 선을 하나 이으세요. 당겨 보면 얼마나 잘 붙었는지 알 수 있습니다.', null, null, 'bond'];
+      if (s.wire && !s.wire.pulled) return ['풀 테스트 단추를 눌러 방금 이은 선을 당겨 보세요.', null, null, 'pull'];
+      if (!last) return ['초음파 출력, 누르는 힘, 시간을 정하고 시험 본딩 단추로 시험 선을 하나 이으세요. 당겨 보면 얼마나 잘 붙었는지 알 수 있습니다.', null, null, 'bond'];
       const wide = last.reason === 'wide', text = `풀 강도 ${last.force.toFixed(1)} gf, ${MODE[last.mode]}.`;
       if (last.ok) return [`${text} 기준을 넘었습니다. 가동 단추를 누르면 양품 칩 ${fmt(sim.total)}개에 금선을 잇습니다.`, null, null, 'run'];
       return [`${text} ${wide ? WHY.wide : WHY[last.mode]} 조건을 바꿔 다시 이어 보세요.`, null, null, 'bond'];
@@ -122,7 +122,7 @@
     result(sim) { const r = sim.state.result; return r ? { chips: r.chips, bonded: r.bonded, lost: r.lost, how: `금선 ${settings(r)}` } : null; },
 
     // ----- process instruments and metrology report (the frame is in app.js) -----
-    running(sim) { const s = sim.state; return s.phase !== 'done' && (s.phase !== 'setup' || s.tests.length > 0); },      // from the first test wire to the end of the run
+    running(sim) { const s = sim.state; return s.phase !== 'done' && (s.phase !== 'setup' || s.tests.length > 0 || Boolean(s.wire)); },      // from the first test wire to the end of the run, also while that wire waits to be pulled
     instruments(sim) {
       const s = sim.state, tests = s.tests.map(p => [p.n, p.force]), run = sim.trace || [], total = Math.max(1, sim.total), lost = Object.values(s.faults).reduce((a, b) => a + b, 0);
       const near = (points, x) => points.reduce((best, p) => Math.abs(p[0] - x) < Math.abs(best[0] - x) ? p : best, points[0]);
@@ -141,21 +141,24 @@
     },
     report(sim) {
       const s = sim.state, r = s.result; if (s.phase !== 'done' || !r) return null;
-      const last = s.tests.at(-1), ok = r.chips > 0 && r.lost === 0, notes = [];
+      // The test wire that speaks for this run is the last one made with the settings the run was made with. It stands among the
+      // criteria unless it failed where the run lost nothing (wires scatter): a report does not pass over a failed criterion.
+      const tried = s.tests.filter(t => t.at.power === r.power && t.at.force === r.force && t.at.time === r.time).at(-1), ok = r.chips > 0 && r.lost === 0, shown = tried && (tried.ok || !ok) ? tried : null, notes = [];
       if (!r.bonded) notes.push('금선을 이을 양품 칩이 없습니다. EDS에서 양품이 나와야 합니다.');
       else if (!r.lost) notes.push(`양품 칩 ${fmt(r.bonded)}개 모두에 금선을 ${C.wires}개씩 이었습니다. 몰딩을 지나면(표준 조건) 칩이 완성됩니다.`);
       else notes.push(`칩 ${fmt(r.lost)}개가 금선 불량입니다. ${Object.entries(r.faults).map(([reason, n]) => `${MODE[reason]} ${fmt(n)}개: ${WHY[reason]}`).join(' ')}`);
-      if (r.bonded && !s.tests.length) notes.push('시험 선을 당겨 보지 않고 가동했습니다. 시험 선으로 조건을 확인한 뒤에 가동하면 금선 불량을 미리 볼 수 있습니다.');
+      if (r.bonded && !tried) notes.push(`${s.tests.length ? `가동한 조건(${settings(r)})으로는 시험 선을 당겨 보지 않았습니다.` : '시험 선을 당겨 보지 않고 가동했습니다.'} 시험 선으로 조건을 확인한 뒤에 가동하면 금선 불량을 미리 볼 수 있습니다.`);
+      if (tried && !shown) notes.push(`이 조건의 시험 선은 ${tried.force.toFixed(1)} gf에서 떨어져 기준(${C.spec.pull.toFixed(0)} gf)에 못 미쳤지만, 가동에서는 모든 선이 기준을 넘었습니다. 선마다 조금씩 다르므로, 조건이 한계에 가깝습니다.`);
       if (r.bonded) notes.push('풀 테스트는 선을 끊어 보는 검사라 시험 선에만 합니다.');
       return {
         id: reportId(r), title: '금선 잇기', sub: settings(r), pass: ok,
         criteria: [
           { label: '완성한 칩', value: `${fmt(r.chips)} / ${fmt(r.bonded)}`, ok, fail: r.bonded ? '금선 불량' : '없음', meter: { value: r.chips, limit: Math.max(1, r.bonded), top: Math.max(1, r.bonded) }, scale: ['0', '', `${fmt(r.bonded)}개`] },
-          ...(last ? [{ label: '시험 선의 풀 강도', value: `${last.force.toFixed(1)} gf`, ok: last.ok, fail: last.reason === 'wide' ? '볼이 넓음' : '미달', meter: { value: last.force, limit: C.spec.pull, top: 8 }, scale: ['0', `${C.spec.pull.toFixed(0)} gf 이상`, '8'] }] : []),
+          ...(shown ? [{ label: '시험 선의 풀 강도', value: `${shown.force.toFixed(1)} gf`, ok: shown.ok, fail: shown.reason === 'wide' ? '볼이 넓음' : shown.reason === 'crater' ? '패드 깨짐' : '미달', meter: { value: shown.force, limit: C.spec.pull, top: 8 }, scale: ['0', `${C.spec.pull.toFixed(0)} gf 이상`, '8'] }] : []),
         ],
         figures: r.bonded ? [{ caption: '금선의 옆모습: 칩의 패드 위에 볼, 리드 쪽에 스티치', node: wireView({ ...BD.bonded(r), pulled: null }) }] : [],
         notes,
-        stats: [['초음파 출력', `${fmt(r.power)} mW`], ['누르는 힘', `${fmt(r.force)} gf`], ['시간', `${fmt(r.time)} ms`], ['당겨 본 시험 선', `${s.tests.length}개`]],
+        stats: [['초음파 출력', `${fmt(r.power)} mW`], ['누르는 힘', `${fmt(r.force)} gf`], ['시간', `${fmt(r.time)} ms`], ['당겨 본 시험 선', `${s.tests.length}개`], ['이 조건의 시험 선', tried ? `${tried.force.toFixed(1)} gf` : '없음']],
       };
     },
   };

@@ -119,7 +119,7 @@
       if (r) {
         state.etched += h;
         for (let j = 0; j < N; j++) {
-          const reach = r.oxide * speed[j] * minutes, covered = places.resist[j] > 0, width = state.opening > 0 ? state.opening + 2 * places.undercut[j] : 0;
+          const reach = r.oxide * speed[j] * minutes, covered = places.resist[j] > 0, width = state.opening > 0 ? Math.min(constants.pitch, state.opening + 2 * places.undercut[j]) : 0;
           let here = 0;
           if (state.opening > 0 || !covered) {  // the bottom of the opening
             const cut = Math.min(places.floor[j], reach);
@@ -147,16 +147,19 @@
      * The wafer as it would come out now: the resist is stripped and the windows are measured at every place. The
      * wafer as a whole: oxide and window width are means over the area, `left` and `siliconLoss` the most at any place,
      * `open` means open everywhere and `opened` is the share of the area that is open. `profile` has them place by place.
+     * `stripped`: somewhere the oxide beside the windows is gone (the edge loses it first), so the wafer has no mask left
+     * to speak of; `oxide` is still the mean of what is left. The verdict is on the numbers as the metrology reads them,
+     * whole nanometres, so a report never fails a number it shows as inside its limit.
      */
     function measure() {
       const s = constants.spec, stripped = state.field <= 0, windows = state.opening > 0 && !stripped;
-      const width = Array.from(places.undercut, u => windows ? state.opening + 2 * u : 0), left = Array.from(places.floor, v => stripped ? 0 : v), loss = Array.from(places.siliconLoss);
+      const width = Array.from(places.undercut, u => windows ? Math.min(constants.pitch, state.opening + 2 * u) : 0), left = Array.from(places.floor, v => stripped ? 0 : v), loss = Array.from(places.siliconLoss);
       const open = windows && left.every(v => v <= 1e-9);
       return {
         oxide: areaMean(places.field), stripped, width: areaMean(width), depth: areaMean(Array.from(places.field, (f, j) => f - places.floor[j])),
         open, opened: windows ? state.opened : 0, left: stripped ? 0 : state.floor, siliconLoss: state.siliconLoss, undercut: state.undercut,
         resistLeft: state.resist, seconds: state.etched, profile: { left, siliconLoss: loss, width },
-        ok: open && state.siliconLoss <= s.siliconLoss && width.every(w => Math.abs(w - s.width.target) <= s.width.tolerance),
+        ok: open && Math.round(state.siliconLoss) <= s.siliconLoss && width.every(w => Math.abs(Math.round(w) - s.width.target) <= s.width.tolerance),
       };
     }
     return { state, constants, incoming, setControl, step, measure };

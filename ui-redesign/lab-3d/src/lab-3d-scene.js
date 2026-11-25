@@ -34,16 +34,17 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     renderer = new THREE.WebGLRenderer({ canvas, context, antialias: true });
   } catch { return null; }
   const travel = constants.headTravel, waferR = constants.waferRadius;
-  let pixelRatio = Math.min(window.devicePixelRatio || 1, 2), frames = 0, slowFrames = 0, adaptive = true;      // stepped down if the display cannot keep up
+  let ratioCap = 2;                                           // the most the picture is rendered at; stepped down if the display cannot keep up
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, ratioCap), frames = 0, slowFrames = 0, adaptive = true;
   renderer.setPixelRatio(pixelRatio);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.toneMapping = THREE.NeutralToneMapping; renderer.toneMappingExposure = 0.9;
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xdde1e7); scene.fog = new THREE.Fog(0xdde1e7, 9, 22);
-  const pmrem = new THREE.PMREMGenerator(renderer), room = new RoomEnvironment();
-  const environment = pmrem.fromScene(room, 0.04); scene.environment = environment.texture; scene.environmentIntensity = 0.85;
-  room.dispose(); pmrem.dispose();
+  /** The light of the room on every surface, baked once, and again when the graphics context comes back after it was lost. */
+  const bakeEnvironment = () => { const pmrem = new THREE.PMREMGenerator(renderer), room = new RoomEnvironment(), baked = pmrem.fromScene(room, 0.04); room.dispose(); pmrem.dispose(); return baked; };
+  let environment = bakeEnvironment(); scene.environment = environment.texture; scene.environmentIntensity = 0.85;
   scene.add(new THREE.HemisphereLight(0xf6f9ff, 0xa9b2c2, 0.42));
   const key = new THREE.DirectionalLight(0xfff7ec, 2.25); key.position.set(-2.5, 6.3, 3.6); key.target.position.set(0.1, 0.9, 0); key.castShadow = true;
   key.shadow.mapSize.set(2048, 2048); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.012; key.shadow.radius = 4;
@@ -508,7 +509,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
 
   // ----- interaction: hover any part, drag the controls, orbit the rest -----
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(), hit = new THREE.Vector3(), tmp = new THREE.Vector3();
-  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, clock = 0, carried = null, measuring = 0, emoPressed = 0, chuckAngle = 0, brushAngle = BRUSH_PARK;
+  let view = null, hovered = null, drag = null, press = null, pendingHover = null, disposed = false, drawn = false, clock = 0, carried = null, measuring = 0, emoPressed = 0, chuckAngle = 0, brushAngle = BRUSH_PARK;
   const setNdc = ev => { const r = canvas.getBoundingClientRect(); ndc.set((ev.clientX - r.left) / r.width * 2 - 1, 1 - (ev.clientY - r.top) / r.height * 2); raycaster.setFromCamera(ndc, camera); };
   function partAt(ev) {
     setNdc(ev);
@@ -524,8 +525,11 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
   function beginDrag(found, ev) {
     const base = { name: found.name, x: ev.clientX, y: ev.clientY, moved: false, start: current(found.name) };
     if (found.name === 'head') {
-      camera.getWorldDirection(tmp); tmp.y = 0; tmp.normalize();
+      camera.getWorldDirection(tmp); const down = Math.abs(tmp.y); tmp.y = 0; tmp.normalize();
       plane.setFromNormalAndCoplanarPoint(tmp, found.point); base.y0 = found.point.y; base.plane = plane.clone();
+      // Seen from steeply above (the top view), the pointer's ray runs almost along that plane and a few px would take the
+      // head its whole way. Its height then follows the pointer up and down the screen, at the size it has in the picture.
+      if (down > 0.75) base.perPixel = 2 * camera.position.distanceTo(found.point) / (camera.projectionMatrix.elements[5] * canvas.clientHeight);
     } else if (found.name === 'platen') {
       base.angle = Math.atan2(found.point.z, found.point.x); base.turned = 0;
     } else if (found.name === 'wafer') {
@@ -547,7 +551,8 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     }
     setNdc(ev);
     if (d.name === 'head') {
-      if (raycaster.ray.intersectPlane(d.plane, hit)) emit('head', commandOf(Math.max(0, strokeOf(d.start) - (hit.y - d.y0))));
+      const rise = d.perPixel ? -dy * d.perPixel : raycaster.ray.intersectPlane(d.plane, hit) ? hit.y - d.y0 : null;
+      if (rise != null) emit('head', commandOf(Math.max(0, strokeOf(d.start) - rise)));
     } else if (d.name === 'platen') {
       plane.set(new THREE.Vector3(0, 1, 0), -PAD_TOP);
       if (raycaster.ray.intersectPlane(plane, hit)) {
@@ -573,9 +578,11 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     return best?.name ?? null;
   }
   const targetAllowed = name => !!view?.wafer && view.wafer.where !== name && (name !== 'head' || view.gap > travel * 0.5) && (name !== 'cleaner' || !!view.cleaner);
-  function endDrag() {
+  /** Lets go of the part held. `click`: the press ended on it; a press that was taken away (cancelled, lost) drops nothing and works no button. */
+  function endDrag(click = true) {
     const d = drag; drag = null; controls.enabled = true;
     if (!d) return;
+    if (!click) { carried = null; on.drag?.(null); return; }     // the wafer goes back to where it was
     if (d.name === 'wafer' && d.moved) { const target = dropTarget(); carried = null; if (target) on.wafer?.(target); }
     else if (d.name === 'wafer' && view?.wafer?.where === 'cleaner') on.press?.('cleaner');   // the wafer covers the chuck: a click on it is a click on the cleaner
     else if (d.name === 'conditioner' && !d.moved) emit('conditioner', !current('conditioner'));
@@ -589,26 +596,54 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     canvas.style.cursor = !found ? '' : found.kind === 'info' ? 'help' : CLICK_PARTS.includes(name) ? 'pointer' : 'grab';
     on.hover?.(name, found?.kind ?? null);
   }
+  // One pointer holds a part, or presses, at a time: a second finger or button is not listened to until the first has let go.
   const pointerDown = ev => {
     if (ev.button !== 0) return;
+    if (drag) { if (ev.pointerId !== drag.pointer) return; cancelPointer(); }                                   // the same pointer presses again: the end of its last press was not heard
+    if (press) { if (ev.pointerId !== press.pointer) return; press = null; }
     const found = partAt(ev); if (!found) return;
-    if (found.kind === 'info') { press = { name: found.name, x: ev.clientX, y: ev.clientY }; return; }       // the view still orbits from here
+    if (found.kind === 'info') { press = { name: found.name, x: ev.clientX, y: ev.clientY, pointer: ev.pointerId }; return; }       // the view still orbits from here
     const next = beginDrag(found, ev); if (!next) { on.refuse?.(found.name); return; }
-    drag = next; controls.enabled = false;
+    drag = next; drag.pointer = ev.pointerId; controls.enabled = false;
     try { canvas.setPointerCapture(ev.pointerId); } catch { /* synthetic events have no capture */ }
   };
+  /** The press was taken away before it ended on the canvas (the button let go in another window, a system gesture): nothing is clicked or dropped. */
+  const cancelPointer = () => { press = null; endDrag(false); };
   const pointerMove = ev => {
-    if (drag) { moveDrag(ev); return; }
+    if (drag) {
+      if (ev.pointerId !== drag.pointer) return;
+      if (ev.pointerType === 'mouse' && !(ev.buttons & 1)) { cancelPointer(); return; }                         // the button was let go where the canvas did not hear of it
+      moveDrag(ev); return;
+    }
+    if (press && ev.pointerId === press.pointer && Math.hypot(ev.clientX - press.x, ev.clientY - press.y) >= 5) press.moved = true;   // the view was turned: not a click, wherever it ends
     if (!ev.buttons) pendingHover = { clientX: ev.clientX, clientY: ev.clientY };                              // resolved once per frame
   };
   const pointerUp = ev => {
-    if (press && !drag) { const p = press; press = null; if (Math.hypot(ev.clientX - p.x, ev.clientY - p.y) < 5) on.press?.(p.name); }
-    press = null; endDrag();
+    if (drag) { if (ev.pointerId === drag.pointer) endDrag(); return; }
+    if (!press || ev.pointerId !== press.pointer) return;
+    const p = press; press = null;
+    if (!p.moved && Math.hypot(ev.clientX - p.x, ev.clientY - p.y) < 5) on.press?.(p.name);
   };
+  const pointerCancel = ev => { if (ev.pointerId === (drag ? drag.pointer : press?.pointer)) cancelPointer(); };
+  // One detent of a wheel is one step of a control, however the wheel reports it; a touchpad sends many small moves,
+  // which add up to steps. A roll to the side moves nothing, and a pinch is the camera's.
+  const rolled = { name: null, sum: 0, at: 0 };
+  function wheelSteps(ev, name) {
+    if (!ev.deltaY) return 0;
+    const turn = ev.deltaY / (ev.deltaMode === 1 ? 3 : ev.deltaMode === 2 ? 1 : 100);                           // in detents: from lines, pages or px
+    if (Math.abs(turn) >= 0.5) { rolled.sum = 0; return -Math.sign(turn) * Math.max(1, Math.round(Math.abs(turn))); }
+    if (rolled.name !== name || ev.timeStamp - rolled.at > 400) rolled.sum = 0;
+    rolled.name = name; rolled.at = ev.timeStamp; rolled.sum += turn;
+    const steps = Math.trunc(rolled.sum); rolled.sum -= steps;
+    return -steps;                                             // rolled away from the hand: up
+  }
+  const onMenu = ev => ev.preventDefault();                     // no browser menu over the picture: while a part is held it would swallow the end of the press
+  const onCaptureLost = ev => { if (drag && ev.pointerId === drag.pointer) cancelPointer(); };
   const onWheel = ev => {
-    const found = partAt(ev); if (!found || found.kind !== 'control' || found.name === 'wafer' || CLICK_PARTS.includes(found.name)) return;
-    ev.preventDefault(); ev.stopImmediatePropagation();
-    const up = ev.deltaY < 0 ? 1 : -1, name = found.name;
+    const found = partAt(ev); if (!found || found.kind !== 'control' || found.name === 'wafer' || CLICK_PARTS.includes(found.name) || ev.ctrlKey) return;
+    ev.preventDefault(); ev.stopImmediatePropagation();         // over a control the wheel never moves the camera, whichever way it is rolled
+    const up = wheelSteps(ev, found.name), name = found.name;
+    if (!up) return;
     if (name === 'head') emit('head', current('head') - up * (current('head') > 1 ? 0.1 / constants.pressureMax : 0.04));
     else if (name === 'platen' || name === 'carrier') emit(name, current(name) + up);
     else if (name === 'slurry') emit('slurry', current('slurry') + up * 5);
@@ -616,8 +651,9 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     else if (name === 'brush') emit('brush', current('brush') + up * 0.05);
   };
   canvas.addEventListener('pointerdown', pointerDown); canvas.addEventListener('pointermove', pointerMove);
-  canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerUp);
+  canvas.addEventListener('pointerup', pointerUp); canvas.addEventListener('pointercancel', pointerCancel);
   canvas.addEventListener('wheel', onWheel, { passive: false });
+  canvas.addEventListener('contextmenu', onMenu); canvas.addEventListener('lostpointercapture', onCaptureLost); window.addEventListener('blur', cancelPointer);
   const pointerLeave = () => { pendingHover = null; if (!drag) setHover(null); };
   canvas.addEventListener('pointerleave', pointerLeave);
   const controls = new OrbitControls(camera, canvas);
@@ -638,29 +674,102 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
   controls.addEventListener('start', () => { glide = null; });
   // Panels of the page can cover the right and the bottom of the view. The picture then moves into the free area:
   // left by half the covered width, and up just far enough to keep the deck clear of the bottom panel.
-  // Only the principal point moves; the zoom is corrected so the scale stays the same.
+  // Only the principal point moves, and the scale stays the same, as long as the tool, seen from its home view, has
+  // room between the top of the picture and the panel under it (and beside the panel on its right). In a low or a narrow
+  // window it has not: the picture is then drawn smaller by what is missing. With no panel open the scale is never touched.
   const DECK_FRONT = [[0, DECK + 0.10, 0.47], [PEDESTAL.x, DECK + 0.07, PEDESTAL.z + 0.2], [RIGHT - 0.075, DECK + 0.05, FRONT - 0.03], [-0.10, DECK + 0.1, FRONT]].map(p => new THREE.Vector3(p[0], p[1], p[2]));
-  const inset = { right: 0, bottom: 0, x: 0, y: 0 };            // covered sizes asked by the page, and the applied shift of the principal point (CSS px)
+  const MARGIN = 12, CLEAR = 22;                                // px: between the tool and the edge of the picture; between the deck and the bottom panel
+  const inset = { right: 0, bottom: 0, x: 0, y: 0, scale: 1 };  // covered sizes asked by the page; as applied: the shift of the principal point (CSS px) and the scale
+  const lens = new THREE.PerspectiveCamera(), solid = new THREE.Box3(), corner = new THREE.Vector3();
+  let spread = null, spreadKey = '';
+  /**
+   * How far the tool reaches from the point looked at in the home view on a canvas of this size, px at full scale: to
+   * the left, to the right, up to its top, and down to the front of the deck. A side that runs out of the canvas counts
+   * as far as the canvas goes. Null when a corner of the tool is beside or behind that camera.
+   */
+  function homeSpread(w, h) {
+    const key = `${w}x${h}`; if (key === spreadKey) return spread;
+    spreadKey = key; spread = null;
+    if (solid.isEmpty()) { machine.updateWorldMatrix(true, true); machine.traverse(o => { if (o.isMesh && o.castShadow && o.visible) solid.expandByObject(o); }); }
+    const v = VIEWS.home;
+    lens.fov = w / h < 1.2 ? 46 : 34; lens.aspect = w / h; lens.zoom = 1;
+    lens.position.set(v[0][0], v[0][1], v[0][2]); lens.lookAt(v[1][0], v[1][1], v[1][2]); lens.updateMatrixWorld(); lens.updateProjectionMatrix();
+    const s = { left: 0, right: 0, top: 0, deck: 0 };
+    for (let i = 0; i < 8; i++) {
+      corner.set(i & 1 ? solid.max.x : solid.min.x, i & 2 ? solid.max.y : solid.min.y, i & 4 ? solid.max.z : solid.min.z).applyMatrix4(lens.matrixWorldInverse);
+      if (corner.z > -0.2) return null;
+      corner.applyMatrix4(lens.projectionMatrix);
+      s.left = Math.max(s.left, -corner.x * w / 2); s.right = Math.max(s.right, corner.x * w / 2); s.top = Math.max(s.top, corner.y * h / 2);
+    }
+    for (const p of DECK_FRONT) { corner.copy(p).project(lens); s.deck = Math.max(s.deck, -corner.y * h / 2); }
+    s.left = Math.min(s.left, w / 2 - MARGIN); s.right = Math.min(s.right, w / 2 - MARGIN); s.top = Math.min(s.top, h / 2 - MARGIN); s.deck = Math.min(s.deck, h / 2 - CLEAR);
+    return spread = s;
+  }
+  /**
+   * The scale the picture belongs at on a canvas of this size, with the panels as the page has them now. Under a bottom
+   * panel two things must hold in the home view: the deck comes clear of the panel without the picture going higher
+   * than the middle of what is free (followInsets lifts it no further), and the top of the tool is still in the picture.
+   */
+  function scaleGoal(w, h) {
+    if (!inset.right && !inset.bottom) return 1;
+    const s = homeSpread(w, h); if (!s) return 1;
+    const freeW = w - inset.right, freeH = h - inset.bottom;
+    let k = (freeW - 2 * MARGIN) / (s.left + s.right);
+    if (inset.bottom > 0) k = Math.min(k, (freeH - MARGIN - CLEAR) / (s.top + s.deck), s.deck > 1 ? (freeH / 2 - CLEAR) / s.deck : Infinity);
+    return THREE.MathUtils.clamp(k, 0.3, 1);
+  }
   function applyView() {
     const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
     const a = 2 * inset.x, b = 2 * inset.y;
-    camera.aspect = (w + a) / (h + b); camera.zoom = h / (h + b); camera.fov = w / h < 1.2 ? 46 : 34;
+    camera.aspect = (w + a) / (h + b); camera.zoom = inset.scale * h / (h + b); camera.fov = w / h < 1.2 ? 46 : 34;
     if (a > 0.5 || b > 0.5) camera.setViewOffset(w + a, h + b, a, b, w, h); else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
-  function setInsets({ right = 0, bottom = 0 } = {}) { inset.right = Math.max(0, right); inset.bottom = Math.max(0, bottom); }
-  function followInsets(dt) {
-    const h = canvas.clientHeight; let lowest = 0;                // lowest point of the deck front, as it would sit without any shift
-    if (inset.bottom > 0) for (const p of DECK_FRONT) { tmp.copy(p).project(camera); if (tmp.z < 1) lowest = Math.max(lowest, (1 - tmp.y) / 2 * h + inset.y); }
-    const goalX = inset.right / 2, goalY = inset.bottom > 0 ? THREE.MathUtils.clamp(lowest + 22 - (h - inset.bottom), 0, inset.bottom / 2) : 0;
-    if (Math.abs(goalX - inset.x) < 0.5 && Math.abs(goalY - inset.y) < 0.5) return;
-    const k = Math.min(1, dt * 8); inset.x += (goalX - inset.x) * k; inset.y += (goalY - inset.y) * k; applyView();
+  /** What the page's panels cover of the view (CSS px). The picture eases into what is left; `instant` puts it there at once (the lift over a bottom panel still follows the deck). */
+  function setInsets({ right = 0, bottom = 0 } = {}, instant = false) {
+    inset.right = Math.max(0, right); inset.bottom = Math.max(0, bottom);
+    if (!instant) return;
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    inset.x = inset.right / 2; if (!inset.bottom) inset.y = 0; inset.scale = scaleGoal(w, h); applyView();
   }
+  function followInsets(dt) {
+    const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
+    let lowest = 0;                                             // lowest point of the deck front, as it would sit without any shift
+    if (inset.bottom > 0) for (const p of DECK_FRONT) { tmp.copy(p).project(camera); if (tmp.z < 1) lowest = Math.max(lowest, (1 - tmp.y) / 2 * h + inset.y); }
+    const goalX = inset.right / 2, goalY = inset.bottom > 0 ? THREE.MathUtils.clamp(lowest + CLEAR - (h - inset.bottom), 0, inset.bottom / 2) : 0, goalScale = scaleGoal(w, h);
+    if (Math.abs(goalX - inset.x) < 0.5 && Math.abs(goalY - inset.y) < 0.5 && Math.abs(goalScale - inset.scale) < 0.001) return;
+    const k = Math.min(1, dt * 8); inset.x += (goalX - inset.x) * k; inset.y += (goalY - inset.y) * k; inset.scale += (goalScale - inset.scale) * k; applyView();
+  }
+  let sized = '';
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight; if (!w || !h) return;
-    renderer.setSize(w, h, false); applyView();
+    const size = `${w}x${h}@${pixelRatio}`, changed = size !== sized; sized = size;
+    renderer.setSize(w, h, false); inset.scale = scaleGoal(w, h); applyView();           // a canvas that has changed its size is framed at once
+    if (changed && drawn) render();                             // and drawn at once: a canvas that changes its size is cleared, and would flash
   }
   const observer = new ResizeObserver(resize); observer.observe(canvas);
+  // The display's own ratio changes when the page is zoomed or the window goes to another monitor: the picture follows it.
+  let ratioQuery = null;
+  function watchRatio() {
+    ratioQuery?.removeEventListener('change', onRatio);
+    ratioQuery = window.matchMedia?.(`(resolution: ${window.devicePixelRatio || 1}dppx)`) ?? null; ratioQuery?.addEventListener('change', onRatio);
+  }
+  function onRatio() {
+    if (disposed) return;
+    const next = Math.min(window.devicePixelRatio || 1, ratioCap);
+    if (adaptive && next !== pixelRatio) { pixelRatio = next; renderer.setPixelRatio(pixelRatio); resize(); }
+    watchRatio();
+  }
+  watchRatio();
+  // A graphics context that is lost (the driver, a sleeping laptop) leaves the canvas blank until it comes back. three.js
+  // sets itself up again; the baked light of the room and the shadow map are made anew here, and the page is told.
+  const onContextLost = () => { on.context?.(false); };
+  const onContextBack = () => {
+    environment = bakeEnvironment(); scene.environment = environment.texture;   // what was baked before went with the old context: there is nothing of it left to free
+    key.shadow.map = null;
+    on.context?.(true);
+  };
+  canvas.addEventListener('webglcontextlost', onContextLost); canvas.addEventListener('webglcontextrestored', onContextBack);
 
   /** Screen position (CSS px inside the canvas) of a named part, for the callout drawn by the page. */
   function screenOf(name) {
@@ -674,7 +783,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
   function update(next, dt = 0.016) {
     view = next; clock += dt;
     frames++; if (dt > 0.034) slowFrames++;
-    if (frames >= 90) { if (adaptive && slowFrames > 60 && pixelRatio > 1) { pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
+    if (frames >= 90) { if (adaptive && slowFrames > 60 && pixelRatio > 1) { ratioCap = pixelRatio = Math.max(1, pixelRatio - 0.25); renderer.setPixelRatio(pixelRatio); resize(); } frames = slowFrames = 0; }
     if (pendingHover) { const ev = pendingHover; pendingHover = null; if (!drag) setHover(partAt(ev)); }
     const gap = THREE.MathUtils.clamp(next.gap, 0, travel), headY = PAD_TOP + gap;
     head.position.y = headY; headSpin.rotation.y = next.carrierAngle; spinRing.rotation.y = next.carrierAngle;
@@ -761,7 +870,7 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     }
     controls.update();
   }
-  function render() { if (!disposed) renderer.render(scene, camera); }
+  function render() { if (disposed) return; drawn = true; renderer.render(scene, camera); }
 
   setView('home', true); resize();
   return {
@@ -770,6 +879,16 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     lookFrom(position, target) { glide = null; camera.position.set(position[0], position[1], position[2]); controls.target.set(target[0], target[1], target[2]); controls.update(); },
     /** Fixes the render resolution, with no automatic step-down afterwards (still pictures). */
     holdPixelRatio(ratio) { adaptive = false; pixelRatio = ratio; renderer.setPixelRatio(ratio); resize(); },
+    /** How the picture is framed now: the principal point x left of and y above the middle of the canvas (CSS px), and the scale (checks). */
+    get frame() { return { x: inset.x, y: inset.y, scale: inset.scale }; },
+    /** Where the tool stands in the picture when it is seen from the home view, as framed now: { left, right, top, bottom (the front of the deck) } in CSS px inside the canvas, or null. The page keeps its guide clear of it. */
+    get homeBox() {
+      const w = canvas.clientWidth, h = canvas.clientHeight, s = w && h ? homeSpread(w, h) : null; if (!s) return null;
+      const x = w / 2 - inset.x, y = h / 2 - inset.y, k = inset.scale;
+      return { left: x - k * s.left, right: x + k * s.right, top: y - k * s.top, bottom: y + k * s.deck };
+    },
+    /** The box the tool stands in (m) and the points along the front of its deck, which a bottom panel must leave clear (checks). */
+    get box() { homeSpread(canvas.clientWidth || 1600, canvas.clientHeight || 900); return { min: solid.min.toArray(), max: solid.max.toArray(), deckFront: DECK_FRONT.map(p => p.toArray()) }; },
     /** Names of every part that answers to the pointer, with its kind ('control' or 'info'). */
     parts: Object.fromEntries(Object.entries(parts).map(([name, p]) => [name, p.kind])),
     /** Name of the part under a pointer position, or null (used by the interaction tests). */
@@ -789,8 +908,10 @@ export function create({ canvas, constants, on = {}, cleaner: withCleaner = fals
     dispose() {
       disposed = true; observer.disconnect(); controls.dispose();
       canvas.removeEventListener('pointerdown', pointerDown); canvas.removeEventListener('pointermove', pointerMove);
-      canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerUp);
+      canvas.removeEventListener('pointerup', pointerUp); canvas.removeEventListener('pointercancel', pointerCancel);
       canvas.removeEventListener('wheel', onWheel); canvas.removeEventListener('pointerleave', pointerLeave);
+      canvas.removeEventListener('contextmenu', onMenu); canvas.removeEventListener('lostpointercapture', onCaptureLost); window.removeEventListener('blur', cancelPointer);
+      canvas.removeEventListener('webglcontextlost', onContextLost); canvas.removeEventListener('webglcontextrestored', onContextBack); ratioQuery?.removeEventListener('change', onRatio);
       scene.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose()); });
       textures.forEach(t => t.dispose()); environment.dispose(); renderer.dispose();
     },

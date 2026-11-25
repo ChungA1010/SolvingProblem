@@ -12,16 +12,20 @@
  *     W = sqrt(2 eps (Vbi + V) / (q Na)). These are the textbook expressions; ni = 1e10 per cm3, the mobilities, the
  *     lifetime of 10 us and the junction area of 1e-3 cm2 per chip are representative values.
  *   Contact: the specific contact resistivity falls steeply with the doping at the surface, ln(rho_c) going with
- *     1 / sqrt(N) (tunnelling through the barrier). The curve is pinned at 1e-6 ohm cm2 for 1e20 per cm3 and 1e-4 for
- *     1e19, the order of magnitude textbook charts show, over a contact area of 1e-5 cm2 per chip. Representative.
+ *     1 / sqrt(N) (tunnelling through the barrier). The curve is pinned at 1e-6 ohm cm2 for 1e20 per cm3 and 5e-5 for
+ *     1e19, the order of magnitude textbook charts show, over a contact area of 1e-5 cm2 per chip. Representative. The
+ *     second point is set so that a wafer just at the run sheet's surface doping (1e19) still passes on every chip with
+ *     needles of up to 3.5 ohm: 5 to 6.3 ohm of contact across the wafer against the limit of 10.
  *   Assumed outright: the leak of a junction left very shallow under the window or made in a dislocated crystal, the resistance of the copper path, the
  *     few per cent by which doping, window width and dishing change toward the wafer's edge, the leak of a chip with a
  *     killer defect, the probes (resistance against overdrive, 15 um of room on the pad), the test limits and the times.
  *   Which chips carry a killer defect comes from the flow model (Poisson yield model).
  */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.ProcessLabEds = factory();
+  const api = factory();
+  if (typeof module === 'object' && module.exports) module.exports = api; else root.ProcessLabEds = api;
+  const flow = typeof window !== 'undefined' ? window.ProcessLabFlow : null;                // the route, where a page (or a test that stands in for one) has loaded it first
+  if (flow && flow.setTester) flow.setTester(api.standardTest);
 })(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
@@ -30,7 +34,7 @@
     ni: 1e10, mobility: { electron: 1400, hole: 470 }, lifetime: 1e-5,   // per cm3, cm2/Vs, s
     permittivity: 11.7 * 8.854e-14,                                      // F/cm
     junctionArea: 1e-3, contactArea: 1e-5,                               // cm2 per chip, for the standard window and junction
-    contact: { high: [1e20, 1e-6], low: [1e19, 1e-4] },                  // [doping per cm3, specific contact resistivity in ohm cm2]: two points of the curve
+    contact: { high: [1e20, 1e-6], low: [1e19, 5e-5] },                  // [doping per cm3, specific contact resistivity in ohm cm2]: two points of the curve
     metal: { resistance: 0.2, burnt: 100 },                              // ohm of the copper path at full height; times this where the copper burnt (assumed: a porous, powdery deposit that the polish tears out, past the 10 ohm limit)
     spike: { depth: 120, scale: 15 },                                    // nm: a junction left shallower than this under the window floor leaks
     dislocated: 1e4,                                                     // times the leakage in a crystal grown without a neck
@@ -115,6 +119,9 @@
     });
   }
 
+  /** What the tester finds on every chip of a wafer with its needles well set (on the pads, at their least resistance): [{ good, bin }]. This is the wafer test of the standard recipe. */
+  const standardTest = options => truths(options).map(truth => { const found = evaluate(truth, { touching: true, resistance: K.probe.floor }); return { good: found.good, bin: found.bin }; });
+
   /** A wafer prober with its tester, handling one wafer. Times are seconds. */
   function create(options = {}) {
     const dies = options.dies || [], truth = truths({ wafer: options.wafer || {}, dies, killed: options.killed, seed: options.seed });
@@ -130,6 +137,7 @@
       phase: 'setup',                             // setup, probing, done
       index: order.length ? order[0] : -1, down: false, touch: 0,     // chip under the needles; needles on the pads; s left of a contact check
       results: dies.map(() => null), tested: 0, good: 0, passes: 0, queue: [], elapsed: 0,
+      latest: -1,                                 // the chip tested last (its place in `results`), or -1
       contact: null,                              // last contact check: { touching, resistance }
       history: [], result: null,
     };
@@ -164,7 +172,7 @@
       const each = K.times.index + K.times.test;
       state.elapsed += dt;
       while (state.elapsed >= each && state.queue.length) {
-        const i = state.queue.shift(); state.results[i] = { ...evaluate(truth[i], probe()), pass: state.passes }; state.elapsed -= each;
+        const i = state.queue.shift(); state.results[i] = { ...evaluate(truth[i], probe()), pass: state.passes }; state.latest = i; state.elapsed -= each;
         const c = count(); state.tested = c.tested; state.good = c.good; state.history.push({ n: state.history.length + 1, yield: c.good / c.tested * 100 });
       }
       if (state.queue.length) { state.index = state.queue[0]; state.down = state.elapsed > K.times.index; }
@@ -173,5 +181,5 @@
     return { state, constants, dies, order, truth, error, probe, count, setControl, step };
   }
 
-  return { constants, contactResistivity, acceptors, saturationCurrent, depletionWidth, leakage, forwardVoltage, probeResistance, evaluate, truths, create };
+  return { constants, contactResistivity, acceptors, saturationCurrent, depletionWidth, leakage, forwardVoltage, probeResistance, evaluate, truths, standardTest, create };
 });

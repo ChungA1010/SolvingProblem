@@ -68,3 +68,10 @@ test('the run wires every good chip at 0.25 s a wire; good settings lose none, p
   assert.ok(edge.state.result.chips > 0 && edge.state.result.lost > 0, `at the edge of the window some chips are lost: ${JSON.stringify(edge.state.result)}`);
   const none = M.create({ chips: 0, seed: 3 }); assert.equal(none.setControl('run', true), true); assert.equal(none.state.phase, 'done'); assert.equal(none.state.result.chips, 0);
 });
+
+test('a wire is judged on the pull force as it is printed: 3.0 gf meets a limit of 3 gf, 2.9 gf does not', () => {
+  const wire = pull => ({ ball: pull / M.pullFactor(), neck: 20, stitch: 20, crater: 0, diameter: C.pad - 10 });
+  const at = M.judge(wire(C.spec.pull - 0.04)), under = M.judge(wire(C.spec.pull - 0.06));
+  assert.equal(at.pull.force.toFixed(1), C.spec.pull.toFixed(1)); assert.equal(at.ok, true, `${at.pull.force} gf reads ${at.pull.force.toFixed(1)}`);
+  assert.equal(under.pull.force.toFixed(1), (C.spec.pull - 0.1).toFixed(1)); assert.equal(under.ok, false); assert.equal(under.reason, 'lift');
+});

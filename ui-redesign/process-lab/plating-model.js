@@ -188,7 +188,7 @@
         sheet: t > 0 ? sheet(t) * 1000 : null, byCharge: thicknessOf(state.charge), burnt: share > 0, burntShare: share,
         seconds: state.seconds, peak: state.peak, error: t - S.target, ok: false,
       };
-      state.result.ok = t > 0 && share === 0 && thinnest >= S.target - S.tolerance && thickest <= S.target + S.tolerance;
+      state.result.ok = t > 0 && share === 0 && Math.round(thinnest) >= S.target - S.tolerance && Math.round(thickest) <= S.target + S.tolerance;   // on the thicknesses as they are printed, in whole nm
       return state.result;
     }
     return { state, constants, incoming, setControl, step, spread, scorchedPlaces, burntShare, canMeasure, measure };

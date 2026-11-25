@@ -20,7 +20,7 @@
   /** A number for each test run, so the page can tell a new report from the one it already shows. */
   const reportId = r => { if (!measuredOnce.has(r)) measuredOnce.set(r, ++measurements); return measuredOnce.get(r); };
   const tested = sim => { const c = sim.count(); return { total: c.total, good: c.good, dies: sim.state.results.map(r => r ? { good: r.good, bin: r.bin, text: dieText(r) } : { good: null }) }; };
-  const handed = sim => { const c = sim.count(), s = sim.state; return { dies: s.results.map(r => r ? { good: r.good, bin: r.bin, text: dieText(r) } : { good: false, bin: 'contact', text: '검사하지 않음' }), missed: c.missed, how: `오버드라이브 ${fmt(s.controls.z)} µm, 검사 ${s.passes}회` }; };
+  const handed = sim => { const c = sim.count(), s = sim.state; return { dies: s.results.map(r => r ? { good: r.good, bin: r.bin, text: dieText(r) } : { good: false, bin: 'contact', text: '검사하지 않음' }), missed: c.missed, how: `오버드라이브 ${fmt(s.result ? s.result.overdrive : s.controls.z)} µm, 검사 ${s.passes}회` }; };
 
   /** What the alignment camera sees: two pads of the chip under the needles, and where the needle tips stand over them. */
   function padView(sim) {
@@ -43,18 +43,18 @@
     parts: {
       x: { name: '척 X 위치', role: '웨이퍼를 좌우로 조금 옮겨 바늘이 패드 가운데에 오게 합니다.', how: '좌우로 끌거나 휠을 굴립니다.', rows: s => [['설정', `${signed(s.controls.x)} µm`]], pill: s => `X ${signed(s.controls.x)} µm` },
       y: { name: '척 Y 위치', role: '웨이퍼를 앞뒤로 조금 옮겨 바늘이 패드 가운데에 오게 합니다.', how: '좌우로 끌거나 휠을 굴립니다.', rows: s => [['설정', `${signed(s.controls.y)} µm`]], pill: s => `Y ${signed(s.controls.y)} µm` },
-      z: { name: '오버드라이브', role: '바늘이 패드에 닿은 뒤 척을 더 밀어 올리는 거리입니다. 모자라면 접촉 저항이 커서 좋은 칩도 불량으로 나옵니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '바늘의 접촉 저항 곡선은 대표값',
+      z: { name: '오버드라이브', role: '바늘이 패드에 닿은 뒤 척을 더 밀어 올리는 거리입니다. 모자라면 접촉 저항이 커서 좋은 칩도 불량으로 나옵니다.', how: '좌우로 끌거나 휠을 굴립니다.', basis: '바늘의 접촉 저항 곡선은 대푯값',
         rows: s => [['설정', `${fmt(s.controls.z)} µm`]], pill: s => `${fmt(s.controls.z)} µm` },
       contact: { name: '접촉 확인', role: '지금 위치에서 바늘을 한 번 대 보고, 닿는지와 바늘의 접촉 저항을 잽니다. 다이얼을 움직이면 다시 해야 합니다.', how: '누릅니다.', rows: s => [['결과', s.contact ? (s.contact.touching ? ohm(s.contact.resistance) : '닿지 않음') : '아직 안 함']] },
       probe: { name: '검사', role: '칩을 하나씩 바늘 아래로 옮겨 가며 검사합니다. 한 번 끝난 뒤에 누르면 불량으로 나온 칩만 다시 검사합니다.', how: '누릅니다.', rows: s => [['검사한 횟수', `${s.passes}회`]] },
-      card: { name: '프로브 카드', role: '칩의 패드 자리에 맞춘 바늘이 달린 판입니다. 바늘이 패드에 닿아 테스터와 칩을 잇습니다.', rows: s => [['바늘', s.down ? '패드에 닿음' : '떨어져 있음']] },
+      card: { name: '프로브 카드', role: '칩의 패드 자리에 맞춘 바늘이 달린 판입니다. 바늘이 패드에 닿아 테스터와 칩을 잇습니다.', rows: s => [['바늘', s.down ? '내려와 있음' : '올라가 있음']] },
       chuck: { name: '척', role: '웨이퍼를 붙잡고 칩 하나씩 바늘 아래로 옮긴 뒤 밀어 올립니다.', rows: s => [['검사한 칩', `${s.tested} / ${DIES.length}`]] },
       camera: { name: '정렬 카메라', role: '바늘 끝과 패드를 내려다봅니다. 검사 전의 웨이퍼 모니터 화면이 이 카메라의 것입니다.', rows: () => [] },
       tester: { name: '테스터', role: '칩마다 접촉 저항, 역방향 누설 전류, 순방향 전압을 차례로 재고, 하나라도 기준을 벗어나면 그 칩을 불량으로 가립니다.', basis: '측정값: 교과서의 다이오드 식에 대표 상수를 넣은 계산',
         rows: () => [['접촉 저항', `${L.resistance} Ω 이하`], [`누설 전류 (${C.test.reverse} V)`, `${amp(L.leakage)} 이하`], ['순방향 전압 (1 mA)', `${L.voltage[0]}~${L.voltage[1]} V`]] },
       wafer: { name: '웨이퍼', role: '검사에서 불량으로 나온 칩에는 잉크 점이 찍힙니다.', rows: s => [['양품', `${s.good} / ${s.tested}`]] },
       hmi: { name: '장비 화면', role: '검사한 칩 수와 수율을 보여 줍니다.', how: '누르면 가까이에서 봅니다.', rows: () => [] },
-      tower: { name: '신호등', role: '초록은 검사 중, 노랑은 대기입니다.', rows: s => [['상태', s.phase === 'probing' ? '검사 중' : '대기']] },
+      tower: { name: '신호등', role: '초록은 검사 중, 노랑은 대기입니다. 받지 않는 조작을 하면 빨강이 깜박입니다.', rows: s => [['상태', s.phase === 'probing' ? '검사 중' : '대기']] },
     },
     control(sim, name, value) {
       const done = sim.setControl(name, value);
@@ -67,12 +67,12 @@
       const s = sim.state, c = sim.count();
       if (s.phase === 'probing') return [`칩을 하나씩 검사하는 중입니다. 남은 칩 ${s.queue.length}개.`, null, null, null];
       const check = !s.contact ? ['카메라 화면을 보면서 X·Y 다이얼로 바늘을 패드 가운데에 맞추고, 접촉 확인 단추로 닿는지 보세요.', 'contact']
-        : !s.contact.touching ? ['바늘이 패드에 닿지 않았습니다. X·Y 다이얼로 위치를 맞추세요.', 'x']
+        : !s.contact.touching ? (s.controls.z <= 0 ? ['오버드라이브가 0이라 바늘이 패드를 누르지 않습니다. 오버드라이브를 올리세요.', 'z'] : ['바늘이 패드에 닿지 않았습니다. X·Y 다이얼로 위치를 맞추세요.', 'x'])
           : s.contact.resistance > L.resistance / 3 ? ['바늘은 닿았지만 접촉 저항이 큽니다. 오버드라이브를 올리면 더 세게 눌립니다.', 'z'] : null;
       if (s.phase === 'done') {
-        const many = c.bins.contact > c.total * 0.1, text = `양품 ${c.good}개 / ${c.total}개 (수율 ${share(c).toFixed(0)}%).`;
-        if (!many) return [text, `다음: ${next}`, 'finish', null];
-        return [`${text} 접촉 불량이 많습니다. ${sim.aligning && check ? check[0] : '바늘 위치와 오버드라이브를 확인하면 불량 칩만 다시 검사할 수 있습니다.'}`, `다음: ${next}`, 'finish', sim.aligning && check ? check[1] : sim.aligning ? 'probe' : 'contact'];
+        const text = `양품 ${c.good}개 / ${c.total}개 (수율 ${share(c).toFixed(0)}%).`;
+        if (!c.missed) return [text, `다음: ${next}`, 'finish', null];                   // contact faults that are the chips' own are no reason to look at the needles
+        return [`${text} 바늘이 제대로 닿지 않아 양품 ${c.missed}개가 불량으로 나왔습니다. ${sim.aligning && check ? check[0] : '바늘 위치와 오버드라이브를 확인하면 불량 칩만 다시 검사할 수 있습니다.'}`, `다음: ${next}`, 'finish', sim.aligning && check ? check[1] : sim.aligning ? 'probe' : 'contact'];
       }
       return check ? [check[0], null, null, check[1]] : ['검사 단추를 누르면 칩을 하나씩 검사합니다.', null, null, 'probe'];
     },
@@ -115,19 +115,21 @@
       const each = pick => s.results.flatMap((r, i) => { const v = r ? pick(r) : null; return v == null ? [] : [[i + 1, v]]; });      // chip number, value: only what was measured
       const yields = s.history.map(p => [p.n, p.yield]), tests = Math.max(total, s.history.length);
       const ohms = each(r => Number.isFinite(r.resistance) ? r.resistance : 2 * L.resistance), leaks = each(r => r.leak == null ? null : r.leak * 1e9), volts = each(r => r.voltage);
-      const last = points => (points.length ? points.at(-1)[1] : null), chip = (points, x) => { const p = near(points, x), r = s.results[p[0] - 1]; return [`${p[0]}번 칩`, [[dieText(r), '']]]; };
+      const chip = (points, x) => { const p = near(points, x), r = s.results[p[0] - 1]; return [`${p[0]}번 칩`, [[dieText(r), '']]]; };
+      const now = s.latest >= 0 ? s.results[s.latest] : null;                             // the chip tested last: the chuck starts in the top row, so it is not the highest number
+      const dot = value => (now && value != null ? [s.latest + 1, value] : false);        // a test this chip did not get to leaves its chart without a dot
       return [
         { title: '수율', unit: '%', value: c.tested ? share(c).toFixed(0) : '—', label: '검사한 칩 수에 따른 수율',
           plot: { x: [0, tests], y: [0, 100], yTicks: [0, 50, 100], xTicks: [[0, '0'], [tests, `${fmt(tests)}번째`]], series: yields },
           tip: x => { if (!yields.length) return null; const p = near(yields, x); return [`${fmt(p[0])}번째 검사`, [[`${p[1].toFixed(0)}%`, '수율']]]; } },
-        { title: '접촉 저항', unit: 'Ω', value: last(ohms) == null ? '—' : last(ohms) >= 2 * L.resistance ? '∞' : last(ohms).toFixed(1), label: `칩마다 잰 접촉 저항. 선은 기준 ${L.resistance} Ω이고, 닿지 않은 칩은 맨 위에 찍힙니다`,
-          plot: { x: [1, total], y: [0, 2 * L.resistance], yTicks: [0, L.resistance], xTicks: chips, limit: L.resistance, limitLabel: '기준', series: ohms, quiet: true },
+        { title: '접촉 저항', unit: 'Ω', value: !now ? '—' : !Number.isFinite(now.resistance) ? '∞' : now.resistance < 100 ? now.resistance.toFixed(1) : fmt(now.resistance), label: `칩마다 잰 접촉 저항. 선은 기준 ${L.resistance} Ω이고, 닿지 않은 칩은 맨 위에 찍힙니다`,
+          plot: { x: [1, total], y: [0, 2 * L.resistance], yTicks: [0, L.resistance], xTicks: chips, limit: L.resistance, limitLabel: '기준', series: ohms, quiet: true, mark: dot(now && (Number.isFinite(now.resistance) ? now.resistance : 2 * L.resistance)) },
           tip: x => (ohms.length ? chip(ohms, x) : null) },
-        { title: '누설 전류', unit: 'nA', value: last(leaks) == null ? '—' : last(leaks) >= 10 ? fmt(last(leaks)) : last(leaks).toFixed(2), label: `칩마다 잰 역방향 누설 전류. 선은 기준 ${amp(L.leakage)}이고, 그보다 훨씬 큰 값은 맨 위에 찍힙니다`,
-          plot: { x: [1, total], y: [0, 2 * L.leakage * 1e9], yTicks: [0, L.leakage * 1e9], xTicks: chips, limit: L.leakage * 1e9, limitLabel: '기준', series: leaks, quiet: true },
+        { title: '누설 전류', unit: 'nA', value: !now || now.leak == null ? '—' : now.leak * 1e9 >= 10 ? fmt(now.leak * 1e9) : (now.leak * 1e9).toFixed(2), label: `칩마다 잰 역방향 누설 전류. 선은 기준 ${amp(L.leakage)}이고, 그보다 훨씬 큰 값은 맨 위에 찍힙니다`,
+          plot: { x: [1, total], y: [0, 2 * L.leakage * 1e9], yTicks: [0, L.leakage * 1e9], xTicks: chips, limit: L.leakage * 1e9, limitLabel: '기준', series: leaks, quiet: true, mark: dot(now && now.leak != null ? now.leak * 1e9 : null) },
           tip: x => (leaks.length ? chip(leaks, x) : null) },
-        { title: '순방향 전압', unit: 'V', value: last(volts) == null ? '—' : last(volts).toFixed(2), label: `칩마다 잰 순방향 전압. 띠는 기준 ${L.voltage[0]}~${L.voltage[1]} V`,
-          plot: { x: [1, total], y: [L.voltage[0] - 0.15, L.voltage[1] + 0.15], yTicks: [L.voltage[0], L.voltage[1]], yFormat: v => v.toFixed(2), xTicks: chips, band: L.voltage, series: volts, quiet: true },
+        { title: '순방향 전압', unit: 'V', value: !now || now.voltage == null ? '—' : now.voltage.toFixed(2), label: `칩마다 잰 순방향 전압. 띠는 기준 ${L.voltage[0]}~${L.voltage[1]} V`,
+          plot: { x: [1, total], y: [L.voltage[0] - 0.15, L.voltage[1] + 0.15], yTicks: [L.voltage[0], L.voltage[1]], yFormat: v => v.toFixed(2), xTicks: chips, band: L.voltage, series: volts, quiet: true, mark: dot(now ? now.voltage : null) },
           tip: x => (volts.length ? chip(volts, x) : null) },
       ];
     },

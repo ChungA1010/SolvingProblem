@@ -4,9 +4,10 @@
 (function () {
   'use strict';
   const OX = window.ProcessLabOxidation, F = window.ProcessLabFlow, FILM = window.Lab3DProcess, F0 = OX.constants.furnace;
+  const locked = s => s.tube > F0.boatLock + 0.5;                    // the elevator does not move while the tube is this hot (oxidation-model.js)
   const fmt = v => Math.round(v).toLocaleString('en-US'), clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
   const AMBIENT = { wet: '습식 (H₂O)', dry: '건식 (O₂)', inert: '질소', none: '가스 없음' };
-  const rateText = s => s.growing ? `${s.rate >= 10 ? s.rate.toFixed(0) : s.rate.toFixed(1)} nm/분` : '0';
+  const rateText = s => s.growing ? `${s.rate >= 10 ? s.rate.toFixed(0) : s.rate.toFixed(1)} nm/min` : '0';
   const onOff = open => open ? '열림' : '닫힘';
   function recipeText(m) {
     const parts = [];
@@ -46,11 +47,11 @@
     create: (wafer, seed) => OX.create({ target: F.SPEC.oxide.target, tolerance: F.SPEC.oxide.tolerance, seed, oxide: Math.max(OX.constants.nativeOxide, wafer.oxide) }),
     parts: {
       boat: { name: '보트', role: '웨이퍼 25장을 싣고 튜브 안으로 올라갑니다.', how: `위로 끌면 튜브에 넣고 아래로 끌면 꺼냅니다. 튜브가 ${F0.boatLock} °C보다 뜨거우면 움직이지 않습니다.`,
-        rows: s => [['위치', s.sealed ? '튜브 안' : s.boat < 0.02 ? '아래' : '이동 중'], ['웨이퍼 온도', `${fmt(s.wafer)} °C`]], pill: s => s.controls.boat > 0.5 ? '튜브에 넣기' : '꺼내기' },
+        rows: s => [['위치', s.sealed ? '튜브 안' : s.boat < 0.02 ? '아래' : locked(s) ? '중간에 멈춤 (잠김)' : '이동 중'], ['웨이퍼 온도', `${fmt(s.wafer)} °C`]], pill: s => s.controls.boat > 0.5 ? '튜브에 넣기' : '꺼내기' },
       setpoint: { name: '온도 조절기', role: `히터의 목표 온도입니다. 히터는 1분에 ${F0.rampUp} °C씩 오르고 ${F0.rampDown} °C씩 내립니다.`, how: '좌우로 끌거나 휠을 굴립니다.',
         rows: s => [['설정', `${fmt(s.controls.setpoint)} °C`], ['튜브', `${fmt(s.tube)} °C`]], pill: s => `${fmt(s.controls.setpoint)} °C` },
       n2: { name: '질소 밸브', role: '반응하지 않는 가스입니다. 웨이퍼를 넣고 꺼낼 때와 식힐 때 흘립니다. 산화 가스와 함께 열면 산화 가스가 묽어집니다.', how: '누르면 열리고 닫힙니다.', rows: s => [['밸브', onOff(s.controls.n2)]] },
-      o2: { name: '산소 밸브', role: '건식 산화입니다. 느리지만 얇은 막을 고르게 기릅니다.', how: '누르면 열리고 닫힙니다.', basis: '계산: Massoud 식 (1000 °C 위는 Deal–Grove 상수)',
+      o2: { name: '산소 밸브', role: '건식 산화입니다. 느리지만 얇은 막을 고르게 기릅니다.', how: '누르면 열리고 닫힙니다.', basis: '계산: Massoud 식 (1,000 °C 위는 Deal–Grove 상수)',
         rows: s => [['밸브', onOff(s.controls.o2)], ...(s.ambient === 'dry' ? [['성장 속도', rateText(s)]] : [])] },
       h2o: { name: '수증기 밸브', role: '습식 산화입니다. 수소와 산소를 태워 만든 수증기로, 건식보다 훨씬 빨리 자랍니다.', how: '누르면 열리고 닫힙니다.', basis: '계산: Deal–Grove 식',
         rows: s => [['밸브', onOff(s.controls.h2o)], ...(s.ambient === 'wet' ? [['성장 속도', rateText(s)]] : [])] },
@@ -58,7 +59,7 @@
         rows: s => [['분위기', s.sealed ? AMBIENT[s.ambient] : '열려 있음'], ...(s.pressure > 0 && s.pressure < 1 ? [['산화 가스 분압', `${s.pressure.toFixed(2)} 기압`]] : []), ['성장 속도', rateText(s)]] },
       heater: { name: '히터', role: '튜브를 둘러싼 가열선입니다. 뜨거워지면 붉게 달아오릅니다.', rows: s => [['튜브 온도', `${fmt(s.tube)} °C`], ['설정', `${fmt(s.controls.setpoint)} °C`]] },
       hmi: { name: '장비 화면', role: '온도, 가스, 지난 시간을 보여 줍니다.', how: '누르면 가까이에서 봅니다.', rows: () => [] },
-      tower: { name: '신호등', role: '초록은 산화막이 자라는 중, 노랑은 대기입니다.', rows: s => [['상태', s.growing ? '산화 중' : '대기']] },
+      tower: { name: '신호등', role: '초록은 산화막이 자라는 중, 노랑은 대기입니다. 받지 않는 조작을 하면 빨강이 깜박입니다.', rows: s => [['상태', s.growing ? '산화 중' : '대기']] },
       exhaust: { name: '배기', role: '쓰고 난 가스를 빼냅니다.', rows: () => [] },
     },
     control(sim, name, value) {
@@ -70,18 +71,20 @@
     /** What the operator can do next. No temperature, time or gas is suggested. Returns [text, action label, action, part to point at]. */
     guide(sim, next) {
       const s = sim.state, grown = s.minutes.wet + s.minutes.dry > 0.5, oxidant = s.controls.o2 || s.controls.h2o;
+      const cool = [`튜브가 뜨거워 보트가 잠겨 있습니다. 온도를 내리세요 (지금 ${fmt(s.tube)} °C).`, null, null, s.controls.setpoint > F0.boatLock ? 'setpoint' : null];   // the boat does not move while the tube is this hot
       if (s.measured) {
         const m = s.measured, verdict = m.ok ? '목표 범위 안입니다' : m.error < 0 ? `목표보다 ${fmt(-m.error)} nm 얇습니다` : `목표보다 ${fmt(m.error)} nm 두껍습니다`;
         return [`산화막 ${fmt(m.mean)} nm. ${verdict}.${m.error < -m.tolerance ? ' 보트를 다시 올려 더 기를 수 있습니다.' : ''}`, `다음: ${next}`, 'finish', null];
       }
       if (s.boat < 0.02 && s.controls.boat < 0.02) {
-        if (!grown) return ['보트를 위로 끌어 웨이퍼를 튜브에 넣으세요.', null, null, 'boat'];
+        if (!grown) return locked(s) ? cool : ['보트를 위로 끌어 웨이퍼를 튜브에 넣으세요.', null, null, 'boat'];
         return sim.canMeasure() ? ['웨이퍼가 식었습니다. 산화막 두께를 잽니다.', '두께 재기', () => sim.measure(), null] : [`웨이퍼가 식는 중입니다 (${fmt(s.wafer)} °C).`, null, null, null];
       }
-      if (!s.sealed) return [s.controls.boat > s.boat ? '보트가 올라가는 중입니다.' : s.controls.boat < s.boat ? '보트가 내려오는 중입니다.' : '보트가 중간에 멈춰 있습니다. 끝까지 올리거나 내리세요.', null, null, null];
+      if (!s.sealed) return s.controls.boat > s.boat ? ['보트가 올라가는 중입니다.', null, null, null] : s.controls.boat < s.boat ? ['보트가 내려오는 중입니다.', null, null, null]
+        : locked(s) ? [`튜브가 뜨거워 보트가 중간에 멈췄습니다. 온도를 내리면 다시 움직입니다 (지금 ${fmt(s.tube)} °C).`, null, null, s.controls.setpoint > F0.boatLock ? 'setpoint' : null] : ['보트가 중간에 멈춰 있습니다. 끝까지 올리거나 내리세요.', null, null, 'boat'];
       if (oxidant) return [s.growing ? '산화막이 자라고 있습니다. 원하는 두께가 되면 산화 가스를 잠그세요.' : '산화 가스가 흐릅니다. 온도가 낮으면 거의 자라지 않습니다.', null, null, null];
       if (!grown) return ['온도 조절기로 온도를 정하고 산화 가스를 여세요. O₂는 건식, H₂O는 습식 산화입니다.', null, null, s.controls.setpoint <= F0.standby ? 'setpoint' : 'h2o'];
-      if (s.tube > F0.boatLock) return [`보트는 튜브가 ${F0.boatLock} °C 아래로 식어야 내려옵니다. 온도를 내리세요 (지금 ${fmt(s.tube)} °C).`, null, null, s.controls.setpoint > F0.boatLock ? 'setpoint' : null];
+      if (locked(s)) return [`보트는 튜브가 식어야 내려옵니다. 온도를 내리세요 (지금 ${fmt(s.tube)} °C).`, null, null, s.controls.setpoint > F0.boatLock ? 'setpoint' : null];
       return ['보트를 아래로 끌어 웨이퍼를 꺼내세요.', null, null, 'boat'];
     },
     view: sim => { const s = sim.state; return { boat: s.boat, tube: s.tube, wafer: s.wafer, controls: s.controls, growing: s.growing, filmColor: FILM.filmColor(s.oxide), filmStrength: clamp((s.oxide - 3) / 40, 0, 1) }; },
@@ -124,9 +127,9 @@
         { title: '산화막', unit: 'nm', value: fmt(s.oxide), label: '시간에 따른 산화막 두께. 띠는 목표 범위',
           plot: { x: [0, minutes], y: [0, top], yTicks: [0, target], xTicks: time, band: [target - tolerance, target + tolerance], series: oxide },
           tip: x => { if (!oxide.length) return null; const p = near(oxide, x); return [`${fmt(p[0])}분`, [[`${fmt(p[1])} nm`, '산화막'], [`${fmt(target - p[1])} nm`, '목표까지']]]; } },
-        { title: '성장 속도', unit: 'nm/분', value: s.growing ? perMinute(s.rate) : '0', label: '시간에 따른 산화막의 성장 속도',
+        { title: '성장 속도', unit: 'nm/min', value: s.growing ? perMinute(s.rate) : '0', label: '시간에 따른 산화막의 성장 속도',
           plot: { x: [0, minutes], y: [0, rateTop], yTicks: [0, rateTop / 2, rateTop], yFormat: v => (Number.isInteger(v) ? String(v) : v.toFixed(1)), xTicks: time, series: rate, quiet: true },
-          tip: x => { if (!rate.length) return null; const p = near(rate, x); return [`${fmt(p[0])}분`, [[`${perMinute(p[1])} nm/분`, '성장 속도'], [`${fmt(near(oxide, x)[1])} nm`, '그때의 두께']]]; } },
+          tip: x => { if (!rate.length) return null; const p = near(rate, x); return [`${fmt(p[0])}분`, [[`${perMinute(p[1])} nm/min`, '성장 속도'], [`${fmt(near(oxide, x)[1])} nm`, '그때의 두께']]]; } },
         { title: '튜브', unit: '°C', value: fmt(s.tube), label: `시간에 따른 튜브 온도. 선 위에서는 보트가 잠깁니다 (${F0.boatLock} °C)`,
           plot: { x: [0, minutes], y: [0, F0.maxSet + 100], yTicks: [0, 600, 1200], xTicks: time, limit: F0.boatLock, limitLabel: '보트 잠김', series: tube, quiet: true },
           tip: x => { if (!tube.length) return null; const p = near(tube, x); return [`${fmt(p[0])}분`, [[`${fmt(p[1])} °C`, '튜브'], [`${fmt(near(wafer, x)[1])} °C`, '웨이퍼']]]; } },

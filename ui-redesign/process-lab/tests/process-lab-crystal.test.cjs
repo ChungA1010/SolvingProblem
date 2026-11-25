@@ -112,3 +112,58 @@ test('a whole crystal takes hours of pulling, which one step can cover without l
   near(coarse.measure().diameter, fine.measure().diameter, 0.005, 'body diameter with steps of five minutes');
   assert.ok(fine.state.time > 2 * 3600 && fine.state.time < 8 * 3600, `${(fine.state.time / 3600).toFixed(1)} h`);
 });
+
+test('a seed that is only moved a little leaves the crystal growing; lifted past half its way, the crystal comes off', () => {
+  const sim = dipped(2.9), s = sim.state;
+  sim.setControl('speed', 9); until(sim, x => x.necked);
+  sim.setControl('speed', 1); until(sim, x => 2 * x.radius > 290);
+  sim.setControl('auto', true); until(sim, x => x.body.length >= 60);
+  const before = s.length;
+  sim.setControl('seed', 0.9); run(sim, 60);
+  assert.ok(sim.growing() && s.controls.auto && s.length > before && s.seed === 1, 'a nudge changes nothing: the crystal grows on under its controller');
+  sim.setControl('seed', 1); run(sim, 60);
+  assert.ok(sim.growing() && s.result === null && s.body.length >= 60, 'and the seed let go again does not start a new crystal');
+  sim.setControl('seed', 0.49); run(sim, 2);
+  assert.ok(s.ended && !sim.growing() && !s.controls.auto, 'past half its way the crystal is off the melt');
+});
+
+test('the puller stops pulling when its chamber is full, and when the charge is used up: nothing freezes that is not there', () => {
+  const long = dipped(2.9), s = long.state;
+  long.setControl('speed', 9); until(long, x => x.necked);
+  long.setControl('speed', 1); until(long, x => 2 * x.radius > 290);
+  long.setControl('auto', true); until(long, x => Boolean(x.full), 2000000);
+  assert.equal(s.full, 'stroke'); assert.ok(s.length >= C.stroke && s.length < C.stroke + 1 && !s.controls.auto && long.growing(), `${s.length} mm`);
+  const length = s.length, mass = s.mass; run(long, 3600, 10);
+  assert.ok(s.length === length && s.mass === mass && mass < C.usable * C.melt, 'it hangs there until it is lifted');
+  long.setControl('seed', 0); run(long, 25);
+  const r = long.measure();
+  assert.ok(r && Number.isFinite(r.resistivity) && r.resistivity > 0 && r.fraction < 1, JSON.stringify(r));
+  // a crystal kept as wide as it will go uses the charge up before the chamber is full
+  const fat = dipped(2.9), f = fat.state;
+  fat.setControl('speed', 0.3); until(fat, x => Boolean(x.full), 4000000);
+  assert.equal(f.full, 'melt'); assert.ok(f.mass >= C.usable * C.melt && f.mass < C.usable * C.melt + 0.2 && f.length < C.stroke, `${f.mass} kg, ${f.length} mm`);
+  for (const p of f.profile) assert.ok(Number.isFinite(M.resistivity(M.solidConcentration(M.meltConcentration(2.9), p.m / C.melt))));
+  assert.ok(Number.isFinite(M.solidConcentration(1e15, 1.2)), 'past the last of the melt the freezing law is held at its end');
+});
+
+test('the diameter controller takes the speed over even from a pull that stands still, and finds it again after a melt too hot', () => {
+  const sim = dipped(2.9), s = sim.state;
+  sim.setControl('speed', 9); until(sim, x => x.necked);
+  sim.setControl('speed', 1); until(sim, x => 2 * x.radius > 292);
+  sim.setControl('speed', 0); run(sim, 60); const stood = s.length;
+  assert.equal(sim.setControl('auto', true), true); run(sim, 3600, 2);
+  assert.ok(s.controls.auto && s.controls.speed > 0.5 && s.length > stood + 30, `speed ${s.controls.speed}, grown ${s.length - stood} mm`);
+  sim.setControl('heater', 140); run(sim, 3600, 2);
+  assert.equal(s.controls.speed, 0, 'a melt this hot leaves the controller no speed to pull at');
+  sim.setControl('heater', 105); run(sim, 5400, 2);
+  assert.ok(s.controls.auto && s.controls.speed > 0.5, `back at ${s.controls.speed} mm/min once the melt has cooled`);
+});
+
+test('a crystal with no body in range is measured where it is widest', () => {
+  const sim = dipped(2.9), s = sim.state;
+  sim.setControl('speed', 9); run(sim, 600);
+  sim.setControl('seed', 0); run(sim, 25);
+  const r = sim.measure();
+  assert.ok(!r.valid && r.body === 0);
+  near(r.diameter, 2 * Math.max(...s.profile.map(p => p.r)), 1e-12, 'the widest place');
+});

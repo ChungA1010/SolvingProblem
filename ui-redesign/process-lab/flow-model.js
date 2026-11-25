@@ -22,7 +22,7 @@
     { id: 'deposition', name: '증착·이온주입', does: '창으로 이온을 넣어 접합을 만들고, 창 안에 얇은 막을 입힙니다.', equipment: true },
     { id: 'metal', name: '금속배선', does: '창을 금속으로 채우고 평탄하게 갈아 전기가 통하는 길을 만듭니다.', equipment: true },
     { id: 'eds', name: 'EDS', does: '웨이퍼 위의 칩을 하나씩 전기로 검사해 양품을 가립니다.', equipment: true },
-    { id: 'package', name: '패키징', does: '양품 칩을 잘라 기판에 붙이고 선을 이은 뒤 감쌉니다.', equipment: true },
+    { id: 'package', name: '패키징', does: '양품 칩을 잘라 리드프레임에 붙이고 금선을 이은 뒤 감쌉니다.', equipment: true },
   ];
   const SPEC = {                                                    // what the run sheet asks of each process (nm unless said; surface: phosphorus per cm3)
     wafer: { resistivity: { target: 10, tolerance: 1 }, diameter: [300, 310] },   // ohm cm; mm of the crystal's body before it is ground to 300 mm
@@ -43,6 +43,29 @@
     defects: 0.03,                                                  // killer defects per cm2 at the centre of the wafer; (1 + 1.5 r^4) times that toward the edge
   };
   const nm = v => `${Math.round(v).toLocaleString('en-US')} nm`;
+  // A verdict is on the number as it is printed: a value that reads as the limit is at the limit. Lengths are printed in
+  // whole nm (a resistivity under 100 ohm cm with one decimal), a concentration with two digits (sci).
+  const read = (v, digits = 0) => (digits ? Number(v.toFixed(digits)) : Math.round(v));     // rounded by the function that prints it
+  const readSci = v => (v > 0 ? Number(v.toExponential(1)) : 0);
+  /**
+   * Whether the test diode of a chip on a p-type wafer of this resistivity (ohm cm) passes the forward-voltage test of the
+   * wafer test: V = (kT/q) ln(I / Is + 1) at 1 mA, with Is = q A ni^2 Dn / (Ln Na), must lie between 0.55 and 0.75 V.
+   * The expression, the constants and the limits are the prober's (eds-model.js), written out here so that the test by
+   * the standard recipe says of a wafer what the prober would; tests/process-lab-flow.test.cjs holds the two together.
+   */
+  let tester = null;
+  /**
+   * Gives the route the prober's model: fn({ wafer, dies, killed, seed }) returns [{ good, bin }] for every chip
+   * (eds-model.js registers its own when both are loaded). The wafer test by the standard recipe then finds on every
+   * chip what the prober finds with its needles well set, whatever was done to the wafer. Without it the test goes
+   * by the faults it knows by name (the list in apply), which are the ones a process out of its run sheet makes.
+   */
+  function setTester(fn) { tester = typeof fn === 'function' ? fn : null; }
+  function diodeInRange(resistivity) {
+    const q = 1.602176634e-19, kT = 0.025852, ni = 1e10, D = 1400 * kT, L = Math.sqrt(D * 1e-5), Na = 1 / (q * 470 * resistivity);
+    const volts = kT * Math.log(1e-3 / (q * 1e-3 * ni * ni * D / (L * Na)) + 1) + 0.002;       // and the 1 mA through the 2 ohm or so of contact, copper and needles of a standard chip
+    return volts >= 0.55 && volts <= 0.75;
+  }
   const SUPERSCRIPT = { '-': '⁻', 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹' };
   /** A number as 3.2×10¹⁵. */
   function sci(v) {
@@ -91,7 +114,7 @@
     }
     const all = w.unmasked || !result.masked || !windows;           // where the ions got into the silicon, they got in everywhere
     w.junction = result.depth > 0 ? { depth: result.depth, surface: result.surface, species: 'P', ...(all ? { everywhere: true, leaked: !w.unmasked } : {}) } : null;
-    const ok = Boolean(w.junction) && !all && open && Math.abs(result.depth - J.target) <= J.tolerance && result.surface >= J.surface;
+    const ok = Boolean(w.junction) && !all && open && Math.abs(read(result.depth) - J.target) <= J.tolerance && readSci(result.surface) >= J.surface;
     const text = !w.junction ? (windows && !open ? '창 바닥의 산화막이 이온을 막아 접합이 생기지 않음' : windows ? '주입량이 모자라 접합이 생기지 않음' : '산화막이 이온을 막아 접합이 생기지 않음')
       : w.unmasked ? `산화막 마스크가 없어 웨이퍼 전면에 n+ 접합이 생김 (깊이 ${nm(result.depth)})`
         : all ? `이온이 산화막을 뚫고 들어가 창 밖에도 n+ 접합이 생김 (깊이 ${nm(result.depth)})`
@@ -129,7 +152,7 @@
     const everywhere = Boolean(plated && plated.burnt) && (!scorched || scorched.every(Boolean)), somewhere = Boolean(plated && plated.burnt) || Boolean(scorched && scorched.some(Boolean));
     const burntAt = r => Boolean(scorched) && !everywhere && scorched[Math.round(Math.min(1, r / (STANDARD.substrate.diameter / 2)) * (scorched.length - 1))];
     const thinnest = profile ? Math.min(...profile) : t, thickest = profile ? Math.max(...profile) : t;
-    const even = thinnest >= M.target - M.tolerance && thickest <= M.target + M.tolerance;     // within the run sheet at every place
+    const even = read(thinnest) >= M.target - M.tolerance && read(thickest) <= M.target + M.tolerance;     // within the run sheet at every place
     const burnt = everywhere ? { burnt: true } : {};
     const plating = !(t > 0) ? '구리가 도금되지 않음'
       : (profile ? `구리 평균 ${nm(t)} 도금, 가운데 ${nm(profile[0])} · 가장자리 ${nm(profile.at(-1))} (목표 어디서나 ${M.target} ± ${M.tolerance} nm)` : `구리 ${nm(t)} 도금 (목표 ${M.target} ± ${M.tolerance} nm)`)
@@ -150,8 +173,8 @@
     }
     const over = Math.max(0, t - STANDARD.polish), short = Math.max(0, depth - t);                    // copper left on the oxide; how far the copper in the window was short of the top
     const dishing = over > 0 ? 0 : Math.min(depth, short + (STANDARD.polish - t) * STANDARD.dishRate);
-    w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && dishing <= M.dishing, ...burnt } : null;
-    if (!plated) return { wafer: w, ok: null, text: '창을 금속으로 채우고 산화막 높이까지 평탄화' };
+    w.metal = t > 0 ? { thickness: t, over, dishing, planar: over === 0 && read(dishing) <= M.dishing, ...burnt } : null;
+    if (!plated) return { wafer: w, ok: over === 0 && read(dishing) <= M.dishing, text: '창을 금속으로 채우고 산화막 높이까지 평탄화' };
     return { wafer: w, ok: t > 0 && !somewhere && even,
       text: t > 0 ? `${plating} · 표준 연마 뒤 ${over > 0 ? `산화막 위에 구리 ${nm(over)} 남음` : `접시 파임 ${nm(dishing)}`}` : plating };
   }
@@ -164,32 +187,33 @@
       const W = SPEC.wafer.resistivity;                             // the operator's crystal: { resistivity, dislocated, diameter, body }
       w.substrate = { ...STANDARD.substrate, ...(result ? { resistivity: result.resistivity, ...(result.dislocated ? { dislocated: true } : {}) } : {}) };
       const rho = w.substrate.resistivity, shown = rho >= 100 ? Math.round(rho).toLocaleString('en-US') : rho.toFixed(1);
-      if (result) ok = !result.dislocated && Math.abs(rho - W.target) <= W.tolerance;
+      ok = !w.substrate.dislocated && Math.abs(read(rho, rho >= 100 ? 0 : 1) - W.target) <= W.tolerance;
       text = !result ? `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${rho} Ω·cm`
-        : `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${shown} Ω·cm (목표 ${W.target} ± ${W.tolerance})${result.dislocated ? ' · 넥이 모자라 결정에 전위가 남음' : ''} · 결정의 바디 지름 ${Math.round(result.diameter)} mm, 길이 ${Math.round(result.body)} mm${result.how ? ` · ${result.how}` : ''}`;
+        : `p형 ${w.substrate.orientation} ${w.substrate.diameter} mm 웨이퍼, 비저항 ${shown} Ω·cm (목표 ${W.target} ± ${W.tolerance} Ω·cm)${result.dislocated ? ' · 넥이 모자라 결정에 전위가 남음' : ''} · 결정의 바디 지름 ${Math.round(result.diameter)} mm, 길이 ${Math.round(result.body)} mm${result.how ? ` · ${result.how}` : ''}`;
     } else if (id === 'oxidation') {
       w.oxide = result ? result.mean : STANDARD.oxide;
-      ok = Math.abs(w.oxide - SPEC.oxide.target) <= SPEC.oxide.tolerance;
+      ok = Math.abs(read(w.oxide) - SPEC.oxide.target) <= SPEC.oxide.tolerance;
       text = result ? `산화막 ${nm(w.oxide)} (목표 ${SPEC.oxide.target} ± ${SPEC.oxide.tolerance} nm)${result.how ? ` · ${result.how}` : ''}` : `산화막 ${nm(w.oxide)}`;
     } else if (id === 'photo') {
       if (result) {
         w.resist = result.thickness > 0 ? { thickness: result.thickness, opening: result.opening } : null;
-        ok = Boolean(w.resist) && result.opening > 0 && Math.abs(result.opening - SPEC.opening.target) <= SPEC.opening.tolerance;
+        ok = Boolean(w.resist) && result.opening > 0 && Math.abs(read(result.opening) - SPEC.opening.target) <= SPEC.opening.tolerance;
         text = !w.resist ? '감광막이 남지 않음' : result.opening > 0 ? `감광막 ${nm(result.thickness)}, 창 너비 ${nm(result.opening)} (목표 ${SPEC.opening.target.toLocaleString('en-US')} ± ${SPEC.opening.tolerance} nm)` : `감광막 ${nm(result.thickness)}, 창이 열리지 않음`;
         if (result.how) text += ` · ${result.how}`;
       } else {
-        w.resist = { thickness: STANDARD.resist, opening: STANDARD.opening };
+        w.resist = { thickness: STANDARD.resist, opening: STANDARD.opening }; ok = Math.abs(STANDARD.opening - SPEC.opening.target) <= SPEC.opening.tolerance;
         text = `감광막 ${nm(STANDARD.resist)}, 너비 ${nm(STANDARD.opening)}의 창 무늬`;
       }
     } else if (id === 'etch' && result) {
       w.oxide = result.oxide; w.resist = null;
-      if (result.stripped) { w.window = null; w.unmasked = true; ok = false; text = '산화막이 모두 깎임'; }
+      if (result.stripped) { w.window = null; w.unmasked = true; ok = false; text = result.oxide >= 1 ? `산화막이 다 깎여 나간 곳이 있음 (남은 곳의 평균 ${nm(result.oxide)})` : '산화막이 모두 깎임'; }
       else if (!(result.width > 0)) { w.window = { width: 0, depth: 0, open: false, left: w.oxide, siliconLoss: 0 }; ok = false; text = '창이 생기지 않음'; }
       else {                                                        // with a profile the windows are open where they reached silicon; the chips elsewhere are judged at EDS
         const profile = result.profile && Array.isArray(result.profile.left) ? result.profile : null, opened = profile ? (result.opened ?? (result.open ? 1 : 0)) : result.open ? 1 : 0;
         w.window = { width: result.width, depth: result.depth, open: opened > 0, left: result.left, siliconLoss: result.siliconLoss, ...(profile ? { profile } : {}) };
-        ok = result.open && result.siliconLoss <= SPEC.window.siliconLoss && (profile ? profile.width : [result.width]).every(width => Math.abs(width - SPEC.window.target) <= SPEC.window.tolerance);
-        text = result.open ? `창 너비 ${nm(result.width)}, 실리콘 ${profile ? '최대 ' : ''}${nm(result.siliconLoss)} 깎임 (목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm, 실리콘 ${SPEC.window.siliconLoss} nm 이하)`
+        const widths = Array.from(profile ? profile.width : [result.width], width => Math.round(width)), narrow = Math.min(...widths), wide = Math.max(...widths);   // judged as read, in whole nm, at every place
+        ok = result.open && Math.round(result.siliconLoss) <= SPEC.window.siliconLoss && widths.every(width => Math.abs(width - SPEC.window.target) <= SPEC.window.tolerance);
+        text = result.open ? `창 너비 ${narrow === wide ? nm(wide) : `${narrow.toLocaleString('en-US')}~${nm(wide)}`}, 실리콘 ${profile ? '최대 ' : ''}${nm(result.siliconLoss)} 깎임 (목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm, 실리콘 ${SPEC.window.siliconLoss} nm 이하)`
           : opened > 0 ? `창이 웨이퍼 면적의 ${Math.round(opened * 100)}%에서만 뚫림 · 가장 많이 남은 곳에 산화막 ${nm(result.left)}` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(result.left)} 남음`;
       }
       if (result.how) text += ` · ${result.how}`;
@@ -205,8 +229,9 @@
       } else {
         const open = w.oxide <= STANDARD.etchReach, depth = Math.min(w.oxide, STANDARD.etchReach);
         w.window = { width: mask.opening, depth, open, left: w.oxide - depth, siliconLoss: open ? (STANDARD.etchReach - w.oxide) / STANDARD.selectivity : 0 };
-        ok = open;
-        text = open ? `산화막에 너비 ${nm(mask.opening)}의 창을 냄 · 실리콘 ${nm(w.window.siliconLoss)} 깎임` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(w.window.left)} 남음`;
+        const deep = Math.round(w.window.siliconLoss) > SPEC.window.siliconLoss, off = Math.abs(Math.round(mask.opening) - SPEC.window.target) > SPEC.window.tolerance;      // the standard etch is a fixed time: on an oxide thinner than it was set for it goes on into the silicon
+        ok = open && !deep && !off;
+        text = open ? `산화막에 너비 ${nm(mask.opening)}의 창을 냄 · 실리콘 ${nm(w.window.siliconLoss)} 깎임${deep ? ` (기준 ${SPEC.window.siliconLoss} nm 이하)` : ''}${off ? ` (창 너비 목표 ${SPEC.window.target.toLocaleString('en-US')} ± ${SPEC.window.tolerance} nm)` : ''}` : `창이 다 뚫리지 않음 · 바닥에 산화막 ${nm(w.window.left)} 남음`;
       }
       w.resist = null;
     } else if (id === 'deposition') {
@@ -220,8 +245,8 @@
     } else if (id === 'eds') {
       const j = w.junction, open = Boolean(w.window && w.window.open && w.window.width > 0);
       const chips = w.metal && w.metal.chips, deep = open ? (w.window.depth + w.window.siliconLoss) * STANDARD.dishLimit : 0;
-      const reason = w.substrate && w.substrate.dislocated ? '결정에 전위가 남아 접합이 샘'
-        : j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어짐')
+      const fault = w.substrate && w.substrate.dislocated ? '결정에 전위가 남아 접합이 샘'
+        : j && j.everywhere ? (j.leaked ? '이온이 산화막을 뚫고 들어가 접합이 전면에 이어짐' : '산화막 마스크가 없어 접합이 전면에 이어지고, 창이 없어 금속이 남지 않음')
         : !open ? '접촉 창이 열리지 않아 금속이 실리콘에 닿지 않음'
           : !j ? '접합이 생기지 않아 다이오드가 되지 않음'
             : j.surface < SPEC.junction.surface ? '표면 농도가 낮아 금속과의 접촉 저항이 큼'
@@ -230,6 +255,8 @@
                   : chips ? null
                     : w.metal.over > 0 ? '구리가 산화막 위에 남아 창끼리 이어짐'
                       : w.metal.dishing > deep ? '창 안의 금속이 거의 남지 않아 저항이 큼' : null;      // what fails every chip of the wafer
+      // A wafer far from its resistivity fails the last of the tester's three tests on every chip that got that far.
+      const reason = fault || (w.substrate && !diodeInRange(w.substrate.resistivity) ? '기판의 비저항이 규격에서 멀어 다이오드의 순방향 전압이 기준 밖' : null);
       /** Where the operator polished the wafer, the bin a chip fails in for what the polish left on it (or null). */
       const polished = i => !chips ? null : chips[i].over > 1 ? 'residue' : chips[i].scratched ? 'scratch' : chips[i].burnt ? 'burnt' : chips[i].dishing > deep ? 'dish' : null;
       const opening = open && w.window.profile, closed = i => Boolean(opening) && reach(DIES[i]).some(r => along(opening.left, r) > 1);   // oxide left in the window where the chip is: the metal never touches the silicon
@@ -242,14 +269,19 @@
         w.tested = { total: DIE_COUNT, good, reason: good ? null : reason, dies: result.dies, missed };
         ok = good > 0 && missed === 0;
         text = (good ? `${share(good)}${sorted ? ` · 불량: ${sorted}` : ''}` : `칩 ${DIE_COUNT}개 모두 불량${reason ? ` · ${reason}` : ''}`)
-          + (missed ? ` · 탐침이 제대로 닿지 않아 양품 ${missed}개를 불량으로 가림` : '') + (result.how ? ` · ${result.how}` : '');
+          + (missed ? ` · 바늘이 제대로 닿지 않아 양품 ${missed}개를 불량으로 가림` : '') + (result.how ? ` · ${result.how}` : '');
       } else {
-        const dies = defects(w.lot).map((hit, i) => { const bin = reason ? 'process' : judged(i) || (hit ? 'defect' : 'good'); return { good: bin === 'good', bin }; });
-        const good = dies.filter(die => die.good).length, bins = {};
+        const killed = defects(w.lot), found = tester ? tester({ wafer: w, dies: DIES, killed, seed: w.lot }) : null;      // the prober's word on every chip, where its model is at hand
+        let dies = killed.map((hit, i) => { const good = found ? found[i].good : !reason && !judged(i) && !hit; return { good, bin: good ? 'good' : judged(i) || (hit ? 'defect' : found ? found[i].bin : 'process') }; });
+        const good = dies.filter(die => die.good).length, bins = {}, tally = {};
+        if (found) for (const f of found) if (!f.good) tally[f.bin] = (tally[f.bin] || 0) + 1;
+        const most = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0];
+        const all = good ? null : reason || { voltage: '다이오드의 순방향 전압이 기준 밖', leak: '접합이 새어 누설 전류가 기준을 넘음', contact: '금속과 실리콘 사이의 저항이 큼' }[most] || '모든 칩이 검사 기준을 벗어남';   // what fails every chip
+        if (all) dies = dies.map(() => ({ good: false, bin: 'process' }));
         for (const die of dies) if (!die.good) bins[die.bin] = (bins[die.bin] || 0) + 1;
-        w.tested = { total: DIE_COUNT, good, reason, dies };
-        ok = !reason && good > 0;
-        text = reason ? `칩 ${DIE_COUNT}개 모두 불량 · ${reason}` : `${share(good)} · 불량: ${Object.entries(bins).map(([bin, n]) => `${BIN_NAMES[bin] || bin} ${n}`).join(', ') || '없음'}`;
+        w.tested = { total: DIE_COUNT, good, reason: all, dies };
+        ok = good > 0;
+        text = all ? `칩 ${DIE_COUNT}개 모두 불량 · ${all}` : `${share(good)} · 불량: ${Object.entries(bins).map(([bin, n]) => `${BIN_NAMES[bin] || bin} ${n}`).join(', ') || '없음'}`;
       }
     } else if (id === 'package') {
       const good = w.tested ? w.tested.good : 0, made = result ? Math.min(good, result.chips) : good;      // the operator's wire bonding can lose chips
@@ -288,5 +320,5 @@
   /** Takes a run back to a snapshot: the processes from there on are open again. */
   function restore(run, snap) { run.at = snap.at; run.wafer = snap.wafer; run.records = snap.records.slice(); run.finished = false; return run; }
 
-  return { STEPS, SPEC, STANDARD, DIE_COUNT, BIN_NAMES, dies, defects, empty, snapshot, restore, sci, implanted, metallised, apply, arriving, createRun, complete };
+  return { STEPS, SPEC, STANDARD, DIE_COUNT, BIN_NAMES, dies, defects, empty, snapshot, restore, sci, read, readSci, implanted, metallised, apply, arriving, createRun, complete, setTester };
 });

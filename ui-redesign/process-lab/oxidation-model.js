@@ -167,7 +167,7 @@
       const points = [[0, 0], [0.6, 0], [0, 0.6], [-0.6, 0], [0, -0.6]].map(([x, y]) => ({ x, y, value: state.oxide * (1 + 0.003 * gauss()) }));
       const mean = points.reduce((sum, p) => sum + p.value, 0) / points.length;
       state.measured = {
-        points, mean, target, tolerance, error: mean - target, ok: Math.abs(mean - target) <= tolerance,
+        points, mean, target, tolerance, error: Math.round(mean) - target, ok: Math.abs(Math.round(mean) - target) <= tolerance,   // on the mean as it is printed, in whole nm
         wetMinutes: state.minutes.wet, dryMinutes: state.minutes.dry, peak: state.peak, totalMinutes: state.time / 60,
       };
       return state.measured;

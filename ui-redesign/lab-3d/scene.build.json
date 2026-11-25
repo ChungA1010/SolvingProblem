@@ -3,7 +3,7 @@
   "sources": [
     "lab-3d/src/lab-3d-scene.js"
   ],
-  "sourcesSha256": "9a44dc79f4d1a26cbde3a542287616e3cce6b2672af1cef229e13340a9f44444",
+  "sourcesSha256": "14601f5eb5e9f30c6b4f6004e78597ee01207eb0032771f2afdec5480cf0ff4e",
   "esbuild": "0.28.2",
   "three": "0.187.0"
 }
