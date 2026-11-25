@@ -11,6 +11,119 @@ body:not([data-place=counter]) .daily-wallet{display:none}
 .cost-popover p{font-size:12px;line-height:1.6;color:#64715d;margin-bottom:0}
 .factory #return-blank:not([hidden]){grid-column:1/-1;justify-self:center;font-size:12px;padding:5px}
 .factory .counter-settings #toggle-sound[aria-pressed=true]{color:#777865;background:#e7e8df}
+
+/* Event notes belong to the customer's slip and the bench rail. */
+.factory [data-event-tone="warning"] { --event-ink:#794421; --event-paper:#fae6c5; }
+.factory [data-event-tone="positive"] { --event-ink:#284f56; --event-paper:#dcebe7; }
+.factory [data-event-tone="protected"] { --event-ink:#375431; --event-paper:#e1ebcf; }
+.factory #slip-label[data-event-tone], .factory #bench-event:not([hidden]) {
+  display:inline-block; width:fit-content; max-width:100%; border:1px solid currentColor;
+  border-radius:4px; padding:2px 6px; color:var(--event-ink); background:var(--event-paper);
+  font-size:11px; font-weight:700; line-height:1.35; font-variant-numeric:tabular-nums;
+}
+.factory #bench-event:not([hidden]) {
+  margin-top:2px; min-height:24px; padding:3px 8px; cursor:pointer;
+}
+.factory #bench-event:hover { text-decoration:underline; }
+.factory .order-event-detail { margin:12px 0; padding:10px 14px; background:var(--event-paper); color:var(--event-ink); border-radius:7px; }
+.factory .order-event-detail strong { font-size:14px; }
+.factory .order-event-detail p, .factory .order-event-receipt {
+  margin:3px 0 0; font-size:13px; line-height:1.5;
+}
+.factory .order-event-receipt { margin:8px 0; color:#345448; font-weight:650; }
 @media(max-width:700px){body.factory[data-bench-focus=true] #work-screen[data-mode=setup] .bench-status>span:last-child{display:inline-flex!important}
 .daily-wallet{gap:8px;padding:7px 10px;top:9px;left:10px}.daily-wallet span{font-size:11px}.daily-wallet strong{font-size:16px}
 .factory .bench-menu #cost-info{padding-inline:6px;font-size:11px}}
+
+/* The illustration and its outdoor layer use the same cover crop. */
+.customer-stage .shop-room { container-type:size; overflow:hidden; }
+#weather-scenery {
+  pointer-events:none; position:absolute; left:50%; top:50%; translate:-50% -50%;
+  width:max(100cqw,177.6833cqh); height:max(100cqh,56.2799cqw); max-width:none;
+}
+#weather-scenery[hidden],#weather-scenery:not([data-kind=dust]) .dust-outside,
+#weather-scenery:not([data-kind=construction]) .construction-outside { display:none; }
+@media(max-aspect-ratio:1/1){#weather-scenery{left:58%;translate:-58% -50%;}}
+.factory #weather-counter:not([hidden]) {
+  align-self:center; padding:2px 8px; border:1px solid #c8ab72; border-radius:99px;
+  color:#704c28; background:#f4e6c8; white-space:nowrap; font-size:11px;
+}
+.factory #weather-counter[data-kind=construction] { border-color:#beab87; background:#ede5d6; color:#604e32; }
+.factory #weather-order-copy:not([hidden]) {
+  margin:12px 0; padding:8px 0; border-block:1px dotted #b4b49e;
+  color:#52573e; font-size:13px; line-height:1.5;
+}
+body.factory[data-bench-focus=true] #work-screen:has(#cmp-scene[data-renderer=webgl]) .workshop-room:has(> .weather-rail:not([hidden])) {
+  grid-template-rows:auto auto minmax(0,1fr);
+}
+.factory .weather-rail:not([hidden]) {
+  display:flex; align-items:center; justify-content:center; gap:8px 24px; flex-wrap:wrap;
+  padding:4px 12px; border-bottom:1px solid #c4b794; background:#f5edda;
+  color:#4a4735; min-width:0; font-variant-numeric:tabular-nums;
+}
+.factory .weather-rail[data-active=false] { padding-block:3px; background:#e9eedf; border-color:#bdc8af; color:#40543d; }
+.weather-reading { display:flex; align-items:center; gap:8px; }
+.factory #weather-title { display:block; color:inherit; font-size:13px; line-height:1.3; font-weight:750; }
+.factory #weather-instruction { font-size:12px; line-height:1.4; margin:1px 0 0; }
+.factory #weather-instruction:empty { display:none; }
+.weather-gauge {
+  position:relative; flex:none; width:29px; height:16px; border-radius:18px 18px 3px 3px;
+  border:1px solid #968467; background:conic-gradient(from -90deg at 50% 90%,#c0c9a0 0 62deg,#e3c78a 62deg 126deg,#ca9770 126deg 180deg);
+}
+.weather-gauge::after {
+  content:''; position:absolute; bottom:1px; left:calc(50% - 1px); width:2px; height:10px;
+  background:#504938; transform-origin:50% 100%; transform:rotate(57deg);
+}
+.weather-rail[data-kind=construction] .weather-gauge { border-radius:3px; background:#e0e7ce; border-color:#9ba98c; }
+.weather-rail[data-kind=construction] .weather-gauge::after {
+  inset:2px; width:auto; height:auto; transform:none; background:#636d4d;
+  clip-path:polygon(0 53%,19% 53%,31% 5%,44% 83%,56% 15%,67% 59%,100% 59%,100% 72%,65% 72%,57% 40%,43% 100%,31% 32%,22% 66%,0 66%);
+}
+.weather-rail[data-active=false] .weather-gauge { border:0; background:none; width:14px; height:12px; }
+.weather-rail[data-active=false] .weather-gauge::after {
+  inset:1px auto auto 1px; width:12px; height:7px; background:none;
+  border:solid #62794e; border-width:0 0 2px 2px; clip-path:none; transform-origin:center; transform:rotate(-45deg);
+}
+.weather-rail[data-kind=construction][data-resolution=waited] .weather-gauge {
+  width:29px; height:15px; border:1px solid #96a68d; background:#dce7d2; border-radius:3px;
+}
+.weather-rail[data-kind=construction][data-resolution=waited] .weather-gauge::after {
+  inset:2px; width:auto; height:auto; border:0; transform:none; background:#51714d;
+  clip-path:polygon(0 42%,100% 42%,100% 58%,0 58%);
+}
+@media(prefers-reduced-motion:no-preference){
+  .weather-rail[data-kind=construction][data-resolution=waited] .weather-gauge::after {
+    animation:weather-settling 850ms ease-out;
+  }
+  @keyframes weather-settling {
+    0%,80% { clip-path:polygon(0 50%,20% 50%,30% 0,44% 85%,57% 16%,68% 58%,100% 58%,100% 72%,66% 72%,57% 42%,43% 100%,30% 26%,22% 65%,0 65%); }
+    from { transform:scaleY(1); }
+    80% { transform:scaleY(.18); }
+    to { transform:scaleY(1); }
+  }
+}
+.factory #weather-vent:not([hidden]) { display:flex; align-items:center; gap:8px; }
+.factory .weather-rail :is(.pickup,.receiver,.weather-wait) {
+  flex-direction:row; white-space:nowrap; min-height:36px; border-radius:7px; gap:7px;
+  padding:5px 10px; font-family:inherit; font-size:12px; font-weight:650; line-height:1.25;
+}
+.factory .weather-rail .pickup { border:1px solid #b6aa8e; background:#fff8e8; }
+.factory .weather-rail :is(.receiver,.weather-wait) { cursor:pointer; background:#e7ecdc; color:#3a503c; border:1px solid #95a388; }
+.factory .weather-rail .weather-wait:disabled { opacity:.6; }
+.factory .weather-rail .receiver.drop-ready { background:#dbe8ca; outline:2px solid #688356; }
+.filter-cartridge,.filter-inlet {
+  display:inline-block; flex:none; width:25px; height:20px; border:2px solid #627064; border-radius:2px;
+  background:repeating-linear-gradient(90deg,#e8e3ce 0 2px,#b4b5a1 2px 3px); box-shadow:1px 2px #8a8e77;
+}
+.filter-inlet { border-radius:3px; background:repeating-linear-gradient(0deg,#53625a 0 2px,#a7b4a5 2px 4px); }
+.weather-route-arrow { color:#79836c; }
+@media(max-width:600px){
+  .factory .weather-rail:not([hidden]) { gap:3px 8px; justify-content:space-between; padding:4px 8px; }
+  .factory .weather-rail[data-active=true] .weather-reading { flex:1 1 145px; }
+  .factory #weather-title,.factory #weather-instruction { font-size:11px; }
+  .factory .weather-rail :is(.pickup,.receiver,.weather-wait) { padding:4px 6px; font-size:11px; gap:4px; }
+  .factory #weather-vent:not([hidden]) { gap:4px; }
+  .weather-gauge { width:22px; height:13px; }
+  .filter-cartridge,.filter-inlet { width:19px; height:15px; }
+}
+@media(pointer:coarse){.factory .weather-rail :is(.pickup,.receiver,.weather-wait){min-height:44px;}}

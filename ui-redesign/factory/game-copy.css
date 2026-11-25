@@ -1,6 +1,6 @@
 /* Keep decisions and measurements visible; open supporting explanations on demand. */
 .factory #game-subtitle,.factory .scene-title,.factory .bench-brand{display:none}
-.factory #customer-talk-note:empty,.factory #counter-action-note:empty,.factory #followup-status:empty,.factory #shift-note:empty,.factory #measurement-feedback:empty,.factory #settlement-note:empty{display:none}
+.factory #counter-action-note:empty,.factory #followup-status:empty,.factory #shift-note:empty,.factory #measurement-feedback:empty,.factory #settlement-note:empty{display:none}
 .factory .workshop[data-mode=setup] #bench-target{display:none}
 .factory .workshop[data-mode=setup] .workshop-target{display:flex}
 .factory .workshop-panel-heading{justify-content:flex-end}

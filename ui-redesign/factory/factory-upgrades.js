@@ -13,10 +13,29 @@
     {id:'sand',title:'허니 오크',price:120,colors:['#a38a64','#ba885d','#e9e1d2']},
     {id:'slate',title:'블루 그레이',price:120,colors:['#6f8595','#8b8378','#d8e1e7']}
   ]);
+  const eventRules=Object.freeze({
+    shortageChance:25, shortageSurcharge:3,
+    priorityChance:15, boardPriorityChance:40, priorityBonus:20, priorityMinGood:3
+  });
+  // Keep the installed model IDs and their original purchase prices so that
+  // existing workshops acquire the new abilities without another transaction.
+  const eventGear=Object.freeze([
+    Object.freeze({
+      id:'storage_cabinet',asset:'storage_cabinet',title:'예비 자재함',price:180,slot:'오른쪽 뒤편',
+      description:`주문의 ${eventRules.shortageChance}%에서 자재가 부족해져요. 비축분을 꺼내 쓰면 추가 가공비를 아껴요.`,
+      effectLabel:'자재 부족 시 장당 추가 가공비',effectValue:`+${eventRules.shortageSurcharge} P → 0 P`
+    }),
+    Object.freeze({
+      id:'note_board',asset:'note_board',title:'의뢰 게시판',price:90,slot:'작업대 뒤쪽 벽',
+      description:`우선 납품 의뢰를 더 자주 받아요. 규격에 맞는 웨이퍼를 ${eventRules.priorityMinGood}장 이상 납품하면 그 주문에 보너스 ${eventRules.priorityBonus} P가 붙어요.`,
+      effectLabel:'우선 납품 의뢰 확률',effectValue:`${eventRules.priorityChance}% → ${eventRules.boardPriorityChance}%`
+    })
+  ]);
+  function installedEventGear(s){return eventGear.filter(item=>s.placed.includes(item.id)).map(item=>item.id);}
+  // Also used for replaying purchases and rendering retired furniture.
   const decorations=Object.freeze([
     {id:'task_lamp',title:'조절식 작업등',price:140,slot:'작업대 오른쪽',description:'관절형 조명과 따뜻한 빛을 더해요. 가공·측정 성능은 바뀌지 않아요.'},
-    {id:'storage_cabinet',title:'모듈 수납장',price:180,slot:'오른쪽 뒤편',description:'서랍과 정리함이 달린 수납장을 놓아요. 정비 효과는 장비 강화에서 선택해요.'},
-    {id:'note_board',title:'실험 메모 보드',price:90,slot:'작업대 뒤쪽 벽',description:'메모와 웨이퍼 스케치가 붙은 보드예요. 실제 주문 기록과는 별도인 장식입니다.'},
+    ...eventGear,
     {id:'floor_plant',title:'공방 화분',price:120,slot:'작업대 왼쪽 바닥',description:'작업대 옆에 초록빛 여유를 놓아요. 공정에는 영향을 주지 않아요.'},
     {id:'wall_clock',title:'공방 벽시계',price:90,slot:'뒤쪽 벽 상단',description:'하루를 함께하는 아날로그 시계. 연마 타이머와는 별도인 장식이에요.'},
     {id:'wall_shelf',title:'오크 벽 선반',price:160,slot:'오른쪽 벽면',description:'노트와 정리함을 벽에 모아두어요. 작업 공간을 가리지 않아요.'}
@@ -55,7 +74,7 @@
     }else if(event.type==='operating'){
       assert(s.campaignInitialized&&validId(event.id),'운영 기록을 확인해주세요.');
       assert(Number.isSafeInteger(event.cost)&&event.cost>=0&&event.cost<=200,'운영 비용을 확인해주세요.');
-      assert(typeof event.settled==='boolean'&&Number.isSafeInteger(event.revenue)&&event.revenue>=0&&event.revenue<=600&&
+      assert(typeof event.settled==='boolean'&&Number.isSafeInteger(event.revenue)&&event.revenue>=0&&event.revenue<=600+eventRules.priorityBonus&&
         (event.settled||event.revenue===0),'납품 대금을 확인해주세요.');
       let record=s.operating.find(item=>item.id===event.id);
       if(record?.settled){
@@ -81,14 +100,14 @@
     }else if(event.type==='buy'){
       const item=Object.hasOwn(catalog,event.id)?catalog[event.id]:null,theme=themes.find(t=>t.id===event.id),decoration=decorations.find(d=>d.id===event.id);let price;
       if(item){const n=s.levels[event.id];if(event.level!==undefined)assert(event.level===n,'장비 단계가 변경됐습니다. 다음 단계를 다시 확인해주세요.');assert(n<item.costs.length,'이미 최고 단계입니다.');price=item.costs[n];}
-      else if(decoration){assert(!s.decorOwned.includes(decoration.id),'이미 보유한 꾸미기입니다.');price=decoration.price;}
+      else if(decoration){assert(!s.decorOwned.includes(decoration.id),'이미 보유한 물품입니다.');price=decoration.price;}
       else{assert(theme&&!s.owned.includes(theme.id),'이미 보유했거나 없는 꾸미기입니다.');price=theme.price;}
       assert(s.balance>=price,'공방 기금이 부족합니다. 주문을 납품하면 기금이 쌓여요.');book(s,'purchase',-price,event.id,Math.max(1,Math.ceil(s.credited.length/3)));
       if(item)s.levels[event.id]++;else if(decoration){s.decorOwned.push(decoration.id);s.placed.push(decoration.id);}else s.owned.push(theme.id);
     }else if(event.type==='equip'){
       assert(s.owned.includes(event.id),'구매한 꾸미기만 적용할 수 있습니다.');if(s.theme===event.id)return s;s.theme=event.id;
     }else if(event.type==='place'||event.type==='store'){
-      assert(s.decorOwned.includes(event.id),'구매한 소품만 배치하거나 보관할 수 있어요.');
+      assert(s.decorOwned.includes(event.id),'구매한 물품만 배치하거나 보관할 수 있어요.');
       const placed=s.placed.includes(event.id);if((event.type==='place')===placed)return s;
       if(event.type==='place')s.placed.push(event.id);else s.placed=s.placed.filter(id=>id!==event.id);
     }else throw new Error('지원하지 않는 공방 작업입니다.');
@@ -96,5 +115,5 @@
   }
   function serialize(s){return {version,events:s.events};}
   function restore(raw){try{assert([version,legacyVersion,'workshop-v2','workshop-v3'].includes(raw?.version)&&Array.isArray(raw.events)&&raw.events.length<=20000,'공방 저장 형식 오류');let s=create();for(const event of raw.events)s=transition(s,event);return s;}catch{return null;}}
-  return Object.freeze({version,legacyVersion,catalog,themes,decorations,appearance,levels,effects,same,create,transition,serialize,restore});
+  return Object.freeze({version,legacyVersion,catalog,themes,decorations,eventRules,eventGear,installedEventGear,appearance,levels,effects,same,create,transition,serialize,restore});
 });

@@ -17,8 +17,11 @@ test('customer artwork reflects actual delivery feedback and safely falls back f
   assert.equal(shop.artwork('research').position,'0% 0');
   state=game.transition(state,{type:'ship'});
   assert.equal(shop.artwork('research',story.reaction(state).mood).position,'100% 0');
+  const sheets=story.customers.map(c=>shop.artwork(c.id).src);
+  assert.equal(new Set(sheets).size,story.customers.length,'every customer has a distinct expression sheet');
   for(const c of story.customers){
     assert.ok(require('node:fs').existsSync(require('node:path').resolve(__dirname,'..',shop.artwork(c.id).src)));
+    assert.equal(shop.artwork(c.id,'retry').position,'100% 0');
     assert.equal(shop.artwork(c.id,'accepted').position,'50% 0');
     assert.equal(shop.artwork(c.id,'delighted').position,'50% 0');
   }

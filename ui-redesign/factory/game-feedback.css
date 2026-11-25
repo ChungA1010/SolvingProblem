@@ -1,4 +1,21 @@
 /* Feedback lives on the held object, never in a persistent tutorial overlay. */
+:is(#head-landing-dialog, #wp-rotary) button.cmp-fx-toggle {
+  display: inline-flex; align-items: center; justify-content: center; gap: .4em;
+  flex: none; min-height: 36px; margin: 0; padding: .3em .7em;
+  border: 1px solid #a3ac97; border-radius: 7px; background: #f6f3e7;
+  box-shadow: 0 1px 0 #bec4b2; color: #415545;
+  font: 650 12px/1.2 "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  white-space: nowrap; cursor: pointer; touch-action: manipulation;
+}
+.cmp-fx-toggle::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  border: 1px solid #65755f; background: transparent;
+}
+.cmp-fx-toggle[aria-pressed=true]::before { background: #68865f; }
+:is(#head-landing-dialog, #wp-rotary) button.cmp-fx-toggle:focus-visible { outline: 2px solid #39674e; outline-offset: 2px; }
+@media (pointer:coarse) {
+  :is(#head-landing-dialog, #wp-rotary) button.cmp-fx-toggle { min-height: 42px; }
+}
 .factory[data-carrying] { cursor: grabbing; }
 .factory[data-carrying] .pickup { cursor: grabbing; }
 .transfer-ghost {

@@ -33,6 +33,35 @@ test('ledger replay ignores fabricated balances and rejects invalid purchases',(
  assert.equal(u.restore({version:u.version,events:[{type:'buy',id:'care'}]}),null);
  assert.equal(u.restore({version:'unknown',events:[]}),null);
 });
+test('event tools reuse paid installations and store them without changing historical cashflow',()=>{
+ const events=[
+  {type:'income',id:'old-order',amount:600},
+  {type:'buy',id:'floor_plant'}, {type:'buy',id:'storage_cabinet'},
+  {type:'buy',id:'note_board'}, {type:'store',id:'note_board'}
+ ];
+ let s=u.restore({version:'workshop-v4',events});
+ assert.ok(s);
+ assert.deepEqual(u.installedEventGear(s),['storage_cabinet']);
+ assert.equal(s.balance,210);
+ const opening=u.installedEventGear(s);
+ s=u.transition(s,{type:'place',id:'note_board'});
+ assert.deepEqual(u.installedEventGear(s),['storage_cabinet','note_board']);
+ assert.deepEqual(opening,['storage_cabinet']);
+ assert.equal(s.balance,210);
+ assert.deepEqual(u.restore(u.serialize(s)),s);
+ assert.deepEqual(u.appearance(s).decor,['floor_plant','storage_cabinet','note_board']);
+ assert.deepEqual(u.eventGear.map(item=>item.id),['storage_cabinet','note_board']);
+});
+test('operating receipts accept the priority bonus once, within its new ceiling',()=>{
+ const initial=u.transition(u.create(),{type:'campaignInitialize'});
+ const event={type:'operating',id:'priority-order',cost:0,settled:true,revenue:620};
+ const settled=u.transition(initial,event);
+ assert.equal(settled.balance,720);
+ assert.deepEqual(u.transition(settled,event),settled);
+ assert.deepEqual(u.restore(u.serialize(settled)),settled);
+ assert.throws(()=>u.transition(initial,{...event,revenue:621}));
+ assert.throws(()=>income(initial,'legacy',601));
+});
 test('environment improvements shrink both positive and negative perturbations, never erase them',()=>{
  for(const order of [0,1]){const initial=g.create(order),base=g.estimate(initial,g.settings())*(1-.16*initial.wear/100)*(1-.08*initial.pad/100);
   let previous=Infinity;for(let tier=0;tier<=3;tier++){const s=run(g.create(order,{environment:tier})),difference=Math.abs(s.rows[0].rate-base);assert.ok(difference>0&&difference<previous);previous=difference;assert.equal(s.wear,initial.wear+4);}

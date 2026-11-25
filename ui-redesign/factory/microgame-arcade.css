@@ -1,0 +1,79 @@
+.mg-practice-page {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  background: repeating-linear-gradient(0deg, transparent 0 15px, #52674d0a 15px 16px), #dbe1cf;
+  color: #293e34;
+}
+.mg-gallery {
+  box-sizing: border-box;
+  width: min(820px, calc(100% - 28px));
+  margin: 24px auto;
+  padding: clamp(18px, 4vw, 34px);
+  color: #2f4035;
+  border: 2px solid #526052;
+  border-radius: 18px;
+  background: #f7f4e9;
+  box-shadow: 0 5px 0 #65725e, 0 18px 45px #30443420;
+  font-family: "Pretendard Variable", Pretendard, "Malgun Gothic", system-ui, sans-serif;
+  word-break: keep-all;
+}
+dialog.mg-gallery { inset: 0; margin: auto; max-height: calc(100dvh - 24px); overflow: auto; }
+dialog.mg-gallery::backdrop { background: #26382dc4; }
+.mg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.mg-head h1 { margin: 0; color: #26392c; font-size: clamp(25px, 4vw, 34px); font-weight: 800; letter-spacing: -.05em; line-height: 1.2; }
+.mg-head p { margin: 7px 0 0; font-size: 14px; color: #536456; line-height: 1.45; }
+.mg-exit { flex: none; min-height: 42px; border: 1px solid #9aa48e; border-radius: 9px; padding: 0 12px; background: #fffdf5; color: #40513e; cursor: pointer; font: inherit; font-size: 13px; font-weight: 650; }
+.mg-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.mg-card {
+  position: relative; display: grid; grid-template-rows: 78px 1fr; gap: 10px;
+  appearance: none; margin: 0; padding: 10px 10px 15px; text-align: start; font: inherit;
+  border: 1px solid #9ca590; border-radius: 12px; background: #fffcf3; box-shadow: 0 2px 0 #a6ad9b;
+  color: #304539; cursor: pointer; transition: .15s ease-out; transition-property: transform,box-shadow,border-color;
+}
+.mg-card:hover { border-color: #526c54; box-shadow: 0 4px 0 #93a88a; transform: translateY(-2px); }
+.mg-card:active { transform: translateY(2px); box-shadow: none; }
+.mg-gallery button:focus-visible { outline: 3px solid #396e5b; outline-offset: 2px; }
+.mg-copy { display: grid; align-content: start; gap: 4px; padding: 0 4px; }
+.mg-copy small { color: #586753; font-size: 11px; font-weight: 650; }
+.mg-copy strong { font-size: clamp(17px, 2.1vw, 22px); font-weight: 780; line-height: 1.2; }
+.mg-copy > span { color: #526051; font-size: 13px; line-height: 1.45; }
+.mg-arrow { position: absolute; right: 16px; top: 15px; font-size: 18px; color: #40573f; }
+.mg-preview { position: relative; display: grid; place-items: center; overflow: hidden; background: var(--mg-ground, #dae3cd); border-radius: 7px; }
+.mg-preview > * { position: absolute; display: block; box-sizing: border-box; }
+/* Instrument faces use the same marks players watch during each round. */
+[data-play-microgame=pressure] .mg-preview i { width: 77px; height: 42px; bottom: 16px; background: repeating-conic-gradient(from -90deg at 50% 100%, #7a8b76 0deg 2deg, transparent 2deg 18deg), #faf5db; border: 3px solid #536451; border-radius: 80px 80px 4px 4px; }
+[data-play-microgame=pressure] .mg-preview b { width: 3px; height: 28px; bottom: 18px; background: #965438; transform-origin: bottom; transform: rotate(28deg); }
+[data-play-microgame=pressure] .mg-preview em { width: 10px; height: 7px; bottom: 16px; border-radius: 8px 8px 0 0; background:#4b5a4d; }
+[data-play-microgame=surface] .mg-preview {
+  background: #b7bba1 url('./media/microgame-previews/surface.webp') center 42% / cover no-repeat;
+}
+[data-play-microgame=slurry] { --mg-ground: #d7e5df; }
+[data-play-microgame=slurry] .mg-preview i { width: 31px; height: 50px; border: 2px solid #526963; border-radius: 4px 4px 9px 9px; background: linear-gradient(to top,#6a9d95 56%,#f0f6e8 56%); }
+[data-play-microgame=slurry] .mg-preview b { width: 10px; height: 33px; transform: translateX(8px); background: repeating-linear-gradient(to top, transparent 0 6px,#526963 6px 8px); }
+[data-play-microgame=condition] { --mg-ground: #e3dfc8; }
+[data-play-microgame=condition] .mg-preview i, [data-play-microgame=rotation] .mg-preview i { width: 72px; height: 45px; top: 24px; border-radius: 50%; border: 2px solid #566556; box-shadow: 0 3px 0 #697664; background: repeating-radial-gradient(ellipse, #afbc9c 0 4px,#879a7d 5px 6px); }
+[data-play-microgame=condition] .mg-preview b { width: 50px; height: 9px; top: 24px; border: 2px solid #566556; border-radius: 8px; background: #e4c591; transform: translateX(13px) rotate(-33deg); }
+[data-play-microgame=condition] .mg-preview em { width: 18px; height: 9px; top: 35px; border-radius: 50%; background: #637661; transform: translateX(-8px); }
+[data-play-microgame=rotation] { --mg-ground: #dce1dc; }
+[data-play-microgame=rotation] .mg-preview i { top: 18px; background: conic-gradient(from 50deg, #639489 0deg 12deg, #e1e7cd 12deg 23deg, #639489 23deg); }
+[data-play-microgame=rotation] .mg-preview b { width: 12px; height: 7px; border-radius: 50%; background: #3b5e55; }
+[data-play-microgame=landing] .mg-preview {
+  background: #c7cfb9 url('./media/microgame-previews/landing.webp') left top / cover no-repeat;
+}
+@media (min-width: 581px) and (max-width: 700px) { .mg-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 580px) {
+  .mg-gallery { width: calc(100% - 16px); padding: 15px; margin-block: 10px; }
+  .mg-head { margin-bottom: 12px; }
+  .mg-head p { font-size: 12px; }
+  .mg-grid { grid-template-columns: 1fr; gap: 8px; }
+  .mg-card { grid-template: auto / 78px 1fr; align-items: stretch; padding: 7px; gap: 8px; }
+  .mg-copy { align-self: center; gap: 2px; padding: 3px 0; }
+  .mg-preview { min-height: 70px; }
+  .mg-preview > * { scale: .85; }
+  .mg-copy > span { font-size: 12px; }
+  .mg-arrow { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .mg-card { transition: none; } }

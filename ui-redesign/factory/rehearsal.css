@@ -1,0 +1,148 @@
+.factory #game-help {
+  box-sizing:border-box; width:min(608px,calc(100vw - 24px));
+  max-height:calc(100dvh - 28px); padding:clamp(14px,3vw,22px); overflow-y:auto;
+  border:1.5px solid #515e4d; border-radius:18px; background:#fffbee; color:#344539;
+  box-shadow:0 5px 0 #45513d24,0 18px 56px #25372d32;
+}
+.factory #game-help::backdrop { background:#27392daa; backdrop-filter:blur(3px); }
+.walkthrough-heading,.walkthrough-actions { display:flex; align-items:center; gap:12px; }
+.factory #game-help .walkthrough-heading { justify-content:space-between; margin:0 0 12px; }
+.factory #manual-title { margin:0; font-size:clamp(20px,3vw,25px); letter-spacing:-.04em; }
+.factory #close-help { color:#455647; width:33px; height:33px; padding:0; border-radius:50%; font-size:23px; }
+.walkthrough-screen { position:relative; overflow:hidden; border:1px solid #79816c; border-radius:10px; background:#d9d7c9; }
+#lesson-film { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:contain; }
+#lesson-chapters { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:5px; margin:11px 0 0; }
+.factory #lesson-chapters button {
+  padding:7px 0 4px; border:0; border-top:3px solid #d7d8c7; color:#5a685a; background:transparent;
+  font-size:12px; font-weight:600; line-height:1.4; text-align:center;
+}
+.factory #lesson-chapters button[aria-current=step] { border-color:#4f7455; color:#304f37; font-weight:800; }
+.factory #lesson-copy { min-height:2.9em; margin:9px 0 11px; font-size:14px; line-height:1.5; word-break:keep-all; }
+.walkthrough-actions { padding-top:10px; border-top:1px solid #d8d9c8; flex-wrap:wrap; gap:8px; }
+.factory #lesson-play { padding:6px 9px; border:1px solid #bec6b1; border-radius:8px; background:#f2f2e4; font-size:13px; }
+#lesson-time { font:500 12px/1.4 'Pretendard Variable',sans-serif; font-variant-numeric:tabular-nums; color:#586753; }
+.factory #lesson-done { width:auto; margin:0 0 0 auto; padding:9px 14px; }
+.factory #game-help.first-preview > :is(.copy-details,#restart-guide) { display:none; }
+.factory #lesson-media-note { font-size:12px; color:#735a33; }
+@media(max-height:510px) and (min-aspect-ratio:1/1) {
+  #game-help .walkthrough-screen { width:min(100%,64dvh); margin:auto; }
+  .factory #lesson-copy { min-height:0; }
+}
+.factory #workshop-prologue {
+  --ink:#292620; --paper:#f8efe4; --accent:#a5a779; --olive-dark:#555a39; --gap:clamp(5px,.85vmin,12px);
+  position:fixed; inset:0; margin:0; padding:0; box-sizing:border-box; width:100%; max-width:none;
+  height:100%; height:100dvh; max-height:none; overflow:auto; overscroll-behavior:contain;
+  border:0; border-radius:0; background:var(--paper); color:var(--ink); font-family:inherit;
+}
+#workshop-prologue::backdrop { background:#292620; }
+.prologue-page {
+  display:grid; grid-template-rows:auto minmax(16rem,1fr) auto; gap:var(--gap); height:100%; box-sizing:border-box;
+  padding:max(var(--gap),env(safe-area-inset-top)) max(var(--gap),env(safe-area-inset-right))
+    max(var(--gap),env(safe-area-inset-bottom)) max(var(--gap),env(safe-area-inset-left));
+}
+.prologue-top,.prologue-page footer { display:flex; align-items:center; gap:clamp(8px,1.2vw,22px); padding:0 5px; }
+.factory .prologue-date { margin:0; padding:4px 9px; background:var(--accent); color:var(--ink); transform:skew(-6deg); font-size:12px; font-weight:850; }
+.factory #prologue-title { margin:0; color:var(--ink); font-size:clamp(16px,1.4vw,24px); font-weight:800; line-height:1.2; letter-spacing:-.045em; }
+.factory #prologue-title:focus { outline:none; }
+.factory :is(#prologue-skip,#prologue-prev) { font:inherit; font-weight:650; font-size:14px; color:var(--ink); background:transparent; border:0; padding:8px; min-height:44px; }
+.factory #prologue-skip,.factory #prologue-prev { margin-inline-start:auto; }
+.factory #prologue-prev:disabled { opacity:.4; }
+.comic-panels { min-height:0; cursor:pointer; background:var(--paper); touch-action:manipulation; }
+.complete-comic-page .comic-panels { background:var(--ink); }
+.comic-sheet:not([hidden]) {
+  display:grid; width:100%; height:100%; margin:0; gap:var(--gap);
+  grid-template-rows:minmax(0,1fr) minmax(0,1fr);
+}
+.smalllot-opening {
+  grid-template-columns:minmax(0,1.45fr) minmax(0,1fr) minmax(0,1.12fr);
+  grid-template-areas:"first second question" "first third reply";
+}
+.smalllot-opening > :nth-child(2) { --focus:62% 52%; }
+.smalllot-opening > :nth-child(3) { --focus:50% 67%; }
+.smalllot-opening > :nth-child(4) { grid-area:question; --focus:40% 53%; }
+.smalllot-opening > :nth-child(5) { grid-area:reply; --focus:60% 53%; }
+.smalllot-workshop:not([hidden]) {
+  grid-template-columns:minmax(0,2fr) minmax(0,3fr); grid-template-rows:minmax(0,1fr);
+  grid-template-areas:"first second";
+}
+.comic-sheet > .comic-frame:nth-child(1) { grid-area:first; }
+.comic-sheet > .comic-frame:nth-child(2) { grid-area:second; }
+.comic-sheet > .comic-frame:nth-child(3) { grid-area:third; }
+.comic-sheet[hidden],.comic-frame[hidden] { display:none; }
+.comic-frame {
+  position:relative; overflow:hidden; min-height:0; min-width:0; container-type:size;
+  box-sizing:border-box; border:clamp(1.5px,.24vmin,3px) solid var(--ink); background:var(--paper);
+}
+.comic-frame > img {
+  position:absolute; inset:0; width:100%; height:100%;
+  object-fit:cover; object-position:var(--focus,center);
+}
+/* The smaller frames share a sloping gutter; keep captions clear of it. */
+@media (min-aspect-ratio:1.001/1) {
+  .comic-sheet { --slant:clamp(8px,1.6vmin,20px); }
+  .smalllot-opening > :nth-child(2) {
+    margin-bottom:calc(0px - var(--slant)); --caption-bottom:calc(var(--slant) + 5px);
+    clip-path:polygon(0 0,100% 0,100% calc(100% - var(--slant)),0 100%);
+  }
+  .smalllot-opening > :nth-child(3) {
+    clip-path:polygon(0 var(--slant),100% 0,100% 100%,0 100%);
+  }
+  .smalllot-opening > :nth-child(2) .comic-caption { max-width:48%; }
+}
+.comic-frame :is(.comic-speech,.comic-balloon,.comic-caption) {
+  position:absolute; box-sizing:border-box; color:var(--ink); word-break:keep-all; overflow-wrap:break-word;
+}
+.comic-frame :is(.comic-speech,.comic-balloon) {
+  top:clamp(7px,2.4cqh,23px); left:clamp(7px,2cqw,24px); max-width:calc(100% - 18px);
+  padding:.48em 1em; border:clamp(2px,.25vmin,4px) solid var(--ink);
+  background:var(--paper); box-shadow:2px 2px 0 var(--ink); font-size:clamp(16px,2.8cqw,30px);
+  font-weight:850; line-height:1.35; letter-spacing:-.035em; pointer-events:none;
+  border-radius:49% 43% 48% 39% / 58% 63% 46% 43%;
+}
+:is(.comic-speech,.comic-balloon)::after {
+  content:""; position:absolute; bottom:-.38em; left:28%; width:.55em; height:.55em;
+  background:var(--paper); border:solid var(--ink); border-width:0 2px 2px 0; transform:skewY(18deg) rotate(33deg);
+}
+.comic-frame .comic-caption {
+  left:clamp(6px,1.8cqw,18px); bottom:var(--caption-bottom,clamp(6px,2cqh,18px));
+  margin:0; padding:.32em .62em; width:max-content; max-width:min(94%,38ch);
+  background:var(--paper); border:2px solid var(--ink); box-shadow:2px 2px 0 var(--ink);
+  font-size:clamp(13px,1.15vw,19px); line-height:1.42; font-weight:650;
+}
+.comic-caption small { display:block; margin-bottom:.15em; color:var(--olive-dark); font-size:.84em; font-weight:700; }
+@media (min-aspect-ratio:1.001/1) and (min-height:560px) {
+  .smalllot-opening > :first-child .comic-speech { top:clamp(12px,calc(24cqh - 4cqw),16%); }
+}
+#prologue-count { white-space:nowrap; font-size:14px; font-weight:750; color:var(--olive-dark); font-variant-numeric:tabular-nums; }
+#prologue-scene { font-size:14px; font-weight:650; }
+.factory #prologue-done { margin:0 3px 3px 0; width:auto; min-height:44px; padding:8px 16px; background:var(--accent); color:var(--ink); border:2px solid var(--ink); border-radius:2px; box-shadow:3px 3px 0 var(--ink); font-weight:800; }
+.factory #prologue-done:active { transform:translate(2px,2px); box-shadow:none; }
+@media (max-aspect-ratio:1/1) {
+  .comic-sheet:not([hidden]) { grid-template-columns:minmax(0,1fr); grid-template-areas:"first" "second" "third"; }
+  .smalllot-opening:not([hidden]) {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-rows:minmax(0,1.18fr) repeat(2,minmax(0,1fr));
+    grid-template-areas:"first first" "second question" "third reply";
+  }
+  .smalllot-workshop:not([hidden]) {
+    grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,2fr) minmax(0,3fr);
+    grid-template-areas:"first" "second";
+  }
+  .smalllot-workshop > :first-child .comic-caption { top:clamp(6px,2cqh,18px); bottom:auto; }
+  .smalllot-workshop > :nth-child(2) { --focus:100% 50%; }
+  .smalllot-opening > :nth-child(2):not([hidden]) { display:grid; grid-template-rows:minmax(0,1fr) auto; }
+  .smalllot-opening > :nth-child(2) > img { position:static; object-fit:contain; object-position:center bottom; }
+  .smalllot-opening > :nth-child(2) .comic-caption { position:static; margin:0 5px 5px; width:fit-content; max-width:calc(100% - 10px); }
+  .comic-frame .comic-caption { font-size:clamp(12px,2.8vw,17px); }
+}
+@media (max-height:480px) and (min-aspect-ratio:1/1) {
+  .prologue-page { grid-template-rows:auto minmax(0,1fr) auto; }
+  .prologue-top { min-height:28px; }
+  .factory #prologue-skip { min-height:28px; padding-block:2px; }
+  .comic-frame .comic-caption { font-size:12px; }
+}
+@media (prefers-reduced-motion:no-preference) {
+  .comic-frame.new-comic-frame { animation:comic-frame-arrives .22s ease-out both; }
+  @keyframes comic-frame-arrives { from { opacity:0; transform:translateY(3px); } }
+}
+.factory #closing-journal { margin:6px 0 0; max-width:40em; color:#56624e; font-size:13px; line-height:1.5; word-break:keep-all; }

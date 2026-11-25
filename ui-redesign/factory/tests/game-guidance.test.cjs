@@ -43,8 +43,20 @@ test('new sensor keeps all orders passable with two visible measurement decision
 test('first-order guide follows real actions, resumes after reload and is optional',()=>{
  let s=g.create();assert.equal(view.tutorial(s).step,1);s=run(s);assert.equal(view.tutorial(s).step,2);assert.doesNotMatch(view.tutorial(s).copy,/138\.6/);
  assert.equal(view.tutorial(advance(s)),null);
- s=measure(s);assert.equal(view.tutorial(s).step,3);assert.match(view.tutorial(s).copy,/138\.6/);s=advance(g.restore(g.serialize(s)));assert.equal(view.tutorial(s).action,'use-recommendation');assert.equal(view.tutorial(s,{applied:true}).action,'process');
+ s=measure(s);assert.equal(view.tutorial(s).step,3);assert.match(view.tutorial(s).copy,/138\.6/);s=advance(g.restore(g.serialize(s)));assert.equal(view.tutorial(s).action,'duration');assert.equal(view.tutorial(s,{applied:true}).action,'duration');
  assert.equal(view.tutorial(s,{dismissed:true}),null);assert.equal(view.tutorial(g.create(1)),null);assert.equal(view.tutorial(run(s)),null);
+});
+test('a first wafer recalled for metrology keeps its pre-run estimate through calibration and replay',()=>{
+ const input=g.settings({slurry_c_pct:110}), duration=113;
+ const initial=g.createFunded(0,{pad:1},100);
+ const expected=g.estimate(initial,input)*duration/60;
+ let s=act(initial,'run',{input,duration});
+ assert.equal(g.visibleRows(s)[0].removed,null);
+ s=act(advance(s),'measure',{wafer:1});
+ const row=g.visibleRows(g.restore(g.serialize(s)))[0];
+ assert.equal(row.estimatedRemoval,expected);
+ assert.notEqual(row.estimatedRemoval,row.removed);
+ assert.notEqual(row.estimatedRemoval,g.estimate(s,input)*duration/60);
 });
 test('debrief never leaks hidden results and never credits measurement when skipped',()=>{
  let s=run(g.create());assert.equal(view.debrief(s),null);s=finish(s);const text=view.debrief(s).map(x=>x.text).join(' ');assert.match(text,/측정 0회/);assert.match(text,/생략/);assert.doesNotMatch(text,/잘 연결/);
