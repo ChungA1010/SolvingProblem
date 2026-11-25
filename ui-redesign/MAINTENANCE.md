@@ -63,7 +63,7 @@
 node --test "*/tests/*.test.cjs" "tests/*.test.cjs"   # 단위 테스트 전부. 1초쯤 걸린다 (따옴표째로 쓴다)
 node --test "lab-3d/tests/*.test.cjs"                 # 한 부분만: factory, lab-3d, process-lab, lab-sim
 node tools/check-browser.mjs       # 브라우저 검사 전부. 오래 걸린다
-node tools/check-browser.mjs home  # 일부만. 이름: home, game, lab-hover, lab-operate, lab-panels, lab-lot, process-route, process-<공정>, standalone ("lab", "process"처럼 앞부분만 써도 된다)
+node tools/check-browser.mjs home  # 일부만. 이름: home, game, lab-hover, lab-operate, lab-panels, lab-lot, lab-fit, lab-context, process-route, process-<공정>, process-fit, process-context, standalone ("lab", "process"처럼 앞부분만 써도 된다)
 node tools/build-scenes.mjs        # 3D 번들 다시 만들기. 이름(lab-3d, process-lab)을 주면 그것만
 node tools/build-standalone.mjs    # 사이트 전체를 한 파일로: standalone/CMP-Lab.html
 node tools/export-site.mjs         # 올릴 파일만 site/ 폴더에 모으기
@@ -83,6 +83,7 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-3d/` (화면, 계산) | 단위 테스트 → `check-browser lab`. `lab-3d.css`, `process-model.js`, `scene.js`를 고쳤으면 `check-browser process`도 (특히 `process-cmp`) |
 | `process-lab/src/` (8대 공정 실험실의 3D) | `build-scenes process-lab` → 단위 테스트 → `check-browser process`. 첫 화면의 라인은 같은 장비들을 그대로 세운 것이라 따로 다시 만들 것이 없다. 장비의 크기가 달라지면 라인의 자리와 카메라는 저절로 다시 잡힌다 |
 | `process-lab/` (화면, 공정 흐름, 계산) | 단위 테스트 → `check-browser process` |
+| 두 실험실의 배치(`lab-3d.css`, `process-lab.css`, 패널, 부품 카드의 자리, 장면의 틀 잡기) | `check-browser lab-fit` → `check-browser process-fit`. 낮은 창(1280×552)과 전화기 폭에서 스크롤, 겹침, 잘린 카드를 본다 |
 | 홈 화면(`index.html`, `home/`) | `check-browser home` |
 | 게임(`factory/`) | [factory/README.md](factory/README.md)의 개발 및 검증. 파일을 더하거나 옮겼으면 `check-browser game`. 파일 이름을 바꾸거나 지웠으면 단위 테스트가 `index.html`과 `lab-sim/lab-sim.html`의 어긋난 줄을 알려 준다 |
 | 파일을 옮기거나 폴더를 더했다 | 단위 테스트(`tests/site-layout.test.cjs`). 부분이나 화면이 늘면 `tools/site-files.cjs`에 올린다 |
@@ -114,14 +115,18 @@ npm이 없는 PC에서 `build-scenes`를 쓰려면, npm 패키지 `@esbuild/<운
 | `lab-operate` | 웨이퍼 장착, 플래튼, 스핀들, 밸브, 구역 조절기, 컨디셔너, 가압, 휠, 연마, 헤드 올리기, 계측까지 부품을 끌어서 한 장을 처리하기. 끄는 동안의 값 표시, 장비 화면 확대, 비상 정지 |
 | `lab-panels` | 웨이퍼 두 장을 처리하는 동안 공정 계기 띠와 계측 리포트가 제때 열리고 닫히는지, 3D 화면이 자리를 비켜 주는지, 그래프·요인·49점 지도의 마우스 올림 값, 기록 탭 |
 | `lab-lot` | 로트 다섯 장을 끝까지 돌리기: 컨디셔너를 계속 쓰면 패드 수명이 로트 안에서 끝나 경보가 뜨는지, 패드를 바꾼 뒤의 로트 시간, 로트 결과 화면과 안내, 다음 로트, 계측하지 않고 넘긴 웨이퍼 |
+| `lab-fit` | 큰 창, 작은 노트북의 창(1366×633, 1280×552), 전화기 폭에서 학습 실험실이 스크롤하지 않는지, 패널이 겹치지 않는지, 띠와 리포트가 열려도 장비가 남은 자리에 들어오는지, 부품 카드가 잘리지 않는지 |
+| `lab-context` | 그래픽 장치를 끊었다가 돌려주기: 끊긴 동안 화면이 알리는지, 돌아온 뒤 그림이 전과 같은지 |
 | `process-route` | 첫 화면(3D 라인에 여덟 장비가 순서대로, 적은 글자, 장비에 마우스를 올리면 나오는 카드), 장비를 눌러 바로 시작해 끝 화면(웨이퍼 맵, 수율, 공정마다 한 줄)까지, 앞 공정을 같은 웨이퍼로 다시 하기, 제목을 눌러 라인으로 돌아가기 (장비 없이 표준 조건으로) |
 | `process-flow` | 같은 흐름을 장비를 켠 채로: 라인의 장비를 누르면 카메라가 날아가 장비가 열리는지, 이 공정 다시, 표준 조건으로 넘기기, 앞 공정으로 돌아가기, 라인으로 나갔다가 하던 장비로 돌아오기 |
 | `process-<공정>` | 그 공정의 장비: 부품 카드, 실제 마우스 입력으로 한 판을 끝까지 조작해 계측하고 다음 공정으로 넘기기. 지금은 `process-crystal`, `process-oxidation`, `process-photo`, `process-etch`, `process-implant`, `process-plating`, `process-cmp`, `process-eds`, `process-bond` ([PROCESS-LAB.md](process-lab/PROCESS-LAB.md)) |
 | `process-all` | 웨이퍼 한 장을 여덟 장비로 처음부터 끝까지 (마우스 대신 각 장비의 조작 함수로). 장비 사이의 넘겨주기 |
+| `process-fit` | 큰 창과 낮은 창(1280×552), 전화기 폭에서 8대 공정 실험실이 스크롤하지 않는지, 여덟 장비마다 패널 아래에서도 장비가 남은 자리에 들어오는지, 부품 카드(171장)가 잘리지 않는지, 가장 긴 안내 문장이 안내 줄에 들어가는지 |
+| `process-context` | 그래픽 장치를 끊었다가 돌려주기를 첫 화면의 라인과 확산로에서 |
 | `standalone` | 네트워크를 끊고 한 파일을 열어 홈, 실험실, 게임, 8대 공정 실험실 사이를 오가기. 파일 안에 PHM 재생 데이터가 없는지 |
 
 - 3D는 소프트웨어로 그려서 초당 3프레임쯤 나온다(8대 공정 실험실의 첫 화면은 여덟 장비를 한꺼번에 그려 1.5프레임쯤). 동작은 확인하지만 속도와 손맛은 확인하지 못한다. 그것은 실제 그래픽 카드에서 사람이 봐야 한다.
-- 전부 돌리면 한 시간쯤 걸린다(2026-11-25에 `process` 열두 개가 35분). 한 번에 하나씩만 돌린다. 메모리가 모자란 PC에서는 긴 실행이 중간에 끊길 수 있으니 검사 이름을 하나씩 주어 따로 돌리면 앞의 결과가 남는다.
+- 전부 돌리면 한 시간쯤 걸린다(2026-11-25에 `process` 열네 개가 47분, `lab` 여섯 개가 15분). 한 번에 하나씩만 돌린다. 메모리가 모자란 PC에서는 긴 실행이 중간에 끊길 수 있으니 검사 이름을 하나씩 주어 따로 돌리면 앞의 결과가 남는다.
 - 스크린샷은 `evidence/browser-check/`에 남는다. 실패한 줄 아래에는 그때의 값이 찍힌다.
 - 검사는 느린 화면에 맞춰 기다리는 시간을 잡아 두었다. 검사가 도는 동안 PC가 다른 무거운 일을 하면 시간이 어긋나 실패할 수 있다. 그럴 때는 실패한 검사만 다시 돌려 본다.
 - 실험실 화면은 한 프레임에 공정 시간을 0.05초(× 배속)까지만 보낸다. 그래서 느린 화면에서는 공정이 벽시계보다 느리게 간다(초당 3프레임이면 1배속이 실제의 0.15배). 검사에서 공정 시간에 묶인 기다림은 프레임 수로 셈해서 넉넉히 잡는다. 8초짜리 질량 스캔은 160프레임, 곧 1분쯤이다.
